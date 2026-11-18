@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Say It Simply: Cardiovascular &amp; Hematology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f5f0e6; --card:#fffdf8; --ink:#1f2430; --muted:#5d6472; --line:#e3dccd;
+  --red:#b3261e; --accent:#b3261e; --accent-soft:#f6e3e1;
+  --good:#2f7d4f; --good-soft:#e2f1e7; --mid:#b07a12; --mid-soft:#f7ecd4; --rev:#b3261e; --rev-soft:#f6e3e1;
+  --shadow:0 1px 2px rgba(31,36,48,.06),0 8px 24px rgba(31,36,48,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"IBM Plex Sans",system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:16px;line-height:1.5}
+button{font:inherit;cursor:pointer}
+header{padding:22px 28px 0;max-width:1240px;margin:0 auto}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:600}
+h1{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:clamp(26px,3.4vw,38px);margin:2px 0 4px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0;max-width:62ch}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;font-weight:500;font-size:14px}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:hover{background:#000}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--card);padding:3px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:999px;font-size:14px;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--ink);color:#fff}
+.progress{margin-top:16px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted)}
+.bar{flex:1;height:8px;background:#e9e2d3;border-radius:99px;overflow:hidden;display:flex}
+.bar span{display:block;height:100%;transition:width .3s}
+.tabs{display:flex;gap:6px;margin-top:18px;overflow-x:auto;padding-bottom:2px;border-bottom:1px solid var(--line)}
+.tab{border:0;background:none;padding:10px 14px;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;font-size:15px}
+.tab .n{font-family:Fraunces,serif;font-weight:700;margin-right:6px}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent)}
+main{max-width:1240px;margin:0 auto;padding:22px 28px 60px;display:grid;grid-template-columns:290px 1fr;gap:24px}
+.rail{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;align-self:start;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
+.grp{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:12px 8px 4px}
+.grp:first-child{margin-top:4px}
+.item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:none;padding:7px 8px;border-radius:8px;font-size:14px;color:var(--ink)}
+.item:hover{background:#f3eee3}
+.item.on{background:var(--accent-soft);font-weight:600}
+.dot{width:10px;height:10px;border-radius:50%;border:1.5px solid #c9c0ad;flex:none}
+.dot.typed{background:#d8d0bf;border-color:#d8d0bf}
+.dot.good{background:var(--good);border-color:var(--good)}
+.dot.mid{background:var(--mid);border-color:var(--mid)}
+.dot.rev{background:var(--rev);border-color:var(--rev)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);padding:10px 8px 2px;border-top:1px solid var(--line);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+
+.cardwrap{min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.card-head{padding:22px 28px 14px;border-top:6px solid var(--accent);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.where{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.term{font-family:Fraunces,Georgia,serif;font-size:clamp(28px,3.6vw,42px);font-weight:700;line-height:1.1;margin:6px 0 0}
+.count{font-size:13px;color:var(--muted);white-space:nowrap;padding-top:4px}
+.card-body{padding:4px 28px 24px}
+label.prompt{display:block;font-weight:600;margin:6px 0 8px}
+label.prompt small{font-weight:400;color:var(--muted)}
+textarea{width:100%;min-height:108px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:8px 14px;
+  font-family:Caveat,"Comic Sans MS",cursive;font-size:25px;line-height:32px;color:#21346b;
+  background:#fffef9 repeating-linear-gradient(transparent 0 31px,#d9e3f0 31px 32px);background-position:0 8px;
+  background-attachment:local;outline:none}
+textarea:focus{border-color:var(--ink)}
+textarea[readonly]{background-color:#fbf8f0}
+.sentcount{font-size:13px;color:var(--muted);margin-top:6px;min-height:18px}
+.sentcount.ok{color:var(--good)}
+.sentcount.over{color:var(--rev);font-weight:600}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.hintline{font-size:14px;color:var(--muted);margin-top:10px;min-height:1px}
+.hintline b{color:var(--ink)}
+.kbd{font-size:12px;color:var(--muted);margin-left:auto}
+.reveal{display:none;margin-top:20px;border-top:1px dashed var(--line);padding-top:18px;animation:up .35s ease}
+.reveal.show{display:block}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.deflabel{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.def{font-size:19px;line-height:1.55;margin:6px 0 16px;padding:14px 18px;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 10px 10px 0}
+.keys{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:14px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+.chip.hit{background:var(--good-soft);border-color:#b9dcc6;color:#1d5a37;font-weight:500}
+.chip .ic{font-weight:700}
+.keynote{font-size:13px;color:var(--muted);margin:2px 0 16px}
+.rate{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rate .q{font-weight:600;margin-right:4px}
+.rbtn{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font-weight:600;font-size:14px}
+.rbtn.good.on,.rbtn.good:hover{border-color:var(--good);background:var(--good-soft);color:#1d5a37}
+.rbtn.mid.on,.rbtn.mid:hover{border-color:var(--mid);background:var(--mid-soft);color:#7a540b}
+.rbtn.rev.on,.rbtn.rev:hover{border-color:var(--rev);background:var(--rev-soft);color:#8a1d17}
+.briefbtn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--accent);color:var(--accent);background:#fff;border-radius:10px;padding:8px 14px;font-weight:600;font-size:14px;margin:0 0 14px}
+.briefbtn:hover{background:var(--accent-soft)}
+.briefbtn .chev{transition:transform .2s}
+.briefbtn.open .chev{transform:rotate(90deg)}
+.brief{display:none;border:1px solid var(--line);border-radius:12px;background:#fff;margin:0 0 18px;overflow:hidden;animation:up .3s ease}
+.brief.show{display:block}
+.brief-h{padding:10px 16px;background:var(--accent-soft);font-family:Fraunces,serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;align-items:center}
+.brief-h small{font-family:"IBM Plex Sans",sans-serif;font-weight:500;font-size:12px;color:var(--muted)}
+.brow{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:11px 16px;border-top:1px solid var(--line);font-size:15.5px}
+.brow b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding-top:2px}
+.kb{margin-top:8px;font-size:14px}
+.kb summary{cursor:pointer;color:var(--accent);font-weight:600}
+.kb .brow{grid-template-columns:130px 1fr;padding:6px 0;font-size:14px;border-top:1px dashed var(--line)}
+@media (max-width:860px){.brow{grid-template-columns:1fr;gap:2px}}
+.nav{display:flex;justify-content:space-between;margin-top:16px;gap:10px}
+
+/* key view */
+.keyview{display:none}
+.keyview.show{display:block}
+.keytable{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.krow{display:grid;grid-template-columns:230px 1fr;gap:18px;padding:14px 20px;border-top:1px solid var(--line)}
+.krow:first-child{border-top:0}
+.krow.grouphead{background:#f3eee3;padding:10px 20px;display:block;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--accent)}
+.krow .kt{font-family:Fraunces,serif;font-weight:700;font-size:18px}
+.krow .kd{font-size:16px}
+.blur .kd{filter:blur(6px);cursor:pointer;transition:filter .2s;user-select:none}
+.blur .kd.open{filter:none;user-select:auto}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(20,22,28,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:20;overflow:auto}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:16px;max-width:760px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);padding:24px 26px}
+.modal h2{font-family:Fraunces,serif;margin:0 0 4px;font-size:26px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-family:Fraunces,serif;font-size:26px}
+.stat span{font-size:12px;color:var(--muted)}
+.rlist{margin:6px 0 0;padding:0;list-style:none}
+.rlist li{padding:10px 0;border-top:1px solid var(--line)}
+.rlist .rt{font-weight:600}
+.rlist .ru{font-size:12px;color:var(--muted)}
+.rlist .rd{font-size:15px;margin-top:2px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+.toast.show{opacity:1}
+.empty{color:var(--muted);font-style:italic}
+
+@media (max-width:860px){
+  main{grid-template-columns:1fr;padding:16px}
+  header{padding:18px 16px 0}
+  .rail{position:static;max-height:none;display:flex;gap:6px;overflow-x:auto;padding:8px}
+  .rail .grp,.rail .legend{display:none}
+  .item{white-space:nowrap;width:auto;border:1px solid var(--line)}
+  .krow{grid-template-columns:1fr;gap:4px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .card-head,.card-body{padding-left:18px;padding-right:18px}
+  .kbd{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <div class="eyebrow">Cardiovascular &amp; Hematology</div>
+      <h1>Say It Simply</h1>
+      <p class="sub">Write a one-sentence definition in your own words, then check it. Stuck? Click "I'm not sure" to go straight to a brief description. Key ideas you included light up green. Rate yourself honestly. Your "Review" list builds as you go.</p>
+    </div>
+    <div class="tools">
+      <div class="seg" role="tablist" aria-label="View">
+        <button id="vPractice" class="on">Practice</button>
+        <button id="vKey">Answer key</button>
+      </div>
+      <button class="btn" id="openReview">My results</button>
+    </div>
+  </div>
+  <div class="progress">
+    <span id="progText">0 of 0 checked</span>
+    <div class="bar" aria-hidden="true"><span id="pGood" style="background:var(--good)"></span><span id="pMid" style="background:var(--mid)"></span><span id="pRev" style="background:var(--rev)"></span></div>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+
+<main id="practice">
+  <aside class="rail" id="rail"></aside>
+  <section class="cardwrap">
+    <article class="card">
+      <div class="card-head">
+        <div>
+          <div class="where" id="where"></div>
+          <h2 class="term" id="term"></h2>
+        </div>
+        <div class="count" id="count"></div>
+      </div>
+      <div class="card-body">
+        <label class="prompt" for="answer">Your simple definition <small>(one sentence only, like you'd explain it to a patient or classmate)</small></label>
+        <textarea id="answer" placeholder="In one sentence, in my own words…"></textarea>
+        <div class="sentcount" id="sentcount"></div>
+        <div class="actions" id="preActions">
+          <button class="btn primary" id="check">Check my definition</button>
+          <button class="btn" id="hint">Hint</button>
+          <button class="btn" id="skip">I'm not sure</button>
+          <span class="kbd">Ctrl + Enter to check</span>
+        </div>
+        <div class="hintline" id="hintline"></div>
+        <div class="reveal" id="reveal">
+          <div class="deflabel">Simple definition</div>
+          <p class="def" id="def"></p>
+          <div class="deflabel">Key ideas to look for</div>
+          <div class="keys" id="keys"></div>
+          <p class="keynote" id="keynote"></p>
+          <button class="briefbtn" id="briefBtn"><span class="chev">▸</span> <span id="briefLbl">Read the brief description</span></button>
+          <div class="brief" id="brief"></div>
+          <div class="rate">
+            <span class="q">How did you do?</span>
+            <button class="rbtn good" data-r="good">✓ Nailed it</button>
+            <button class="rbtn mid" data-r="mid">≈ Partly there</button>
+            <button class="rbtn rev" data-r="rev">↺ Review this</button>
+            <button class="btn" id="retry" style="margin-left:auto">Try again</button>
+          </div>
+        </div>
+        <div class="nav">
+          <button class="btn" id="prev">← Previous</button>
+          <button class="btn accent" id="next">Next term →</button>
+        </div>
+      </div>
+    </article>
+  </section>
+</main>
+
+<section class="keyview" id="keyview">
+  <div style="max-width:1240px;margin:0 auto;padding:22px 28px 60px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+      <p class="sub" style="margin:0" id="keyIntro"></p>
+      <div class="seg"><button id="kHide" class="on">Hidden (click to reveal)</button><button id="kShow">Show all</button></div>
+    </div>
+    <div class="keytable blur" id="keytable"></div>
+  </div>
+</section>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div><h2 id="mTitle">My results</h2><p class="sub" style="margin:0">All units. Terms marked "Review this" are listed below with their simple definitions.</p></div>
+      <button class="btn" id="closeM">Close</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sGood">0</b><span>Nailed it</span></div>
+      <div class="stat"><b id="sMid">0</b><span>Partly there</span></div>
+      <div class="stat"><b id="sRev">0</b><span>Review this</span></div>
+      <div class="stat"><b id="sLeft">0</b><span>Not checked yet</span></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+      <button class="btn primary" id="copyAll">Copy all my answers</button>
+      <button class="btn" id="copyRev">Copy review list</button>
+      <button class="btn" id="resetAll" style="margin-left:auto">Start over</button>
+    </div>
+    <ul class="rlist" id="rlist"></ul>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- CONTENT ----------
+   k = key ideas: [label, [match stems]]. A stem ending in "!" must match a whole word. */
+const UNITS = [
+ {n:1, name:"Cardiac Foundations", color:"#b3261e", soft:"#f6e3e1", groups:[
+  {g:"The Mechanical Heart: Parts", terms:[
+   {t:"Pericardium", d:"The two-layer sac around the heart that protects it and holds a little fluid so the heart can beat without friction.",
+    k:[["Sac / covering",["sac","cover","surround","around the heart","encas"]],["Protects",["protect","shield"]],["Fluid reduces friction",["fluid","friction","lubric"]]]},
+   {t:"Myocardium", d:"The thick middle layer of the heart wall, made of cardiac muscle that contracts to pump blood.",
+    k:[["Muscle",["muscle","muscular"]],["Middle layer of wall",["middle","layer","wall"]],["Contracts / pumps",["contract","pump","squeez"]]]},
+   {t:"Endocardium", d:"The thin, smooth inner lining of the heart's chambers and valves.",
+    k:[["Inner lining",["inner","inside","lining","lines"]],["Chambers & valves",["chamber","valve"]]]},
+   {t:"Superior & inferior vena cava", d:"The two large veins that bring deoxygenated blood from the body back into the right atrium.",
+    k:[["Large veins",["vein"]],["Deoxygenated blood",["deoxy","unoxy","oxygen-poor","oxygen poor","low oxygen","low o2","poor"]],["Into the right atrium",["right atri","ra!"]]]},
+   {t:"Right atrium", d:"The upper right chamber that receives deoxygenated blood from the body through the vena cavae.",
+    k:[["Upper chamber that receives",["receiv","collect","upper","top","holding","fills"]],["Deoxygenated blood",["deoxy","unoxy","oxygen-poor","oxygen poor","low oxygen","poor"]],["From the body",["body","vena cava","systemic"]]]},
+   {t:"Tricuspid valve", d:"The valve between the right atrium and right ventricle that closes to keep blood from flowing back into the atrium.",
+    k:[["Between RA and RV",["right atri","right ventric","between","ra!","rv!"]],["Prevents backflow",["backflow","back flow","backward","flow back","one-way","one way","prevent","regurg"]]]},
+   {t:"Right ventricle", d:"The lower right chamber that pumps deoxygenated blood to the lungs through the pulmonary artery.",
+    k:[["Pumps",["pump","push","send","eject","contract"]],["To the lungs",["lung","pulmonary"]]]},
+   {t:"Pulmonic valve", d:"The valve between the right ventricle and the pulmonary artery that opens to send blood to the lungs and closes to stop backflow.",
+    k:[["Between RV and pulmonary artery",["pulmonary arter","right ventric","rv!","between"]],["Prevents backflow",["backflow","back flow","backward","flow back","one-way","one way","prevent","regurg"]]]},
+   {t:"Pulmonary arteries", d:"The only arteries that carry deoxygenated blood, taking it from the right ventricle to the lungs to pick up oxygen.",
+    k:[["Deoxygenated blood",["deoxy","unoxy","oxygen-poor","oxygen poor","low oxygen","poor"]],["To the lungs",["lung"]]]},
+   {t:"Pulmonary veins", d:"Carry freshly oxygenated blood from the lungs back to the left atrium.",
+    k:[["Oxygenated blood",["oxygenated","oxygen-rich","oxygen rich","rich","high oxygen","fresh"]],["From the lungs",["lung"]],["To the left atrium",["left atri","la!"]]]},
+   {t:"Left atrium", d:"The upper left chamber that receives oxygenated blood from the lungs through the pulmonary veins.",
+    k:[["Upper chamber that receives",["receiv","collect","upper","top","fills"]],["Oxygenated blood",["oxygenated","oxygen-rich","oxygen rich","rich","high oxygen"]],["From the lungs",["lung","pulmonary vein"]]]},
+   {t:"Mitral (bicuspid) valve", d:"The valve between the left atrium and left ventricle that closes to keep blood from flowing back into the atrium.",
+    k:[["Between LA and LV",["left atri","left ventric","between","la!","lv!"]],["Prevents backflow",["backflow","back flow","backward","flow back","one-way","one way","prevent","regurg"]]]},
+   {t:"Left ventricle", d:"The lower left chamber with the thickest, strongest wall, which pumps oxygenated blood to the whole body through the aorta.",
+    k:[["Thickest / strongest",["thick","strong","muscular","biggest","largest"]],["Pumps to the body",["body","systemic","whole"]],["Through the aorta",["aorta"]]]},
+   {t:"Aortic valve", d:"The valve between the left ventricle and the aorta that opens to let blood out to the body and closes to prevent backflow.",
+    k:[["Between LV and aorta",["aorta","left ventric","lv!","between"]],["Prevents backflow",["backflow","back flow","backward","flow back","one-way","one way","prevent","regurg"]]]},
+   {t:"Aorta", d:"The body's largest artery, which carries oxygenated blood from the left ventricle out to the rest of the body.",
+    k:[["Largest artery",["largest","biggest","main","major","artery"]],["Oxygenated blood",["oxygenated","oxygen-rich","oxygen rich","rich"]],["From LV to the body",["left ventric","lv!","body"]]]},
+   {t:"Septum", d:"The muscular wall that divides the right and left sides of the heart so oxygen-poor and oxygen-rich blood don't mix.",
+    k:[["Wall that divides",["wall","divid","separat","split"]],["Right and left sides",["right","left","side"]],["Blood doesn't mix",["mix"]]]},
+   {t:"Chordae tendineae & papillary muscles", d:"String-like cords (chordae tendineae) attached to small muscles (papillary muscles) that anchor the tricuspid and mitral valve flaps so they don't flip backward when the ventricles contract.",
+    k:[["Anchor / hold the valves",["anchor","hold","attach","tether","string","cord"]],["Tricuspid & mitral (AV) valve flaps",["valve","leaflet","flap","cusp","tricuspid","mitral"]],["Keep flaps from flipping back",["flip","invert","prolapse","backward","backflow","inside out","evert"]]]},
+   {t:"Coronary arteries", d:"Arteries on the heart's surface that supply the heart muscle itself with oxygenated blood, filling mainly during diastole (relaxation).",
+    k:[["Supply the heart muscle",["heart muscle","myocard","heart itself","the heart","feed","suppl","perfus"]],["Oxygenated blood",["oxygen","o2!"]],["Fill during diastole",["diastole","relax"]]]}
+  ]},
+  {g:"Cardiac Electrophysiology", terms:[
+   {t:"Automaticity", d:"The ability of special cardiac cells to start an electrical impulse on their own, without a signal from the brain or nerves.",
+    k:[["Starts its own impulse",["own","itself","self","spontaneous","automatic","generate","initiat"]],["Electrical impulse",["impulse","electric","signal","beat"]]]},
+   {t:"SA (sinoatrial) node", d:"The heart's natural pacemaker in the right atrium, which normally fires 60–100 times a minute to start each heartbeat.",
+    k:[["Natural pacemaker",["pacemaker","pace maker","start","initiat"]],["In the right atrium",["right atri","atrium","ra!"]],["60–100 per minute",["60"]]]},
+   {t:"AV (atrioventricular) node", d:"The gatekeeper between the atria and ventricles that briefly delays the impulse so the atria can finish emptying, and acts as a backup pacemaker at 40–60 per minute.",
+    k:[["Delays the impulse",["delay","slow","pause","hold","gate"]],["Between atria and ventricles",["between","atria","ventric"]],["Backup pacemaker 40–60",["40","backup","back up","back-up"]]]},
+   {t:"Bundle of His", d:"Carries the impulse from the AV node down into the septum, toward the ventricles.",
+    k:[["From the AV node",["av node","av!","node"]],["Into the septum / toward ventricles",["septum","ventric","down"]]]},
+   {t:"Right & left bundle branches", d:"Split the impulse down the right and left sides of the septum so it reaches each ventricle.",
+    k:[["Split / divide the impulse",["split","divid","branch","two"]],["Right and left ventricles",["right","left","ventric","each"]]]},
+   {t:"Purkinje fibers", d:"Fibers spread through the ventricle walls that deliver the impulse so the ventricles contract together, and act as a backup pacemaker at 20–40 per minute.",
+    k:[["Spread through ventricle walls",["ventric","wall","spread","throughout","distribut"]],["Ventricles contract",["contract","squeez","pump"]],["Backup 20–40",["20","backup","back up","back-up"]]]},
+   {t:"Depolarization", d:"Electrical activation of a cardiac cell, when positive ions (mainly sodium) rush in and cause the muscle to contract.",
+    k:[["Electrical activation",["activat","electric","stimulat","fire","firing","impulse"]],["Sodium / positive ions in",["sodium","na!","na+","positive"]],["Leads to contraction",["contract","squeez"]]]},
+   {t:"Repolarization", d:"The recovery phase, when potassium moves out and the cell returns to its resting state so the muscle relaxes and can fire again.",
+    k:[["Recovery / return to rest",["recover","reset","rest","return","back to"]],["Potassium moves out",["potassium","k!","k+"]],["Relaxes / ready to fire again",["relax","ready","again"]]]},
+   {t:"Refractory period", d:"The time right after a cell fires when it can't respond to another impulse, which protects the heart from beating too fast or out of rhythm.",
+    k:[["Can't respond / fire again",["can't","cannot","cant","unable","won't","not respond","not fire"]],["Right after firing",["after","recover","rest"]],["Protects the rhythm",["protect","too fast","rhythm","prevent"]]]},
+   {t:"P wave", d:"Atrial depolarization, the atria firing just before they contract.",
+    k:[["Atria",["atri"]],["Depolarization",["depolar","fir","contract","activat"]]]},
+   {t:"PR interval", d:"The time (normally 0.12–0.20 seconds) it takes the impulse to travel from the atria through the AV node to the ventricles.",
+    k:[["Atria → AV node → ventricles",["av node","atri","ventric","travel"]],["Time / delay",["time","delay","interval","how long"]],["0.12–0.20 sec",["0.12",".12","0.20",".20","0.2!",".2!"]]]},
+   {t:"QRS complex", d:"Ventricular depolarization, the ventricles firing before they contract, normally lasting less than 0.12 seconds.",
+    k:[["Ventricles",["ventric"]],["Depolarization",["depolar","fir","contract","activat"]],["Less than 0.12 sec",["0.12",".12","0.06",".06","0.10",".10"]]]},
+   {t:"T wave", d:"Ventricular repolarization, the ventricles recovering and resetting before the next beat.",
+    k:[["Ventricles",["ventric"]],["Repolarization / recovery",["repolar","recover","reset","rest","relax"]]]}
+  ]},
+  {g:"Cardiac Injury Panel", terms:[
+   {t:"Cardiac injury panel", d:"Blood tests, drawn several times in a row, that measure proteins released when heart muscle cells are damaged to diagnose or rule out an MI.",
+    k:[["Blood tests",["blood","lab","test","serum"]],["Released when heart muscle is damaged",["damage","injur","death","die","releas","leak"]],["Used for MI / drawn serially",["mi!","infarct","heart attack","serial","repeat","several"]]]},
+   {t:"Troponin (I & T)", d:"The most specific marker of heart muscle damage, which rises within a few hours of injury and can stay elevated for about 2 weeks.",
+    k:[["Most specific for heart damage",["specific","heart","cardiac","gold standard","best"]],["Rises within hours",["hour","rise","early"]],["Stays elevated ~2 weeks",["week","days","10","14","long"]]]},
+   {t:"CK-MB", d:"A heart muscle enzyme that rises within hours of damage and returns to normal in 2–3 days, so a new rise can signal a reinfarction.",
+    k:[["Enzyme from heart muscle",["enzyme","heart","cardiac","muscle"]],["Back to normal in 2–3 days",["2","3","days","quick","short","normal"]],["Detects reinfarction",["reinfarct","new","another","second"]]]},
+   {t:"Myoglobin", d:"A muscle protein that is the earliest marker to rise (1–3 hours) after injury but is not specific to the heart.",
+    k:[["Earliest to rise",["earl","first","fast","quick","1"]],["Not specific to the heart",["not specific","nonspecific","non-specific","skeletal","any muscle","also"]]]}
+  ]},
+  {g:"Other Cardiac Labs", terms:[
+   {t:"BNP (B-type natriuretic peptide)", d:"A hormone released when the ventricles are stretched by too much volume or pressure, with high levels pointing to heart failure.",
+    k:[["Released when ventricles stretch",["stretch","volume","pressure","overload","ventric"]],["Hormone",["hormone","peptide"]],["Heart failure",["heart failure","hf!","chf!","failure"]]]}
+  ]}
+ ]},
+ {n:2, name:"Cardiac Conditions", color:"#8a3b6e", soft:"#f3e4ee", groups:[{g:"Cardiac Conditions", terms:[
+   {t:"Heart failure", d:"A condition where the heart can't pump enough blood to meet the body's needs, so fluid backs up into the lungs (left-sided) or the body (right-sided).",
+    k:[["Can't pump enough",["can't pump","cannot pump","not pump","weak","enough","fail","ineffective","insufficient"]],["Body's needs not met",["needs","demand","body"]],["Fluid backs up (lungs or body)",["back","lung","fluid","congest","edema","jvd"]]]},
+   {t:"Pericarditis", d:"Inflammation of the pericardium (the sac around the heart) that causes sharp chest pain, worse lying down and better leaning forward, often with a friction rub.",
+    k:[["Inflammation",["inflam","itis"]],["Of the pericardium / sac",["pericard","sac","lining","around the heart"]],["Sharp pain, better leaning forward",["lean","forward","sit","sharp","friction","rub"]]]},
+   {t:"Infective endocarditis", d:"An infection, usually bacterial, of the heart's inner lining and valves that forms clumps (vegetations) that can break off as emboli.",
+    k:[["Infection",["infect","bacteri"]],["Inner lining / valves",["inner","lining","endocard","valve"]],["Vegetations / emboli",["vegetat","emboli","clump","break off"]]]},
+   {t:"Pericardial effusion", d:"Extra fluid collecting in the pericardial sac around the heart.",
+    k:[["Fluid buildup",["fluid","collect","build","accumul"]],["In the pericardial sac",["pericard","sac","around the heart"]]]},
+   {t:"Cardiac tamponade", d:"An emergency where fluid or blood in the pericardial sac squeezes the heart so it can't fill, causing Beck's triad of low BP, JVD, and muffled heart sounds.",
+    k:[["Fluid/blood compresses the heart",["squeez","compress","pressure","press","fluid","blood"]],["Heart can't fill / low output",["fill","output","pump"]],["Beck's triad",["beck","muffled","jvd","hypotens","low bp","distant"]]]},
+   {t:"Cardiomyopathy", d:"A disease of the heart muscle itself that makes it enlarged and weak (dilated), thick (hypertrophic), or stiff (restrictive), so it pumps poorly.",
+    k:[["Heart muscle disease",["muscle","myocard"]],["Dilated / hypertrophic / restrictive",["dilat","hypertroph","restrict","thick","stiff","enlarg","weak"]],["Pumps poorly",["pump","output","function","fail"]]]}
+  ]},
+  {g:"Valvular Dysfunction", terms:[
+   {t:"Aortic stenosis", d:"A narrowed, stiff aortic valve that doesn't open fully, so the left ventricle has to push harder to get blood out to the body.",
+    k:[["Narrowed / won't open fully",["narrow","stiff","stenos","tight","small","open"]],["Aortic valve",["aort"]],["LV works harder",["harder","work","push","pressure","strain","left ventric","lv!"]]]},
+   {t:"Mitral stenosis", d:"A narrowed, stiff mitral valve that doesn't open fully, so blood has trouble moving from the left atrium into the left ventricle.",
+    k:[["Narrowed / won't open fully",["narrow","stiff","stenos","tight","small","open"]],["Mitral valve",["mitral"]],["Hard for blood to go LA → LV",["left atri","la!","left ventric","lv!","fill","flow"]]]},
+   {t:"Aortic regurgitation", d:"A leaky aortic valve that doesn't close fully, so blood flows back from the aorta into the left ventricle.",
+    k:[["Leaks / doesn't close",["leak","close","regurg","insufficien"]],["Aortic valve",["aort"]],["Blood flows back into the LV",["back","left ventric","lv!","ventric"]]]},
+   {t:"Mitral regurgitation", d:"A leaky mitral valve that doesn't close fully, so blood flows back into the left atrium every time the left ventricle contracts.",
+    k:[["Leaks / doesn't close",["leak","close","regurg","insufficien"]],["Mitral valve",["mitral"]],["Blood flows back into the LA",["back","left atri","la!","atri"]]]},
+   {t:"Mitral valve prolapse", d:"Floppy mitral valve leaflets that bulge backward into the left atrium when the ventricle contracts, sometimes letting a little blood leak back.",
+    k:[["Floppy leaflets bulge",["flopp","bulg","prolaps","balloon","flip","bow","loose"]],["Mitral valve",["mitral"]],["Into the LA / may leak",["left atri","la!","atri","leak","back"]]]}
+  ]},
+  {g:"Shock", terms:[
+   {t:"Cardiogenic shock", d:"Shock caused by the heart failing as a pump, most often after a large MI, so it can't send enough blood to the tissues.",
+    k:[["Heart fails as a pump",["pump","heart fail","weak","heart"]],["Often after an MI",["mi!","infarct","heart attack"]],["Not enough blood to tissues",["tissue","perfus","output","organ","body","not enough"]]]},
+   {t:"Septic shock", d:"A type of distributive shock in which the body's overwhelming response to infection dilates and leaks the blood vessels, dropping blood pressure.",
+    k:[["Infection",["infect","sepsis","septic","bacteri"]],["Vessels dilate / leak",["dilat","widen","leak","vasodilat","permeab"]],["BP drops",["bp!","blood pressure","hypotens","pressure","drop"]],["A type of distributive shock",["distributive"]]]},
+   {t:"Hypovolemic shock", d:"Shock caused by losing too much blood or body fluid, so there isn't enough volume left to circulate.",
+    k:[["Loss of blood or fluid",["loss","lose","lost","losing","bleed","hemorrh","dehydrat","fluid","blood"]],["Not enough volume",["volume","not enough","low","hypovol"]]]},
+   {t:"Obstructive shock", d:"Shock caused by something physically blocking blood flow into or out of the heart, such as cardiac tamponade, tension pneumothorax, or a massive PE.",
+    k:[["Something blocks flow",["block","obstruct","compress","prevent"]],["Into/out of the heart",["heart","flow"]],["Tamponade / tension pneumo / PE",["tamponade","pneumo","pe!","embol"]]]},
+   {t:"Distributive shock", d:"Shock caused by blood vessels dilating so widely that blood pools in the periphery and blood pressure drops, even though total blood volume is normal.",
+    k:[["Vessels dilate",["dilat","widen","vasodilat","relax"]],["Blood pools / is misplaced",["pool","periph","distribut","shift"]],["BP drops with normal volume",["bp!","blood pressure","hypotens","pressure","drop","normal volume"]]]}
+ ]}]},
+ {n:3, name:"Acute Coronary Conditions", color:"#a5481a", soft:"#f6e6dc", groups:[{g:"Acute Coronary Conditions", terms:[
+   {t:"Coronary artery disease (CAD)", d:"Plaque builds up and narrows the coronary arteries, reducing blood flow to the heart muscle.",
+    k:[["Plaque / narrowing",["plaque","narrow","block","atheroscl","buildup","build up"]],["Coronary arteries",["coronary","artery","arteries"]],["Less blood to heart muscle",["heart","myocard","blood flow","oxygen"]]]},
+   {t:"Stable angina", d:"Predictable chest pain brought on by exertion or stress and relieved by rest or nitroglycerin.",
+    k:[["Chest pain",["chest","pain","pressure"]],["Triggered by exertion / predictable",["exert","activity","exercis","stress","predict"]],["Relieved by rest or nitro",["rest","nitro","ntg"]]]},
+   {t:"Unstable angina", d:"Chest pain that is new, worsening, or happens at rest, isn't relieved by rest, and is an emergency that can lead to an MI.",
+    k:[["New, worsening, or at rest",["rest","new","wors","unpredict"]],["Not relieved by rest",["not relieved","unrelieved","doesn't go","does not go","not go away","not relieve"]],["Emergency / can lead to MI",["emergen","mi!","infarct","heart attack"]]]},
+   {t:"Myocardial infarction (MI)", d:"Death of heart muscle caused by a blocked coronary artery cutting off its oxygen, shown by a rise in troponin.",
+    k:[["Blocked coronary artery",["block","occlu","clot","coronary"]],["No oxygen to heart muscle",["oxygen","blood","ischem"]],["Heart muscle dies",["die","death","dead","necro","damage"]],["Troponin elevated",["troponin"]]]}
+ ]}]},
+ {n:4, name:"Vascular Conditions", color:"#1d6f7a", soft:"#dff0f1", groups:[{g:"Vascular Conditions", terms:[
+   {t:"Arteriosclerosis", d:"General hardening and loss of stretch (elasticity) in artery walls, often with aging.",
+    k:[["Hardening / stiffening",["harden","stiff","rigid","hard"]],["Arteries",["arter"]],["Loss of elasticity",["elastic","stretch","flexib"]]]},
+   {t:"Atherosclerosis", d:"A type of arteriosclerosis in which fatty plaque builds up inside artery walls and narrows them.",
+    k:[["Fatty plaque",["plaque","fat","cholesterol","lipid"]],["Narrows the artery",["narrow","block","build","clog"]],["Inside artery walls",["arter","wall"]]]},
+   {t:"Hypertension", d:"Blood pressure that stays at 130/80 or higher over time, making the heart work harder and damaging vessels and organs.",
+    k:[["Persistently high BP",["high","elevat","bp!","blood pressure","pressure"]],["130/80 or higher",["130","80","140","90"]],["Strains heart / damages organs",["damage","work","organ","harder","strain","kidney","stroke"]]]},
+   {t:"Hypertensive crisis", d:"A sudden, severe rise in blood pressure to 180/120 or higher, which is an emergency if organ damage is present.",
+    k:[["Severe, sudden BP rise",["severe","sudden","very high","extreme","dangerous"]],["180/120 or higher",["180","120"]],["Organ damage = emergency",["organ","emergen","damage","urgen"]]]},
+   {t:"Peripheral arterial disease (PAD)", d:"Narrowed arteries that reduce blood flow to the legs, causing pain with walking (claudication), cool, pale, hairless skin, and weak pulses.",
+    k:[["Narrowed arteries, less flow",["arter","narrow","blood flow","less","reduc"]],["Legs / extremities",["leg","extremit","feet","foot","limb"]],["Claudication / weak pulses / cool pale skin",["claudic","walk","pulse","cool","cold","pale","hair"]]]},
+   {t:"Peripheral venous disease", d:"Leg veins that can't return blood well to the heart, so blood pools and causes swelling, brownish skin, varicose veins, and ankle ulcers.",
+    k:[["Veins can't return blood",["vein","venous","return"]],["Blood pools",["pool","back up","collect","stasis"]],["Edema / brown skin / ulcers",["swell","edema","brown","discolor","varicos","ulcer"]]]},
+   {t:"Abdominal aortic aneurysm (AAA)", d:"A weakened, ballooning section of the aorta in the abdomen that may be felt as a pulsating mass and can rupture.",
+    k:[["Weakened bulge / balloon",["bulg","balloon","weak","dilat","enlarg"]],["Aorta in the abdomen",["aorta","abdom"]],["Pulsating mass / risk of rupture",["pulsat","rupture","burst","throb"]]]},
+   {t:"Aortic dissection", d:"An emergency where a tear in the aorta's inner layer lets blood push between the layers of the wall, causing sudden, severe tearing pain.",
+    k:[["Tear in the aortic wall",["tear","rip","split"]],["Blood between the layers",["layer","between","wall"]],["Sudden severe tearing pain",["sudden","severe","tearing","ripping","pain","emergen"]]]}
+ ]}]},
+ {n:5, name:"Hematology", color:"#5b3fa0", soft:"#ebe5f6", groups:[{g:"Hematology", terms:[
+   {t:"Venous thromboembolism (VTE)", d:"A blood clot in a vein, the umbrella term that includes deep vein thrombosis (DVT) and pulmonary embolism (PE).",
+    k:[["Blood clot",["clot","thromb"]],["In a vein",["vein","venous"]],["Includes DVT and PE",["dvt","pe!","pulmonary","deep vein"]]]},
+   {t:"Deep vein thrombosis (DVT)", d:"A clot in a deep vein, usually in the leg, that causes one-sided swelling, warmth, and pain and can travel to the lungs (PE).",
+    k:[["Clot in a deep vein",["clot","thromb","deep vein"]],["Usually the leg",["leg","calf","thigh","lower extrem"]],["Swelling/warmth on one side",["swell","warm","one side","unilateral","red","pain"]],["Can cause PE",["pe!","lung","pulmonary","embol","travel","break"]]]},
+   {t:"Iron deficiency anemia", d:"Too little iron to make hemoglobin, so red blood cells are small and pale and carry less oxygen, causing fatigue and pallor.",
+    k:[["Low iron",["iron","fe!"]],["Less hemoglobin / small, pale RBCs",["hemoglobin","hgb","small","pale","microcyt","hypochrom","red blood"]],["Less oxygen → fatigue",["oxygen","fatigue","tired","pallor"]]]},
+   {t:"Vitamin deficiency anemia", d:"Low vitamin B12 or folate that leads to large, immature red blood cells, with B12 deficiency also causing nerve problems like numbness and tingling.",
+    k:[["B12 or folate",["b12","b-12","folate","folic"]],["Large, immature RBCs",["large","big","immature","megalo","macrocyt"]],["B12: nerve symptoms",["nerve","neuro","numb","tingl","pernicious","intrinsic"]]]},
+   {t:"Sickle cell anemia", d:"An inherited disorder where abnormal hemoglobin makes red blood cells sickle-shaped, so they block small vessels (pain crises) and break down early.",
+    k:[["Inherited / genetic",["inherit","genetic","gene","born"]],["Sickle-shaped RBCs",["sickle","crescent","shape","hemoglobin s","hbs"]],["Block vessels → pain crisis",["block","clog","stuck","pain","crisis","occlu"]]]},
+   {t:"Disseminated intravascular coagulation (DIC)", d:"Widespread clotting, usually triggered by sepsis or trauma, that uses up platelets and clotting factors so the patient also bleeds.",
+    k:[["Widespread clotting",["clot","coagul","widespread","everywhere","all over","throughout"]],["Uses up platelets/factors",["use up","used up","consum","deplet","platelet","factor"]],["Then bleeding",["bleed","hemorrh"]],["Triggered by sepsis/trauma",["sepsis","trauma","trigger","second"]]]},
+   {t:"Acute lymphoblastic leukemia (ALL)", d:"The most common childhood cancer, in which the bone marrow makes too many immature lymphocytes (blasts) that crowd out normal blood cells.",
+    k:[["Blood / bone marrow cancer",["cancer","malignan","marrow","leukemia"]],["Immature lymphocytes (blasts)",["immature","blast","lymphocyt","white","wbc"]],["Crowds out normal cells",["crowd","replace","normal","anemia","infect","bleed"]],["Common in children",["child","kid","pediatric"]]]},
+   {t:"Polycythemia vera", d:"A bone marrow disorder that makes too many red blood cells, thickening the blood and raising clot risk, and is often treated with phlebotomy.",
+    k:[["Too many RBCs",["too many","excess","over","high","increas","red blood","rbc"]],["Thick blood / clot risk",["thick","viscos","clot","sludg"]],["Bone marrow disorder",["marrow"]],["Phlebotomy",["phlebotom","remov","draw"]]]},
+   {t:"Thrombocytopenic purpura", d:"A low platelet count, often from the immune system destroying platelets (ITP), that causes easy bruising, purple spots on the skin, and bleeding.",
+    k:[["Low platelets",["platelet","thrombocyt","plt!"]],["Bruising / purple spots",["bruis","purpl","petechia","purpura","spot"]],["Bleeding",["bleed"]],["Immune destruction (ITP)",["immune","autoimmun","destroy","antibod"]]]}
+ ]}]}
+];
+
+/* Brief descriptions: [label, text] rows shown after checking (auto-opened on "I'm not sure") */
+const P=["Where it is","What it does","Why it matters"], E=["What it is","What it does","On the monitor"], L=["What it measures","Timing","Nursing link"], C=["What happens","What you'll see","Nursing focus"];
+const z=(lab,arr)=>arr.map((t,i)=>[lab[i],t]);
+const BRIEF={
+"Pericardium":z(P,["Surrounds the whole heart: a tough outer fibrous layer and a thin inner serous layer, with a small amount of fluid between them.","Anchors and protects the heart, keeps it from overstretching, and lets it beat without rubbing against nearby structures.","Inflamed pericardium = pericarditis; too much fluid in the sac = pericardial effusion, which can become cardiac tamponade."]),
+"Myocardium":z(P,["The middle and thickest layer of the heart wall, thickest of all in the left ventricle.","Contracts with every beat to squeeze blood out of the chambers.","When its blood supply is cut off, this muscle dies (MI); disease of this muscle is cardiomyopathy."]),
+"Endocardium":z(P,["The innermost layer, lining every chamber and covering the valves.","Gives blood a smooth surface to flow over so it moves easily without clotting.","Infection of this lining and the valves is infective endocarditis."]),
+"Superior & inferior vena cava":z(P,["The superior vena cava drains the head, neck, and arms; the inferior vena cava drains the abdomen and legs; both empty into the right atrium.","Return used, oxygen-poor blood to the heart so it can be sent to the lungs.","When the right side of the heart backs up, pressure shows as jugular vein distention (JVD); central line tips usually sit in the superior vena cava."]),
+"Right atrium":z(P,["Upper right chamber, home of the SA node.","Collects blood returning from the body and pushes it through the tricuspid valve into the right ventricle.","Pressure in this chamber is the central venous pressure (CVP), a measure of fluid status."]),
+"Tricuspid valve":z(P,["Between the right atrium and right ventricle; it has three leaflets.","Opens when the ventricle relaxes so it can fill, then snaps shut when the ventricle contracts.","Its closure, along with the mitral valve, makes S1, the \"lub\" heart sound."]),
+"Right ventricle":z(P,["Lower right chamber; its wall is thinner than the left ventricle's.","Pumps blood into the low-pressure lungs through the pulmonic valve.","Right ventricular failure backs blood up into the body: JVD, leg edema, weight gain, enlarged liver."]),
+"Pulmonic valve":z(P,["At the exit of the right ventricle into the pulmonary artery.","Opens when the right ventricle contracts and closes as it relaxes.","Its closure, with the aortic valve, makes S2, the \"dub\"; listen at the 2nd intercostal space, left sternal border."]),
+"Pulmonary arteries":z(P,["Leave the right ventricle and branch to each lung.","Deliver oxygen-poor blood to the lung capillaries for gas exchange.","A clot that lodges here is a pulmonary embolism (PE)."]),
+"Pulmonary veins":z(P,["Usually four veins running from the lungs into the left atrium.","Return oxygen-rich blood to the left side of the heart.","When the left ventricle fails, pressure backs up into these veins and then the lungs: pulmonary edema and crackles."]),
+"Left atrium":z(P,["Upper left chamber, at the back of the heart.","Collects oxygen-rich blood from the lungs and pushes it through the mitral valve into the left ventricle.","Enlarges with mitral valve disease and is a common place for clots to form in atrial fibrillation."]),
+"Mitral (bicuspid) valve":z(P,["Between the left atrium and left ventricle; it has two leaflets.","Opens while the left ventricle fills, then closes when it contracts.","Best heard at the apex (5th intercostal space, midclavicular line); it can become stenotic, leaky, or prolapse."]),
+"Left ventricle":z(P,["Lower left chamber; it forms the apex of the heart.","Generates the highest pressure in the heart to push blood through the entire body; normally ejects about 55–70% of its blood each beat (ejection fraction).","Left ventricular failure backs blood up into the lungs: shortness of breath, orthopnea, crackles."]),
+"Aortic valve":z(P,["At the exit of the left ventricle into the aorta; it has three cusps.","Opens when the left ventricle contracts and closes as it relaxes.","Listen at the 2nd intercostal space, right sternal border; a narrowed aortic valve causes chest pain, fainting, and shortness of breath."]),
+"Aorta":z(P,["Arches up out of the left ventricle, then runs down through the chest and abdomen.","Distributes blood to every body branch; its elastic walls recoil to keep blood moving between beats.","The coronary arteries branch off its base; it can bulge (aneurysm) or tear (dissection)."]),
+"Septum":z(P,["The wall between the two atria (interatrial) and between the two ventricles (interventricular); the conduction pathway runs down it.","Keeps oxygen-poor and oxygen-rich blood on separate sides.","A hole in it (atrial or ventricular septal defect) lets blood mix or shunt from one side to the other."]),
+"Chordae tendineae & papillary muscles":z(P,["Inside the ventricles, connecting the papillary muscles on the wall to the tricuspid and mitral valve leaflets.","Tighten when the ventricles contract, holding the valve flaps shut like tethers.","If a papillary muscle ruptures after an MI, the mitral valve suddenly leaks badly, which is an emergency."]),
+"Coronary arteries":z(P,["The right and left coronary arteries (left anterior descending and circumflex) branch from the base of the aorta and wrap around the heart.","Feed the heart muscle itself; they fill mainly during diastole.","Blockage causes angina or MI; a very fast heart rate shortens diastole and reduces coronary filling."]),
+"Automaticity":z(E,["A property of pacemaker cells in the SA node, AV node, and Purkinje fibers.","Lets the heart keep beating on its own; the nervous system only speeds it up or slows it down.","If a higher pacemaker fails, a lower one takes over at a slower rate (an escape rhythm)."]),
+"SA (sinoatrial) node":z(E,["A cluster of pacemaker cells in the upper right atrium, near the superior vena cava.","Sets the heart rate; sympathetic stimulation speeds it up and the vagus nerve slows it down.","Normal sinus rhythm: rate 60–100 with a P wave before every QRS."]),
+"AV (atrioventricular) node":z(E,["Pacemaker cells in the lower right atrium near the septum.","Delays the impulse about a tenth of a second so the atria can top off the ventricles, and filters out very fast atrial impulses.","Its delay is part of the PR interval; problems here cause AV (heart) blocks; a junctional rhythm runs 40–60."]),
+"Bundle of His":z(E,["Just below the AV node, at the top of the interventricular septum.","The only normal electrical bridge between the atria and the ventricles.","Damage here can cause heart blocks."]),
+"Right & left bundle branches":z(E,["Run down the right and left sides of the interventricular septum.","Carry the impulse quickly to both ventricles so they fire at the same time.","A blocked branch delays one ventricle, which widens the QRS (bundle branch block)."]),
+"Purkinje fibers":z(E,["A web of fibers just under the endocardium of both ventricles.","Conduct fastest of all, so the ventricles contract almost at once, from the apex upward.","A ventricular escape rhythm runs 20–40 with a wide QRS."]),
+"Depolarization":z(E,["Sodium rushes into the cell (calcium follows), and the inside switches from negative to positive.","The electrical event that triggers contraction (systole).","Shown by the P wave (atria) and QRS (ventricles); electrical activity doesn't guarantee a pulse, so always check the patient (pulseless electrical activity)."]),
+"Repolarization":z(E,["Potassium moves out and the cell returns to its negative resting state.","Lets the muscle relax (diastole) and get ready to fire again.","Ventricular repolarization is the T wave; potassium imbalances change T waves (tall, peaked T waves in hyperkalemia)."]),
+"Refractory period":z(E,["Absolute refractory period: the cell can't fire at all; relative refractory period: only a strong stimulus can make it fire.","Prevents sustained contraction and gives the heart time to fill.","A beat landing during the relative refractory period (on the T wave, \"R-on-T\") can trigger ventricular tachycardia or fibrillation."]),
+"P wave":z(E,["A small, rounded, upright wave just before the QRS.","Shows the SA node fired and the atria depolarized.","Missing or abnormal P waves mean the rhythm isn't coming from the SA node (for example, atrial fibrillation)."]),
+"PR interval":z(E,["Measured from the start of the P wave to the start of the QRS.","Shows how long the impulse takes to get from the atria through the AV node.","Normal is 0.12–0.20 seconds (3–5 small boxes); longer than 0.20 is a first-degree AV block."]),
+"QRS complex":z(E,["Measured from the start of the Q wave to the end of the S wave.","Shows the ventricles depolarizing just before they contract.","Normal is under 0.12 seconds (under 3 small boxes); a wide QRS suggests a ventricular rhythm or bundle branch block."]),
+"T wave":z(E,["The wave right after the QRS, normally upright.","Shows the ventricles repolarizing and getting ready for the next beat.","Peaked in hyperkalemia, flattened in hypokalemia, and may be inverted with ischemia."]),
+"Cardiac injury panel":z(L,["Troponin, CK-MB, and myoglobin, which leak into the blood when heart muscle is damaged.","Drawn on arrival and repeated over several hours, because levels rise over time.","One normal result doesn't rule out an MI; draw the labs on time and watch the trend."]),
+"Troponin (I & T)":z(L,["Proteins found only in heart muscle; high-sensitivity tests detect very small rises.","Rises within about 3–6 hours (sooner with high-sensitivity tests), peaks around 24 hours, and stays elevated 10–14 days.","An elevated, rising troponin with symptoms points to MI; it can also rise with other heart strain such as sepsis, heart failure, or kidney disease."]),
+"CK-MB":z(L,["The heart-muscle form of the enzyme creatine kinase.","Rises in 3–6 hours, peaks at 12–24 hours, and is back to normal in 2–3 days.","Because it clears fast, a second rise helps detect a new infarction; it's used less now that troponin is standard."]),
+"Myoglobin":z(L,["An oxygen-binding protein in both heart and skeletal muscle.","Rises in 1–3 hours, peaks around 12 hours, and returns to normal within about 24 hours.","A normal early result helps rule out MI; a high result needs troponin to confirm, since any muscle injury can raise it."]),
+"BNP (B-type natriuretic peptide)":z(L,["A hormone the ventricles release when stretched; it makes the body excrete sodium and water and relaxes blood vessels.","Rises as volume and pressure in the ventricles rise; under about 100 pg/mL is generally normal.","Helps tell whether shortness of breath is from the heart or the lungs, and is trended to see if heart failure treatment is working."]),
+"Heart failure":z(C,["A weak or stiff ventricle can't keep up, so cardiac output drops and fluid backs up behind the failing side.","Left-sided: shortness of breath, orthopnea, crackles, pink frothy sputum. Right-sided: JVD, leg edema, weight gain, enlarged liver.","Daily weights (report a gain of 2–3 lb in a day or 5 lb in a week), sodium and fluid limits, high Fowler's position, diuretics, and potassium monitoring."]),
+"Pericarditis":z(C,["Infection, MI, autoimmune disease, or kidney failure inflames the sac around the heart.","Sharp chest pain that's worse lying flat or breathing deeply and better sitting up and leaning forward; pericardial friction rub; fever; widespread ST elevation.","NSAIDs or colchicine as ordered, position the patient upright and leaning forward, and watch for effusion and tamponade."]),
+"Infective endocarditis":z(C,["Bacteria (often staph or strep) get into the bloodstream and grow on damaged or artificial valves.","Fever, a new murmur, petechiae, splinter hemorrhages under the nails, Osler nodes, Janeway lesions.","Blood cultures before antibiotics, a long IV antibiotic course (often 4–6 weeks), watch for emboli such as stroke, and teach about antibiotics before dental work."]),
+"Pericardial effusion":z(C,["Inflammation, infection, cancer, kidney failure, or trauma adds fluid to the sac.","May have no symptoms; larger effusions cause muffled heart sounds and shortness of breath; an echo confirms it.","Watch closely for signs of tamponade, treat the cause, and prepare for pericardiocentesis if it's large."]),
+"Cardiac tamponade":z(C,["Pressure in the sac keeps the ventricles from filling, so stroke volume and cardiac output fall.","Beck's triad (hypotension, JVD, muffled heart sounds), pulsus paradoxus (systolic BP drops more than 10 mmHg on inspiration), tachycardia.","An emergency: call for help, prepare for pericardiocentesis, and give IV fluids as ordered; watch for it after cardiac surgery."]),
+"Cardiomyopathy":z(C,["Dilated (enlarged and weak, the most common), hypertrophic (thick muscle that can block outflow and cause sudden death in young athletes), or restrictive (stiff and can't fill).","Heart failure signs, dysrhythmias, chest pain, fainting.","Manage the heart failure, avoid dehydration and strenuous exertion in the hypertrophic type, and prepare for a possible ICD or transplant."]),
+"Aortic stenosis":z(C,["Usually age-related calcium buildup stiffens the valve; the left ventricle thickens to push against it and eventually fails.","Chest pain, fainting, and shortness of breath; a harsh systolic murmur at the 2nd intercostal space, right sternal border.","Use vasodilators like nitroglycerin cautiously (BP can crash), take fall precautions, and prepare for valve replacement (such as TAVR)."]),
+"Mitral stenosis":z(C,["Usually caused by past rheumatic fever; the left atrium enlarges and pressure backs up into the lungs.","Shortness of breath, fatigue, atrial fibrillation, coughing up blood; a low diastolic murmur at the apex.","Watch for atrial fibrillation and clots (anticoagulants), monitor for heart failure, and teach prevention of strep and rheumatic fever."]),
+"Aortic regurgitation":z(C,["Blood leaks back into the left ventricle each beat, overloading it until it dilates and weakens.","Wide pulse pressure, bounding (\"water-hammer\") pulses, head bobbing with each beat, a diastolic murmur.","Monitor for heart failure, give afterload-reducing medications as ordered, and prepare for valve replacement."]),
+"Mitral regurgitation":z(C,["Blood leaks back into the left atrium, so less moves forward and pressure backs up into the lungs; causes include MI, prolapse, and rheumatic fever.","Shortness of breath, fatigue, palpitations; a whooshing murmur through all of systole at the apex; sudden onset after an MI is an emergency.","Monitor for heart failure and atrial fibrillation, and prepare for valve repair or replacement."]),
+"Mitral valve prolapse":z(C,["Loose, floppy leaflets bow back into the left atrium; it may progress to mitral regurgitation.","Often no symptoms; a mid-systolic click, sometimes a late murmur; palpitations, chest pain, or anxiety.","Reassure the patient, limit caffeine and stimulants, and teach them to report signs of worsening regurgitation."]),
+"Cardiogenic shock":z(C,["The damaged heart can't pump, so cardiac output falls while blood backs up into the lungs.","Low BP, fast heart rate, cool clammy skin, crackles, JVD, low urine output.","Limit IV fluids (the lungs are already congested), give inotropes like dobutamine and oxygen as ordered, treat the MI, and prepare for an intra-aortic balloon pump."]),
+"Septic shock":z(C,["Infection triggers widespread inflammation; vessels dilate and leak, blood pressure falls, and tissues don't get oxygen.","Fever or low temperature, fast heart rate and breathing, low BP, warm flushed skin early that turns cool and mottled, rising lactate, confusion.","Follow the sepsis bundle: blood cultures before antibiotics, lactate, a 30 mL/kg fluid bolus, and vasopressors (norepinephrine) to keep MAP at 65 or higher."]),
+"Hypovolemic shock":z(C,["Bleeding, vomiting, diarrhea, or burns drain the circulating volume, so less blood returns to the heart.","Fast heart rate first, then low BP; cool, pale skin; flat neck veins; thirst; low urine output.","Stop the loss, start two large-bore IVs, and replace volume with fluids or blood as ordered."]),
+"Obstructive shock":z(C,["A physical block (tamponade, tension pneumothorax, or massive PE) stops the heart from filling or emptying.","Low BP, JVD, plus signs of the cause: muffled heart sounds, a deviated trachea and absent breath sounds, or sudden shortness of breath.","Remove the obstruction: pericardiocentesis, needle decompression and a chest tube, or clot-busting medication."]),
+"Distributive shock":z(C,["Vessels lose tone and dilate; the main types are septic, anaphylactic, and neurogenic.","Low BP; warm, flushed skin early; a slow heart rate in neurogenic shock; hives, wheezing, and swelling in anaphylaxis.","Treat the cause (epinephrine for anaphylaxis, antibiotics for sepsis), then give fluids and vasopressors as ordered."]),
+"Coronary artery disease (CAD)":z(C,["Atherosclerosis narrows the coronary arteries; risks include smoking, hypertension, diabetes, high LDL, family history, age, and obesity.","Often silent until it causes angina or an MI.","Teach risk-factor changes and give statins and antiplatelet medications as ordered."]),
+"Stable angina":z(C,["Through a fixed narrowing, the heart's oxygen demand outpaces supply during exertion.","Pressure or squeezing in the chest that may spread to the arm or jaw and goes away within a few minutes of rest.","Rest, and sublingual nitroglycerin every 5 minutes up to 3 doses; call 911 if the pain isn't better 5 minutes after the first dose."]),
+"Unstable angina":z(C,["A plaque ruptures and a partial clot forms; it's part of acute coronary syndrome.","Pain at rest, or pain that lasts longer or comes more often than usual; ECG may change, but troponin stays normal (unlike NSTEMI).","Treat it as an emergency: ECG within 10 minutes, aspirin, nitroglycerin, oxygen if saturation is under 90%, and anticoagulation as ordered."]),
+"Myocardial infarction (MI)":z(C,["A plaque ruptures and a clot fully blocks a coronary artery; muscle starts dying within minutes. Types: STEMI and NSTEMI.","Crushing chest pain over 20 minutes spreading to the arm, jaw, or back, sweating, nausea; women, older adults, and people with diabetes may have vague symptoms; troponin rises.","ECG within 10 minutes, aspirin, fast reperfusion (cath lab within 90 minutes for STEMI), and watch for dysrhythmias."]),
+"Arteriosclerosis":z(C,["With age and hypertension, elastic fibers in artery walls are replaced by stiffer tissue.","Higher systolic BP and a wider pulse pressure.","Control blood pressure; stiff arteries set the stage for atherosclerosis."]),
+"Atherosclerosis":z(C,["Damage to the artery lining lets LDL cholesterol in, inflammation builds a plaque, and the plaque can rupture and form a clot.","Depends on where it is: angina in the heart, stroke or TIA in the carotids, leg pain with walking in PAD.","Change risk factors: stop smoking, manage cholesterol, BP, and blood sugar, and stay active."]),
+"Hypertension":z(C,["Primary hypertension (most cases) has no single cause; secondary hypertension comes from another problem such as kidney disease.","Often no symptoms (the \"silent killer\") while it damages the heart, brain, kidneys, and eyes.","Use the right cuff and technique, teach the DASH diet and sodium limits, and stress taking medications every day and not stopping them suddenly."]),
+"Hypertensive crisis":z(C,["Hypertensive urgency: very high BP with no organ damage. Hypertensive emergency: very high BP with organ damage.","Severe headache, blurred vision, confusion, chest pain, shortness of breath, seizures.","Lower BP gradually, no more than about 25% in the first hour, with IV medications like nicardipine or labetalol; check BP every 5–15 minutes."]),
+"Peripheral arterial disease (PAD)":z(C,["Atherosclerosis narrows the leg arteries.","Calf pain with walking relieved by rest (claudication), pain at rest when severe, weak pulses, pale legs when raised and red when hanging down, painful round ulcers on the toes.","Keep the legs dependent (not elevated), encourage a walking program, stop smoking, give good foot care, and avoid crossing the legs."]),
+"Peripheral venous disease":z(C,["Damaged vein valves (often after a DVT) let blood pool and pressure build in the legs.","Aching, heavy legs, swelling, brown skin staining, and shallow irregular ulcers near the inner ankle.","Elevate the legs, use compression stockings, avoid long periods of standing, and care for any wounds."]),
+"Abdominal aortic aneurysm (AAA)":z(C,["Atherosclerosis, hypertension, smoking, older age, and male sex weaken the aortic wall, usually below the kidney arteries.","Often silent; a pulsating abdominal mass, a bruit, back pain; rupture causes sudden severe back or abdominal pain and shock.","Don't palpate it deeply, control BP, and monitor its size; rupture needs emergency surgery."]),
+"Aortic dissection":z(C,["Hypertension is the main cause (also Marfan syndrome); blood in the false channel can cut off branch arteries.","Sudden \"worst ever\" tearing or ripping pain in the chest or back, different BPs between the arms, missing pulses.","An emergency: lower heart rate and BP (beta-blocker first), control pain, and prepare for surgery."]),
+"Venous thromboembolism (VTE)":z(C,["Virchow's triad (slow blood flow, vessel injury, and blood that clots too easily) leads to a clot in a vein.","DVT signs in a leg, or sudden shortness of breath and chest pain if it's a PE.","Prevent it: early walking, sequential compression devices (SCDs), and anticoagulants such as heparin or enoxaparin."]),
+"Deep vein thrombosis (DVT)":z(C,["Immobility, surgery, pregnancy, estrogen, or cancer lets a clot form in a deep leg vein.","Swelling, warmth, redness, and pain in one calf or thigh, though some patients have no symptoms; ultrasound confirms it.","Anticoagulants as ordered, never massage the leg, and watch for PE: sudden shortness of breath, chest pain, fast heart rate."]),
+"Iron deficiency anemia":z(C,["Blood loss (GI or heavy periods), poor diet, pregnancy, or poor absorption leaves too little iron for hemoglobin.","Fatigue, pallor, fast heart rate, brittle spoon-shaped nails, cravings for ice or dirt (pica), low hemoglobin and ferritin.","Teach patients to take iron with vitamin C, ideally on an empty stomach; dark stools are expected; constipation is common; drink liquid iron through a straw."]),
+"Vitamin deficiency anemia":z(C,["B12: pernicious anemia (no intrinsic factor), stomach surgery, or a vegan diet. Folate: poor diet, alcohol use, or pregnancy.","Fatigue, pallor, a smooth red sore tongue; with B12 deficiency, numbness, tingling, and balance problems.","Lifelong B12 injections for pernicious anemia and folic acid supplements as ordered; folate won't fix nerve damage from low B12."]),
+"Sickle cell anemia":z(C,["An autosomal recessive disorder; dehydration, low oxygen, infection, cold, and stress trigger sickling.","Severe pain crises, anemia, jaundice, organ damage, stroke, acute chest syndrome.","In a crisis: fluids, oxygen, opioid pain control, and warmth; teach patients to avoid triggers and prevent infection (vaccines)."]),
+"Disseminated intravascular coagulation (DIC)":z(C,["Triggered by sepsis, trauma, obstetric complications, or cancer, clotting spreads everywhere and then the clotting supply runs out.","Bleeding from IV sites and gums, petechiae, blood in the urine, organ damage from clots; low platelets and fibrinogen, high PT/PTT and D-dimer.","Treat the cause, give blood products (platelets, plasma, cryoprecipitate) as ordered, and use bleeding precautions."]),
+"Acute lymphoblastic leukemia (ALL)":z(C,["Immature lymphocytes (blasts) fill the bone marrow so it can't make normal red cells, white cells, or platelets.","Fatigue, pallor, fever, frequent infections, easy bruising or bleeding, bone pain, swollen lymph nodes, liver, and spleen.","Support the patient through chemotherapy with neutropenic and bleeding precautions, nutrition, and family support."]),
+"Polycythemia vera":z(C,["The bone marrow overproduces red cells (and often white cells and platelets), making the blood thick.","Ruddy red face, headache, dizziness, itching after a warm shower, high hemoglobin and hematocrit, enlarged spleen; risk of stroke, MI, and DVT.","Phlebotomy, hydration, low-dose aspirin as ordered, and teaching the signs of clots."]),
+"Thrombocytopenic purpura":z(C,["ITP: the immune system destroys platelets. TTP: tiny clots form throughout the body and use up platelets.","Petechiae, purpura, nosebleeds, bleeding gums, heavy periods; risk of spontaneous bleeding when platelets fall below about 20,000.","Bleeding precautions (soft toothbrush, electric razor, no IM injections, no aspirin or NSAIDs) and steroids or IVIG for ITP as ordered."])
+};
+
+/* ---------- STATE ---------- */
+const ALL=[]; UNITS.forEach((u,ui)=>u.groups.forEach((g,gi)=>g.terms.forEach((t,ti)=>{t.id=`u${u.n}-${gi}-${ti}`;t.unit=ui;t.group=g.g;t.b=BRIEF[t.t]||[];ALL.push(t);})));
+const KEY="sayItSimply-cvheme-v2";
+let S={unit:0,idx:{},ans:{}};
+try{const raw=localStorage.getItem(KEY); if(raw){const p=JSON.parse(raw); if(p&&p.ans) S=Object.assign(S,p);}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const unitTerms=ui=>ALL.filter(t=>t.unit===ui);
+const $=id=>document.getElementById(id);
+function cur(){const list=unitTerms(S.unit);let i=S.idx[S.unit]||0;if(i>=list.length)i=0;return {list,i,t:list[i]};}
+function A(id){return S.ans[id]||(S.ans[id]={text:"",shown:false,rate:null});}
+function status(id){const a=S.ans[id];if(!a)return"";if(a.rate)return a.rate;if(a.shown)return"typed";if(a.text&&a.text.trim())return"typed";return"";}
+
+/* ---------- MATCHING ---------- */
+const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function hits(text,stems){const low=" "+text.toLowerCase().replace(/’/g,"'")+" ";
+  return stems.some(s=>{const whole=s.endsWith("!");const core=whole?s.slice(0,-1):s;
+    const re=new RegExp("(^|[^a-z0-9])"+esc(core)+(whole?"(?![a-z0-9])":""),"i");return re.test(low);});}
+
+/* ---------- RENDER ---------- */
+function setTheme(){const u=UNITS[S.unit];document.documentElement.style.setProperty("--accent",u.color);document.documentElement.style.setProperty("--accent-soft",u.soft);}
+function renderTabs(){$("tabs").innerHTML=UNITS.map((u,i)=>{const list=unitTerms(i),done=list.filter(t=>S.ans[t.id]&&S.ans[t.id].rate).length;
+  return `<button class="tab ${i===S.unit?"on":""}" data-u="${i}"><span class="n">${u.n}</span>${u.name} <span style="font-size:12px;opacity:.7">${done}/${list.length}</span></button>`}).join("");
+  $("tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{S.unit=+b.dataset.u;save();renderAll();});}
+function renderRail(){const {t:c}=cur();let html="",lastG=null;
+  unitTerms(S.unit).forEach(t=>{if(t.group!==lastG){html+=`<div class="grp">${t.group}</div>`;lastG=t.group;}
+    html+=`<button class="item ${t.id===c.id?"on":""}" data-id="${t.id}"><span class="dot ${status(t.id)}"></span>${t.t}</button>`;});
+  html+=`<div class="legend"><span><i class="dot"></i>To do</span><span><i class="dot typed"></i>Started</span><span><i class="dot good"></i>Nailed</span><span><i class="dot mid"></i>Partly</span><span><i class="dot rev"></i>Review</span></div>`;
+  $("rail").innerHTML=html;
+  $("rail").querySelectorAll(".item").forEach(b=>b.onclick=()=>{const list=unitTerms(S.unit);S.idx[S.unit]=list.findIndex(x=>x.id===b.dataset.id);save();renderCard();renderRail();});}
+function renderCard(){const {list,i,t}=cur();const a=A(t.id);const u=UNITS[S.unit];
+  $("where").textContent=`Unit ${u.n} · ${t.group}`;$("term").textContent=t.t;$("count").textContent=`${i+1} / ${list.length}`;
+  $("answer").value=a.text;$("answer").readOnly=a.shown;$("hintline").innerHTML="";updateCount();
+  $("preActions").style.display=a.shown?"none":"flex";
+  $("reveal").classList.toggle("show",a.shown);
+  if(a.shown){$("def").textContent=t.d;
+    const got=t.k.map(([lab,st])=>a.text.trim()&&hits(a.text,st));const n=got.filter(Boolean).length;
+    $("keys").innerHTML=t.k.map(([lab],j)=>`<span class="chip ${got[j]?"hit":""}"><span class="ic">${got[j]?"✓":"○"}</span>${lab}</span>`).join("");
+    $("brief").innerHTML=`<div class="brief-h">${t.t} <small>Brief description</small></div>`+t.b.map(([l,x])=>`<div class="brow"><b>${l}</b><div>${x}</div></div>`).join("");
+    setBrief(!!a.briefOpen);
+    $("keynote").textContent=a.text.trim()?`You touched on ${n} of ${t.k.length} key ideas. This is a guide only. Different wording can still be right, so compare and rate yourself.`:"No definition yet. Read the brief description below, then click Try again and write it in your own words.";
+    document.querySelectorAll(".rbtn").forEach(b=>b.classList.toggle("on",b.dataset.r===a.rate));}
+  $("prev").disabled=i===0&&S.unit===0;
+  const lastAll=(S.unit===UNITS.length-1&&i===list.length-1);$("next").textContent=lastAll?"See my results →":(i===list.length-1?`Unit ${UNITS[S.unit+1].n} →`:"Next term →");}
+function renderProgress(){const tot=ALL.length;let g=0,m=0,r=0;ALL.forEach(t=>{const s=S.ans[t.id]&&S.ans[t.id].rate;if(s==="good")g++;else if(s==="mid")m++;else if(s==="rev")r++;});
+  $("progText").textContent=`${g+m+r} of ${tot} checked`;$("pGood").style.width=g/tot*100+"%";$("pMid").style.width=m/tot*100+"%";$("pRev").style.width=r/tot*100+"%";
+  return {g,m,r,left:tot-g-m-r};}
+function renderKey(){const u=UNITS[S.unit];$("keyIntro").textContent=`Unit ${u.n}: ${u.name}. Every term with its simple definition, for projecting or studying.`;
+  let html="",lastG=null;unitTerms(S.unit).forEach(t=>{if(t.group!==lastG&&u.groups.length>1){html+=`<div class="krow grouphead">${t.group}</div>`;}lastG=t.group;
+    html+=`<div class="krow"><div class="kt">${t.t}</div><div><div class="kd">${t.d}</div><details class="kb"><summary>Brief description</summary>${t.b.map(([l,x])=>`<div class="brow"><b>${l}</b><div>${x}</div></div>`).join("")}</details></div></div>`;});
+  $("keytable").innerHTML=html;$("keytable").querySelectorAll(".kd").forEach(d=>d.onclick=()=>d.classList.toggle("open"));}
+function renderAll(){setTheme();renderTabs();renderRail();renderCard();renderProgress();renderKey();}
+
+/* ---------- ACTIONS ---------- */
+function reveal(openBrief){const {t}=cur();const a=A(t.id);a.text=$("answer").value;a.shown=true;if(openBrief)a.briefOpen=true;save();renderCard();renderRail();renderTabs();
+  if(openBrief)setTimeout(()=>$("briefBtn").scrollIntoView({behavior:"smooth",block:"start"}),60);}
+function setBrief(on){$("brief").classList.toggle("show",on);$("briefBtn").classList.toggle("open",on);$("briefLbl").textContent=on?"Hide the brief description":"Read the brief description";}
+$("briefBtn").onclick=()=>{const {t}=cur();const a=A(t.id);a.briefOpen=!a.briefOpen;save();setBrief(a.briefOpen);}
+$("check").onclick=()=>{if(!$("answer").value.trim()){toast("Write your definition first, or choose “I'm not sure, show me.”");$("answer").focus();return;}
+  if(sentences($("answer").value)>1){updateCount();toast("Keep it to one sentence. Trim it down, then check again.");$("answer").focus();return;}reveal(false);};
+function sentences(txt){return txt.trim().split(/[.!?]+(?:\s+|$)/).filter(s=>/[a-z0-9]/i.test(s)).length;}
+function updateCount(){const el=$("sentcount");const {t}=cur();if(A(t.id).shown||!$("answer").value.trim()){el.textContent="";el.className="sentcount";return;}
+  const n=sentences($("answer").value);el.textContent=n<=1?"✓ One sentence":`${n} sentences: trim it to one`;el.className="sentcount "+(n<=1?"ok":"over");}
+$("skip").onclick=()=>reveal(true);
+$("hint").onclick=()=>{const {t}=cur();const k=t.k.map(x=>x[0]);const a=A(t.id);a.hints=Math.min((a.hints||0)+1,Math.max(1,k.length-1));save();
+  $("hintline").innerHTML="<b>Think about:</b> "+k.slice(0,a.hints).join(" · ")+(a.hints<k.length-1?' <span style="opacity:.7">(click Hint again for more)</span>':"");};
+$("answer").addEventListener("input",()=>{updateCount();const {t}=cur();A(t.id).text=$("answer").value;save();const dot=document.querySelector(`.item[data-id="${t.id}"] .dot`);if(dot&&!dot.className.match(/good|mid|rev/))dot.className="dot"+($("answer").value.trim()?" typed":"");});
+$("answer").addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();$("check").click();}});
+document.querySelectorAll(".rbtn").forEach(b=>b.onclick=()=>{const {t}=cur();A(t.id).rate=b.dataset.r;save();renderCard();renderRail();renderTabs();renderProgress();});
+$("retry").onclick=()=>{const {t}=cur();const a=A(t.id);a.shown=false;a.rate=null;a.text="";a.briefOpen=false;save();renderCard();renderRail();renderTabs();renderProgress();$("answer").focus();};
+function go(d){const {list,i}=cur();let ni=i+d;
+  if(ni>=list.length){if(S.unit<UNITS.length-1){S.unit++;S.idx[S.unit]=0;}else{openM();return;}}
+  else if(ni<0){if(S.unit>0){S.unit--;S.idx[S.unit]=unitTerms(S.unit).length-1;}else return;}
+  else S.idx[S.unit]=ni;save();renderAll();window.scrollTo({top:0,behavior:"smooth"});}
+$("prev").onclick=()=>go(-1);$("next").onclick=()=>go(1);
+document.addEventListener("keydown",e=>{if(document.activeElement===$("answer")||$("overlay").classList.contains("show"))return;
+  if(e.key==="ArrowRight")go(1);if(e.key==="ArrowLeft")go(-1);});
+
+/* views */
+$("vPractice").onclick=()=>{$("vPractice").classList.add("on");$("vKey").classList.remove("on");$("practice").style.display="";$("keyview").classList.remove("show");};
+$("vKey").onclick=()=>{$("vKey").classList.add("on");$("vPractice").classList.remove("on");$("practice").style.display="none";$("keyview").classList.add("show");renderKey();};
+$("kHide").onclick=()=>{$("kHide").classList.add("on");$("kShow").classList.remove("on");$("keytable").classList.add("blur");$("keytable").querySelectorAll(".kd").forEach(d=>d.classList.remove("open"));};
+$("kShow").onclick=()=>{$("kShow").classList.add("on");$("kHide").classList.remove("on");$("keytable").classList.remove("blur");};
+
+/* results modal */
+function openM(){const s=renderProgress();$("sGood").textContent=s.g;$("sMid").textContent=s.m;$("sRev").textContent=s.r;$("sLeft").textContent=s.left;
+  const rev=ALL.filter(t=>S.ans[t.id]&&S.ans[t.id].rate==="rev");
+  $("rlist").innerHTML=rev.length?rev.map(t=>`<li><div class="ru">Unit ${UNITS[t.unit].n} · ${t.group}</div><div class="rt">${t.t}</div><div class="rd">${t.d}</div></li>`).join(""):`<li class="empty">Nothing marked "Review this" yet.</li>`;
+  $("overlay").classList.add("show");}
+$("openReview").onclick=openM;$("closeM").onclick=()=>$("overlay").classList.remove("show");
+$("overlay").onclick=e=>{if(e.target===$("overlay"))$("overlay").classList.remove("show");};
+const RL={good:"Nailed it",mid:"Partly there",rev:"Review this"};
+function copy(txt,msg){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast(msg),()=>fallbackCopy(txt,msg));}else fallbackCopy(txt,msg);}
+function fallbackCopy(txt,msg){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast(msg);}catch(e){toast("Copy didn't work in this view");}ta.remove();}
+$("copyAll").onclick=()=>{let out="SAY IT SIMPLY: Cardiovascular & Hematology\n";
+  UNITS.forEach((u,ui)=>{out+=`\n=== Unit ${u.n}: ${u.name} ===\n`;unitTerms(ui).forEach(t=>{const a=S.ans[t.id]||{};out+=`\n${t.t}\n  My definition: ${(a.text||"").trim()||"(blank)"}\n  Self-rating: ${RL[a.rate]||"not checked"}\n`;});});
+  copy(out,"All answers copied. Paste them into your assignment.");};
+$("copyRev").onclick=()=>{const rev=ALL.filter(t=>S.ans[t.id]&&S.ans[t.id].rate==="rev");if(!rev.length){toast("No review terms yet");return;}
+  copy("MY REVIEW LIST\n\n"+rev.map(t=>`${t.t}: ${t.d}`).join("\n\n"),"Review list copied");};
+$("resetAll").onclick=()=>{const b=$("resetAll");if(b.dataset.c!=="1"){b.dataset.c="1";b.textContent="Click again to erase everything";setTimeout(()=>{b.dataset.c="";b.textContent="Start over";},3500);return;}
+  S={unit:0,idx:{},ans:{}};save();b.dataset.c="";b.textContent="Start over";$("overlay").classList.remove("show");renderAll();toast("Cleared. Fresh start.");};
+
+let tt;function toast(m){$("toast").textContent=m;$("toast").classList.add("show");clearTimeout(tt);tt=setTimeout(()=>$("toast").classList.remove("show"),2600);}
+renderAll();
+</script>
+</body>
+</html>
