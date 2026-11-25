@@ -1,0 +1,528 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>The Long Walk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: patient banner across the top, NCJMM stage rail, then chart (left) beside the active item (right); scoreboard docked at the bottom. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb; --ink:#18202e; --muted:#5a6476; --line:#d7dde6;
+  --accent:#b8314b; --accent-soft:#f8e3e8; --ok:#1d7349; --ok-soft:#e1f2e8; --bad:#b03a2e; --bad-soft:#f9e4e1;
+  --warn:#9a5b00; --warn-soft:#fbefd9; --sel:#1f4f8f; --sel-soft:#e2ecf8; --grid:#f2c7cf;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45; --grid:#4a2730; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45; --grid:#4a2730; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+.wrap{max-width:1400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 120px;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+
+/* patient band */
+.band{background:var(--surface);border:1px solid var(--line);border-radius:10px;display:grid;grid-template-columns:auto 1fr auto;gap:8px 20px;align-items:center;padding:12px 16px}
+.casename{font-family:var(--display);font-size:15px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}
+.casename b{display:block;font-size:30px;letter-spacing:.02em;text-transform:none;color:var(--ink)}
+.pt{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:15px;color:var(--muted);min-width:0}
+.pt strong{color:var(--ink);font-family:var(--mono);font-size:15px}
+.allergy{background:var(--accent);color:#fff;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:6px;white-space:nowrap}
+.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:6px 12px;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--sel-soft);border-color:var(--sel);color:var(--sel);font-weight:700}
+
+/* stage rail */
+.rail{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.step .n{font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.step .l{font-weight:700;font-size:15px;line-height:1.2}
+.step .s{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.step[aria-current="step"]{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+.step.done .s{color:var(--ok)}
+
+/* main */
+.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:0}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 16px;font-weight:700;color:var(--muted);white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .new{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-left:6px;vertical-align:middle}
+.chartbody{padding:14px 16px;max-height:68vh;overflow:auto}
+.note{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin-bottom:16px}
+.note.fresh{border-left-color:var(--accent)}
+.note .when{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.note h3{font-size:19px;margin:2px 0 4px}
+.note p{margin:0 0 6px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;white-space:nowrap}
+th{font-family:var(--display);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.H{color:var(--bad);font-weight:700}.L{color:var(--sel);font-weight:700}
+.flag{font-size:11px;margin-left:4px}
+.ref{color:var(--muted);font-size:13px}
+.orders li{margin-bottom:6px}
+.empty{color:var(--muted);font-style:italic}
+
+.item{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.ihead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.ihead h2{font-size:30px}
+.tag{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:14px;color:var(--accent);font-weight:700}
+.itype{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.prompt{font-size:19px;font-weight:700;margin:0;max-width:62ch}
+.scenario{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px 16px;line-height:1.9}
+.hl{border-radius:4px;padding:1px 3px;cursor:pointer;border-bottom:2px dotted var(--muted)}
+.hl:hover{background:var(--sel-soft)}
+.hl.on{background:var(--sel-soft);border-bottom:2px solid var(--sel);color:var(--sel);font-weight:700}
+.hl.right{background:var(--ok-soft);color:var(--ok);border-bottom-color:var(--ok)}
+.hl.wrong{background:var(--bad-soft);color:var(--bad);border-bottom-color:var(--bad);text-decoration:line-through}
+.hl.missed{outline:2px dashed var(--ok);outline-offset:1px}
+
+.matrix th:not(:first-child),.matrix td:not(:first-child){text-align:center;width:130px}
+.matrix td:first-child{white-space:normal;min-width:220px}
+.cell{width:30px;height:30px;border-radius:50%;border:2px solid var(--muted);background:var(--surface);display:inline-grid;place-items:center}
+.cell.on{border-color:var(--sel);background:var(--sel)}
+.cell.on::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--surface)}
+tr.right td:first-child{color:var(--ok)} tr.wrong td:first-child{color:var(--bad)}
+tr.right .cell.on{background:var(--ok);border-color:var(--ok)} tr.wrong .cell.on{background:var(--bad);border-color:var(--bad)}
+.cell.key{box-shadow:0 0 0 3px var(--ok-soft),0 0 0 5px var(--ok)}
+
+.cloze{font-size:19px;line-height:2.4;max-width:62ch}
+.cloze select{font:inherit;font-size:16px;padding:4px 6px;border-radius:6px;border:2px solid var(--sel);background:var(--sel-soft);color:var(--ink);max-width:100%}
+.cloze select.right{border-color:var(--ok);background:var(--ok-soft)} .cloze select.wrong{border-color:var(--bad);background:var(--bad-soft)}
+
+.opts{display:grid;gap:8px}
+.opt{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:8px;padding:10px 12px}
+.opt .box{width:26px;height:26px;border-radius:6px;border:2px solid var(--muted);display:grid;place-items:center;font-weight:700;font-size:14px}
+.opt.on{border-color:var(--sel);background:var(--sel-soft)} .opt.on .box{background:var(--sel);border-color:var(--sel);color:var(--surface)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)} .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border-style:dashed;border-color:var(--ok)}
+.first{font-size:12px;font-family:var(--display);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.first.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.bowtie{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:center}
+.bt-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.bt-col h3{font-size:16px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.bt-col.mid{border:2px solid var(--accent);border-radius:12px;padding:10px;background:var(--accent-soft)}
+.tok{border:2px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;text-align:left;font-size:15px}
+.tok.on{border-color:var(--sel);background:var(--sel-soft);font-weight:700}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)} .tok.missed{border-style:dashed;border-color:var(--ok)}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:8px;padding:10px 18px;font-weight:700;background:var(--accent);color:#fff}
+.btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.score{font-family:var(--display);font-size:24px;font-weight:700}
+.score small{font-size:15px;color:var(--muted);font-family:var(--body);font-weight:400}
+
+.rat{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.rat h3{font-size:20px}
+.rat ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:72ch}
+.rat li b.ok{color:var(--ok)} .rat li b.no{color:var(--bad)}
+.fac{background:var(--warn-soft);border:1px solid var(--warn);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.fac h3{font-size:17px;color:var(--warn);text-transform:uppercase;letter-spacing:.08em}
+.fac ul{margin:0;padding-left:20px}
+
+/* scoreboard */
+.intro{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.intro p{margin:0;max-width:90ch}
+.intro ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:16px}
+.step:disabled{opacity:.5;cursor:not-allowed}
+.think{background:var(--sel-soft);border:1px solid var(--sel);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.think h3{font-size:17px;color:var(--sel);text-transform:uppercase;letter-spacing:.08em}
+.think ul{margin:0;padding-left:20px}
+.results{background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.results h2{font-size:30px}
+.results textarea,.results input{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);font:inherit;color:var(--ink)}
+.results textarea{min-height:90px;resize:vertical}
+.results .summary{font-family:var(--mono);font-size:14px;min-height:170px;background:var(--surface-2)}
+.ok-msg{color:var(--ok);font-weight:700}
+.hint{font-size:14px;color:var(--muted)}
+.board .prog{font-family:var(--mono);font-size:14px;white-space:nowrap}
+.board .bar{flex:1 1 160px;min-width:120px;height:10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.board .bar i{display:block;height:100%;background:var(--accent)}
+.board{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-block:8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.board .in{max-width:1400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:10px;align-items:center;overflow-x:auto}
+.board .lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:14px;white-space:nowrap}
+.team{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 10px;white-space:nowrap}
+.team input{width:76px;border:0;background:transparent;font:inherit;font-weight:700;color:var(--ink)}
+.team .pts{font-family:var(--mono);font-weight:600;min-width:2.2ch;text-align:right;font-variant-numeric:tabular-nums}
+.team button{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:30px;height:30px;font-weight:700}
+.board .max{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+
+@media (max-width:1000px){.main{grid-template-columns:1fr}.rail{grid-template-columns:repeat(4,1fr)}.band{grid-template-columns:1fr}.tools{justify-content:flex-start}.chartbody{max-height:none}.bowtie{grid-template-columns:1fr}}
+@media (max-width:520px){.rail{grid-template-columns:repeat(2,1fr)}.ihead h2{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="band">
+    <div class="casename">Unfolding case<b>The Long Walk</b></div>
+    <div class="pt" aria-label="Patient"><span>Patient <strong>DIAZ, Roberto</strong></span><span>Age <strong>71</strong></span><span>Sex <strong>M</strong></span><span>MRN <strong>0055903</strong></span><span>Unit <strong>Vascular clinic → Surgical floor</strong></span><span>Code <strong>Full</strong></span></div>
+    <div class="tools">
+      <span class="allergy">Allergy: sulfa (rash)</span>
+    </div>
+  </header>
+
+  <section class="intro" aria-label="How this works">
+    <p><b>Work through this case on your own, about 45 minutes.</b> Roberto's chart (left) fills in as the case unfolds. Each stage asks you to make one kind of clinical judgment.</p>
+    <ul>
+      <li>Answer each stage before you check. Rationales and "Think it through" questions appear after you check, and answers can't be changed afterward.</li>
+      <li>Each stage unlocks when you finish the one before it. The bowtie at the end is optional.</li>
+      <li>Your work saves in this browser. At the end, copy your summary into the course assignment.</li>
+    </ul>
+  </section>
+
+  <nav class="rail" id="rail" aria-label="Case stages"></nav>
+
+  <div class="main">
+    <section class="panel" aria-label="Electronic health record">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="chartbody" id="chart"></div>
+    </section>
+    <section class="panel item" id="item" aria-live="polite"></section>
+  </div>
+  <section class="results" id="results" hidden></section>
+</div>
+
+<div class="board" aria-label="Your progress">
+  <div class="in" id="board"></div>
+</div>
+
+<script>
+const CASE={title:"The Long Walk",first:"Roberto",key:"case-pad-v1",
+ times:[["Visit 1","Vascular clinic visit"],["Tests","ABI, duplex and labs"],["Visit 2","Follow-up visit"],["Plan","Treatment plan"],["POD 1","Day 1 after bypass, 0300"],["POD 3","Day 3 after bypass, 0800"],["Stretch","Bowtie"]],
+ note1:["Visit 1 · Vascular clinic","Clinic intake"],
+ labsEmpty:"No results yet. ABI, arterial duplex and labs are ordered for this week.",
+ ordersEmpty:"No orders yet. The treatment plan is written after Stage 4."};
+
+const ITEMS = {
+ 1:{prompt:"Click the findings that are of concern to the nurse.",
+   text:[["71-year-old retired mechanic. "],["Pain in his right calf after walking about one block that goes away within 3–5 minutes of standing still","c1",1],[". "],["Lately it wakes him at night, and he hangs his foot off the bed for relief","c2",1],[". "],["Type 2 diabetes for 15 years","c3",1],[". "],["Smokes 1 pack a day for 50 years","c4",1],[". "],["Right foot cool to the touch with shiny skin and no hair on the lower leg","c5",1],["; thick toenails. "],["Right pedal pulses 1+","c6",1],[", left 2+. "],["Capillary refill in the right toes 4 seconds","c7",1],[". "],["Right foot pale when raised and dusky red when dangling","c8",1],[". "],["A 1 cm painful ulcer on the tip of the right great toe with a pale, dry base","c9",1],[". "],["No ankle edema","d1",0],[". "],["No brown discoloration of the skin","d2",0],[". "],["BP 138/82","d3",0],[", "],["HR 80","d4",0],[". "],["Lungs clear","d5",0],[". Alert and oriented."]],
+   why:{c1:"Intermittent claudication: muscles run short of oxygen with exercise and recover with rest.",c2:"Rest pain means blood flow is now too low even at rest. Hanging the foot down lets gravity help.",c3:"Diabetes speeds atherosclerosis and slows healing.",c4:"Smoking is the strongest risk factor for PAD.",c5:"Cool, shiny, hairless skin shows long-term poor arterial flow.",c6:"Weak pulses on the right mean reduced flow.",c7:"More than 3 seconds means poor perfusion.",c8:"Pallor on elevation and redness when dependent (dependent rubor) are classic arterial signs.",c9:"Arterial ulcers are painful, on the toes, with a pale base. This one threatens the limb.",d1:"No edema: this is not venous disease.",d2:"Brown discoloration is a venous sign; its absence points away from venous insufficiency.",d3:"BP acceptable.",d4:"Normal heart rate.",d5:"Normal lung exam."},
+   think:["Which findings tell you this is arterial, not venous, disease?","Why does Roberto hang his foot off the bed?","Which finding worries you most for the limb?"]},
+ 2:{prompt:"For each result, indicate whether it requires follow-up or is expected / within normal limits.",
+   cols:["Requires follow-up","Expected / WNL"],
+   rows:[["Right ankle-brachial index 0.52",0,"0.90 or lower means PAD; around 0.5 is moderate to severe disease, fitting his rest pain."],
+         ["Left ankle-brachial index 0.86",0,"Mild PAD on the left as well. Atherosclerosis affects the whole body."],
+         ["Arterial duplex: 80% narrowing of the right superficial femoral artery",0,"Explains the right calf claudication."],
+         ["A1C 8.9%",0,"Poorly controlled diabetes damages vessels and slows wound healing."],
+         ["LDL 156 mg/dL",0,"Drives plaque growth."],
+         ["WBC 7,400/mm³",1,"Normal; no sign the ulcer is infected right now."],
+         ["Creatinine 1.1 mg/dL",1,"Normal; matters before contrast for angiography."],
+         ["Hemoglobin 14.0 g/dL",1,"Normal oxygen-carrying capacity."]],
+   think:["How is an ankle-brachial index calculated, and what does a low number mean?","Why check both legs if only one hurts?","Which result affects wound healing the most?"]},
+ 3:{prompt:"Complete the nurse's analysis by choosing the best option for each blank.",
+   parts:["Roberto's findings are most consistent with ",0,", based on ",1,". His leg should be kept ",2,", and the greatest threat to the limb is ",3,"."],
+   blanks:[
+     {opts:["peripheral arterial disease","chronic venous insufficiency","deep vein thrombosis","diabetic neuropathy alone"],a:0,why:"Pain with activity that eases with rest, weak pulses, pallor on elevation and a pale, painful toe ulcer are arterial. Venous disease causes edema, brown skin and ulcers near the ankle."},
+     {opts:["pain with walking that eases with rest, weak pulses and a pale, painful toe ulcer","ankle swelling and brown skin","a warm, red, swollen calf","burning feet at rest with normal pulses"],a:0,why:"The classic arterial cluster."},
+     {opts:["dependent (feet slightly down)","elevated above the heart","flat with compression stockings","crossed at the knees"],a:0,why:"Gravity helps arterial blood reach the foot. Elevation and compression reduce arterial flow."},
+     {opts:["infection or gangrene leading to amputation","pulmonary embolism","venous stasis ulcers","heart failure"],a:0,why:"Rest pain plus a nonhealing ulcer is critical limb ischemia."}],
+   think:["Say the completed sentence out loud, as if giving a report.","How would positioning be different for a client with venous insufficiency?","Why is rest pain more worrying than claudication?"]},
+ 4:{prompt:"For each order or teaching point, indicate whether the nurse anticipates it or it is not indicated / unsafe.",
+   cols:["Anticipated","Not indicated / unsafe"],
+   rows:[["Refer to vascular surgery for angiography and revascularization",0,"Rest pain and a nonhealing ulcer mean the limb is threatened."],
+         ["Aspirin 81 mg or clopidogrel daily",0,"Antiplatelet therapy lowers the risk of MI, stroke and limb events in PAD."],
+         ["High-intensity statin, atorvastatin 80 mg",0,"Recommended for everyone with PAD."],
+         ["Smoking cessation with medication support",0,"The most important step to save the limb."],
+         ["Daily foot inspection with a mirror, well-fitting shoes, never barefoot",0,"Catches injuries early, especially when diabetes dulls sensation."],
+         ["Tighter glucose control with diabetes follow-up",0,"High glucose slows healing and raises infection risk."],
+         ["Compression stockings on both legs",1,"Compression squeezes already-narrowed arteries. It's a treatment for venous disease."],
+         ["A heating pad on the feet at night to keep them warm",1,"Poor sensation and blood flow make burns likely. Use warm socks instead."],
+         ["Elevate the legs on pillows at night",1,"Elevation reduces arterial flow and worsens rest pain."]],
+   think:["Which three orders would be wrong for this client but right for venous insufficiency?","How would you teach foot care to someone with reduced sensation?","Which order does the most to protect his other leg?"]},
+ 5:{prompt:"Roberto had a right femoral-popliteal bypass yesterday. Review the 0300 note and vital signs. Select the 4 actions the nurse should take now, then mark the one to do first.",
+   need:4, first:0,
+   opts:[["Notify the surgeon immediately",1,"Sudden loss of the Doppler signal means the graft has likely clotted. The limb can be lost within hours."],
+         ["Assess the 6 Ps on both legs and compare with the last check",1,"Pain, pallor, pulselessness, paresthesia, paralysis and poikilothermia show how threatened the limb is."],
+         ["Keep the leg flat and protected, with no elevation and no heat",1,"Elevation lowers arterial flow; heat can burn ischemic skin."],
+         ["Keep him NPO and prepare for a possible return to surgery",1,"Thrombectomy or graft revision is likely."],
+         ["Elevate the leg on two pillows to reduce swelling",0,"Reduces arterial flow to a limb that is already ischemic."],
+         ["Apply a warm pack to the foot",0,"Ischemic skin burns easily, and heat raises the tissue's oxygen demand."],
+         ["Give the PRN opioid and recheck the foot in 1 hour",0,"Delays emergency care and may mask worsening."],
+         ["Massage the calf to improve circulation",0,"Doesn't restore flow and could move a clot."]],
+   think:["Compare the 2300 and 0300 checks. What changed?","Which of the 6 Ps are late signs?","Write the SBAR you would give the surgeon."]},
+ 6:{prompt:"Roberto had an emergency thrombectomy at 0500 on Day 1. Review the Day 3 data. For each finding, indicate whether it shows improvement / goal met or needs follow-up.",
+   cols:["Improved / goal met","Needs follow-up"],
+   rows:[["Right pedal pulse palpable, 2+",0,"The graft is open."],
+         ["Foot warm and pink; capillary refill 2 seconds",0,"Good perfusion."],
+         ["Pain 2/10",0,"Controlled."],
+         ["Walks to the bathroom with a walker",0,"Early mobility, as planned."],
+         ["Incision redness spreading 3 cm with cloudy drainage; T 101.2 °F; WBC 14,200/mm³",1,"Signs of wound infection. An infected graft can fail, so report it now."],
+         ["Glucose 248 mg/dL before breakfast",1,"High glucose feeds infection and slows healing."],
+         ["\"Now that my leg is fixed, I can keep smoking\"",1,"Smoking can close the new graft. Quitting is essential."]],
+   think:["Which findings together point to infection?","How does high glucose affect wound healing?","How would you respond to Roberto's comment about smoking?"]},
+ 7:{prompt:"Stretch item. Complete the bowtie for Roberto's condition at his first visit: choose the condition, 2 actions to take, and 2 parameters to monitor.",
+   cond:{opts:["Peripheral arterial disease","Chronic venous insufficiency","Deep vein thrombosis","Raynaud phenomenon"],a:[0],why:"Claudication, rest pain, weak pulses, pallor on elevation and an arterial toe ulcer."},
+   act:{opts:["Protect the feet: daily inspection, proper shoes, no heat","Antiplatelet, statin and smoking cessation","Compression stockings","Elevate the legs above the heart","Soak the feet in hot water"],a:[0,1],why:"Foot protection prevents injury, and the medications and quitting slow the disease. The others are unsafe for arterial disease."},
+   mon:{opts:["Pedal pulses, color, temperature and capillary refill","Healing of the toe ulcer and signs of infection","Calf circumference","Daily weight","Peak expiratory flow"],a:[0,1],why:"These show perfusion and whether the limb is improving or getting worse."},
+   think:["How would this bowtie change for a client with venous insufficiency?","What would make you call the provider about Roberto's foot?"]}
+};
+
+const NOTES = [
+ {s:2,t:"Week 1",h:"Test results",p:["Ankle-brachial index: right 0.52, left 0.86.","Arterial duplex: 80% narrowing of the right superficial femoral artery."]},
+ {s:3,t:"Week 2",h:"Follow-up visit",p:["Roberto says, \"My dad had bad legs too. I figured it was just old age.\" He asks whether he can keep soaking his feet in hot water to warm them up."]},
+ {s:5,t:"POD 1 · 0300",h:"Nursing note",p:["Right femoral-popliteal bypass (vein graft) done yesterday. At 2300 the right dorsalis pedis Doppler signal was strong and the foot was warm and pink.","0300: Roberto calls the nurse. His right foot \"feels dead and asleep,\" pain 9/10. Right foot cool, pale and mottled; capillary refill over 5 seconds. No Doppler signal at the right dorsalis pedis. He can barely wiggle his toes. Left foot unchanged."]},
+ {s:6,t:"POD 3 · 0800",h:"Nursing note",p:["Emergency thrombectomy and graft revision done at 0500 on Day 1. Right foot warm and pink, capillary refill 2 seconds, pedal pulse palpable 2+. Pain 2/10. Walked to the bathroom with a walker.","Groin-to-knee incision: redness spreading 3 cm beyond the edges, with cloudy drainage at the groin end. Fingerstick glucose 248 mg/dL before breakfast. He says, \"Now that my leg is fixed, I can keep smoking.\""]}
+];
+const VCOLS=[["t","Time"],["T","T °F"],["BP","BP"],["HR","HR"],["RR","RR"],["O2","SpO₂"],["ped","R pedal"],["pain","Pain /10"]];
+const VITALS=[
+ {s:1,t:"Visit 1",T:"98.2",BP:"138/82",HR:80,RR:16,O2:"97% RA",ped:"1+",pain:"3 (walking)"},
+ {s:5,t:"POD1 2300",T:"98.6",BP:"132/78",HR:84,RR:16,O2:"96% RA",ped:"Strong Doppler",pain:"2"},
+ {s:5,t:"POD1 0300",T:"98.4",BP:"146/84",HR:104,RR:20,O2:"96% RA",ped:"No Doppler signal",pain:"9"},
+ {s:6,t:"POD1 0900",T:"98.8",BP:"134/80",HR:88,RR:18,O2:"97% RA",ped:"Strong Doppler",pain:"3"},
+ {s:6,t:"POD3 0800",T:"101.2",BP:"128/76",HR:92,RR:18,O2:"97% RA",ped:"2+ palpable",pain:"2"}
+];
+const LAB_DEF={
+ abir:{n:"ABI, right",u:"",r:"1.00–1.40",lo:1.0,hi:1.4},
+ abil:{n:"ABI, left",u:"",r:"1.00–1.40",lo:1.0,hi:1.4},
+ a1c:{n:"A1C",u:"%",r:"< 7.0 (diabetes goal)",lo:null,hi:6.9},
+ ldl:{n:"LDL",u:"mg/dL",r:"< 70 (PAD goal)",lo:null,hi:69},
+ wbc:{n:"WBC",u:"/mm³",r:"4,500–11,000",lo:4500,hi:11000},
+ glu:{n:"Glucose",u:"mg/dL",r:"70–180 (inpatient)",lo:70,hi:180},
+ cr:{n:"Creatinine",u:"mg/dL",r:"0.6–1.2",lo:0.6,hi:1.2},
+ hgb:{n:"Hemoglobin",u:"g/dL",r:"13.5–17.5",lo:13.5,hi:17.5}
+};
+const LABS=[
+ {s:2,t:"Week 1",v:{abir:0.52,abil:0.86,a1c:8.9,ldl:156,wbc:7400,cr:1.1,hgb:14.0}},
+ {s:6,t:"POD 3",v:{wbc:14200,glu:248,cr:1.0,hgb:12.1}}
+];
+const ORDERS=[
+ {s:5,h:"Treatment plan (Visit 2)",items:["Vascular surgery referral; angiography with possible bypass","Aspirin 81 mg daily","Atorvastatin 80 mg daily","Varenicline; smoking cessation counseling","Diabetes educator; adjust glucose medications","Daily foot inspection; no heat to the feet"]},
+ {s:5,h:"Post-op orders (right fem-pop bypass)",items:["Pedal pulses by palpation or Doppler, color, temperature, capillary refill and movement every hour × 24","Keep the right knee straight; no pillows under the knee","Notify the surgeon at once for loss of pulse or Doppler signal","Glucose before meals and at bedtime"]}
+];
+
+const STEP_DEF=[["Recognize cues","highlight","Highlight in text"],["Analyze cues","matrix","Matrix · select one per row"],["Prioritize hypotheses","cloze","Cloze · drop-down"],["Generate solutions","matrix","Matrix · select one per row"],["Take actions","selectN","Select 4, then mark the first"],["Evaluate outcomes","matrix","Trend · select one per row"],["Bowtie","bowtie","Bowtie · 1 + 2 + 2"]];
+const STAGES=STEP_DEF.map((d,i)=>({id:i+1,step:d[0],type:d[1],label:d[2],time:CASE.times[i][0],when:CASE.times[i][1]}));
+NOTES.unshift({s:1,t:CASE.note1[0],h:CASE.note1[1],p:[ITEMS[1].text.map(x=>x[0]).join("")]});
+
+/* ---------- state ---------- */
+const S = {stage:1, tab:"notes", resp:{}, checked:{}, name:"", reflect:""};
+const KEY=CASE.key;
+try{const d=JSON.parse(localStorage.getItem(KEY)||"null"); if(d){S.resp=d.resp||{};S.checked=d.checked||{};S.stage=d.stage||1;S.name=d.name||"";S.reflect=d.reflect||"";}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({resp:S.resp,checked:S.checked,stage:S.stage,name:S.name,reflect:S.reflect}))}catch(e){}}
+function unlocked(id){ for(let k=1;k<id;k++){ if(!S.checked[k]) return false; } return true; }
+function hasAnswer(id){const it=ITEMS[id], r=S.resp[id]||{};
+  if(id===1) return Object.values(r).some(Boolean);
+  if(it.rows) return it.rows.every((_,i)=>r[i]!=null);
+  if(it.blanks) return it.blanks.every((_,i)=>r[i]!=null);
+  if(id===5) return (r.sel||[]).length===it.need && r.first!=null;
+  if(id===7) return ["cond","act","mon"].every(k=>(r[k]||[]).length===it[k].a.length);
+}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function stageOf(id){return STAGES.find(x=>x.id===id)}
+function maxFor(id){const it=ITEMS[id];
+  if(id===1) return it.text.filter(x=>x[2]===1).length;
+  if(it.rows) return it.rows.length;
+  if(it.blanks) return it.blanks.length;
+  if(id===5) return it.need+1;
+  if(id===7) return 5;}
+function scoreFor(id){const it=ITEMS[id], r=S.resp[id]||{};
+  if(id===1){let s=0; for(const x of it.text){ if(x[1] && r[x[1]]) s+= x[2]?1:-1;} return Math.max(0,s);}
+  if(it.rows){return it.rows.reduce((a,row,i)=>a+(r[i]===row[1]?1:0),0);}
+  if(it.blanks){return it.blanks.reduce((a,b,i)=>a+(Number(r[i])===b.a?1:0),0);}
+  if(id===5){const sel=r.sel||[]; let s=sel.filter(i=>it.opts[i][1]===1).length; if(r.first===it.first) s+=1; return s;}
+  if(id===7){let s=0; ["cond","act","mon"].forEach(k=>{const sel=r[k]||[]; sel.forEach(i=>{if(it[k].a.includes(i)) s++;});}); return s;}
+}
+
+/* ---------- render: rail ---------- */
+function renderRail(){
+  $("#rail").innerHTML = STAGES.map(st=>{
+    const done=S.checked[st.id];
+    const open=unlocked(st.id);
+    const meta = done ? `${scoreFor(st.id)} / ${maxFor(st.id)} pts` : (!open?"Locked":(st.id===7?"Optional":st.time));
+    return `<button class="step${done?" done":""}" data-stage="${st.id}" ${open?"":"disabled"} ${S.stage===st.id?'aria-current="step"':""}>
+      <span class="n">${st.id===7?"Stretch":"Stage "+st.id}</span><span class="l">${esc(st.step)}</span><span class="s">${meta}</span></button>`;
+  }).join("");
+}
+/* ---------- render: chart ---------- */
+const TABS=[["notes","Notes"],["vitals","Vital signs"],["labs","Labs"],["orders","Orders"]];
+function visibleStage(){return S.stage===7?6:S.stage}
+function hasNew(tab){const v=visibleStage();
+  if(tab==="notes") return NOTES.some(n=>n.s===v);
+  if(tab==="vitals") return VITALS.some(n=>n.s===v);
+  if(tab==="labs") return LABS.some(n=>n.s===v);
+  if(tab==="orders") return ORDERS.some(n=>n.s===v);}
+function renderTabs(){
+  $("#tabs").innerHTML = TABS.map(([k,l])=>`<button class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${l}${hasNew(k)&&S.stage!==7?'<span class="new" aria-label="new data"></span>':""}</button>`).join("");
+}
+function flagLab(key,val){const d=LAB_DEF[key]; if(d.hi!=null&&val>d.hi) return "H"; if(d.lo!=null&&val<d.lo) return "L"; return "";}
+function vflag(k,v){ if(v==null) return ""; v=String(v);
+  if(k==="BP"){const p=v.split("/").map(Number); if(isNaN(p[0])) return ""; if(p[0]<90) return " L"; if(p[0]>=140||p[1]>=90) return " H"; return "";}
+  const n=parseFloat(v); if(isNaN(n)) return "";
+  if(k==="HR") return n>100?" H":n<60?" L":"";
+  if(k==="RR") return n>20?" H":n<12?" L":"";
+  if(k==="O2") return n<92?" L":"";
+  if(k==="MAP") return n<65?" L":"";
+  if(k==="UO") return n<30?" L":"";
+  if(k==="T") return n>=100.4?" H":"";
+  return "";}
+function renderChart(){
+  const v=visibleStage(); let h="";
+  if(S.tab==="notes"){
+    const list=NOTES.filter(n=>n.s<=v).slice().reverse();
+    h=list.map(n=>`<article class="note${n.s===v?" fresh":""}"><div class="when">${n.t}</div><h3>${esc(n.h)}</h3>${n.p.map(p=>`<p>${esc(p)}</p>`).join("")}</article>`).join("");
+  } else if(S.tab==="vitals"){
+    const list=VITALS.filter(n=>n.s<=v);
+    h=`<div class="tbl"><table><thead><tr>${VCOLS.map(c=>`<th>${c[1]}</th>`).join("")}</tr></thead><tbody>${
+      list.map(r=>`<tr>${VCOLS.map(c=>`<td class="num${vflag(c[0],r[c[0]])}">${r[c[0]]==null?"—":esc(r[c[0]])}</td>`).join("")}</tr>`).join("")
+    }</tbody></table></div>`;
+  } else if(S.tab==="labs"){
+    const cols=LABS.filter(n=>n.s<=v);
+    if(!cols.length){h=`<p class="empty">${esc(CASE.labsEmpty)}</p>`}
+    else{
+      const keys=Object.keys(LAB_DEF).filter(k=>cols.some(c=>c.v[k]!=null));
+      h=`<div class="tbl"><table><thead><tr><th>Test</th>${cols.map(c=>`<th>${c.t}</th>`).join("")}<th>Reference</th></tr></thead><tbody>${
+        keys.map(k=>`<tr><td>${LAB_DEF[k].n}</td>${cols.map(c=>{const x=c.v[k]; if(x==null) return `<td class="num ref">—</td>`; const f=flagLab(k,x); return `<td class="num ${f}">${x}${f?`<span class="flag">${f}</span>`:""}</td>`}).join("")}<td class="ref">${LAB_DEF[k].r} ${LAB_DEF[k].u}</td></tr>`).join("")
+      }</tbody></table></div><p class="ref">Reference ranges vary by lab. Swap in your program's textbook values if they differ.</p>`;
+    }
+  } else {
+    const list=ORDERS.filter(n=>n.s<=v);
+    h=list.length?list.map(o=>`<article class="note"><h3>${esc(o.h)}</h3><ul class="orders">${o.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></article>`).join(""):`<p class="empty">${esc(CASE.ordersEmpty)}</p>`;
+  }
+  $("#chart").innerHTML=h;
+}
+
+/* ---------- render: item ---------- */
+function renderItem(){
+  const st=stageOf(S.stage), it=ITEMS[S.stage], r=S.resp[S.stage]||(S.resp[S.stage]={}), done=!!S.checked[S.stage];
+  let body="";
+  if(st.type==="highlight"){
+    body=`<div class="scenario">${it.text.map(x=>{
+      if(!x[1]) return esc(x[0]);
+      let c="hl"; if(r[x[1]]) c+=" on";
+      if(done){ if(r[x[1]]&&x[2]) c+=" right"; else if(r[x[1]]&&!x[2]) c+=" wrong"; else if(!r[x[1]]&&x[2]) c+=" missed"; }
+      return `<span class="${c}" role="button" tabindex="0" aria-pressed="${!!r[x[1]]}" data-hl="${x[1]}">${esc(x[0])}</span>`;}).join("")}</div>`;
+  } else if(st.type==="matrix"){
+    body=`<div class="tbl"><table class="matrix"><thead><tr><th>Finding</th>${it.cols.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${
+      it.rows.map((row,i)=>{const cls=done?(r[i]===row[1]?"right":"wrong"):"";
+        return `<tr class="${cls}"><td>${esc(row[0])}</td>${it.cols.map((c,j)=>`<td><button class="cell${r[i]===j?" on":""}${done&&row[1]===j&&r[i]!==j?" key":""}" data-row="${i}" data-col="${j}" aria-label="${esc(row[0])}: ${c}" aria-pressed="${r[i]===j}"></button></td>`).join("")}</tr>`}).join("")
+    }</tbody></table></div>`;
+  } else if(st.type==="cloze"){
+    body=`<p class="cloze">${it.parts.map(p=>{
+      if(typeof p==="string") return esc(p);
+      const b=it.blanks[p], val=r[p]; const cls=done?(Number(val)===b.a?"right":"wrong"):"";
+      return `<select id="blank${p}" class="${cls}" data-blank="${p}" ${done?"disabled":""} aria-label="Blank ${p+1}"><option value="">Select…</option>${b.opts.map((o,i)=>`<option value="${i}" ${String(val)===String(i)?"selected":""}>${esc(o)}</option>`).join("")}</select>`;}).join("")}</p>`;
+  } else if(st.type==="selectN"){
+    const sel=r.sel||[];
+    body=`<p class="itype">${sel.length} of ${it.need} selected</p><div class="opts">${it.opts.map((o,i)=>{
+      let c="opt"; const on=sel.includes(i); if(on) c+=" on";
+      if(done){ if(on&&o[1]) c+=" right"; else if(on&&!o[1]) c+=" wrong"; else if(!on&&o[1]) c+=" missed"; }
+      const firstBtn = on?`<span class="first${r.first===i?" on":""}" role="button" tabindex="0" data-first="${i}">${r.first===i?"First":"Mark first"}</span>`:"<span></span>";
+      return `<div class="${c}"><button class="box" data-opt="${i}" aria-pressed="${on}" aria-label="Select option ${i+1}">${on?"✓":""}</button><span data-opt="${i}" style="cursor:pointer">${esc(o[0])}</span>${firstBtn}</div>`;}).join("")}</div>`;
+  } else if(st.type==="bowtie"){
+    const col=(k,title,mid)=>{const sel=r[k]||[]; const need=it[k].a.length;
+      return `<div class="bt-col${mid?" mid":""}"><h3>${title} · pick ${need}</h3>${it[k].opts.map((o,i)=>{
+        let c="tok"; const on=sel.includes(i); if(on) c+=" on";
+        if(done){ const key=it[k].a.includes(i); if(on&&key) c+=" right"; else if(on&&!key) c+=" wrong"; else if(!on&&key) c+=" missed"; }
+        return `<button class="${c}" data-bt="${k}" data-i="${i}" aria-pressed="${on}">${esc(o)}</button>`;}).join("")}</div>`;};
+    body=`<div class="bowtie">${col("act","Actions to take")}${col("cond","Condition",true)}${col("mon","Parameters to monitor")}</div>`;
+  }
+
+  let rat="";
+  if(done){
+    let li=[];
+    if(st.type==="highlight") li=it.text.filter(x=>x[1]).map(x=>`<li><b class="${x[2]?"ok":"no"}">${x[2]?"Concern":"Not immediate"}:</b> ${esc(x[0])}. ${esc(it.why[x[1]])}</li>`);
+    if(st.type==="matrix") li=it.rows.map(row=>`<li><b class="${row[1]===0?"no":"ok"}">${it.cols[row[1]]}:</b> ${esc(row[0])}. ${esc(row[2])}</li>`);
+    if(st.type==="cloze") li=it.blanks.map((b,i)=>`<li><b class="ok">Blank ${i+1}: ${esc(b.opts[b.a])}.</b> ${esc(b.why)}</li>`);
+    if(st.type==="selectN") li=it.opts.map((o,i)=>`<li><b class="${o[1]?"ok":"no"}">${o[1]?(i===it.first?"Do first":"Do now"):"Not now"}:</b> ${esc(o[0])}. ${esc(o[2])}</li>`);
+    if(st.type==="bowtie") li=[["cond","Condition"],["act","Actions"],["mon","Monitor"]].map(([k,l])=>`<li><b class="ok">${l}: ${it[k].a.map(i=>esc(it[k].opts[i])).join("; ")}.</b> ${esc(it[k].why)}</li>`);
+    rat=`<div class="rat"><h3>Rationales</h3><ul>${li.join("")}</ul></div>`;
+  }
+  const fac = done?`<div class="think"><h3>Think it through</h3><ul>${it.think.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div>`:"";
+  const next = done&&S.stage<7?`<button class="btn ghost" id="nextBtn">${S.stage===6?"Optional bowtie":"Next stage"} →</button>`:"";
+  const ready = hasAnswer(S.stage);
+  const sc = done?`<span class="score">${scoreFor(S.stage)} / ${maxFor(S.stage)} <small>points${S.stage===1?" (+1 each concern, −1 each extra)":""}</small></span>`:"";
+  $("#item").innerHTML=`
+    <div class="ihead"><div><div class="tag">${S.stage===7?"Stretch":"Stage "+S.stage} · ${esc(st.step)}</div><h2>${S.stage===7?"Bowtie":esc(st.when)}</h2></div><span class="itype">${esc(st.label)}</span></div>
+    <p class="prompt">${esc(it.prompt)}</p>
+    ${body}
+    <div class="actions">${done?"":`<button class="btn" id="checkBtn" ${ready?"":"disabled"}>Check answers</button><button class="btn ghost" id="resetBtn">Clear</button><span class="hint">${ready?"Checking locks your answers.":(S.stage===5?"Select 4 actions and mark one as first.":"Answer every part to check.")}</span>`}${sc}${next}</div>
+    ${rat}${fac}`;
+}
+
+/* ---------- render: board ---------- */
+function totals(){const core=[1,2,3,4,5,6];return {got:core.filter(k=>S.checked[k]).reduce((a,k)=>a+scoreFor(k),0),max:core.reduce((a,k)=>a+maxFor(k),0),done:core.filter(k=>S.checked[k]).length};}
+function renderBoard(){
+  const t=totals();
+  $("#board").innerHTML=`<span class="lbl">Your progress</span><span class="prog">${t.done} of 6 stages</span><span class="bar" aria-hidden="true"><i style="width:${Math.round(t.done/6*100)}%"></i></span><span class="prog">Score ${t.got} / ${t.max}${S.checked[7]?` · bowtie ${scoreFor(7)} / 5`:""}</span>`;
+}
+function renderResults(){
+  const el=$("#results");
+  if(!S.checked[6]){el.hidden=true; el.innerHTML=""; return;}
+  const t=totals();
+  el.hidden=false;
+  el.innerHTML=`<h2>Case complete</h2>
+   <p>Your score: <b>${t.got} / ${t.max}</b>${S.checked[7]?` plus <b>${scoreFor(7)} / 5</b> on the bowtie`:" (the bowtie is optional)"}. Go back to any stage to reread the rationales.</p>
+   <label for="reflect"><b>Reflection:</b> what is one thing you would do differently if ${esc(CASE.first)} were your real patient?</label>
+   <textarea id="reflect">${esc(S.reflect)}</textarea>
+   <label for="sname"><b>Your name</b></label>
+   <input id="sname" type="text" autocomplete="name" value="${esc(S.name)}">
+   <div class="actions"><button class="btn" id="sumBtn">Create my summary</button></div>
+   <div id="sumWrap" hidden style="display:flex;flex-direction:column;gap:8px">
+     <p>Copy this and paste it into the course assignment.</p>
+     <textarea id="summary" class="summary" readonly aria-label="Your summary"></textarea>
+     <div class="actions"><button class="btn ghost" id="copyBtn">Copy summary</button><span id="copyMsg" class="hint" aria-live="polite"></span></div>
+   </div>`;
+}
+function makeSummary(){
+  const t=totals(); const d=new Date();
+  const lines=STAGES.filter(x=>x.id<7).map(x=>`  Stage ${x.id} (${x.step}): ${scoreFor(x.id)} / ${maxFor(x.id)}`);
+  $("#summary").value=`${CASE.title} (unfolding case, at home)\nName: ${S.name.trim()||"(name not entered)"}\nCompleted: ${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}\nScore: ${t.got} / ${t.max}${S.checked[7]?` (bowtie ${scoreFor(7)} / 5)`:""}\n${lines.join("\n")}\nReflection: ${S.reflect.trim()||"(none entered)"}`;
+  $("#sumWrap").hidden=false;
+}
+function renderAll(){renderRail();renderTabs();renderChart();renderItem();renderBoard();renderResults();save();}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,[data-hl],[data-first],[data-opt]"); if(!t) return;
+  const id=S.stage, it=ITEMS[id], r=S.resp[id]||(S.resp[id]={}), done=!!S.checked[id];
+  if(t.dataset.stage){if(!unlocked(+t.dataset.stage)) return; S.stage=+t.dataset.stage; renderAll(); return;}
+  if(t.dataset.tab){S.tab=t.dataset.tab; renderTabs(); renderChart(); return;}
+  if(t.id==="sumBtn"){makeSummary(); save(); return;}
+  if(t.id==="copyBtn"){const ta=$("#summary"), msg=$("#copyMsg");
+    const ok=()=>{msg.textContent="Copied. Paste it into the course assignment."; msg.className="ok-msg";};
+    const fb=()=>{ta.focus(); ta.select(); msg.textContent="Text selected. Press Ctrl+C (or ⌘C) to copy."; msg.className="hint";};
+    try{navigator.clipboard.writeText(ta.value).then(ok,fb);}catch(err){fb();}
+    return;}
+  if(t.id==="checkBtn"){if(!hasAnswer(id)) return; S.checked[id]=true; renderAll(); return;}
+  if(t.id==="resetBtn"){if(done) return; S.resp[id]={}; renderItem(); save(); return;}
+  if(t.id==="nextBtn"){if(!done) return; S.stage=Math.min(7,id+1); if(S.tab!=="notes"&&!hasNew(S.tab)) S.tab="notes"; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); return;}
+  if(done) return;
+  if(t.dataset.hl){r[t.dataset.hl]=!r[t.dataset.hl]; renderItem(); save(); return;}
+  if(t.dataset.row!=null){r[+t.dataset.row]=+t.dataset.col; renderItem(); save(); return;}
+  if(t.dataset.first!=null){r.first=+t.dataset.first; renderItem(); save(); return;}
+  if(t.dataset.opt!=null){const i=+t.dataset.opt; r.sel=r.sel||[];
+    if(r.sel.includes(i)){r.sel=r.sel.filter(x=>x!==i); if(r.first===i) r.first=undefined;}
+    else if(r.sel.length<it.need) r.sel.push(i);
+    renderItem(); save(); return;}
+  if(t.dataset.bt){const k=t.dataset.bt,i=+t.dataset.i,need=it[k].a.length; let sel=r[k]||[];
+    if(sel.includes(i)) sel=sel.filter(x=>x!==i); else { if(sel.length>=need) sel=sel.slice(1); sel.push(i); }
+    r[k]=sel; renderItem(); save(); return;}
+});
+document.addEventListener("keydown",e=>{
+  if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-hl],[data-first]")){e.preventDefault(); e.target.click();}
+});
+document.addEventListener("change",e=>{
+  if(e.target.dataset.blank!=null){if(S.checked[S.stage]) return; const r=S.resp[S.stage]||(S.resp[S.stage]={}); r[+e.target.dataset.blank]=e.target.value===""?undefined:+e.target.value; renderItem(); save();}
+});
+document.addEventListener("input",e=>{
+  if(e.target.id==="reflect"){S.reflect=e.target.value; save();}
+  if(e.target.id==="sname"){S.name=e.target.value; save();}
+});
+
+if(!unlocked(S.stage)) S.stage=1;
+renderAll();
+</script>
+
+</body></html>

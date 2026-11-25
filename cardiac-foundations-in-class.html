@@ -1,0 +1,1796 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cardiac Foundations In Class</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bitter:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: a full-screen 16:9-scaled stage; one slide at a time, clicker steps reveal content inside a slide. Arterial red + venous blue on clinical paper. */
+:root{
+  --paper:#F2F4F6; --surface:#FFFFFF; --ink:#15202B; --muted:#4F5E6C; --line:#D3DAE1;
+  --art:#BF2A3A; --on-art:#FFFFFF; --art-soft:#F7E2E4;
+  --ven:#2C5C9C; --on-ven:#FFFFFF; --ven-soft:#E0E9F5;
+  --good:#1D7448; --good-soft:#DCEFE4; --warn:#9A5800; --warn-soft:#FAEAD0; --bad:#B0222E; --bad-soft:#F8DEE1;
+  --monitor:#0D1714; --trace:#45D98A; --monitor-ink:#D7EDE3;
+  --depol:#C2500B; --depol-soft:#FBE3D2; --rest:#E2E6EB; --skeleton:#CDBBA6; --grid-minor:#F1D5D2; --grid-major:#E2A19B;
+  --display:'Bitter', Georgia, serif;
+  --body:'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --u:min(1vw, 1.78vh);
+  --t-hero:clamp(38px, calc(var(--u) * 6.2), 124px);
+  --t-h2:clamp(26px, calc(var(--u) * 3.5), 70px);
+  --t-h3:clamp(19px, calc(var(--u) * 1.95), 40px);
+  --t-body:clamp(16px, calc(var(--u) * 1.5), 30px);
+  --t-small:clamp(13px, calc(var(--u) * 1.15), 23px);
+  --gap:clamp(12px, calc(var(--u) * 1.6), 32px);
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F151B; --surface:#18212A; --ink:#ECF1F5; --muted:#A3B2C0; --line:#2C3A47;
+    --art:#FF7380; --on-art:#13181D; --art-soft:#3A1F25;
+    --ven:#8AB1EE; --on-ven:#13181D; --ven-soft:#1C2B40;
+    --good:#62D6A0; --good-soft:#14302A; --warn:#F2B862; --warn-soft:#3A2D16; --bad:#FF7F89; --bad-soft:#3E1D22;
+    --monitor:#07100D; --trace:#45D98A; --monitor-ink:#D7EDE3;
+    --depol:#FF9A52; --depol-soft:#3E2616; --rest:#2E3946; --skeleton:#6B5D50; --grid-minor:#3A2428; --grid-major:#5E2F35;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F151B; --surface:#18212A; --ink:#ECF1F5; --muted:#A3B2C0; --line:#2C3A47;
+  --art:#FF7380; --on-art:#13181D; --art-soft:#3A1F25;
+  --ven:#8AB1EE; --on-ven:#13181D; --ven-soft:#1C2B40;
+  --good:#62D6A0; --good-soft:#14302A; --warn:#F2B862; --warn-soft:#3A2D16; --bad:#FF7F89; --bad-soft:#3E1D22;
+  --monitor:#07100D; --trace:#45D98A; --monitor-ink:#D7EDE3;
+  --depol:#FF9A52; --depol-soft:#3E2616; --rest:#2E3946; --skeleton:#6B5D50; --grid-minor:#3A2428; --grid-major:#5E2F35;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--body); font-size:var(--t-body); line-height:1.45;
+  display:flex; flex-direction:column; overflow:hidden;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+body.presenting{padding-left:env(safe-area-inset-left, 0px); padding-right:env(safe-area-inset-right, 0px)}
+*{box-sizing:border-box}
+h1,h2,h3,p,ul,ol{margin:0}
+h1,h2,h3{font-family:var(--display); font-weight:700; text-wrap:balance; line-height:1.12}
+button{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--ven); outline-offset:2px}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+/* ---------- chrome ---------- */
+.topbar,.bottombar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:14px}
+.topbar{padding-block:10px; border-bottom:1px solid var(--line)}
+.bottombar{padding-block:10px; border-top:1px solid var(--line)}
+.brand{font-family:var(--display); font-weight:800; font-size:16px; display:flex; align-items:center; gap:8px; margin-right:auto}
+.brand .dot{width:10px; height:10px; border-radius:50%; background:var(--art); box-shadow:0 0 0 4px var(--art-soft)}
+.cbtn{border:1px solid var(--line); background:var(--surface); border-radius:8px; padding:7px 12px; cursor:pointer; font-size:14px; font-weight:700; display:inline-flex; align-items:center; gap:6px}
+.cbtn:hover{border-color:var(--muted)}
+.cbtn.primary{background:var(--art); border-color:var(--art); color:var(--on-art)}
+.cbtn kbd{font-family:var(--mono); font-size:11px; border:1px solid currentColor; border-radius:4px; padding:0 4px; opacity:.7}
+.where{flex:1; min-width:0; display:flex; align-items:center; gap:12px}
+.where .ttl{font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
+.dots{display:flex; gap:5px}
+.dots i{width:8px; height:8px; border-radius:50%; background:var(--line)}
+.dots i.on{background:var(--art)}
+.count{font-family:var(--mono); color:var(--muted); white-space:nowrap}
+.progress{position:fixed; left:0; right:0; bottom:0; height:4px; background:transparent; z-index:30; pointer-events:none}
+.progress b{display:block; height:100%; background:var(--art); width:0; transition:width .3s}
+body.presenting .topbar, body.presenting .bottombar{display:none}
+
+.float{position:fixed; right:calc(14px + env(safe-area-inset-right, 0px)); bottom:calc(14px + env(safe-area-inset-bottom, 0px)); z-index:40; display:none; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:6px; box-shadow:0 8px 30px rgba(0,0,0,.18)}
+body.presenting.show-float .float{display:flex}
+
+/* ---------- stage & slides ---------- */
+.stage{flex:1; position:relative; min-height:0}
+.slide{position:absolute; inset:0; display:none; flex-direction:column; gap:calc(var(--gap) * 1.2); overflow-y:auto; overflow-x:hidden;
+  padding-block:calc(var(--u) * 3.2); padding-inline:max(4px, calc(var(--u) * 4))}
+body.presenting .slide{padding-inline:max(16px, calc(var(--u) * 5)); padding-block:calc(var(--u) * 3.6)}
+.slide.active{display:flex}
+.slide > *{flex-shrink:0}
+.sh{display:flex; flex-direction:column; gap:6px}
+.eyebrow{font-weight:700; font-size:var(--t-small); letter-spacing:.12em; text-transform:uppercase; color:var(--art)}
+.slide h2{font-size:var(--t-h2)}
+.slide h3{font-size:var(--t-h3)}
+.lede{color:var(--muted); max-width:62ch}
+.small{font-size:var(--t-small)}
+.muted{color:var(--muted)}
+.notes{display:none}
+
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:calc(var(--gap) * 1.1); display:flex; flex-direction:column; gap:calc(var(--gap) * .6); min-width:0}
+.split{display:grid; grid-template-columns:1.05fr 1fr; gap:calc(var(--gap) * 1.4); align-items:start}
+.cols-2{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:var(--gap)}
+.cols-3{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:var(--gap)}
+.cols-4{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:var(--gap)}
+@media (max-width:900px){ .split,.cols-3,.cols-4{grid-template-columns:1fr} .cols-2{grid-template-columns:1fr} }
+@media (min-width:600px) and (max-width:900px){ .cols-4,.cols-3{grid-template-columns:repeat(2, minmax(0,1fr))} }
+
+.btn{font-weight:700; font-size:var(--t-small); padding:.55em 1em; border-radius:8px; border:1.5px solid var(--line); background:var(--surface); cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--art); border-color:var(--art); color:var(--on-art)}
+.btn.blue{background:var(--ven); border-color:var(--ven); color:var(--on-ven)}
+.btnrow{display:flex; gap:10px; flex-wrap:wrap}
+
+.pill{display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:var(--t-small); padding:.25em .75em; border-radius:999px; white-space:nowrap}
+.pill.good{background:var(--good-soft); color:var(--good)}
+.pill.warn{background:var(--warn-soft); color:var(--warn)}
+.pill.bad{background:var(--bad-soft); color:var(--bad)}
+.pill.ven{background:var(--ven-soft); color:var(--ven)}
+
+/* step reveals */
+.stepin{transition:opacity .35s ease, transform .35s ease}
+.stepin:not(.on){opacity:0; transform:translateY(10px); pointer-events:none}
+@media (prefers-reduced-motion: reduce){ .stepin{transition:none} }
+
+/* reveal cards */
+.rc{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:calc(var(--gap) * .9); display:flex; flex-direction:column; gap:8px; cursor:pointer; min-width:0; text-align:left; transition:border-color .2s, background .2s}
+.rc:hover{border-color:var(--muted)}
+.rc .q{font-weight:700}
+.rc .a{display:none}
+.rc.on .a{display:flex; flex-direction:column; gap:6px; animation:rise .3s ease}
+.rc:not(.on) .hint{display:block}
+.rc .hint{display:none; font-size:var(--t-small); color:var(--muted)}
+.rc.on{border-color:var(--ven); background:linear-gradient(var(--surface), var(--surface)) padding-box}
+@keyframes rise{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+@media (prefers-reduced-motion: reduce){ .rc.on .a{animation:none} }
+
+.analogy{display:flex; gap:12px; align-items:flex-start; background:var(--ven-soft); border-radius:var(--radius); padding:calc(var(--gap) * .9)}
+.analogy .tag{font-weight:700; font-size:var(--t-small); letter-spacing:.1em; text-transform:uppercase; color:var(--ven); white-space:nowrap; padding-top:.15em}
+
+/* ---------- cover ---------- */
+.cover{justify-content:center; gap:calc(var(--gap) * 1.6)}
+.cover h1{font-size:var(--t-hero); font-weight:800; letter-spacing:-.01em}
+.cover .sub{font-size:var(--t-h3); color:var(--muted); font-family:var(--body)}
+.monitor{background:var(--monitor); border-radius:14px; padding:calc(var(--gap) * .9); display:grid; grid-template-columns:1fr auto; gap:var(--gap); align-items:center; color:var(--monitor-ink)}
+.monitor canvas{width:100%; height:clamp(90px, calc(var(--u) * 14), 240px); display:block}
+.monitor .vit{display:flex; flex-direction:column; gap:4px; font-family:var(--mono); text-align:right}
+.monitor .vit .lab{font-size:var(--t-small); opacity:.75}
+.monitor .vit .num{font-size:var(--t-h2); color:var(--trace); font-weight:700; line-height:1}
+.kbdhint{font-size:var(--t-small); color:var(--muted)}
+.kbdhint kbd{font-family:var(--mono); border:1px solid var(--line); border-radius:5px; padding:0 .35em; background:var(--surface)}
+
+.partpick{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:var(--gap)}
+@media (max-width:700px){ .partpick{grid-template-columns:1fr} }
+.cover{gap:calc(var(--gap) * 1.1)}
+.cover .monitor{padding:calc(var(--gap) * .6) var(--gap)}
+.cover .monitor canvas{height:clamp(64px, calc(var(--u) * 8), 150px)}
+.cover .monitor .vit .num{font-size:var(--t-h3)}
+.pp{display:flex; flex-direction:column; gap:6px; text-decoration:none; color:var(--ink); background:var(--surface); border:2px solid var(--line); border-left:10px solid var(--art); border-radius:var(--radius); padding:calc(var(--gap) * .9) calc(var(--gap) * 1.1); transition:border-color .2s, transform .2s}
+.pp:hover{border-color:var(--art); transform:translateY(-2px)}
+.pp2{border-left-color:var(--depol)}
+.pp2:hover{border-color:var(--depol)}
+.pp-n{font-weight:700; font-size:var(--t-small); letter-spacing:.12em; text-transform:uppercase; color:var(--art)}
+.pp2 .pp-n{color:var(--depol)}
+.pp b{font-family:var(--display); font-size:var(--t-h2); line-height:1.1}
+.pp-d{font-size:var(--t-small); color:var(--muted)}
+@media (prefers-reduced-motion: reduce){ .pp{transition:none} .pp:hover{transform:none} }
+
+
+/* main screen: never clip the top when space is tight */
+.cover{justify-content:safe center}
+@media (max-height:820px){ .cover .monitor{display:none} .cover h1{font-size:clamp(34px, calc(var(--u) * 5), 96px)} }
+@media (max-height:620px){ .cover .kbdhint{display:none} .pp-d{display:none} }
+/* ---------- questions ---------- */
+.parking{display:flex; flex-direction:column; gap:10px}
+.parking form{display:flex; gap:8px; flex-wrap:wrap}
+.parking input{flex:1; min-width:0; font:inherit; font-size:var(--t-small); padding:.55em .8em; border-radius:8px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink)}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{background:var(--art-soft); color:var(--ink); border-radius:8px; padding:.4em .7em; font-size:var(--t-small); display:inline-flex; gap:8px; align-items:center; max-width:100%}
+.chip button{border:0; background:transparent; cursor:pointer; color:var(--muted); font-weight:700; padding:0}
+
+/* ---------- roadmap ---------- */
+.road{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:calc(var(--gap) * .7) calc(var(--gap) * 1.5)}
+@media (max-width:900px){ .road{grid-template-columns:1fr} }
+.road a{display:flex; gap:16px; align-items:baseline; text-decoration:none; color:var(--ink); padding:.55em .8em; border-radius:var(--radius); border:1px solid transparent}
+.road a:hover{border-color:var(--line); background:var(--surface)}
+.road .n{font-family:var(--display); font-weight:800; font-size:var(--t-h3); color:var(--art); min-width:1.2em}
+
+/* ---------- CO ---------- */
+.formula{font-family:var(--display); font-weight:800; font-size:calc(var(--t-hero) * .82); color:var(--art); line-height:1}
+.formula small{display:block; font-family:var(--body); font-weight:400; font-size:var(--t-small); color:var(--muted); margin-top:8px; letter-spacing:.02em}
+.ctrl{display:grid; grid-template-columns:minmax(7em, auto) 1fr minmax(4.5em, auto); gap:10px 14px; align-items:center}
+.ctrl label{font-weight:700; font-size:var(--t-small)}
+.ctrl output{font-family:var(--mono); font-weight:700; text-align:right; font-size:var(--t-small)}
+input[type=range]{width:100%; accent-color:var(--art); min-width:0}
+.readout{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap}
+.readout .big{font-family:var(--mono); font-weight:700; font-size:var(--t-h2); line-height:1}
+.track{position:relative; height:calc(var(--u) * 7); min-height:54px; border-radius:8px; background:linear-gradient(var(--line), var(--line)) 0 70% / 100% 3px no-repeat; overflow:hidden}
+.bucket{position:absolute; bottom:28%; width:calc(var(--u) * 3.2); min-width:22px; transform-origin:50% 100%}
+.bucket b{display:block; width:100%; aspect-ratio:1/1.05; background:var(--art); clip-path:polygon(0 0, 100% 0, 84% 100%, 16% 100%); border-radius:2px}
+.track .lab{position:absolute; right:8px; top:4px; font-size:var(--t-small); color:var(--muted)}
+
+/* ---------- SV ---------- */
+.det-tabs{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px}
+.det-tabs button{border:1.5px solid var(--line); background:var(--surface); border-radius:8px; padding:.6em .5em; cursor:pointer; font-weight:700; font-size:var(--t-small)}
+.det-tabs button[aria-pressed="true"]{background:var(--art); border-color:var(--art); color:var(--on-art)}
+.vent-wrap{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--gap); align-items:center}
+.vent-wrap svg{width:100%; max-width:100%; height:auto; max-height:calc(var(--u) * 30); display:block}
+.stats{display:grid; grid-template-columns:auto auto; gap:6px 14px; font-size:var(--t-small); align-items:baseline}
+.stats dt{color:var(--muted)}
+.stats dd{margin:0; font-family:var(--mono); font-weight:700; text-align:right}
+.det-card h3{display:flex; gap:12px; align-items:baseline; flex-wrap:wrap}
+.think{font-family:var(--body); font-size:var(--t-small); font-weight:700; color:var(--ven); background:var(--ven-soft); padding:.2em .6em; border-radius:999px}
+.causes{display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:var(--t-small)}
+.causes div{background:var(--paper); border-radius:8px; padding:.6em .8em}
+.causes b{display:block; margin-bottom:2px}
+.ctrl .sl-row.hl label{color:var(--art)}
+
+/* ---------- MAP ---------- */
+.gauge{position:relative; height:46px; border-radius:8px; overflow:hidden; display:flex}
+.gauge span{height:100%; display:flex; align-items:flex-end; padding:0 6px 4px; font-size:12px; font-weight:700}
+.gauge .z1{background:var(--bad-soft); color:var(--bad)}
+.gauge .z2{background:var(--warn-soft); color:var(--warn)}
+.gauge .z3{background:var(--good-soft); color:var(--good)}
+.gauge .z4{background:var(--warn-soft); color:var(--warn)}
+.marker{position:absolute; top:0; bottom:0; width:4px; background:var(--ink); border-radius:2px; transition:left .25s}
+.scale{position:relative; height:20px; font-family:var(--mono); font-size:12px; color:var(--muted)}
+.scale span{position:absolute; transform:translateX(-50%)}
+.mapcalc{font-family:var(--mono); font-size:var(--t-small); color:var(--muted)}
+
+/* ---------- reflex loop ---------- */
+.loop{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; align-items:stretch}
+@media (max-width:900px){ .loop{grid-template-columns:1fr} }
+.node{position:relative; background:var(--surface); border:1.5px solid var(--line); border-radius:var(--radius); padding:.8em .9em; font-size:var(--t-small); display:flex; flex-direction:column; gap:4px}
+.node b{font-size:var(--t-body)}
+.node.lit{border-color:var(--art); box-shadow:0 0 0 4px var(--art-soft)}
+.node .arrow{position:absolute; right:-12px; top:50%; transform:translateY(-50%); color:var(--muted); font-weight:800; z-index:2}
+@media (max-width:900px){ .node .arrow{display:none} }
+
+/* ---------- heart sounds ---------- */
+.snd{display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:center}
+.play{width:clamp(44px, calc(var(--u) * 4.4), 76px); aspect-ratio:1; border-radius:50%; border:0; background:var(--art); color:var(--on-art); cursor:pointer; font-size:var(--t-body); font-weight:800; display:grid; place-items:center}
+.play.blue{background:var(--ven); color:var(--on-ven)}
+.play[aria-pressed="true"]{box-shadow:0 0 0 5px var(--art-soft)}
+.tl{position:relative; height:28px; border-radius:6px; background:var(--paper); margin-top:6px}
+.tl i{position:absolute; top:4px; bottom:4px; width:6px; border-radius:3px; background:var(--ink)}
+.tl i.x{background:var(--art)}
+.tl i.n{background:repeating-linear-gradient(90deg, var(--art) 0 3px, transparent 3px 6px); width:auto}
+.tl em{position:absolute; top:-1.35em; font-style:normal; font-family:var(--mono); font-size:11px; color:var(--muted); transform:translateX(-25%)}
+
+/* ---------- chips sort ---------- */
+.rf{display:flex; flex-wrap:wrap; gap:10px}
+.rf button{border:1.5px solid var(--line); background:var(--surface); border-radius:999px; padding:.45em 1em; font-weight:700; font-size:var(--t-small); cursor:pointer; display:inline-flex; gap:8px; align-items:center}
+.rf button .k{display:none; font-weight:700}
+.rf button.on.mod{background:var(--good-soft); border-color:var(--good); color:var(--good)}
+.rf button.on.non{background:var(--ven-soft); border-color:var(--ven); color:var(--ven)}
+.rf button.on .k{display:inline}
+.seq{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px}
+@media (max-width:600px){ .seq{grid-template-columns:repeat(2, minmax(0,1fr))} }
+.seq div{background:var(--paper); border-radius:8px; padding:.6em .7em; font-size:var(--t-small)}
+.seq b{display:block; font-size:var(--t-body)}
+
+/* ---------- verdict ---------- */
+.verdict{font-weight:700}
+.verdict.yes{color:var(--good)}
+.verdict.no{color:var(--bad)}
+
+/* ---------- case ---------- */
+.vitals{background:var(--monitor); color:var(--monitor-ink); border-radius:12px; padding:calc(var(--gap) * .8) var(--gap); display:flex; flex-wrap:wrap; gap:calc(var(--gap) * .6) calc(var(--gap) * 1.6); align-items:baseline}
+.vitals .v{display:flex; flex-direction:column; font-family:var(--mono)}
+.vitals .v span{font-size:12px; opacity:.75; letter-spacing:.08em}
+.vitals .v b{font-size:var(--t-h3); color:var(--trace)}
+.vitals .v b.alarm{color:#FF8A94}
+.vitals .note{font-size:var(--t-small); flex-basis:100%}
+.cj .num{font-family:var(--mono); font-weight:700; color:var(--art); font-size:var(--t-small)}
+
+/* ---------- quiz ---------- */
+.qcard{gap:12px}
+.opts{display:flex; flex-direction:column; gap:8px}
+.opts button{display:flex; gap:10px; align-items:baseline; text-align:left; border:1.5px solid var(--line); background:var(--paper); border-radius:8px; padding:.55em .8em; cursor:pointer; font-size:var(--t-small)}
+.opts button b{font-family:var(--mono)}
+.opts button.right{border-color:var(--good); background:var(--good-soft); color:var(--good)}
+.opts button.wrong{border-color:var(--bad); background:var(--bad-soft); color:var(--bad)}
+.why{display:none; font-size:var(--t-small); color:var(--muted)}
+.qcard.done .why{display:block}
+
+/* ---------- wrap ---------- */
+.wrapup{background:var(--art); color:var(--on-art); border-radius:16px; padding:calc(var(--gap) * 2); display:flex; flex-direction:column; gap:var(--gap)}
+.wrapup p.big{font-family:var(--display); font-weight:700; font-size:var(--t-h2); line-height:1.2; text-wrap:balance}
+
+/* ---------- heart drag & drop ---------- */
+[hidden]{display:none !important}
+.fillslide{user-select:none; -webkit-user-select:none}
+.fillslide .hrow{flex:1 1 auto; min-height:420px; display:grid; grid-template-columns:minmax(220px, 21%) minmax(0,1fr); gap:var(--gap)}
+.hside{display:flex; flex-direction:column; min-height:0; min-width:0}
+.hside .panel{flex:1; min-height:0; overflow:auto}
+.hstat{display:flex; gap:8px; flex-wrap:wrap}
+.bank{display:flex; flex-wrap:wrap; gap:8px; align-content:flex-start}
+.chip-t{border:1.5px solid var(--line); background:var(--paper); color:var(--ink); border-radius:8px; padding:.4em .7em; font-weight:700; font-size:var(--t-small); cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; text-align:left; line-height:1.2}
+.chip-t:hover{border-color:var(--ven)}
+.chip-t.sel{border-color:var(--ven); background:var(--ven-soft); box-shadow:0 0 0 3px var(--ven-soft)}
+.chip-t.lift{opacity:.35}
+.ghost{position:fixed; left:0; top:0; z-index:80; pointer-events:none; border:1.5px solid var(--ven); background:var(--surface); color:var(--ink); border-radius:8px; padding:.4em .7em; font-weight:700; font-size:var(--t-small); box-shadow:0 10px 30px rgba(0,0,0,.25); white-space:nowrap}
+.hwrap{position:relative; min-height:0; min-width:0; container-type:size}
+.board{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(100cqw, calc(100cqh * 760 / 520)); aspect-ratio:760/520; container-type:inline-size; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius)}
+.heartimg{position:absolute; left:21.25%; top:.385%; width:53.74%; height:85.58%; max-width:none; user-select:none; -webkit-user-drag:none; pointer-events:none}
+.leads{position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none}
+.leads line{stroke:var(--ink); stroke-width:1.6px; vector-effect:non-scaling-stroke}
+.leads circle{fill:var(--ink); transition:r .2s}
+.leads g.hot line{stroke:var(--ven); stroke-width:3px}
+.leads g.hot circle{fill:var(--ven); r:5.5px}
+.leads g.flow-d line{stroke:var(--ven); stroke-width:3.5px}
+.leads g.flow-d circle{fill:var(--ven); r:6px}
+.leads g.flow-o line{stroke:var(--art); stroke-width:3.5px}
+.leads g.flow-o circle{fill:var(--art); r:6px}
+.lbox{position:absolute; display:flex; align-items:center; gap:.4cqw; padding:0 .7cqw; border:1.5px dashed var(--muted); background:var(--surface); border-radius:6px; font-size:1.62cqw; line-height:1.02; font-weight:700; color:var(--ink); cursor:pointer; overflow:hidden; transition:background .2s, border-color .2s, box-shadow .2s}
+.lbox .ph{color:var(--muted); font-weight:400; opacity:.6}
+.lbox.hot{border-style:solid; border-color:var(--ven); background:var(--ven-soft)}
+.lbox.ok{border:2px solid var(--good); background:var(--good-soft); color:var(--good); cursor:default}
+.lbox.bad{border:2px solid var(--bad); background:var(--bad-soft); color:var(--bad); cursor:grab; touch-action:none}
+.lbox.ok::before{content:"✓"; font-weight:800}
+.lbox.bad::before{content:"✗"; font-weight:800}
+.lbox.pop{animation:pop .35s ease}
+.lbox.shake{animation:shake .35s ease}
+.lbox.flow-d{box-shadow:0 0 0 .45cqw var(--ven); border-color:var(--ven)}
+.lbox.flow-o{box-shadow:0 0 0 .45cqw var(--art); border-color:var(--art)}
+@keyframes pop{50%{transform:scale(1.08)}}
+@keyframes shake{25%{transform:translateX(-4px)} 75%{transform:translateX(4px)}}
+@media (prefers-reduced-motion: reduce){ .lbox.pop,.lbox.shake{animation:none} }
+.hcap{font-size:calc(var(--t-body) * .85); font-weight:700; line-height:1.35; padding:.6em .8em; border-radius:8px; background:var(--ven-soft); color:var(--ink); border-left:6px solid var(--ven)}
+.hcap.o{background:var(--art-soft); border-left-color:var(--art)}
+.hcap.x{background:var(--good-soft); border-left-color:var(--good)}
+.hsteps{margin:0; padding-left:1.6em; font-size:var(--t-small); display:flex; flex-direction:column; gap:2px; color:var(--muted)}
+.hsteps li{cursor:pointer; padding:1px 4px; border-radius:4px}
+.hsteps li.cur{color:var(--ink); font-weight:700; background:var(--paper)}
+.hsteps li.done{color:var(--ink)}
+@media (max-width:900px){ .fillslide .hrow{grid-template-columns:1fr; min-height:0} .hwrap{height:70vw; min-height:260px} }
+
+
+/* ---------- structure slides ---------- */
+.st-grid{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:calc(var(--gap) * 1.4); align-items:start}
+@media (max-width:900px){ .st-grid{grid-template-columns:1fr} }
+.mini{position:relative; width:min(100%, calc((100vh - 300px) * 760 / 520)); aspect-ratio:760/520; max-width:100%; container-type:inline-size; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); justify-self:center}
+body.presenting .mini{width:min(100%, calc((100vh - 200px) * 760 / 520))}
+.mini .leads line{stroke-width:3.5px}
+.leads.c-d line{stroke:var(--ven)} .leads.c-d circle{fill:var(--ven)}
+.leads.c-o line{stroke:var(--art)} .leads.c-o circle{fill:var(--art)}
+.leads.c-n line{stroke:var(--good)} .leads.c-n circle{fill:var(--good)}
+.st-box{cursor:default; border-style:solid; border-width:2px; font-size:2.05cqw; height:auto !important; min-height:5.77%; padding-block:.35cqw; overflow:visible}
+.st-box.c-d{border-color:var(--ven); background:var(--ven-soft)}
+.st-box.c-o{border-color:var(--art); background:var(--art-soft)}
+.st-box.c-n{border-color:var(--good); background:var(--good-soft)}
+.st-info{display:flex; flex-direction:column; gap:var(--gap); min-width:0}
+.route{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:12px; align-items:center; background:var(--paper); border-radius:8px; padding:.6em .8em}
+.route div{display:flex; flex-direction:column; gap:2px; min-width:0}
+.route b{font-size:var(--t-small)}
+.route .arr{font-weight:800; color:var(--muted); font-size:var(--t-h3)}
+.st-pill{font-size:var(--t-body)}
+
+/* ---------- part 2: electrophysiology ---------- */
+.p2-divider{justify-content:center; gap:calc(var(--gap) * 1.6)}
+.p2-divider h1{font-size:var(--t-hero); font-weight:800}
+.p2-divider .sub{font-size:var(--t-h3); color:var(--muted); font-family:var(--body)}
+.p2-divider .eyebrow{color:var(--depol)}
+.ep2{display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.15fr); gap:calc(var(--gap) * 1.2); align-items:start}
+@media (max-width:900px){ .ep2{grid-template-columns:1fr} }
+.cheart svg{width:100%; height:auto; display:block; max-height:calc(100vh - 300px)}
+body.presenting .cheart svg{max-height:calc(100vh - 220px)}
+.small-heart svg{max-height:calc(100vh - 470px)}
+.beat2{grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr)}
+.ap-grid{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+.paperbox{max-width:calc(36vh * 800 / 280); width:100%; align-self:center}
+#dlTrace{max-height:26vh}
+.cheart .tissue{fill:var(--rest); stroke:var(--muted); stroke-width:1.5}
+.cheart .dfill{fill:var(--depol); opacity:.5}
+.cheart .skel{fill:var(--skeleton); opacity:.6}
+.cheart .cond{fill:none; stroke:var(--muted); stroke-width:3; stroke-linecap:round; opacity:.55}
+.cheart .lit{fill:none; stroke:var(--depol); stroke-width:5; stroke-linecap:round}
+.cheart .node{fill:var(--surface); stroke:var(--ink); stroke-width:1.5}
+.cheart .spark{fill:var(--depol); stroke:var(--surface); stroke-width:2}
+.cheart text{font-family:Arial, sans-serif; font-size:11px; font-weight:700; fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:3px; stroke-linejoin:round}
+.cheart text.ch{font-size:15px; fill:var(--muted)}
+.cheart text.sm{font-size:8.5px; font-weight:400; fill:var(--muted)}
+.cheart text.on{fill:var(--depol); font-size:12.5px}
+.ladder{display:flex; flex-direction:column; gap:8px}
+.ladder div{display:flex; justify-content:space-between; gap:12px; align-items:baseline; padding:.5em .8em; border-radius:8px; background:var(--paper); border:1.5px solid transparent; font-size:var(--t-small); transition:border-color .2s, background .2s}
+.ladder div.on{border-color:var(--depol); background:var(--depol-soft)}
+.ecgbox{background:var(--paper); border:1px solid var(--grid-major); border-radius:8px; overflow:hidden}
+.ecgbox svg{width:100%; height:auto; display:block}
+.gmin{stroke:var(--grid-minor); stroke-width:1}
+.gmaj{stroke:var(--grid-major); stroke-width:1.6}
+.eghost{fill:none; stroke:var(--ink); stroke-width:2; opacity:.16}
+.etrace{fill:none; stroke:var(--ink); stroke-width:3.5; stroke-linejoin:round; stroke-linecap:round}
+.ecursor{stroke:var(--depol); stroke-width:2}
+.eband{fill:var(--depol); opacity:.12}
+.ewl{font-family:var(--display); font-size:24px; font-weight:700; fill:var(--muted)}
+.ewl.on{fill:var(--depol)}
+.eiv line{stroke:var(--muted); stroke-width:1.5}
+.eiv text{font-family:var(--mono); font-size:14px; fill:var(--muted)}
+.mech2{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px}
+.mech2 div{display:flex; flex-direction:column; background:var(--paper); border-radius:8px; padding:.5em .7em; font-size:var(--t-small)}
+.mech2 b.on{color:var(--depol)}
+.rows2{display:grid; grid-template-columns:1fr 1fr; gap:10px 16px}
+@media (max-width:600px){ .rows2{grid-template-columns:1fr} }
+.row2{border-top:3px solid var(--line); padding-top:6px; display:flex; flex-direction:column; gap:2px; min-width:0}
+.row2.e{border-color:var(--depol)} .row2.c{border-color:var(--ven)}
+.beat2 .btnrow .btn[aria-pressed="true"]{background:var(--depol); border-color:var(--depol); color:var(--on-art)}
+#apSvg{width:100%; height:auto; display:block}
+.apghost{fill:none; stroke:var(--muted); stroke-width:2; opacity:.3}
+.apdone{fill:none; stroke:var(--ink); stroke-width:2.5}
+.apcur{fill:none; stroke:var(--depol); stroke-width:4.5; stroke-linecap:round}
+.appm{fill:none; stroke:var(--ven); stroke-width:3; stroke-dasharray:6 4}
+.apax{font-family:var(--mono); font-size:9px; fill:var(--muted)}
+.apph{font-family:var(--display); font-size:13px; font-weight:800; fill:var(--muted)}
+.apph.on{fill:var(--depol)}
+.thr{stroke:var(--muted); stroke-dasharray:4 4; stroke-width:1}
+#dlTissue{width:100%; height:auto; display:block; max-height:calc(100vh - 520px)}
+.verdict2{font-family:var(--display); font-size:var(--t-h3); font-weight:800; margin-top:10px}
+.dlchg{font-family:var(--mono); font-size:13px; font-weight:700; text-anchor:middle}
+.pool{display:flex; flex-wrap:wrap; gap:10px}
+.pw{font-weight:700; font-size:var(--t-small); padding:.55em 1em; border-radius:8px; border:1.5px dashed var(--muted); background:var(--surface); cursor:pointer}
+.pw:disabled{opacity:.3; cursor:default}
+.pw.shake{animation:shake .35s}
+.chain{display:flex; flex-wrap:wrap; gap:8px; align-items:center; min-height:3em; padding:.8em; border-radius:8px; border:1px solid var(--line); background:var(--paper)}
+.chain .lk{font-weight:700; font-size:var(--t-small); background:var(--depol-soft); border-radius:6px; padding:.3em .7em}
+.chain .ar{color:var(--depol); font-weight:800}
+.chint{color:var(--muted); font-size:var(--t-small)}
+
+/* ---------- overlays ---------- */
+.blackout{position:fixed; inset:0; background:#000; z-index:60; display:none}
+.blackout.on{display:block}
+.drawer{position:fixed; top:0; right:0; bottom:0; width:min(440px, 92vw); background:var(--surface); border-left:1px solid var(--line); z-index:50; transform:translateX(100%); transition:transform .25s; display:flex; flex-direction:column; gap:14px;
+  padding:calc(18px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) 20px; font-size:16px; overflow-y:auto; box-shadow:-12px 0 40px rgba(0,0,0,.2)}
+.drawer.open{transform:none}
+.drawer h4{margin:0; font-family:var(--display); font-size:20px}
+.drawer .timer{font-family:var(--mono); font-size:30px; font-weight:700}
+.drawer .nb{line-height:1.55}
+.drawer .row{display:flex; justify-content:space-between; align-items:center; gap:10px}
+.help{position:fixed; inset:0; z-index:55; background:rgba(10,15,20,.55); display:none; place-items:center; padding:20px}
+.help.on{display:grid}
+.help .box{background:var(--surface); color:var(--ink); border-radius:14px; padding:24px; max-width:560px; width:100%; font-size:15px; display:flex; flex-direction:column; gap:12px; max-height:90%; overflow:auto}
+.help table{border-collapse:collapse; width:100%}
+.help td{padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top}
+.help td:first-child{font-family:var(--mono); white-space:nowrap; padding-right:14px}
+.toast{position:fixed; left:50%; top:calc(16px + env(safe-area-inset-top, 0px)); transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:8px 14px; border-radius:8px; font-size:14px; z-index:70; opacity:0; transition:opacity .2s; pointer-events:none}
+.toast.on{opacity:1}
+
+/* ---------- in-class additions ---------- */
+.guesses{display:flex; flex-wrap:wrap; gap:10px}
+.guesses .btn[aria-pressed="true"]{background:var(--ven-soft); border-color:var(--ven)}
+.guesses .btn.right{background:var(--good-soft); border-color:var(--good); color:var(--good)}
+.guesses .btn.wrong{background:var(--bad-soft); border-color:var(--bad); color:var(--bad)}
+.mystery-big{width:clamp(72px, calc(var(--u) * 8), 140px); font-size:var(--t-h2)}
+.score2{display:grid; grid-template-columns:1fr 1fr; gap:var(--gap)}
+.score2 > div{display:flex; flex-direction:column; align-items:center; gap:10px; background:var(--paper); border-radius:var(--radius); padding:var(--gap)}
+.score2 b{font-size:var(--t-hero); line-height:1}
+.ptband{fill:var(--depol); opacity:.2}
+.ptlbl{font-family:var(--display); font-size:22px; font-weight:800; fill:var(--depol)}
+.cols-4 .rc .q{font-size:var(--t-body)}
+[data-hook="point"] .paperbox{max-width:calc(27vh * 800 / 280)}
+[data-hook="point"] .rc{padding:calc(var(--gap) * .6) calc(var(--gap) * .9)}
+</style>
+
+<header class="topbar">
+  <div class="brand"><span class="dot"></span>Cardiac Foundations · In class</div>
+  <button class="cbtn" id="btnHome" type="button" aria-label="Return to the main screen">⌂ Home <kbd>H</kbd></button>
+  <button class="cbtn" id="btnNotes" type="button">Notes <kbd>N</kbd></button>
+  <button class="cbtn" id="btnHelp" type="button">Keys <kbd>?</kbd></button>
+  <button class="cbtn primary" id="btnPresent" type="button">Present <kbd>P</kbd></button>
+</header>
+
+<main class="stage" id="stage">
+
+<!-- 1 MAIN -->
+<section class="slide cover" data-title="Cardiac Foundations">
+  <div class="sh">
+    <p class="eyebrow">In class · Cardiovascular</p>
+    <h1>Cardiac Foundations</h1>
+    <p class="sub">Putting your pre-class work to use</p>
+  </div>
+  <nav class="partpick" aria-label="Choose a part">
+    <a href="#" class="pp" data-goto="Questions from your pre-class"><span class="pp-n">Part 1</span><b>The pump</b><span class="pp-d">Labeling, blood flow, hemodynamics, heart sounds, and a case</span></a>
+    <a href="#" class="pp pp2" data-goto="Part 2: The electrical heart"><span class="pp-n">Part 2</span><b>The electrical heart</b><span class="pp-d">The conduction route, ECG waves, measuring strips, and monitor changes</span></a>
+  </nav>
+  <div class="monitor">
+    <canvas id="ecg" aria-label="Animated ECG trace in normal sinus rhythm"></canvas>
+    <div class="vit"><span class="lab">HR</span><span class="num" id="coverHR">72</span><span class="lab">bpm · NSR</span></div>
+  </div>
+  <p class="kbdhint">Advance with a clicker, <kbd>→</kbd> or <kbd>Space</kbd>. <kbd>P</kbd> presenter mode · <kbd>N</kbd> notes · <kbd>H</kbd> main screen · <kbd>?</kbd> all keys</p>
+  <aside class="notes">In-class companion to the Cardiac Foundations pre-class activity. Students have already seen the content; today is about using it. Pick Part 1 or Part 2, or just advance with the clicker to start Part 1.</aside>
+</section>
+
+<!-- 2 QUESTIONS -->
+<section class="slide" data-title="Questions from your pre-class">
+  <div class="sh">
+    <p class="eyebrow">Before we begin</p>
+    <h2>What didn’t click at home?</h2>
+    <p class="lede">Questions from the pre-class activity: anything unclear, surprising, or worth another look.</p>
+  </div>
+  <div class="cols-3">
+    <div class="panel"><h3>The pump</h3><p class="small muted">Structures, blood flow, preload, afterload, contractility, MAP, heart sounds</p></div>
+    <div class="panel"><h3>Assessment</h3><p class="small muted">History, exam, labs, diagnostics, post-cath teaching</p></div>
+    <div class="panel"><h3>The electrical heart</h3><p class="small muted">Conduction, action potential, ECG waves, deflections, ECG paper</p></div>
+  </div>
+  <div class="panel parking">
+    <h3>Parking lot</h3>
+    <form id="parkForm" autocomplete="off">
+      <input id="parkInput" type="text" placeholder="Type a student question and press Enter" aria-label="Student question">
+      <button class="btn" type="submit">Add</button>
+    </form>
+    <div class="chips" id="parkList" aria-live="polite"></div>
+    <p class="small muted" id="parkEmpty">Questions you add stay on this computer and come back on the last screen.</p>
+  </div>
+  <aside class="notes">Open the floor for questions from the pre-class activity. Park bigger questions; many will come up in today’s activities, and the rest return on the last screen.</aside>
+</section>
+
+<!-- 3 LABEL -->
+<section class="slide fillslide" data-title="Label the heart" data-hook="heart">
+  <div class="sh">
+    <p class="eyebrow">Part 1 · Warm-up</p>
+    <h2>Label the heart, as a class</h2>
+  </div>
+  <div class="hrow">
+    <div class="hside">
+      <div class="panel hbank" id="hBankPanel">
+        <div class="hstat"><span class="pill good" id="hScore">0 / 17 correct</span></div>
+        <p class="small muted">Students call it out; drag the term onto the box, or tap a term and then a box.</p>
+        <div class="bank" id="hBank" aria-label="Word bank"></div>
+        <div class="btnrow">
+          <button class="btn" type="button" id="hShuffle">Shuffle</button>
+          <button class="btn" type="button" id="hReset">Reset</button>
+          <button class="btn" type="button" id="hReveal">Reveal all</button>
+        </div>
+        <button class="btn primary" type="button" id="hFlowGo">Trace blood flow ▸</button>
+      </div>
+      <div class="panel hflow" id="hFlowPanel" hidden>
+        <div class="readout" style="justify-content:space-between"><h3>Blood flow</h3><span class="pill ven" id="hFlowCount">1 / 14</span></div>
+        <p class="hcap" id="hFlowCap"></p>
+        <div class="btnrow">
+          <button class="btn" type="button" id="hFlowPrev">← Back</button>
+          <button class="btn primary" type="button" id="hFlowNext">Next →</button>
+          <button class="btn" type="button" id="hFlowExit">Done</button>
+        </div>
+        <ol class="hsteps" id="hSteps"></ol>
+      </div>
+    </div>
+    <div class="hwrap">
+      <div class="board" id="board">
+        <img class="heartimg" alt="Unlabeled anterior cross-section of the heart" src="data:image/webp;base64,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">
+        <svg class="leads" id="hLeads" viewBox="20 70 760 520" preserveAspectRatio="none" aria-hidden="true"></svg>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Fast warm-up from the pre-class activity. Point to a student or table for each box. Wrong placements stay red for discussion. When it’s done, press “Trace blood flow” and have the class narrate each stop before you click; the clicker steps through the 14 stops and then moves on.</aside>
+</section>
+
+<!-- 4 OXY RAPID FIRE -->
+<section class="slide" data-title="Oxygenated or deoxygenated?">
+  <div class="sh">
+    <p class="eyebrow">Part 1 · Rapid fire</p>
+    <h2>Oxygenated or deoxygenated?</h2>
+    <p class="lede small">Thumbs up for oxygenated, thumbs down for deoxygenated. Then reveal.</p>
+  </div>
+  <div class="cols-4">
+    <div class="rc" data-step="1" role="button" tabindex="0"><p class="q">Pulmonary artery</p><span class="hint">Reveal</span><div class="a"><span class="pill ven">Deoxygenated</span><p class="small">An artery carrying deoxygenated blood. Arteries go away from the heart.</p></div></div>
+    <div class="rc" data-step="2" role="button" tabindex="0"><p class="q">Left atrium</p><span class="hint">Reveal</span><div class="a"><span class="pill bad">Oxygenated</span><p class="small">Fresh from the lungs through the pulmonary veins.</p></div></div>
+    <div class="rc" data-step="3" role="button" tabindex="0"><p class="q">Superior vena cava</p><span class="hint">Reveal</span><div class="a"><span class="pill ven">Deoxygenated</span><p class="small">Returning from the upper body.</p></div></div>
+    <div class="rc" data-step="4" role="button" tabindex="0"><p class="q">Pulmonary veins</p><span class="hint">Reveal</span><div class="a"><span class="pill bad">Oxygenated</span><p class="small">The only veins that carry oxygenated blood.</p></div></div>
+    <div class="rc" data-step="5" role="button" tabindex="0"><p class="q">Tricuspid valve</p><span class="hint">Reveal</span><div class="a"><span class="pill ven">Deoxygenated</span><p class="small">Right side: deoxygenated blood passes through it.</p></div></div>
+    <div class="rc" data-step="6" role="button" tabindex="0"><p class="q">Aorta</p><span class="hint">Reveal</span><div class="a"><span class="pill bad">Oxygenated</span><p class="small">Out to the whole body.</p></div></div>
+    <div class="rc" data-step="7" role="button" tabindex="0"><p class="q">Right ventricle</p><span class="hint">Reveal</span><div class="a"><span class="pill ven">Deoxygenated</span><p class="small">Pumps to the lungs.</p></div></div>
+    <div class="rc" data-step="8" role="button" tabindex="0"><p class="q">Mitral valve</p><span class="hint">Reveal</span><div class="a"><span class="pill bad">Oxygenated</span><p class="small">Left side: oxygenated blood passes through it.</p></div></div>
+  </div>
+  <aside class="notes">Eight quick calls. Thumbs up or down from the whole room before each reveal. The two that trip students up are the pulmonary artery and pulmonary veins.</aside>
+</section>
+
+<!-- 5 WHAT CHANGED -->
+<section class="slide" data-title="What changed?">
+  <div class="sh">
+    <p class="eyebrow">Part 1 · Apply it</p>
+    <h2>Preload, afterload, or contractility?</h2>
+    <p class="lede small">New scenarios. Which determinant changed, and which way? Talk with your table first.</p>
+  </div>
+  <div class="cols-3">
+    <div class="rc" data-step="1" role="button" tabindex="0"><p class="q">Severe dehydration from vomiting</p><span class="hint">Reveal</span><div class="a"><span class="pill ven">Preload ↓</span><p class="small">Less volume returning, less stretch. The balloon is barely filled.</p></div></div>
+    <div class="rc" data-step="2" role="button" tabindex="0"><p class="q">Nitroglycerin given for chest pain</p><span class="hint">Reveal</span><div class="a"><span class="pill ven">Preload ↓</span><p class="small">It dilates veins, so they hold more blood and less returns to the heart. That eases the heart’s workload.</p></div></div>
+    <div class="rc" data-step="3" role="button" tabindex="0"><p class="q">20 years of untreated hypertension</p><span class="hint">Reveal</span><div class="a"><span class="pill bad">Afterload ↑</span><p class="small">A constant thumb over the hose. The left ventricle thickens over time, like a muscle that lifts weights every day.</p></div></div>
+    <div class="rc" data-step="4" role="button" tabindex="0"><p class="q">Septic shock with widespread vasodilation</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">Afterload ↓</span><p class="small">Wide-open vessels offer little resistance. Blood also pools in dilated veins, so preload drops too.</p></div></div>
+    <div class="rc" data-step="5" role="button" tabindex="0"><p class="q">A beta blocker is started</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">Contractility ↓</span><p class="small">A gentler squeeze of the bottle, and a slower heart rate.</p></div></div>
+    <div class="rc" data-step="6" role="button" tabindex="0"><p class="q">Epinephrine during a code</p><span class="hint">Reveal</span><div class="a"><span class="pill good">Contractility ↑</span><p class="small">A harder squeeze and a faster rate. It also constricts vessels, which raises afterload.</p></div></div>
+  </div>
+  <aside class="notes">Six scenarios students did not see at home. Give tables 20–30 seconds each, then reveal. Push for the “why” using the analogies: balloon (preload), thumb over the hose (afterload), ketchup bottle (contractility). Septic shock and epinephrine change more than one determinant.</aside>
+</section>
+
+<!-- 6 NAME THAT SOUND -->
+<section class="slide" data-title="Name that sound">
+  <div class="sh">
+    <p class="eyebrow">Part 1 · Team game</p>
+    <h2>Name that sound</h2>
+    <p class="lede small">Turn up the room audio. These are simulated teaching sounds, not patient recordings.</p>
+  </div>
+  <div class="split">
+    <div class="panel" style="align-items:flex-start">
+      <div class="readout"><button class="play blue mystery-big" type="button" id="mysteryPlay" aria-label="Play the mystery sound">▶</button><div><h3 id="mysteryRound">Round 1</h3><p class="small muted" id="mysteryText">Press play, let teams lock in a guess, then reveal.</p></div></div>
+      <div class="guesses" id="guesses">
+        <button class="btn" type="button" data-guess="normal">Normal S1 S2</button>
+        <button class="btn" type="button" data-guess="s3">S3</button>
+        <button class="btn" type="button" data-guess="s4">S4</button>
+        <button class="btn" type="button" data-guess="murmur">Murmur</button>
+        <button class="btn" type="button" data-guess="rub">Friction rub</button>
+      </div>
+      <div class="btnrow"><button class="btn primary" type="button" id="mysteryReveal">Reveal</button><button class="btn" type="button" id="mysteryNew">Next sound</button></div>
+      <p class="small" id="mysteryWhy"></p>
+    </div>
+    <div class="panel">
+      <h3>Scoreboard</h3>
+      <div class="score2">
+        <div><span class="small muted">Team A</span><b class="mono" id="scoreA">0</b><div class="btnrow"><button class="btn" type="button" data-score="A,-1" aria-label="Team A minus one">−1</button><button class="btn primary" type="button" data-score="A,1" aria-label="Team A plus one">+1</button></div></div>
+        <div><span class="small muted">Team B</span><b class="mono" id="scoreB">0</b><div class="btnrow"><button class="btn" type="button" data-score="B,-1" aria-label="Team B minus one">−1</button><button class="btn blue" type="button" data-score="B,1" aria-label="Team B plus one">+1</button></div></div>
+      </div>
+      <p class="small muted">Cadence cues: S3 sounds like “Ken-TUC-ky,” S4 like “TEN-nes-see.” Murmur is a whoosh; a rub is a grating scratch.</p>
+    </div>
+  </div>
+  <aside class="notes">Split the room into two teams. Press play, give each team a few seconds to agree, tap the guess buttons if you want to mark what a team said, then reveal. +1 for each correct team. “Next sound” loads a new random sound.</aside>
+</section>
+
+<!-- 7 CASE -->
+<section class="slide" data-title="Case: Mr. Duncan">
+  <div class="sh">
+    <p class="eyebrow">Part 1 · Unfolding case · NCSBN clinical judgment</p>
+    <h2>Mr. Duncan, 58, chest pressure</h2>
+  </div>
+  <div class="vitals" aria-label="Patient monitor">
+    <div class="v"><span>HR</span><b class="alarm">112</b></div>
+    <div class="v"><span>BP</span><b>98/62</b></div>
+    <div class="v"><span>SpO₂</span><b>94%</b></div>
+    <div class="v"><span>RR</span><b>22</b></div>
+    <p class="note">Arrived in the ED with chest pressure for one hour. Skin is pale, cool, and clammy. History of smoking and high LDL. Fictional case.</p>
+  </div>
+  <div class="cols-3">
+    <div class="rc cj" data-step="1" role="button" tabindex="0"><span class="num">1 · Recognize cues</span><p class="small">Which findings matter most?</p><span class="hint">Reveal</span><div class="a"><p class="small">Chest pressure, HR 112, soft BP, cool clammy skin, and modifiable risk factors (smoking, LDL).</p></div></div>
+    <div class="rc cj" data-step="2" role="button" tabindex="0"><span class="num">2 · Analyze cues</span><p class="small">What is his MAP, and what is the heart doing?</p><span class="hint">Reveal</span><div class="a"><p class="small">MAP ≈ (98 + 2 × 62) ÷ 3 = <b class="mono">74</b>, holding for now. If muscle is injured, contractility and SV fall, and HR rises to keep CO = SV × HR. Cool skin means the body is shunting blood to the core.</p></div></div>
+    <div class="rc cj" data-step="3" role="button" tabindex="0"><span class="num">3 · Prioritize hypotheses</span><p class="small">What is the most urgent problem?</p><span class="hint">Reveal</span><div class="a"><p class="small">Myocardial ischemia or injury reducing his cardiac output.</p></div></div>
+    <div class="rc cj" data-step="4" role="button" tabindex="0"><span class="num">4 · Generate solutions</span><p class="small">Which tests answer the question fastest?</p><span class="hint">Reveal</span><div class="a"><p class="small">A 12-lead ECG for the rhythm and ST changes, and troponin to check for muscle injury. His troponin comes back elevated, and a cardiac cath is planned.</p></div></div>
+    <div class="rc cj" data-step="5" role="button" tabindex="0"><span class="num">5 · Take action</span><p class="small">After the cath he says, “I’ll mow the lawn tomorrow.” Your response?</p><span class="hint">Reveal</span><div class="a"><p class="small">Correct it: limit activity for several days, no heavy lifting, keep the dressing on at least the first day, and watch the site for signs of infection.</p></div></div>
+    <div class="rc cj" data-step="6" role="button" tabindex="0"><span class="num">6 · Evaluate outcomes</span><p class="small">What tells you he’s improving?</p><span class="hint">Reveal</span><div class="a"><p class="small">Chest pressure relieved, HR trending down, MAP holding at 60–70 or above, warm skin, and he can teach back his home care.</p></div></div>
+  </div>
+  <aside class="notes">Fictional unfolding case that pulls together cardiac output, MAP, assessment, diagnostics, post-cath teaching, and the six-step model. Give tables a minute per step, have one table report out, then reveal.</aside>
+</section>
+
+<!-- 8 PART 1 CHECK -->
+<section class="slide" data-title="Part 1 check" data-hook="quiz">
+  <div class="sh">
+    <p class="eyebrow">Part 1 · NCLEX-style check</p>
+    <h2>Check yourself</h2>
+    <p class="lede small">Click an answer, or advance to reveal each one.</p>
+  </div>
+  <div class="cols-3">
+    <div class="panel qcard" data-answer="B" data-step="1">
+      <p><b>1.</b> A client’s heart rate is 120 beats/min and stroke volume is 40 mL. What is the cardiac output?</p>
+      <div class="opts"><button type="button" data-o="A"><b>A</b> 1.6 L/min</button><button type="button" data-o="B"><b>B</b> 4.8 L/min</button><button type="button" data-o="C"><b>C</b> 3.0 L/min</button><button type="button" data-o="D"><b>D</b> 6.0 L/min</button></div>
+      <p class="why">120 × 40 = 4,800 mL/min. Just under the normal 5–6 L/min, and only because the fast heart rate is compensating for a low stroke volume.</p>
+    </div>
+    <div class="panel qcard" data-answer="B" data-step="2">
+      <p><b>2.</b> Two hours after a femoral cardiac catheterization, which finding requires the nurse’s immediate action?</p>
+      <div class="opts"><button type="button" data-o="A"><b>A</b> A small, soft bruise at the site</button><button type="button" data-o="B"><b>B</b> A weak pedal pulse and cool foot on the affected leg</button><button type="button" data-o="C"><b>C</b> BP 128/76</button><button type="button" data-o="D"><b>D</b> The client asks for water</button></div>
+      <p class="why">A weaker pulse and a cool foot below the insertion site suggest blood flow to the leg is blocked. That needs action now.</p>
+    </div>
+    <div class="panel qcard" data-answer="A" data-step="3">
+      <p><b>3.</b> Which lab result is the most specific sign of myocardial injury?</p>
+      <div class="opts"><button type="button" data-o="A"><b>A</b> Elevated troponin I</button><button type="button" data-o="B"><b>B</b> Elevated total cholesterol</button><button type="button" data-o="C"><b>C</b> Elevated total CK</button><button type="button" data-o="D"><b>D</b> Low HDL</button></div>
+      <p class="why">Troponin is specific to heart muscle. Total CK also rises with skeletal muscle injury, and lipids describe risk, not injury.</p>
+    </div>
+  </div>
+  <aside class="notes">Answers: 1 B, 2 B, 3 A. Have students vote (hands or Vevox) before each reveal.</aside>
+</section>
+
+<!-- ============ PART 2 ============ -->
+<section class="slide p2-divider" data-title="Part 2: The electrical heart">
+  <div class="sh">
+    <p class="eyebrow">Part 2</p>
+    <h1>The electrical heart</h1>
+    <p class="sub">Use what you learned at home: route the impulse, name the waves, and measure the strip</p>
+  </div>
+  <div class="ecgbox"><svg id="p2Strip" viewBox="0 0 1600 260" role="img" aria-label="Two normal beats on ECG paper"></svg></div>
+  <aside class="notes">Part 2: electrophysiology. Students saw the animations at home; today they apply them to strips and patients. Big idea: electrical first, mechanical second.</aside>
+</section>
+
+<!-- 10 PUZZLE -->
+<section class="slide" data-title="Rebuild the route">
+  <div class="sh">
+    <p class="eyebrow">Part 2 · Warm-up</p>
+    <h2>Rebuild the route</h2>
+    <p class="lede small">Students call out the next stop; tap it. A wrong tap shakes and doesn’t count.</p>
+  </div>
+  <div class="panel" style="gap:var(--gap)">
+    <div class="pool" id="pzPool"></div>
+    <div class="chain" id="pzChain"><span class="chint">The route builds here.</span></div>
+    <div class="btnrow" style="align-items:center"><button class="btn" type="button" id="pzReset">Shuffle and restart</button><span class="small muted mono" id="pzMsg"></span></div>
+  </div>
+  <div class="panel"><p class="small"><b>Follow-up:</b> if the SA node fails, who takes over and how fast? <span class="muted">AV junction 40–60/min, then the ventricles 20–40/min.</span></p></div>
+  <aside class="notes">Have students call out each stop in order while you tap. Answer: SA node, atrial pathways, AV node, bundle of His, bundle branches, Purkinje fibers, ventricular muscle. Then ask the backup-rate follow-up.</aside>
+</section>
+
+<!-- 11 POINT TO IT -->
+<section class="slide" data-title="Point to it" data-hook="point">
+  <div class="sh">
+    <p class="eyebrow">Part 2 · Name the wave</p>
+    <h2>Point to it on the strip</h2>
+  </div>
+  <div class="ecgbox paperbox"><svg id="ptEcg" viewBox="0 0 800 280" role="img" aria-label="One normal beat with each part highlighted as it is revealed"></svg></div>
+  <div class="cols-3">
+    <div class="rc" data-step="1" data-band="0" role="button" tabindex="0"><p class="q">Atrial depolarization</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">P wave</span></div></div>
+    <div class="rc" data-step="2" data-band="1" role="button" tabindex="0"><p class="q">The impulse waiting in the AV node</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">PR segment</span></div></div>
+    <div class="rc" data-step="3" data-band="2" role="button" tabindex="0"><p class="q">Ventricular depolarization (Na⁺ rushes in)</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">QRS complex</span><p class="small muted">Atrial repolarization hides in here too.</p></div></div>
+    <div class="rc" data-step="4" data-band="3" role="button" tabindex="0"><p class="q">The plateau, Ca²⁺ flowing in</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">ST segment</span></div></div>
+    <div class="rc" data-step="5" data-band="4" role="button" tabindex="0"><p class="q">Ventricular repolarization (K⁺ flows out)</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">T wave</span></div></div>
+    <div class="rc" data-step="6" data-band="5" role="button" tabindex="0"><p class="q">Diastole, when the coronaries fill best</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">TP segment</span></div></div>
+  </div>
+  <aside class="notes">Read each prompt; have a student come up and point to it on the screen (or call it out), then reveal. The matching part of the strip lights up. Students can click any card to reveal it out of order.</aside>
+</section>
+
+<!-- 12 MEASURE IT -->
+<section class="slide" data-title="Measure it" data-hook="measure">
+  <div class="sh">
+    <p class="eyebrow">Part 2 · Count the boxes</p>
+    <h2>Measure it</h2>
+    <p class="lede small">One small box = 0.04 s. One large box = 0.20 s. Count, then reveal.</p>
+  </div>
+  <div class="cols-3">
+    <div class="panel">
+      <h3>Strip A · PR interval</h3>
+      <div class="ecgbox"><svg id="msA" viewBox="0 0 800 280" role="img" aria-label="Strip A, one beat with a long PR interval"></svg></div>
+      <div class="rc" data-step="1" data-ms="A" role="button" tabindex="0"><p class="q">How long is the PR interval? Normal?</p><span class="hint">Reveal</span><div class="a"><p class="readout"><span class="big">0.28</span><span class="small muted">s · 7 small boxes</span></p><p class="small">Longer than 0.20 s: the AV node is slow to conduct (first-degree AV block).</p></div></div>
+    </div>
+    <div class="panel">
+      <h3>Strip B · QRS width</h3>
+      <div class="ecgbox"><svg id="msB" viewBox="0 0 800 280" role="img" aria-label="Strip B, one beat with a wide QRS"></svg></div>
+      <div class="rc" data-step="2" data-ms="B" role="button" tabindex="0"><p class="q">How wide is the QRS? Normal?</p><span class="hint">Reveal</span><div class="a"><p class="readout"><span class="big">0.14</span><span class="small muted">s · 3.5 small boxes</span></p><p class="small">Wider than 0.12 s: a slow or abnormal route through the ventricles, such as a bundle branch block.</p></div></div>
+    </div>
+    <div class="panel">
+      <h3>Strip C · Heart rate</h3>
+      <div class="ecgbox"><svg id="msC" viewBox="0 0 1200 280" role="img" aria-label="Strip C, two beats three large boxes apart"></svg></div>
+      <div class="rc" data-step="3" data-ms="C" role="button" tabindex="0"><p class="q">What is the heart rate?</p><span class="hint">Reveal</span><div class="a"><p class="readout"><span class="big">100</span><span class="small muted">beats/min</span></p><p class="small">The R waves are 3 large boxes apart: 300 ÷ 3 = 100.</p></div></div>
+    </div>
+  </div>
+  <aside class="notes">Have students count boxes at their seats before each reveal. Revealing a card also draws the caliper on its strip. A: PR 0.28 s, prolonged (first-degree AV block). B: QRS 0.14 s, wide. C: R waves 3 large boxes apart, rate 100.</aside>
+</section>
+
+<!-- 13 MONITOR -->
+<section class="slide" data-title="What would the monitor show?">
+  <div class="sh">
+    <p class="eyebrow">Part 2 · Bedside</p>
+    <h2>What would the monitor show?</h2>
+    <p class="lede small">Predict the ECG change and explain why, using the electrophysiology.</p>
+  </div>
+  <div class="cols-2">
+    <div class="rc" data-step="1" role="button" tabindex="0"><p class="q">Serum potassium is 2.9 mEq/L.</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">Flattened T waves, possible U waves</span><p class="small">Repolarization (phase 3) depends on K⁺ leaving the cell, so potassium problems show up in the T wave.</p></div></div>
+    <div class="rc" data-step="2" role="button" tabindex="0"><p class="q">The SA node stops firing. The monitor shows a regular rhythm at 48 with no P waves and narrow QRS complexes.</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">The AV junction took over</span><p class="small">Its backup rate is 40–60/min. No P waves because the atria aren’t starting the beat; a narrow QRS because the impulse still travels the normal route through the ventricles.</p></div></div>
+    <div class="rc" data-step="3" role="button" tabindex="0"><p class="q">Crushing chest pain. The ST segment sits well above the TP baseline.</p><span class="hint">Reveal</span><div class="a"><span class="pill bad">Possible myocardial injury</span><p class="small">Injured muscle can’t hold the same charge during the plateau, so the ST segment shifts. ST elevation with chest pain is an emergency.</p></div></div>
+    <div class="rc" data-step="4" role="button" tabindex="0"><p class="q">Heart rate has been 150 for hours and the patient now reports chest pain.</p><span class="hint">Reveal</span><div class="a"><span class="pill warn">Shrinking TP segment</span><p class="small">Fast rates cut diastole first. Less filling time lowers stroke volume, and the coronary arteries, which fill in diastole, deliver less oxygen to the heart muscle.</p></div></div>
+  </div>
+  <aside class="notes">Four bedside scenarios that connect the electrophysiology to patients. Have tables predict the ECG change and the reason before each reveal.</aside>
+</section>
+
+<!-- 14 PART 2 CHECK -->
+<section class="slide" data-title="Part 2 check" data-hook="quiz">
+  <div class="sh">
+    <p class="eyebrow">Part 2 · NCLEX-style check</p>
+    <h2>Check yourself</h2>
+    <p class="lede small">Click an answer, or advance to reveal each one.</p>
+  </div>
+  <div class="cols-3">
+    <div class="panel qcard" data-answer="B" data-step="1">
+      <p><b>4.</b> During phase 2 of the ventricular action potential, which ion movement keeps the cell depolarized and powers contraction?</p>
+      <div class="opts"><button type="button" data-o="A"><b>A</b> Na⁺ rushing in</button><button type="button" data-o="B"><b>B</b> Ca²⁺ flowing in</button><button type="button" data-o="C"><b>C</b> K⁺ flowing out only</button><button type="button" data-o="D"><b>D</b> Cl⁻ flowing in</button></div>
+      <p class="why">The plateau holds because Ca²⁺ flows in while K⁺ flows out. The calcium triggers contraction. On the ECG this is the ST segment.</p>
+    </div>
+    <div class="panel qcard" data-answer="C" data-step="2">
+      <p><b>5.</b> The R waves on a regular strip are 2 large boxes apart. What is the heart rate?</p>
+      <div class="opts"><button type="button" data-o="A"><b>A</b> 75/min</button><button type="button" data-o="B"><b>B</b> 100/min</button><button type="button" data-o="C"><b>C</b> 150/min</button><button type="button" data-o="D"><b>D</b> 300/min</button></div>
+      <p class="why">300 ÷ 2 = 150 beats/min.</p>
+    </div>
+    <div class="panel qcard" data-answer="C" data-step="3">
+      <p><b>6.</b> The monitor shows a regular rhythm at 34/min, wide QRS complexes, and no P waves. Where is the pacemaker most likely located?</p>
+      <div class="opts"><button type="button" data-o="A"><b>A</b> SA node</button><button type="button" data-o="B"><b>B</b> AV junction</button><button type="button" data-o="C"><b>C</b> Ventricles (Purkinje fibers)</button><button type="button" data-o="D"><b>D</b> Atrial pathways</button></div>
+      <p class="why">A rate of 20–40 and a wide QRS point to a ventricular pacemaker. The impulse starts low and takes a slow route through the muscle.</p>
+    </div>
+  </div>
+  <aside class="notes">Answers: 4 B, 5 C, 6 C. Have students vote before each reveal.</aside>
+</section>
+
+<!-- 15 WRAP -->
+<section class="slide" data-title="Wrap-up">
+  <div class="wrapup">
+    <p class="eyebrow" style="color:inherit; opacity:.85">Exit ticket</p>
+    <p class="big">Before you leave: write down one thing that clicked today and one thing that’s still muddy.</p>
+  </div>
+  <div class="panel">
+    <h3>Back to the parking lot</h3>
+    <div class="chips" id="parkRecap"></div>
+    <p class="small muted" id="parkRecapEmpty">No parked questions. Any last questions?</p>
+  </div>
+  <aside class="notes">Answer anything left in the parking lot, then collect the exit ticket (sticky notes, index cards, or Vevox). The muddy points tell you what to revisit next class.</aside>
+</section>
+
+</main>
+
+<footer class="bottombar">
+  <button class="cbtn" id="btnPrev" type="button" aria-label="Previous">← Back</button>
+  <div class="where"><span class="ttl" id="curTitle"></span><span class="dots" id="stepDots" aria-hidden="true"></span></div>
+  <span class="count" id="counter">1 / 15</span>
+  <button class="cbtn primary" id="btnNext" type="button" aria-label="Next">Next →</button>
+</footer>
+<div class="progress"><b id="progBar"></b></div>
+
+<div class="float" id="floatCtl">
+  <button class="cbtn" type="button" data-act="home" aria-label="Return to the main screen">⌂ Home</button>
+  <button class="cbtn" type="button" data-act="prev" aria-label="Previous">←</button>
+  <button class="cbtn" type="button" data-act="next" aria-label="Next">→</button>
+  <button class="cbtn" type="button" data-act="notes">Notes</button>
+  <button class="cbtn" type="button" data-act="exit">Exit</button>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="Speaker notes">
+  <div class="row"><h4 id="dTitle">Notes</h4><button class="cbtn" type="button" id="dClose">Close</button></div>
+  <div class="row"><span class="timer" id="dTimer">00:00</span><button class="cbtn" type="button" id="dReset">Reset timer</button></div>
+  <p class="small muted" id="dStep"></p>
+  <div class="nb" id="dNotes"></div>
+  <p class="small muted" id="dNext"></p>
+  <p class="small muted">If your laptop screen is mirrored to the projector, students can see these notes too.</p>
+</aside>
+
+<div class="blackout" id="blackout" aria-hidden="true"></div>
+
+<div class="help" id="help" role="dialog" aria-modal="true" aria-labelledby="helpT">
+  <div class="box">
+    <h3 id="helpT" style="font-size:20px">Presenter keys</h3>
+    <table>
+      <tr><td>→ ↓ PgDn Space</td><td>Next reveal or slide (clicker forward)</td></tr>
+      <tr><td>← ↑ PgUp</td><td>Back (clicker back)</td></tr>
+      <tr><td>P or F5</td><td>Start or stop presenter mode (full screen)</td></tr>
+      <tr><td>B or .</td><td>Blank the screen; press any key to return</td></tr>
+      <tr><td>N</td><td>Speaker notes and timer</td></tr>
+      <tr><td>H or Home</td><td>Return to the main screen</td></tr>
+      <tr><td>End</td><td>Last slide</td></tr>
+      <tr><td>number + Enter</td><td>Jump to that slide</td></tr>
+      <tr><td>Esc</td><td>Close panels or leave presenter mode</td></tr>
+    </table>
+    <p class="muted">Most clickers send Page Down / Page Up, which work here. Click once inside the page first so it has keyboard focus.</p>
+    <button class="btn primary" type="button" id="helpClose">Got it</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  const PARTS = [
+      {id:'svc', term:'Superior vena cava', x:57, y:184, w:150, L:[[206.8,193.8,274.2,223.9]]},
+      {id:'ivc', term:'Inferior vena cava', x:57, y:422, w:150, L:[[206.8,432,274.2,462.1]]},
+      {id:'ra', term:'Right atrium', x:66, y:233, w:154.6, L:[[220.6,248.9,296.1,311.4]]},
+      {id:'tv', term:'Tricuspid valve', x:52, y:370, w:155.5, L:[[207.5,377.6,342.5,356.9],[272.6,366.8,307.4,377.2]]},
+      {id:'rv', term:'Right ventricle', x:89, y:489, w:149.9, L:[[238.9,498.2,386.1,432.7]]},
+      {id:'rpa', term:'Right pulmonary artery', x:57, y:111, w:149.8, L:[[206.8,120.2,274.3,150.4],[244.3,139.4,272.9,166.5]]},
+      {id:'pt', term:'Pulmonary trunk', x:25, y:147, w:156.5, L:[[181.5,157,396.9,224.5]]},
+      {id:'pv', term:'Pulmonic valve', x:25, y:273, w:156.5, L:[[181.5,281.1,375.4,281.7]]},
+      {id:'rpv', term:'Right pulmonary veins', x:23, y:313, w:155.4, L:[[178.4,320.9,230.8,320.9],[186.1,321.7,230.4,351]]},
+      {id:'ao', term:'Aorta', x:506, y:80, w:155, L:[[506,89.6,386,127.5]]},
+      {id:'lpa', term:'Left pulmonary artery', x:555.5, y:130, w:155, L:[[555.5,144,500.9,181.9],[538.4,157.8,523.1,195.8]]},
+      {id:'lpv', term:'Left pulmonary veins', x:582.4, y:183, w:155, L:[[582.4,194.5,531.5,230.6],[567.5,203.7,552.2,259.4]]},
+      {id:'la', term:'Left atrium', x:596.7, y:263, w:155, L:[[596.7,281.5,479.4,274.2]]},
+      {id:'mv', term:'Mitral (bicuspid) valve', x:599.8, y:304, w:155, L:[[599.8,321.6,459.5,311.7],[536,316.8,511.6,291.8]]},
+      {id:'av', term:'Aortic valve', x:609.1, y:375, w:155, L:[[609.1,387.2,411.3,301]]},
+      {id:'lv', term:'Left ventricle', x:607.6, y:466, w:155, L:[[607.6,477.5,506.2,422]]},
+      {id:'sep', term:'Interventricular septum', x:467, y:544, w:155, L:[[544.9,544,497.8,442.7]]}
+    ];
+  const slides = $$('.slide');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let i = 0, step = 0;
+  const hooks = {};
+  const store = {
+    get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+    set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  };
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('on'), 1600); }
+
+  function maxStep(s){ let m = 0; $$('[data-step]', s).forEach(e => { m = Math.max(m, +e.dataset.step); }); return m; }
+  // a step counts as done when everything it reveals was already opened by a click
+  function stepDone(s, k){ const els = $$('[data-step="' + k + '"]', s); return els.length > 0 && els.every(e => e.dataset.manual === '1'); }
+
+  function render(changedSlide){
+    slides.forEach((s,k) => s.classList.toggle('active', k === i));
+    const s = slides[i];
+    $$('[data-step]', s).forEach(e => {
+      const on = e.dataset.manual === '1' || (e.dataset.manual !== '0' && +e.dataset.step <= step);
+      e.classList.toggle('on', on);
+      if (e.classList.contains('qcard')) { if (on) revealQuiz(e); else if (e.dataset.manual !== '1') resetQuiz(e); }
+    });
+    if (changedSlide) { s.scrollTop = 0; }
+    else if (step > 0) { const el = $$('[data-step="' + step + '"]', s).find(e => !e.hidden && e.offsetParent); if (el && el.scrollIntoView) { const r = el.getBoundingClientRect(), sr = s.getBoundingClientRect(); if (r.bottom > sr.bottom || r.top < sr.top) el.scrollIntoView({ block:'nearest', behavior: reduce ? 'auto' : 'smooth' }); } }
+    const h = s.dataset.hook; if (h && hooks[h] && hooks[h].step) hooks[h].step(step);
+    Object.keys(hooks).forEach(k => hooks[k].active && hooks[k].active(k === h));
+    const ms = maxStep(s);
+    $('#curTitle').textContent = s.dataset.title || '';
+    $('#counter').textContent = (i+1) + ' / ' + slides.length;
+    const dots = $('#stepDots'); dots.innerHTML = '';
+    for (let k=1; k<=ms; k++){ const d = document.createElement('i'); if (k <= step || stepDone(s, k)) d.className = 'on'; dots.appendChild(d); }
+    const total = slides.length;
+    $('#progBar').style.width = ((i + (ms ? step/ms : 1)) / total * 100) + '%';
+    $('#btnPrev').disabled = i === 0 && step === 0;
+    $('#btnNext').disabled = i === total-1 && step >= ms;
+    // notes
+    $('#dTitle').textContent = (i+1) + '. ' + (s.dataset.title || '');
+    $('#dNotes').textContent = ($('.notes', s) || {}).textContent || '';
+    $('#dStep').textContent = ms ? ('Reveal ' + step + ' of ' + ms) : 'No reveals on this slide';
+    $('#dNext').textContent = i < total-1 ? ('Next slide: ' + (slides[i+1].dataset.title || '')) : 'Last slide';
+    try { history.replaceState(null, '', '#slide-' + (i+1)); } catch(e){}
+  }
+  function clearManual(s){ $$('[data-manual]', s).forEach(e => delete e.dataset.manual); }
+  function hookNav(dir){ const h = slides[i].dataset.hook; return !!(h && hooks[h] && hooks[h][dir] && hooks[h][dir]()); }
+  function next(){
+    if (hookNav('next')) { startTimer(); return; }
+    const s = slides[i], ms = maxStep(s);
+    let n = step + 1;
+    while (n <= ms && stepDone(s, n)) n++;
+    if (n <= ms) { step = n; render(false); }
+    else if (i < slides.length-1) { clearManual(slides[i]); i++; step = 0; render(true); }
+    startTimer();
+  }
+  function prev(){
+    if (hookNav('prev')) return;
+    if (step > 0) { step--; const s = slides[i]; $$('[data-manual]', s).forEach(e => { if (+e.dataset.step > step) delete e.dataset.manual; }); render(false); }
+    else if (i > 0) { clearManual(slides[i]); i--; step = maxStep(slides[i]); render(true); }
+  }
+  function go(n, st){ n = Math.max(0, Math.min(slides.length-1, n)); clearManual(slides[i]); i = n; step = st || 0; render(true); }
+
+  // reveal cards & manual clicks
+  document.addEventListener('click', e => {
+    const rc = e.target.closest('.rc');
+    const tog = e.target.closest('.rc, .rf button');
+    if (tog) { const on = !tog.classList.contains('on'); tog.dataset.manual = on ? '1' : '0'; render(false); return; }
+    const g = e.target.closest('[data-goto]');
+    if (g) { e.preventDefault(); const n = slides.findIndex(x => x.dataset.title === g.dataset.goto); if (n >= 0) go(n); }
+  });
+  document.addEventListener('keydown', e => {
+    const rc = e.target.closest && e.target.closest('.rc');
+    if (rc && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); rc.click(); }
+  });
+
+  // ---------- presenter ----------
+  let presenting = false, wake = null, idle = null;
+  async function startPresent(){
+    presenting = true; document.body.classList.add('presenting');
+    try { if (document.documentElement.requestFullscreen && !document.fullscreenElement) await document.documentElement.requestFullscreen(); } catch(e){ toast('Full screen not available here. Presenter mode is still on.'); }
+    try { if (navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); } catch(e){}
+    startTimer(); document.activeElement && document.activeElement.blur && document.activeElement.blur(); nudge();
+  }
+  function stopPresent(){
+    presenting = false; clearTimeout(idle); document.body.classList.remove('presenting', 'hide-cursor', 'show-float');
+    try { if (document.fullscreenElement) document.exitFullscreen(); } catch(e){}
+    try { wake && wake.release(); } catch(e){} wake = null;
+  }
+  function togglePresent(){ presenting ? stopPresent() : startPresent(); }
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && presenting) stopPresent(); });
+  function nudge(){
+    if (!presenting) return;
+    document.body.classList.remove('hide-cursor'); document.body.classList.add('show-float');
+    clearTimeout(idle); idle = setTimeout(() => {
+      // keep the cursor while it rests on something clickable or draggable
+      if (overUI) { nudge(); return; }
+      if (presenting) document.body.classList.remove('show-float');
+    }, 3000);
+  }
+  let overUI = false;
+  const UI = 'button, a, input, select, textarea, [role=button], .chip-t, .lbox, .rc, .pw, .float, .drawer';
+  document.addEventListener('pointermove', e => { overUI = !!(e.target.closest && e.target.closest(UI)); nudge(); }, { passive: true });
+  ['wheel', 'pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, nudge, { passive: true }));
+  document.addEventListener('scroll', nudge, { capture: true, passive: true });
+  $('#floatCtl').addEventListener('click', e => {
+    const a = e.target.closest('[data-act]'); if (!a) return;
+    ({prev, next, home: goHome, notes: toggleNotes, exit: stopPresent})[a.dataset.act]();
+  });
+
+  // ---------- timer & notes ----------
+  let t0 = null, tick = null;
+  function startTimer(){ if (t0) return; t0 = Date.now(); tick = setInterval(drawTimer, 1000); drawTimer(); }
+  function drawTimer(){ const s = t0 ? Math.floor((Date.now()-t0)/1000) : 0; $('#dTimer').textContent = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+  $('#dReset').addEventListener('click', () => { t0 = Date.now(); drawTimer(); });
+  function toggleNotes(){ $('#drawer').classList.toggle('open'); }
+  function goHome(){ go(0); toast('Main screen'); }
+  $('#btnHome').addEventListener('click', goHome);
+  $('#btnNotes').addEventListener('click', toggleNotes);
+  $('#dClose').addEventListener('click', toggleNotes);
+  $('#btnPresent').addEventListener('click', startPresent);
+  $('#btnNext').addEventListener('click', next);
+  $('#btnPrev').addEventListener('click', prev);
+  const help = $('#help');
+  $('#btnHelp').addEventListener('click', () => help.classList.add('on'));
+  $('#helpClose').addEventListener('click', () => help.classList.remove('on'));
+  help.addEventListener('click', e => { if (e.target === help) help.classList.remove('on'); });
+
+  // ---------- keyboard / clicker ----------
+  let numBuf = '';
+  const black = $('#blackout');
+  document.addEventListener('keydown', e => {
+    if (e.defaultPrevented) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target;
+    const typing = t && t.matches && t.matches('input[type=text], input[type=number], textarea, select, [contenteditable="true"]');
+    const isRange = t && t.matches && t.matches('input[type=range]');
+    const isBtn = t && t.matches && t.matches('button, [role=button], a');
+    const k = e.key;
+    if (black.classList.contains('on')) { black.classList.remove('on'); e.preventDefault(); return; }
+    if (typing && !['PageDown','PageUp','Escape'].includes(k)) return;
+    if (k === 'PageDown' || k === 'PageUp') {
+      e.preventDefault(); if (t && t.blur && t !== document.body) t.blur();
+      k === 'PageDown' ? next() : prev(); nudge(); return;
+    }
+    if (isRange && ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(k)) return;
+    switch (k) {
+      case 'ArrowRight': case 'ArrowDown': e.preventDefault(); next(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'Backspace': e.preventDefault(); prev(); break;
+      case ' ': if (isBtn) return; e.preventDefault(); next(); break;
+      case 'Enter':
+        if (numBuf) { e.preventDefault(); go(parseInt(numBuf,10)-1); numBuf=''; break; }
+        if (isBtn) return; e.preventDefault(); next(); break;
+      case 'Home': case 'h': case 'H': e.preventDefault(); goHome(); break;
+      case 'End': e.preventDefault(); go(slides.length-1, maxStep(slides[slides.length-1])); break;
+      case 'p': case 'P': case 'F5': e.preventDefault(); togglePresent(); break;
+      case 'b': case 'B': case '.': e.preventDefault(); black.classList.add('on'); break;
+      case 'n': case 'N': e.preventDefault(); toggleNotes(); break;
+      case '?': e.preventDefault(); help.classList.toggle('on'); break;
+      case 'Escape':
+        if (help.classList.contains('on')) help.classList.remove('on');
+        else if ($('#drawer').classList.contains('open')) toggleNotes();
+        else if (presenting) stopPresent();
+        break;
+      default:
+        if (/^[0-9]$/.test(k)) { numBuf += k; clearTimeout(numBuf._h); setTimeout(()=>{ numBuf=''; }, 1500); }
+        return;
+    }
+    nudge();
+  });
+  black.addEventListener('click', () => black.classList.remove('on'));
+
+  // ---------- cover ECG ----------
+  (function(){
+    const cv = $('#ecg'); const ctx = cv.getContext('2d');
+    let w=0, h=0, x=0, last=0, prevY=null, beatPhase=0;
+    function size(){ const r = cv.getBoundingClientRect(); const d = window.devicePixelRatio||1; w = r.width; h = r.height; cv.width = Math.max(1, w*d); cv.height = Math.max(1, h*d); ctx.setTransform(d,0,0,d,0,0); ctx.clearRect(0,0,w,h); x = 0; prevY = null; if (reduce) drawStatic(); }
+    function wave(p){ // p in 0..1 of a beat
+      const g = (c, s, a) => a*Math.exp(-Math.pow((p-c)/s,2));
+      return g(.18,.035,.12) - g(.33,.012,.12) + g(.36,.014,1) - g(.39,.013,.25) + g(.62,.06,.28);
+    }
+    function y(p){ return h*.62 - wave(p)*h*.5; }
+    function drawStatic(){ ctx.strokeStyle = css('--trace'); ctx.lineWidth = 2.5; ctx.beginPath(); for (let px=0; px<=w; px++){ const p = (px/(w/3))%1; const yy = y(p); px ? ctx.lineTo(px,yy) : ctx.moveTo(px,yy);} ctx.stroke(); }
+    function frame(ts){
+      requestAnimationFrame(frame);
+      if (reduce || !slides[0].classList.contains('active')) { last = ts; return; }
+      const dt = Math.min(.05, (ts - last)/1000 || 0); last = ts;
+      const speed = w/3.2; // px per sec
+      const steps = Math.max(1, Math.ceil(speed*dt/2));
+      ctx.strokeStyle = css('--trace'); ctx.lineWidth = 2.5; ctx.lineCap='round';
+      for (let s=0; s<steps; s++){
+        const nx = x + speed*dt/steps; beatPhase += (72/60)*dt/steps; const p = beatPhase%1;
+        ctx.clearRect(nx, 0, 18, h);
+        const ny = y(p);
+        if (prevY !== null && nx > x) { ctx.beginPath(); ctx.moveTo(x, prevY); ctx.lineTo(nx, ny); ctx.stroke(); }
+        x = nx; prevY = ny;
+        if (x > w) { x = 0; prevY = null; ctx.clearRect(0,0,18,h); }
+      }
+    }
+    window.addEventListener('resize', size);
+    new ResizeObserver(size).observe(cv);
+    requestAnimationFrame(frame);
+  })();
+
+  // ---------- parking lot ----------
+  (function(){
+    let items = store.get('cf-class-parking', []);
+    function draw(){
+      ['#parkList','#parkRecap'].forEach(sel => {
+        const box = $(sel); box.innerHTML = '';
+        items.forEach((q, k) => {
+          const c = document.createElement('span'); c.className = 'chip';
+          const t = document.createElement('span'); t.textContent = q; c.appendChild(t);
+          const x = document.createElement('button'); x.type='button'; x.textContent='×'; x.setAttribute('aria-label','Remove question');
+          x.addEventListener('click', () => { items.splice(k,1); store.set('cf-class-parking', items); draw(); });
+          c.appendChild(x); box.appendChild(c);
+        });
+      });
+      $('#parkRecapEmpty').hidden = items.length > 0;
+    }
+    $('#parkForm').addEventListener('submit', e => {
+      e.preventDefault(); const v = $('#parkInput').value.trim(); if (!v) return;
+      items.push(v); store.set('cf-class-parking', items); $('#parkInput').value=''; draw();
+    });
+    draw();
+  })();
+  // ---------- heart sounds ----------
+  (function(){
+    let ac = null, master = null, noiseBuf = null, playing = null;
+    function init(){
+      if (ac) return;
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) { toast('Audio is not supported in this browser.'); return; }
+      ac = new AC();
+      const comp = ac.createDynamicsCompressor(); comp.connect(ac.destination);
+      master = ac.createGain(); master.gain.value = 1.4; master.connect(comp);
+      noiseBuf = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate);
+      const d = noiseBuf.getChannelData(0); for (let k=0;k<d.length;k++) d[k] = Math.random()*2-1;
+    }
+    function thump(t, f, dur, g){
+      const o = ac.createOscillator(), o2 = ac.createOscillator(), gn = ac.createGain();
+      o.type='sine'; o.frequency.setValueAtTime(f*1.35, t); o.frequency.exponentialRampToValueAtTime(f, t+dur*.6);
+      o2.type='triangle'; o2.frequency.setValueAtTime(f*2.1, t);
+      gn.gain.setValueAtTime(0.0001, t); gn.gain.exponentialRampToValueAtTime(g, t+.008); gn.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+      const g2 = ac.createGain(); g2.gain.value = .35; o2.connect(g2); g2.connect(gn);
+      o.connect(gn); gn.connect(master); o.start(t); o2.start(t); o.stop(t+dur+.02); o2.stop(t+dur+.02);
+      const n = ac.createBufferSource(); n.buffer = noiseBuf; const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value = 500;
+      const ng = ac.createGain(); ng.gain.setValueAtTime(g*.5, t); ng.gain.exponentialRampToValueAtTime(0.0001, t+dur*.5);
+      n.connect(lp); lp.connect(ng); ng.connect(master); n.start(t, Math.random()); n.stop(t+dur);
+    }
+    function hiss(t, dur, fc, q, g, shape, lfo){
+      const n = ac.createBufferSource(); n.buffer = noiseBuf; const bp = ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value = fc; bp.Q.value = q;
+      const gn = ac.createGain(); gn.gain.setValueAtTime(0.0001, t);
+      if (shape === 'diamond') { gn.gain.linearRampToValueAtTime(g, t+dur/2); gn.gain.linearRampToValueAtTime(0.0001, t+dur); }
+      else { gn.gain.linearRampToValueAtTime(g, t+.02); gn.gain.setValueAtTime(g, t+dur-.03); gn.gain.linearRampToValueAtTime(0.0001, t+dur); }
+      n.connect(bp); bp.connect(gn);
+      if (lfo) { const am = ac.createGain(); am.gain.value = 0; const o = ac.createOscillator(); o.type='square'; o.frequency.value = lfo; const og = ac.createGain(); og.gain.value = 1; o.connect(og); og.connect(am.gain); gn.connect(am); am.connect(master); o.start(t); o.stop(t+dur); }
+      else gn.connect(master);
+      n.start(t, Math.random()); n.stop(t+dur+.02);
+    }
+    function play(kind){
+      init(); if (!ac) return; if (ac.state === 'suspended') ac.resume();
+      const c = .85, start = ac.currentTime + .12, beats = 4;
+      for (let b=0;b<beats;b++){
+        const t = start + b*c;
+        if (kind === 'rub') { hiss(t+.03, .2, 1100, .9, .5, 'flat', 32); hiss(t+.42, .14, 1200, .9, .42, 'flat', 28); continue; }
+        if (kind === 's4') thump(t-.11, 78, .09, .45);
+        thump(t, 100, .12, .9);
+        thump(t+.30, 140, .085, .72);
+        if (kind === 's3') thump(t+.45, 72, .1, .5);
+        if (kind === 'murmur') hiss(t+.06, .22, 320, .8, .42, 'diamond');
+      }
+      return beats*c + .2;
+    }
+    const buttons = $$('[data-sound]');
+    buttons.forEach(b => b.addEventListener('click', () => {
+      const dur = play(b.dataset.sound); if (!dur) return;
+      buttons.forEach(x => x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true');
+      clearTimeout(playing); playing = setTimeout(() => b.setAttribute('aria-pressed','false'), dur*1000);
+    }));
+    const names = { normal:'Normal S1 and S2', s3:'S3 gallop (“Ken-TUC-ky”)', s4:'S4 gallop (“TEN-nes-see”)', murmur:'Murmur (turbulent flow)', rub:'Pericardial friction rub' };
+    const WHY = { normal:'Two sounds per beat: S1 (AV valves close) then S2 (semilunar valves close).', s3:'An extra sound just after S2, like “Ken-TUC-ky.” Blood splashing into an overfilled ventricle.', s4:'An extra sound just before S1, like “TEN-nes-see.” The atrium pushing into a stiff ventricle.', murmur:'A whoosh between the beats: turbulent flow, like water over rapids.', rub:'A grating, scratchy sound from inflamed pericardial layers rubbing together.' };
+    let mystery = null, round = 1, revealed = false;
+    const gbtns = $$('[data-guess]');
+    function pick(){
+      const ks = Object.keys(names).filter(k => k !== mystery); mystery = ks[Math.floor(Math.random()*ks.length)];
+      revealed = false; gbtns.forEach(b => { b.classList.remove('right','wrong'); b.setAttribute('aria-pressed','false'); });
+      $('#mysteryText').textContent = 'Press play, let teams lock in a guess, then reveal.'; $('#mysteryWhy').textContent = '';
+      $('#mysteryRound').textContent = 'Round ' + round;
+    }
+    gbtns.forEach(b => b.addEventListener('click', () => { if (revealed) return; const on = b.getAttribute('aria-pressed') !== 'true'; gbtns.forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', String(on)); }));
+    $('#mysteryNew').addEventListener('click', () => { round++; pick(); });
+    $('#mysteryPlay').addEventListener('click', () => { if (!mystery) pick(); play(mystery); if (!revealed) $('#mysteryText').textContent = 'What do you hear? Teams, lock in your guess.'; });
+    $('#mysteryReveal').addEventListener('click', () => {
+      if (!mystery) pick();
+      revealed = true;
+      gbtns.forEach(b => { b.classList.toggle('right', b.dataset.guess === mystery); b.classList.toggle('wrong', b.getAttribute('aria-pressed') === 'true' && b.dataset.guess !== mystery); });
+      $('#mysteryText').innerHTML = 'It was: <b>' + names[mystery] + '</b>'; $('#mysteryWhy').textContent = WHY[mystery];
+    });
+    $$('[data-score]').forEach(b => b.addEventListener('click', () => { const [t, d] = b.dataset.score.split(','); const el = $('#score' + t); el.textContent = Math.max(0, (+el.textContent) + (+d)); }));
+    pick();
+  })();
+
+  // ---------- heart labeling ----------
+  (function(){
+    // coordinates are in the worksheet's page points (viewBox 20 70 760 520); each line runs box edge -> structure
+    const H = PARTS;
+    const FLOW = [
+      {ids:['svc','ivc'], ox:'d', c:'Deoxygenated blood from the body returns through the superior and inferior vena cava.'},
+      {ids:['ra'], ox:'d', c:'It collects in the right atrium.'},
+      {ids:['tv'], ox:'d', c:'It passes through the tricuspid valve, the right AV valve.'},
+      {ids:['rv'], ox:'d', c:'It fills the right ventricle, which pumps toward the lungs.'},
+      {ids:['pv'], ox:'d', c:'It leaves through the pulmonic valve, a semilunar valve.'},
+      {ids:['pt'], ox:'d', c:'It enters the pulmonary trunk.'},
+      {ids:['rpa','lpa'], ox:'d', c:'The right and left pulmonary arteries carry it to the lungs. These are the only arteries that carry deoxygenated blood.'},
+      {ids:[], ox:'x', c:'In the lungs, gas exchange happens at the capillaries: CO₂ off, O₂ on.'},
+      {ids:['rpv','lpv'], ox:'o', c:'Oxygenated blood returns through the pulmonary veins. These are the only veins that carry oxygenated blood.'},
+      {ids:['la'], ox:'o', c:'It collects in the left atrium.'},
+      {ids:['mv'], ox:'o', c:'It passes through the mitral (bicuspid) valve, the left AV valve.'},
+      {ids:['lv'], ox:'o', c:'It fills the left ventricle, the thickest-walled chamber.'},
+      {ids:['av'], ox:'o', c:'It leaves through the aortic valve, a semilunar valve.'},
+      {ids:['ao'], ox:'o', c:'The aorta carries it out to the body.'}
+    ];
+    const NS = 'http://www.w3.org/2000/svg';
+    const board = $('#board'), leads = $('#hLeads'), bank = $('#hBank');
+    const pct = (v, o, span) => ((v - o) / span * 100) + '%';
+    const state = {};      // box id -> term id placed there (correct or not)
+    const boxes = {}, groups = {};
+    H.forEach(h => {
+      const g = document.createElementNS(NS, 'g');
+      h.L.forEach(l => {
+        const ln = document.createElementNS(NS, 'line');
+        ln.setAttribute('x1', l[0]); ln.setAttribute('y1', l[1]); ln.setAttribute('x2', l[2]); ln.setAttribute('y2', l[3]);
+        g.appendChild(ln);
+        const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', l[2]); c.setAttribute('cy', l[3]); c.setAttribute('r', 3.2);
+        g.appendChild(c);
+      });
+      leads.appendChild(g); groups[h.id] = g;
+      const b = document.createElement('div');
+      b.className = 'lbox'; b.dataset.box = h.id; b.setAttribute('role', 'button'); b.tabIndex = 0;
+      b.style.left = pct(h.x, 20, 760); b.style.top = pct(h.y, 70, 520);
+      b.style.width = (h.w / 760 * 100) + '%'; b.style.height = (30 / 520 * 100) + '%';
+      board.appendChild(b); boxes[h.id] = b;
+    });
+    const termOf = id => H.find(h => h.id === id).term;
+    function score(){ return H.filter(h => state[h.id] === h.id).length; }
+    function drawBoxes(){
+      H.forEach(h => {
+        const b = boxes[h.id], t = state[h.id];
+        b.classList.remove('ok', 'bad');
+        if (!t) { b.innerHTML = '<span class="ph">drop here</span>'; b.setAttribute('aria-label', 'Empty label box'); }
+        else { b.textContent = termOf(t); b.classList.add(t === h.id ? 'ok' : 'bad'); b.setAttribute('aria-label', termOf(t) + (t === h.id ? ', correct' : ', incorrect')); }
+      });
+      const n = score(), p = $('#hScore');
+      p.textContent = n + ' / ' + H.length + ' correct';
+      p.className = 'pill ' + (n === H.length ? 'good' : 'ven');
+    }
+    let order = [];
+    function shuffle(){ order = H.map(h => h.id); for (let k = order.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [order[k], order[j]] = [order[j], order[k]]; } }
+    function drawBank(){
+      const placed = new Set(Object.values(state));
+      bank.innerHTML = '';
+      order.forEach(id => {
+        if (placed.has(id)) return;
+        const c = document.createElement('button'); c.type = 'button'; c.className = 'chip-t'; c.dataset.term = id; c.textContent = termOf(id);
+        if (id === selected) c.classList.add('sel');
+        bank.appendChild(c);
+      });
+      if (!bank.children.length) { const p = document.createElement('p'); p.className = 'small muted'; p.textContent = score() === H.length ? 'Every structure is labeled.' : 'Fix the red labels: drag them back here or tap them.'; bank.appendChild(p); }
+    }
+    function draw(){ drawBoxes(); drawBank(); }
+    let selected = null;
+    function place(termId, boxId){
+      if (state[boxId] === boxId) { boxes[boxId].classList.remove('shake'); void boxes[boxId].offsetWidth; boxes[boxId].classList.add('shake'); return; }
+      Object.keys(state).forEach(k => { if (state[k] === termId) delete state[k]; });
+      state[boxId] = termId; selected = null; draw();
+      const b = boxes[boxId]; b.classList.remove('pop', 'shake'); void b.offsetWidth; b.classList.add(termId === boxId ? 'pop' : 'shake');
+      if (score() === H.length) toast('Heart fully labeled. Ready to trace blood flow.');
+    }
+    function unplace(boxId){ if (state[boxId] && state[boxId] !== boxId) { delete state[boxId]; draw(); } }
+
+    // pointer drag (mouse, pen, touch)
+    let drag = null;
+    function hotBox(x, y){ const el = document.elementFromPoint(x, y); return el && el.closest && el.closest('.lbox'); }
+    function setHot(b){
+      Object.values(boxes).forEach(x => x.classList.toggle('hot', x === b && !x.classList.contains('ok')));
+      H.forEach(h => groups[h.id].classList.toggle('hot', !!b && b.dataset.box === h.id));
+    }
+    function startDrag(e, termId, srcEl, fromBox){
+      if (e.button !== undefined && e.button !== 0) return;
+      drag = { termId, srcEl, fromBox, x0: e.clientX, y0: e.clientY, moved: false, ghost: null, pid: e.pointerId };
+      try { srcEl.setPointerCapture(e.pointerId); } catch(_){}
+    }
+    document.addEventListener('pointerdown', e => {
+      const chip = e.target.closest && e.target.closest('.chip-t');
+      if (chip) { e.preventDefault(); startDrag(e, chip.dataset.term, chip, null); return; }
+      const bb = e.target.closest && e.target.closest('.lbox.bad');
+      if (bb) { e.preventDefault(); startDrag(e, state[bb.dataset.box], bb, bb.dataset.box); }
+    });
+    document.addEventListener('pointermove', e => {
+      if (!drag || e.pointerId !== drag.pid) return;
+      if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6) return;
+      if (!drag.moved) {
+        drag.moved = true;
+        const g = document.createElement('div'); g.className = 'ghost'; g.textContent = termOf(drag.termId); document.body.appendChild(g); drag.ghost = g;
+        drag.srcEl.classList.add('lift');
+      }
+      e.preventDefault();
+      drag.ghost.style.transform = 'translate(' + (e.clientX + 12) + 'px,' + (e.clientY + 10) + 'px)';
+      setHot(hotBox(e.clientX, e.clientY));
+    });
+    function endDrag(e){
+      if (!drag || e.pointerId !== drag.pid) return;
+      const d = drag; drag = null;
+      d.srcEl.classList.remove('lift'); if (d.ghost) d.ghost.remove(); setHot(null);
+      if (!d.moved) { // a tap
+        if (d.fromBox) unplace(d.fromBox);
+        else { selected = selected === d.termId ? null : d.termId; drawBank(); }
+        return;
+      }
+      const b = e.type === 'pointerup' ? hotBox(e.clientX, e.clientY) : null;
+      if (b) place(d.termId, b.dataset.box);
+      else if (d.fromBox) unplace(d.fromBox);
+    }
+    document.addEventListener('pointerup', endDrag);
+    document.addEventListener('pointercancel', endDrag);
+    board.addEventListener('click', e => {
+      const b = e.target.closest('.lbox'); if (!b || !selected) return;
+      if (b.classList.contains('bad') && !selected) return;
+      place(selected, b.dataset.box);
+    });
+    board.addEventListener('keydown', e => {
+      const b = e.target.closest('.lbox'); if (!b || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault();
+      if (selected) place(selected, b.dataset.box); else unplace(b.dataset.box);
+    });
+    bank.addEventListener('keydown', e => {
+      const c = e.target.closest('.chip-t'); if (!c || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault(); selected = selected === c.dataset.term ? null : c.dataset.term; drawBank();
+      const again = bank.querySelector('[data-term="' + c.dataset.term + '"]'); again && again.focus();
+    });
+    $('#hShuffle').addEventListener('click', () => { shuffle(); drawBank(); });
+    $('#hReset').addEventListener('click', () => { Object.keys(state).forEach(k => delete state[k]); selected = null; shuffle(); draw(); });
+    $('#hReveal').addEventListener('click', () => { H.forEach(h => state[h.id] = h.id); selected = null; draw(); });
+
+    // blood flow trace
+    let flowOn = false, fi = 0;
+    const stepsEl = $('#hSteps');
+    FLOW.forEach((f, k) => {
+      const li = document.createElement('li');
+      li.textContent = f.ids.length ? f.ids.map(termOf).join(' & ') : 'Lungs';
+      li.addEventListener('click', () => { fi = k; drawFlow(); });
+      stepsEl.appendChild(li);
+    });
+    function clearFlow(){ Object.values(boxes).forEach(b => b.classList.remove('flow-d', 'flow-o')); Object.values(groups).forEach(g => g.classList.remove('flow-d', 'flow-o')); }
+    function drawFlow(){
+      clearFlow(); const f = FLOW[fi];
+      f.ids.forEach(id => {
+        if (state[id] !== id) { state[id] = id; drawBoxes(); drawBank(); }
+        boxes[id].classList.add('flow-' + f.ox); groups[id].classList.add('flow-' + f.ox);
+      });
+      const cap = $('#hFlowCap'); cap.textContent = f.c; cap.className = 'hcap' + (f.ox === 'd' ? '' : ' ' + f.ox);
+      $('#hFlowCount').textContent = (fi + 1) + ' / ' + FLOW.length;
+      $$('li', stepsEl).forEach((li, k) => { li.classList.toggle('cur', k === fi); li.classList.toggle('done', k < fi); });
+      $('#hFlowPrev').disabled = fi === 0;
+    }
+    function enterFlow(){ flowOn = true; fi = 0; $('#hBankPanel').hidden = true; $('#hFlowPanel').hidden = false; drawFlow(); }
+    function exitFlow(){ if (!flowOn) return; flowOn = false; clearFlow(); $('#hBankPanel').hidden = false; $('#hFlowPanel').hidden = true; }
+    $('#hFlowGo').addEventListener('click', enterFlow);
+    $('#hFlowExit').addEventListener('click', exitFlow);
+    $('#hFlowNext').addEventListener('click', () => { if (fi < FLOW.length - 1) { fi++; drawFlow(); } else exitFlow(); });
+    $('#hFlowPrev').addEventListener('click', () => { if (fi > 0) { fi--; drawFlow(); } });
+    hooks.heart = {
+      next(){ if (!flowOn) return false; if (fi < FLOW.length - 1) { fi++; drawFlow(); return true; } exitFlow(); return false; },
+      prev(){ if (!flowOn) return false; if (fi > 0) { fi--; drawFlow(); } else exitFlow(); return true; },
+      active(a){ if (!a) exitFlow(); }
+    };
+    shuffle(); draw();
+  })();
+  // ---------- Part 2: electrophysiology ----------
+  (function(){
+    const NS = 'http://www.w3.org/2000/svg';
+    const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+    const clamp = (v, a=0, b=1) => Math.max(a, Math.min(b, v));
+    const gs = (t, c, s) => Math.exp(-0.5 * ((t - c) / s) ** 2);
+    function ecg(t){ const tS = t < 440 ? 45 : 32; return 0.15*gs(t,50,16) - 0.10*gs(t,176,5) + 1.0*gs(t,196,7) - 0.28*gs(t,216,7) + 0.30*Math.exp(-0.5*((t-440)/tS)**2); }
+    const Y = v => 180 - v * 130;
+    function grid(G, w, h, minor, major, y0){
+      for (let x = 0; x <= w; x += minor) mk('line', {x1:x, x2:x, y1:0, y2:h, class: x % major === 0 ? 'gmaj' : 'gmin'}, G);
+      for (let y = y0 % minor; y <= h; y += minor) mk('line', {x1:0, x2:w, y1:y, y2:y, class: (y - y0) % major === 0 ? 'gmaj' : 'gmin'}, G);
+    }
+    function tracePath(t1, off=0){ let d = ''; for (let t = 0; t <= t1; t += 2) d += (t ? 'L' : 'M') + (t + off).toFixed(1) + ' ' + Y(ecg(t)).toFixed(1); return d; }
+
+    // divider strip: two beats
+    (function(){
+      const S = $('#p2Strip'); if (!S) return;
+      const G = mk('g', {}, S); grid(G, 1600, 260, 40, 200, 180);
+      let d = '';
+      for (let b = 0; b < 2; b++) for (let t = 0; t < 800; t += 2) d += ((b || t) ? 'L' : 'M') + (t + b*800).toFixed(1) + ' ' + (Y(ecg(t)) - 10).toFixed(1);
+      mk('path', {d, class:'etrace', style:'stroke:var(--depol)'}, S);
+    })();
+
+    const PH = [
+      {k:'P', name:'P wave', a:0, b:100,
+        elec:'The SA node fires. Depolarization spreads across both atria through the internodal pathways and Bachmann’s bundle.',
+        defl:'Small and rounded, because the atria are thin. The wave heads down and left, toward Lead II’s positive electrode, so the P wave is upright.',
+        mech:'The atria contract just after. The atrial kick tops off the ventricles with roughly the last 20 to 30% of their filling.',
+        nurse:'One upright P before every QRS in Lead II suggests the beat started in the SA node.'},
+      {k:'PR', name:'PR segment', a:100, b:160,
+        elec:'The impulse crawls through the AV node, the only doorway through the fibrous skeleton. The node deliberately slows it.',
+        defl:'Flat, because the AV node is too small to move the pen. The PR interval (start of P to start of QRS) is normally 0.12 to 0.20 s.',
+        mech:'The pause lets the atria finish emptying before the ventricles squeeze.',
+        nurse:'A PR interval longer than 0.20 s signals AV block. Digoxin, beta blockers, and calcium channel blockers slow AV conduction.'},
+      {k:'QRS', name:'QRS complex', a:160, b:245,
+        elec:'The signal races down the bundle of His, bundle branches, and Purkinje fibers, then depolarizes the ventricles. Atrial repolarization hides inside the QRS.',
+        defl:'Big because the ventricles are big. Q: the septum fires left to right (small dip). R: the main mass fires toward the apex (tall spike). S: the last basal areas fire away (small dip).',
+        mech:'Ventricular systole begins. The AV valves close (S1).',
+        nurse:'A QRS wider than 0.12 s means a slow or abnormal route, such as a bundle branch block or a beat that started in the ventricle.'},
+      {k:'ST', name:'ST segment', a:245, b:340,
+        elec:'Every ventricular cell is depolarized and sitting in the plateau (phase 2). Ca²⁺ is flowing in.',
+        defl:'Flat, because all the cells carry the same charge. With no difference between regions, there is no net current to record.',
+        mech:'The ventricles are contracting and ejecting blood. Calcium entering during the plateau powers the squeeze.',
+        nurse:'An ST segment raised or lowered from baseline can mean injured or ischemic muscle. ST elevation with chest pain is an emergency.'},
+      {k:'T', name:'T wave', a:340, b:530,
+        elec:'Ventricular repolarization. K⁺ flows out and the cells restore their negative interior, outer wall first.',
+        defl:'Broader and lower than the QRS because repolarization is slower. Upright in Lead II because a reversed wave of a reversed charge points the same way as the QRS.',
+        mech:'The ventricles finish ejecting and begin to relax. The semilunar valves close (S2) near the end of the T wave.',
+        nurse:'Peaked T waves suggest hyperkalemia; flat T waves suggest hypokalemia. A PVC landing on the T wave (R-on-T) can trigger V-fib.'},
+      {k:'TP', name:'TP segment', a:530, b:800,
+        elec:'Electrical rest. Muscle cells sit at about −90 mV. SA node cells slowly drift toward threshold on their own.',
+        defl:'Flat isoelectric baseline. This is the line you judge ST elevation or depression against.',
+        mech:'Diastole. The ventricles relax and fill, and the coronary arteries fill best now.',
+        nurse:'As heart rate rises this segment shrinks first, cutting filling time and coronary perfusion.'}
+    ];
+
+    // ---- conduction heart (shared) ----
+    function heartSVG(p){
+      return '<svg viewBox="0 0 340 362" role="img" aria-label="Conduction system of the heart">' +
+      '<defs><clipPath id="'+p+'A"><path d="M 72 92 Q 72 52 112 50 L 160 50 L 160 162 L 82 162 Q 66 140 72 92 Z"/><path d="M 180 50 L 230 50 Q 270 52 270 92 Q 274 140 258 162 L 180 162 Z"/></clipPath>' +
+      '<clipPath id="'+p+'V"><path d="M 72 180 L 268 180 Q 284 262 206 334 Q 188 348 172 336 Q 58 262 72 180 Z"/></clipPath></defs>' +
+      '<g class="atriaG"><path class="tissue" d="M 72 92 Q 72 52 112 50 L 160 50 L 160 162 L 82 162 Q 66 140 72 92 Z"/><path class="tissue" d="M 180 50 L 230 50 Q 270 52 270 92 Q 274 140 258 162 L 180 162 Z"/>' +
+      '<g clip-path="url(#'+p+'A)"><circle class="dfill atrD" cx="95" cy="70" r="0"/></g><text class="ch" x="104" y="122">RA</text><text class="ch" x="222" y="122">LA</text></g>' +
+      '<rect class="skel" x="66" y="165" width="208" height="12" rx="3"/><text class="sm" x="232" y="160" text-anchor="middle">fibrous skeleton (insulates)</text>' +
+      '<g class="ventG"><path class="tissue" d="M 72 180 L 268 180 Q 284 262 206 334 Q 188 348 172 336 Q 58 262 72 180 Z"/>' +
+      '<g clip-path="url(#'+p+'V)"><circle class="dfill venD" cx="175" cy="248" r="0"/></g>' +
+      '<line x1="172" y1="182" x2="186" y2="330" style="stroke:var(--muted)" stroke-width="1.2" stroke-dasharray="3 4"/><text class="ch" x="104" y="225">RV</text><text class="ch" x="226" y="225">LV</text></g>' +
+      '<g class="condBase"><path class="cond" d="M 95 70 Q 120 120 163 160"/><path class="cond" d="M 95 70 Q 160 56 236 80"/><path class="cond" d="M 163 160 L 172 196"/><path class="cond" d="M 172 196 Q 168 250 160 290 Q 140 314 112 285 Q 90 250 92 205"/><path class="cond" d="M 172 196 Q 184 250 196 300 Q 214 322 244 288 Q 262 250 256 205"/></g>' +
+      '<g class="condLit"><path class="lit" d="M 95 70 Q 120 120 163 160"/><path class="lit" d="M 95 70 Q 160 56 236 80"/><path class="lit" d="M 163 160 L 172 196"/><path class="lit" d="M 172 196 Q 168 250 160 290 Q 140 314 112 285 Q 90 250 92 205"/><path class="lit" d="M 172 196 Q 184 250 196 300 Q 214 322 244 288 Q 262 250 256 205"/></g>' +
+      '<circle class="node saN" cx="95" cy="70" r="7"/><circle class="node avN" cx="163" cy="160" r="6"/>' +
+      '<circle class="spark spA" r="6" cx="-20" cy="-20"/><circle class="spark spB" r="6" cx="-20" cy="-20"/>' +
+      '<text data-k="1" x="40" y="40">SA node</text><text data-k="2" x="150" y="44">Bachmann’s bundle</text><text data-k="2" x="98" y="150" text-anchor="end">Internodal</text>' +
+      '<text data-k="3" x="124" y="176" text-anchor="end">AV node</text><text data-k="4" x="182" y="196">Bundle of His</text>' +
+      '<text data-k="5" x="128" y="262" text-anchor="end">R bundle</text><text data-k="5" x="214" y="262">L bundle</text><text data-k="6" x="226" y="338">Purkinje fibers</text>' +
+      '</svg>';
+    }
+    function makeHeart(box, p){
+      box.innerHTML = heartSVG(p);
+      const q = s => box.querySelector(s);
+      const base = Array.from(box.querySelectorAll('.condBase path')), lit = Array.from(box.querySelectorAll('.condLit path'));
+      let lens = null;
+      function ensure(){
+        if (lens && lens.every(l => l > 0)) return;
+        lens = base.map(x => { try { return x.getTotalLength(); } catch(e){ return 0; } });
+        lit.forEach((x, k) => { x.style.strokeDasharray = lens[k] || 1; });
+      }
+      const ptOn = (k, f) => { try { return base[k].getPointAtLength(lens[k] * clamp(f)); } catch(e){ return null; } };
+      const bump = (t, a, b) => t < a || t > b ? 0 : Math.sin(Math.PI * (t - a) / (b - a));
+      function place(el, pt, r){ if (pt) { el.setAttribute('cx', pt.x); el.setAttribute('cy', pt.y); el.setAttribute('r', r); } else { el.setAttribute('cx', -20); el.setAttribute('cy', -20); } }
+      function set(t){
+        ensure();
+        const atr = q('.atrD'), ven = q('.venD'), A = q('.spA'), B = q('.spB');
+        if (t < 0) {
+          atr.setAttribute('r', 0); ven.setAttribute('r', 0);
+          lit.forEach((x, k) => x.style.strokeDashoffset = lens[k] || 1);
+          place(A, null); place(B, null);
+          q('.saN').style.fill = ''; q('.avN').style.fill = '';
+          q('.atriaG').removeAttribute('transform'); q('.ventG').removeAttribute('transform');
+          return { atria:false, vent:false, t };
+        }
+        let ar = 0, ao = 0.5;
+        if (t < 100) ar = 230 * (t / 100); else if (t < 530) { ar = 230; ao = t < 160 ? 0.5 : 0.5 * (1 - clamp((t - 160) / 90)); } else ar = 0;
+        atr.setAttribute('r', ar.toFixed(1)); atr.style.opacity = ao;
+        let vr = 0;
+        if (t >= 185 && t < 245) vr = 190 * ((t - 185) / 60); else if (t >= 245 && t < 340) vr = 190; else if (t >= 340 && t < 530) vr = 190 * (1 - (t - 340) / 190);
+        ven.setAttribute('r', vr.toFixed(1));
+        const prog = [clamp(t/55), clamp(t/55), clamp((t-160)/22), clamp((t-182)/53), clamp((t-182)/53)];
+        lit.forEach((x, k) => x.style.strokeDashoffset = (lens[k] || 1) * (1 - prog[k]));
+        box.querySelector('.condLit').style.opacity = t < 530 ? 1 : Math.max(0, 1 - (t - 530) / 70);
+        let a = null, b = null;
+        if (t < 55) { a = ptOn(0, t/55); b = ptOn(1, t/55); }
+        else if (t < 160) a = {x:163, y:160};
+        else if (t < 182) a = ptOn(2, (t-160)/22);
+        else if (t < 235) { a = ptOn(3, (t-182)/53); b = ptOn(4, (t-182)/53); }
+        place(A, a, t >= 55 && t < 160 ? 5 : 6); place(B, b, 6);
+        q('.saN').style.fill = t < 30 ? 'var(--depol)' : '';
+        q('.avN').style.fill = (t >= 55 && t < 160) ? 'var(--depol)' : '';
+        const sA = 1 - 0.045 * bump(t, 70, 200), sV = 1 - 0.06 * bump(t, 230, 520);
+        q('.atriaG').setAttribute('transform', 'translate(170 106) scale(' + sA + ') translate(-170 -106)');
+        q('.ventG').setAttribute('transform', 'translate(172 255) scale(' + sV + ') translate(-172 -255)');
+        return { atria: t >= 70 && t < 200, vent: t >= 230 && t < 520, t };
+      }
+      function label(k){ box.querySelectorAll('[data-k]').forEach(e => e.classList.toggle('on', +e.dataset.k === k)); }
+      return { set, label };
+    }
+    function tween(from, to, dur, onFrame, done){
+      if (reduce || dur <= 0) { onFrame(to); done && done(); return () => {}; }
+      let start = null, raf = 0, stop = false;
+      function f(ts){ if (stop) return; if (start === null) start = ts; const k = clamp((ts - start) / dur); onFrame(from + (to - from) * k); if (k < 1) raf = requestAnimationFrame(f); else done && done(); }
+      raf = requestAnimationFrame(f);
+      return () => { stop = true; cancelAnimationFrame(raf); };
+    }
+
+    // ---- conduction pathway slide ----
+    (function(){
+      const box = $('#pathHeart'); if (!box) return;
+      const H = makeHeart(box, 'ph');
+      const STOPS = [
+        null,
+        {k:1, t:8, r:1, name:'SA node', role:'The pacemaker · 60–100/min', txt:'Fires on its own (automaticity) and starts every normal beat. It sits high in the wall of the right atrium.', an:'The conductor of an orchestra. Nothing starts until it gives the downbeat.'},
+        {k:2, t:100, name:'Internodal pathways & Bachmann’s bundle', role:'Atrial highways', txt:'Carry the impulse across the right and left atria so both depolarize together. On the ECG: the P wave.', an:'Express lanes that get the signal to both atria at the same time.'},
+        {k:3, t:150, r:3, name:'AV node', role:'The gatekeeper · backup 40–60/min', txt:'Holds the impulse about 0.1 s so the atria can finish emptying into the ventricles. On the ECG: the flat PR segment.', an:'A toll booth. Every car stops briefly before it’s let through.'},
+        {k:4, t:182, name:'Bundle of His', role:'The only bridge', txt:'The one electrical path through the fibrous skeleton, which insulates the atria from the ventricles.', an:'A single bridge over a river. If it’s out, signals can’t cross (heart block).'},
+        {k:5, t:212, name:'Right & left bundle branches', role:'Down the septum', txt:'Split the impulse down each side of the interventricular septum toward the apex.', an:'A highway splitting into two lanes, one for each ventricle.'},
+        {k:6, t:238, r:6, name:'Purkinje fibers', role:'Rapid spread · backup 20–40/min', txt:'Spread the impulse fast through the ventricular walls, from the apex up, so the ventricles squeeze from the bottom up. On the ECG: the QRS.', an:'Sprinklers that soak the whole lawn at once.'},
+        {k:0, t:300, name:'The ventricles contract', role:'Electrical, then mechanical', txt:'Depolarized muscle contracts and ejects blood. The electrical event always comes first; a pulse confirms the mechanical response.', an:'A toothpaste tube squeezed from the bottom, pushing blood up and out through the valves.'}
+      ];
+      let cur = -1, cancel = () => {};
+      function show(s){
+        cancel();
+        const st = STOPS[s];
+        $$('.ladder div').forEach(d => d.classList.toggle('on', !!st && st.r && +d.dataset.r === st.r));
+        if (!st) {
+          H.set(-1); cur = -1; H.label(-1);
+          $('#pathStepPill').textContent = 'Ready'; $('#pathName').textContent = 'Press next to fire the SA node';
+          $('#pathTxt').textContent = 'Each click moves the impulse one stop along the normal route.'; $('#pathRole').textContent = '';
+          $('#pathAn').hidden = true; return;
+        }
+        H.label(st.k);
+        $('#pathStepPill').textContent = 'Stop ' + s + ' of 7'; $('#pathName').textContent = st.name; $('#pathRole').textContent = st.role;
+        $('#pathTxt').textContent = st.txt; $('#pathAnT').textContent = st.an; $('#pathAn').hidden = false;
+        const from = cur < 0 ? 0 : cur;
+        cancel = tween(from, st.t, Math.min(1100, Math.max(450, Math.abs(st.t - from) * 9)), v => { cur = v; H.set(v); });
+      }
+      hooks.path = { step: show, active(a){ if (!a) cancel(); } };
+      H.set(-1);
+    })();
+
+    // ---- action potential slide ----
+    (function(){
+      const S = $('#apSvg'); if (!S) return;
+      const AX = t => 30 + t * 0.455, AY = v => 150 - (v + 100) * 0.95;
+      function apV(t){ if (t < 190) return -90; if (t < 200) return -90 + 110*((t-190)/10); if (t < 215) return 20 - 20*((t-200)/15); if (t < 340) return -8*((t-215)/125); if (t < 500){ const k = (t-340)/160; return -8 - 82*(0.5 - 0.5*Math.cos(Math.PI*k)); } return -90; }
+      function apP(t){ if (t < 50) return -40 + 50*(0.5 - 0.5*Math.cos(Math.PI*t/50)); if (t < 200){ const k = (t-50)/150; return 10 - 70*(0.5 - 0.5*Math.cos(Math.PI*k)); } return -60 + 20*Math.pow((t-200)/600, 1.4); }
+      const path = (f, a, b) => { let d = ''; for (let t = a; t <= b; t += 1) d += (t === a ? 'M' : 'L') + AX(t).toFixed(1) + ' ' + AY(f(t)).toFixed(1); return d; };
+      [20, 0, -40, -70, -90].forEach(v => { const tx = mk('text', {x:24, y:AY(v)+3, 'text-anchor':'end', class:'apax'}, S); tx.textContent = v; });
+      mk('line', {x1:30, x2:396, y1:AY(0), y2:AY(0), style:'stroke:var(--line)'}, S);
+      const thr = mk('line', {x1:30, x2:396, y1:AY(-70), y2:AY(-70), class:'thr'}, S);
+      const thrT = mk('text', {x:394, y:AY(-70)-4, 'text-anchor':'end', class:'apax'}, S); thrT.textContent = 'threshold −70 mV';
+      const u = mk('text', {x:4, y:12, class:'apax'}, S); u.textContent = 'mV';
+      const ghost = mk('path', {d:path(apV, 0, 799), class:'apghost'}, S);
+      const pm = mk('path', {d:'', class:'appm'}, S);
+      const done = mk('path', {d:'', class:'apdone'}, S);
+      const curP = mk('path', {d:'', class:'apcur'}, S);
+      const dot = mk('circle', {r:5, cx:-10, cy:-10, style:'fill:var(--depol); stroke:var(--surface); stroke-width:2'}, S);
+      const LBL = [['4',95,-90,-8],['0',192,-40,0],['1',212,20,-8],['2',278,-4,-10],['3',440,-50,0],['4',650,-90,-8]];
+      const lbl = LBL.map(([n,t,v,dy]) => { const e = mk('text', {x:AX(t) + (n==='0' ? -10 : n==='3' ? 12 : 0), y:AY(v)+dy, 'text-anchor':'middle', class:'apph'}, S); e.textContent = n; return e; });
+      const VPH = [
+        {n:'Phase 4 · Resting', a:0, b:190, li:[0,5], ion:'K⁺ slowly leaks out, keeping the inside at about −90 mV while the cell waits for the wave.', ecg:'TP segment (diastole)', an:'A charged battery waiting to be used.'},
+        {n:'Phase 0 · Rapid depolarization', a:190, b:200, li:[1], ion:'Fast Na⁺ channels open and Na⁺ rushes in. The inside swings to about +20 mV in milliseconds.', ecg:'QRS complex', an:'Floodgates opening: sodium pours in all at once.'},
+        {n:'Phase 1 · Early repolarization', a:200, b:215, li:[2], ion:'The Na⁺ channels close and a brief burst of K⁺ leaves the cell.', ecg:'The end of the QRS', an:'The floodgates slam shut.'},
+        {n:'Phase 2 · Plateau', a:215, b:340, li:[3], ion:'Ca²⁺ flows in while K⁺ flows out, so the voltage holds near 0 mV. The calcium triggers contraction.', ecg:'ST segment', an:'Holding the squeeze. Calcium is the key that turns on contraction, and the long plateau keeps the cell from firing again too soon.'},
+        {n:'Phase 3 · Rapid repolarization', a:340, b:500, li:[4], ion:'Ca²⁺ channels close and K⁺ pours out, restoring the negative interior. This is why potassium levels change the T wave.', ecg:'T wave', an:'Recharging the battery for the next beat.'}
+      ];
+      let pmOn = false, last = 0;
+      function show(s){
+        last = s;
+        if (pmOn) return drawPM();
+        lbl.forEach(e => e.classList.remove('on'));
+        if (!s) { done.setAttribute('d', ''); curP.setAttribute('d', ''); dot.setAttribute('cx', -10);
+          $('#apPill').textContent = 'Press next'; $('#apName').textContent = 'Phases 4, 0, 1, 2, 3';
+          $('#apIon').textContent = 'Each click moves through one phase. Watch which ion is moving and which part of the ECG it matches.';
+          $('#apEcgRow').hidden = true; $('#apAnBox').hidden = true; return; }
+        const p = VPH[s-1];
+        done.setAttribute('d', p.a > 0 ? path(apV, 0, p.a) : '');
+        curP.setAttribute('d', path(apV, p.a, p.b));
+        dot.setAttribute('cx', AX(p.b)); dot.setAttribute('cy', AY(apV(p.b)));
+        p.li.forEach(k => lbl[k].classList.add('on'));
+        $('#apPill').textContent = 'Step ' + s + ' of 5'; $('#apName').textContent = p.n; $('#apIon').textContent = p.ion;
+        $('#apEcg').textContent = p.ecg; $('#apEcgRow').hidden = false; $('#apAn').textContent = p.an; $('#apAnBox').hidden = false;
+      }
+      function drawPM(){
+        lbl.forEach(e => { e.classList.remove('on'); e.style.opacity = .2; }); ghost.style.opacity = .15;
+        done.setAttribute('d', ''); curP.setAttribute('d', ''); dot.setAttribute('cx', -10);
+        pm.setAttribute('d', path(apP, 0, 799));
+        thr.setAttribute('y1', AY(-40)); thr.setAttribute('y2', AY(-40)); thrT.setAttribute('y', AY(-40)-4); thrT.textContent = 'pacemaker threshold −40 mV';
+        $('#apPill').textContent = 'SA pacemaker cell'; $('#apName').textContent = 'No true resting phase';
+        $('#apIon').textContent = 'In phase 4, Na⁺ leaks in through the “funny current,” so the cell drifts up to threshold on its own. Slow Ca²⁺ channels fire a gentler upstroke (phase 0), then K⁺ flows out to repolarize it (phase 3). Pacemaker cells never settle as low as muscle cells.';
+        $('#apEcg').textContent = 'Sets the heart rate: a steeper phase 4 drift means a faster rate'; $('#apEcgRow').hidden = false;
+        $('#apAn').textContent = 'A leaky bucket that fills on its own and tips over when it’s full. That self-filling is automaticity.'; $('#apAnBox').hidden = false;
+      }
+      $('#apCell').addEventListener('click', () => {
+        pmOn = !pmOn; $('#apCell').setAttribute('aria-pressed', String(pmOn));
+        $('#apCell').textContent = pmOn ? 'Back to the muscle cell' : 'Compare: SA pacemaker cell';
+        if (!pmOn) { lbl.forEach(e => e.style.opacity = ''); ghost.style.opacity = ''; pm.setAttribute('d', ''); thr.setAttribute('y1', AY(-70)); thr.setAttribute('y2', AY(-70)); thrT.setAttribute('y', AY(-70)-4); thrT.textContent = 'threshold −70 mV'; show(last); }
+        else drawPM();
+      });
+      hooks.ap = { step: show };
+      show(0);
+    })();
+
+    // ---- one beat slide ----
+    (function(){
+      const box = $('#beatHeart'); if (!box) return;
+      const H = makeHeart(box, 'bh');
+      const E = $('#beatEcg');
+      const G = mk('g', {}, E); grid(G, 800, 280, 40, 200, 180);
+      const band = mk('rect', {x:0, y:0, width:0, height:280, class:'eband'}, E);
+      mk('path', {d:tracePath(799), class:'eghost'}, E);
+      const tr = mk('path', {d:'', class:'etrace'}, E);
+      const cur = mk('line', {x1:0, x2:0, y1:0, y2:280, class:'ecursor'}, E);
+      const WL = [['P',50,0.15],['Q',176,-0.1],['R',196,1.0],['S',216,-0.28],['T',440,0.30]];
+      const wl = WL.map(([k,t,v]) => { const e = mk('text', {x:t, y: v >= 0 ? Y(v) - 10 : Y(v) + 26, 'text-anchor':'middle', class:'ewl'}, E); e.textContent = k; return {e, t, k}; });
+      const IV = mk('g', {class:'eiv'}, E);
+      const iv = (a, b, y, txt) => { mk('line', {x1:a, x2:b, y1:y, y2:y}, IV); mk('line', {x1:a, x2:a, y1:y-5, y2:y+5}, IV); mk('line', {x1:b, x2:b, y1:y-5, y2:y+5}, IV); const t = mk('text', {x:(a+b)/2, y:y-6, 'text-anchor':'middle'}, IV); t.textContent = txt; };
+      iv(0, 160, 232, 'PR 0.16 s'); iv(160, 245, 262, 'QRS 0.08 s');
+      const chipsBox = $('#beatChips');
+      const chips = PH.map((p, k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = p.k; b.setAttribute('aria-pressed', 'false'); b.addEventListener('click', () => jump(k + 1)); chipsBox.appendChild(b); return b; });
+      const play = document.createElement('button'); play.type = 'button'; play.className = 'btn blue'; play.textContent = 'Play full beat'; chipsBox.appendChild(play);
+      let t = -1, cancel = () => {}, looping = false, loopRaf = 0, lastTs = null, shown = -2;
+      function draw(tt){
+        t = tt;
+        const st = H.set(tt);
+        tr.setAttribute('d', tt < 0 ? '' : tracePath(tt));
+        cur.setAttribute('x1', Math.max(0, tt)); cur.setAttribute('x2', Math.max(0, tt));
+        const i = tt < 0 ? -1 : PH.findIndex(p => tt >= p.a && tt < p.b + (p.b === 800 ? 1 : 0));
+        if (i >= 0) { band.setAttribute('x', PH[i].a); band.setAttribute('width', PH[i].b - PH[i].a); } else band.setAttribute('width', 0);
+        wl.forEach(w => w.e.classList.toggle('on', tt >= 0 && Math.abs(tt - w.t) < (w.k === 'T' ? 60 : w.k === 'P' ? 35 : 12)));
+        $('#bAtria').textContent = st.atria ? 'Contracting (atrial kick)' : 'Relaxed'; $('#bAtria').className = st.atria ? 'on' : '';
+        $('#bVent').textContent = st.vent ? (tt < 280 ? 'Systole · pressure building' : 'Systole · ejecting') : (tt >= 520 ? 'Diastole · relaxing and filling' : 'Diastole · filling'); $('#bVent').className = st.vent ? 'on' : '';
+        story(i);
+      }
+      function story(i){
+        if (i === shown) return; shown = i;
+        chips.forEach((c, k) => c.setAttribute('aria-pressed', String(k === i)));
+        if (i < 0) { $('#bName').textContent = 'Press next to start the beat'; $('#bWhen').textContent = '';
+          $('#bElec').textContent = 'Each click plays one part of the beat in slow motion, then pauses.'; $('#bDefl').textContent = ''; $('#bMech').textContent = ''; $('#bNurse').textContent = ''; return; }
+        const p = PH[i];
+        $('#bName').textContent = p.name;
+        $('#bWhen').textContent = (p.a/1000).toFixed(2) + '–' + (p.b/1000).toFixed(2) + ' s · ' + ((p.b - p.a)/40).toFixed(1) + ' small boxes';
+        $('#bElec').textContent = p.elec; $('#bDefl').textContent = p.defl; $('#bMech').textContent = p.mech; $('#bNurse').textContent = p.nurse;
+      }
+      function stopLoop(){ looping = false; cancelAnimationFrame(loopRaf); lastTs = null; play.textContent = 'Play full beat'; }
+      function animateTo(k){
+        cancel(); stopLoop();
+        if (!k) { draw(-1); return; }
+        const p = PH[k-1];
+        draw(p.a); shown = -2; story(k-1);
+        cancel = tween(p.a, p.b - 0.5, Math.min(1800, Math.max(700, (p.b - p.a) * 8)), draw);
+      }
+      function jump(k){ cancel(); stopLoop(); const p = PH[k-1]; draw(p.a); cancel = tween(p.a, p.b - 0.5, Math.min(1800, Math.max(700, (p.b - p.a) * 8)), draw); }
+      play.addEventListener('click', () => {
+        if (looping) { stopLoop(); return; }
+        cancel(); looping = true; play.textContent = 'Pause';
+        if (t < 0) t = 0;
+        const f = ts => { if (!looping) return; if (lastTs !== null) { let nt = t + (ts - lastTs) * 0.22; if (nt >= 800) nt -= 800; draw(nt); } lastTs = ts; loopRaf = requestAnimationFrame(f); };
+        loopRaf = requestAnimationFrame(f);
+      });
+      hooks.beat = { step: animateTo, active(a){ if (!a) { cancel(); stopLoop(); } } };
+      draw(-1);
+    })();
+
+    // ---- deflection lab ----
+    (function(){
+      const T = $('#dlTissue'); if (!T) return;
+      mk('circle', {cx:180, cy:150, r:115, fill:'none', style:'stroke:var(--line)', 'stroke-dasharray':'3 5'}, T);
+      const strip = mk('rect', {x:90, y:132, width:180, height:36, rx:4, style:'fill:var(--rest); stroke:var(--muted); stroke-width:1.5'}, T);
+      const fill = mk('rect', {x:90, y:132, width:0, height:36, rx:4}, T);
+      const front = mk('line', {x1:90, x2:90, y1:126, y2:174, 'stroke-width':3}, T);
+      const chg = []; for (let k = 0; k < 9; k++) chg.push(mk('text', {x:100 + k*20, y:154, class:'dlchg'}, T));
+      const arrow = mk('path', {d:'M 120 196 L 240 196 M 230 189 L 242 196 L 230 203', fill:'none', 'stroke-width':2.5, 'stroke-linecap':'round'}, T);
+      const at = mk('text', {x:180, y:220, 'text-anchor':'middle', style:'font-size:11px; fill:var(--muted); font-family:Arial, sans-serif'}, T); at.textContent = 'direction the wave travels';
+      const eLine = mk('line', {x1:180, y1:150, style:'stroke:var(--muted)', 'stroke-dasharray':'4 4'}, T);
+      const eDot = mk('circle', {r:15, style:'fill:var(--surface); stroke:var(--ink)', 'stroke-width':2}, T);
+      const eTxt = mk('text', {'text-anchor':'middle', 'dominant-baseline':'central', style:'font-family:var(--mono); font-weight:700; font-size:18px; fill:var(--ink)'}, T); eTxt.textContent = '+';
+      const D = $('#dlTrace'); const DG = mk('g', {}, D);
+      for (let x = 0; x <= 360; x += 10) mk('line', {x1:x, x2:x, y1:0, y2:150, class: x % 50 === 0 ? 'gmaj' : 'gmin'}, DG);
+      for (let y = 5; y <= 150; y += 10) mk('line', {x1:0, x2:360, y1:y, y2:y, class: (y - 75) % 50 === 0 ? 'gmaj' : 'gmin'}, DG);
+      const dGhost = mk('path', {class:'eghost'}, D), dLive = mk('path', {class:'etrace'}, D);
+      let ang = 0, mode = 'D', lp = 0, lLast = null, on = false;
+      const LOOP = 2800;
+      const dX = p => 20 + p * 320, dY = v => 75 - v * 55;
+      const bumpL = p => Math.exp(-0.5 * ((p - 0.5) / 0.13) ** 2);
+      const biL = p => Math.exp(-0.5 * ((p - 0.36) / 0.09) ** 2) - Math.exp(-0.5 * ((p - 0.64) / 0.09) ** 2);
+      function sig(p){ const th = ang * Math.PI / 180; const s = mode === 'D' ? 1 : -1; return s * (Math.cos(th) * bumpL(p) + Math.abs(Math.sin(th)) * 0.75 * biL(p)); }
+      function stat(){
+        const th = ang * Math.PI / 180, ex = 180 + 115 * Math.cos(th), ey = 150 - 115 * Math.sin(th);
+        eDot.setAttribute('cx', ex); eDot.setAttribute('cy', ey); eTxt.setAttribute('x', ex); eTxt.setAttribute('y', ey);
+        eLine.setAttribute('x2', ex); eLine.setAttribute('y2', ey);
+        $('#dlAngleV').textContent = ang + '°'; $('#dlAngle').value = ang;
+        let d = ''; for (let p = 0; p <= 1.0001; p += 0.01) d += (p ? 'L' : 'M') + dX(p).toFixed(1) + ' ' + dY(sig(p)).toFixed(1); dGhost.setAttribute('d', d);
+        const col = mode === 'D' ? 'var(--depol)' : 'var(--ven)';
+        arrow.style.stroke = col; front.style.stroke = col;
+        $('#dlMode').textContent = mode === 'D' ? 'Wave: depolarization' : 'Wave: repolarization';
+        const c = Math.cos(th), dir = c > 0.38 ? 'toward' : c < -0.38 ? 'away' : 'perp';
+        let v, why;
+        if (dir === 'perp') { v = 'Biphasic'; why = 'The wave runs across the electrode’s line of sight. It approaches (up), then leaves (down), so the deflections are small and roughly cancel.'; }
+        else if (mode === 'D') { v = dir === 'toward' ? 'Upright (positive)' : 'Inverted (negative)'; why = dir === 'toward' ? 'Depolarization moving toward the positive electrode deflects the pen up. The more directly it heads at the electrode, the taller the wave.' : 'Depolarization moving away from the positive electrode deflects the pen down.'; }
+        else { v = dir === 'toward' ? 'Inverted (negative)' : 'Upright (positive)'; why = dir === 'toward' ? 'Repolarization carries the opposite charge, so moving toward the positive electrode it deflects the pen down. The rule flips.' : 'Repolarization moving away from the positive electrode deflects the pen up. This is how the ventricles make an upright T wave.'; }
+        const V = $('#dlVerdict'); V.textContent = (mode === 'D' ? 'Depolarization · ' : 'Repolarization · ') + v; V.style.color = v.startsWith('Upright') ? 'var(--good)' : v.startsWith('Inverted') ? 'var(--bad)' : 'var(--ink)';
+        $('#dlWhy').textContent = why;
+      }
+      function rend(){
+        const p = clamp(lp / 1400), fx = 90 + 180 * p;
+        front.setAttribute('x1', fx); front.setAttribute('x2', fx);
+        fill.setAttribute('width', fx - 90); fill.style.fill = mode === 'D' ? 'var(--depol-soft)' : 'var(--ven-soft)';
+        strip.style.fill = mode === 'D' ? 'var(--rest)' : 'var(--depol-soft)';
+        chg.forEach((e, k) => { const x = 100 + k * 20, behind = x < fx, pos = mode === 'D' ? behind : !behind; e.textContent = pos ? '+' : '−'; e.style.fill = pos ? 'var(--depol)' : 'var(--muted)'; });
+        let d = ''; for (let q = 0; q <= p + 0.0001; q += 0.01) d += (q ? 'L' : 'M') + dX(q).toFixed(1) + ' ' + dY(sig(q)).toFixed(1); dLive.setAttribute('d', d);
+      }
+      function frame(ts){ if (on && lLast !== null && !reduce) { lp += ts - lLast; if (lp > LOOP) lp = 0; rend(); } lLast = ts; requestAnimationFrame(frame); }
+      function setAll(a, m){ ang = a; mode = m; lp = reduce ? 1400 : 0; stat(); rend(); }
+      $('#dlAngle').addEventListener('input', e => { ang = +e.target.value; stat(); rend(); });
+      $$('[data-dl]').forEach(b => b.addEventListener('click', () => setAll(+b.dataset.dl, mode)));
+      $('#dlMode').addEventListener('click', () => setAll(ang, mode === 'D' ? 'R' : 'D'));
+      const PRE = [[0,'D'],[0,'D'],[90,'D'],[180,'D'],[0,'R'],[180,'R']];
+      hooks.defl = { step(s){ const [a, m] = PRE[Math.min(s, 5)]; setAll(a, m); }, active(a){ on = a; } };
+      if (reduce) lp = 1400;
+      stat(); rend(); requestAnimationFrame(frame);
+    })();
+
+    // ---- ECG paper slide ----
+    (function(){
+      const E = $('#paperEcg'); if (!E) return;
+      const G = mk('g', {}, E); grid(G, 800, 280, 40, 200, 180);
+      mk('path', {d:tracePath(799), class:'etrace'}, E);
+      const IV = mk('g', {class:'eiv'}, E);
+      const iv = (a, b, y, txt) => { mk('line', {x1:a, x2:b, y1:y, y2:y, style:'stroke:var(--depol); stroke-width:2'}, IV); mk('line', {x1:a, x2:a, y1:y-6, y2:y+6, style:'stroke:var(--depol); stroke-width:2'}, IV); mk('line', {x1:b, x2:b, y1:y-6, y2:y+6, style:'stroke:var(--depol); stroke-width:2'}, IV); const t = mk('text', {x:(a+b)/2, y:y-8, 'text-anchor':'middle', style:'fill:var(--depol); font-weight:700'}, IV); t.textContent = txt; };
+      iv(0, 160, 236, 'PR 0.16 s = 4 small boxes'); iv(160, 245, 266, 'QRS 0.08 s');
+      const s1 = mk('text', {x:620, y:50, 'text-anchor':'middle'}, IV); s1.textContent = 'large box = 0.20 s';
+      mk('rect', {x:600, y:100, width:200, height:200, fill:'none', style:'stroke:var(--depol); stroke-width:2', 'stroke-dasharray':'6 4', transform:'translate(-80 -80)'}, IV);
+    })();
+
+    // ---- point to it ----
+    (function(){
+      const E = $('#ptEcg'); if (!E) return;
+      const G = mk('g', {}, E); grid(G, 800, 280, 40, 200, 180);
+      const bands = PH.map(p => { const g = mk('g', {visibility:'hidden'}, E); mk('rect', {x:p.a, y:0, width:p.b - p.a, height:280, class:'ptband'}, g); const t = mk('text', {x:(p.a + p.b)/2, y:30, 'text-anchor':'middle', class:'ptlbl'}, g); t.textContent = p.k; return g; });
+      mk('path', {d:tracePath(799), class:'etrace'}, E);
+      const cards = $$('[data-band]', E.closest('.slide'));
+      hooks.point = { step(){ cards.forEach(c => bands[+c.dataset.band].setAttribute('visibility', c.classList.contains('on') ? 'visible' : 'hidden')); } };
+    })();
+
+    // ---- measure it ----
+    (function(){
+      if (!$('#msA')) return;
+      function beat(t, pr, qw){ const tc = pr + 280 + (qw - 1) * 60, tS = t < tc ? 45 : 32;
+        return 0.15*gs(t,50,16) - 0.10*gs(t,pr+16*qw,5*qw) + 1.0*gs(t,pr+36*qw,7*qw) - 0.28*gs(t,pr+56*qw,7*qw) + 0.30*Math.exp(-0.5*((t-tc)/tS)**2); }
+      function strip(id, w, f){ const E = $(id); const G = mk('g', {}, E); grid(G, w, 280, 40, 200, 180);
+        let d = ''; for (let t = 0; t <= w; t += 2) d += (t ? 'L' : 'M') + t + ' ' + Y(f(t)).toFixed(1); mk('path', {d, class:'etrace'}, E); return E; }
+      function caliper(E, a, b, y, txt){ const g = mk('g', {visibility:'hidden'}, E); const st = 'stroke:var(--depol); stroke-width:3';
+        mk('line', {x1:a, x2:b, y1:y, y2:y, style:st}, g); mk('line', {x1:a, x2:a, y1:y-10, y2:y+10, style:st}, g); mk('line', {x1:b, x2:b, y1:y-10, y2:y+10, style:st}, g);
+        const t = mk('text', {x:(a+b)/2, y:y-14, 'text-anchor':'middle', style:'fill:var(--depol); font-family:var(--mono); font-weight:700; font-size:26px'}, g); t.textContent = txt; return g; }
+      const A = strip('#msA', 800, t => beat(t, 280, 1));
+      const B = strip('#msB', 800, t => beat(t, 160, 1.65));
+      const C = strip('#msC', 1200, t => beat(t - 4, 160, 1) + (t > 500 ? beat(t - 604, 160, 1) : 0));
+      const cal = { A: caliper(A, 0, 280, 250, 'PR 0.28 s'), B: caliper(B, 160, 300, 250, 'QRS 0.14 s'), C: caliper(C, 200, 800, 60, 'R to R = 3 large boxes') };
+      const cards = $$('[data-ms]');
+      hooks.measure = { step(){ cards.forEach(c => cal[c.dataset.ms].setAttribute('visibility', c.classList.contains('on') ? 'visible' : 'hidden')); } };
+    })();
+
+    // ---- pathway puzzle ----
+    (function(){
+      const pool = $('#pzPool'); if (!pool) return;
+      const ROUTE = ['SA node', 'Atrial pathways (internodal & Bachmann’s bundle)', 'AV node', 'Bundle of His', 'Right & left bundle branches', 'Purkinje fibers', 'Ventricular muscle'];
+      let k = 0;
+      function build(){
+        k = 0; pool.innerHTML = ''; $('#pzChain').innerHTML = '<span class="chint">The route builds here.</span>'; $('#pzMsg').textContent = '0 of 7';
+        const order = ROUTE.slice(); for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+        order.forEach(name => {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'pw'; b.textContent = name;
+          b.addEventListener('click', () => {
+            if (b.disabled) return;
+            if (name === ROUTE[k]) {
+              b.disabled = true; const ch = $('#pzChain'); if (k === 0) ch.innerHTML = ''; else { const ar = document.createElement('span'); ar.className = 'ar'; ar.textContent = '→'; ch.appendChild(ar); }
+              const lk = document.createElement('span'); lk.className = 'lk'; lk.textContent = name; ch.appendChild(lk); k++;
+              $('#pzMsg').textContent = k === 7 ? 'Complete. That is one normal beat.' : k + ' of 7';
+            } else {
+              b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+              $('#pzMsg').textContent = k ? 'Not yet. What does the impulse reach after the ' + ROUTE[k-1] + '?' : 'Not yet. Where does a normal beat start?';
+            }
+          });
+          pool.appendChild(b);
+        });
+      }
+      $('#pzReset').addEventListener('click', build); build();
+    })();
+  })();
+
+  // ---------- quiz ----------
+  function resetQuiz(card){ card.classList.remove('done'); $$('.opts button', card).forEach(b => b.classList.remove('right','wrong')); }
+  function revealQuiz(card, chosen){
+    const ans = card.dataset.answer; card.classList.add('done');
+    $$('.opts button', card).forEach(b => { b.classList.remove('wrong'); if (b.dataset.o === ans) b.classList.add('right'); if (chosen && b.dataset.o === chosen && chosen !== ans) b.classList.add('wrong'); });
+  }
+  $$('.qcard').forEach(card => $$('.opts button', card).forEach(b => b.addEventListener('click', e => { e.stopPropagation(); card.dataset.manual = '1'; render(false); revealQuiz(card, b.dataset.o); })));
+
+  // ---------- boot ----------
+  $$('[data-goto]').forEach(a => { const n = slides.findIndex(x => x.dataset.title === a.dataset.goto); if (n >= 0) a.setAttribute('href', '#slide-' + (n+1)); });
+  function fromHash(){ const m = /^#slide-(\d+)$/.exec(location.hash); return m ? Math.max(0, Math.min(slides.length-1, +m[1]-1)) : null; }
+  window.addEventListener('hashchange', () => { const n = fromHash(); if (n !== null && n !== i) go(n); });
+  function start(d){
+    const h = fromHash();
+    if (d && Number.isInteger(d.i)) { i = Math.min(slides.length-1, d.i); step = d.step || 0; }
+    else if (h !== null) { i = h; step = 0; }
+    render(true);
+  }
+  window.claude?.hot?.snapshot?.(() => ({ i, step }));
+  window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+</body></html>

@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GI Drug Decoder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a pharmacy-label reference — sticky section rail on the left, one section at a time on the right; every drug class is a "label" card, every section ends in a check. */
+:root{
+  --paper:#f6f7f8;
+  --card:#ffffff;
+  --ink:#16202b;
+  --muted:#56616d;
+  --rule:#d9dee3;
+  --accent:#a3172f;      /* cardiac crimson */
+  --accent-soft:#f8e6e9;
+  --heme:#1f4f86;        /* hematology blue */
+  --heme-soft:#e4edf8;
+  --good:#1d6b42; --good-soft:#e2f2e8;
+  --bad:#a12a1b;  --bad-soft:#fbe7e3;
+  --warn:#8a5a00; --warn-soft:#fbf0d9;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+    --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+    --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+  --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+  --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.1rem;font-weight:700}
+h2{font-size:1.65rem;font-weight:700}
+h3{font-size:1.25rem;font-weight:600}
+h4{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+p{margin:0}
+a{color:var(--heme)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--heme);outline-offset:2px}
+.mono{font-family:var(--mono)}
+
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px 16px;border-right:1px solid var(--rule);background:var(--card);display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand .rx{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.08em}
+.brand b{font-family:var(--display);font-size:1.2rem}
+.brand span{font-size:.82rem;color:var(--muted)}
+nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+nav a{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;text-decoration:none;color:var(--ink);font-size:.92rem}
+nav a:hover{background:var(--paper)}
+nav a[aria-current="page"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+nav .num{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+nav .chip{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:10px;background:var(--paper);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+nav .chip.done{background:var(--good-soft);color:var(--good)}
+.overall{font-size:.85rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.bar{height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good);width:0}
+
+main{padding:32px clamp(16px,4vw,48px) 80px;max-width:1080px;width:100%}
+.view{display:flex;flex-direction:column;gap:28px}
+.eyebrow{font-family:var(--mono);font-size:.78rem;color:var(--accent);letter-spacing:.06em}
+.heme .eyebrow{color:var(--heme)}
+.lede{max-width:68ch;color:var(--muted);font-size:1.05rem}
+.prose{max-width:68ch;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:20px}
+.objectives{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.steps .panel{display:flex;flex-direction:column;gap:6px}
+.steps .panel b{font-family:var(--display);font-size:1.05rem}
+
+/* stem table */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--display);font-weight:600;font-size:.85rem;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td .stem{font-family:var(--mono);font-weight:600;color:var(--accent)}
+tr.h td .stem{color:var(--heme)}
+.groupRow td{background:var(--paper);font-family:var(--display);font-weight:600;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+
+/* flip drill */
+.drill{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.flip{border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:14px 12px;min-height:96px;text-align:left;display:flex;flex-direction:column;gap:4px;color:var(--ink)}
+.flip .front{font-family:var(--mono);font-size:1.05rem;font-weight:600;color:var(--accent)}
+.flip.h .front{color:var(--heme)}
+.flip .back{font-size:.82rem;color:var(--muted)}
+.flip .hint{font-size:.75rem;color:var(--muted)}
+.flip[aria-pressed="true"]{background:var(--paper)}
+
+/* grouped nav, decode steps, tabs, ABCD tiles */
+nav .navgroup{font-family:var(--display);font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 10px 2px}
+nav .navgroup:first-child{padding-top:0}
+.decodeSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dstep{border:1px solid var(--rule);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--paper)}
+.dstep .big{font-family:var(--display);font-size:1.35rem;font-weight:600}
+.dstep .big.mono{font-family:var(--mono);font-size:1.25rem}
+.dstep mark{background:var(--accent-soft);color:var(--accent);padding:0 2px;border-radius:3px}
+.dstep small{color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--rule);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:999px;font-size:.88rem}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.flip .ex1{font-size:.8rem;color:var(--muted)}
+.abcd{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.abcdTile{display:flex;flex-direction:column;gap:4px;padding:14px;border:1px solid var(--rule);border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink)}
+.abcdTile .letter{font-family:var(--display);font-size:2rem;font-weight:700;line-height:1;color:var(--accent)}
+.abcdTile small{color:var(--muted);font-size:.82rem}
+.abcdTile:hover{border-color:var(--accent)}
+.abcdTile[aria-current="page"]{border:2px solid var(--accent);background:var(--accent-soft)}
+@media (max-width:700px){ .decodeSteps,.abcd{grid-template-columns:1fr 1fr} }
+/* print controls */
+.secHead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cardTools{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.printbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);background:var(--card);color:var(--muted);font-size:.8rem;font-weight:600;padding:5px 10px;border-radius:6px}
+.printbtn:hover{color:var(--ink);border-color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--card);padding:12px 16px;border-radius:8px;font-size:.9rem;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:10}
+@media print{ .rail,.printbtn,.quiz,.pager,.toast{display:none !important} .shell{display:block} }
+/* traps */
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.trap{border-left:4px solid var(--warn);background:var(--warn-soft);border-radius:0 8px 8px 0;padding:12px 14px;font-size:.92rem}
+.trap b{display:block;font-family:var(--display);margin-bottom:2px}
+
+/* pathway diagrams */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.node{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:.9rem;display:flex;flex-direction:column;gap:4px;min-width:120px;flex:1 1 120px}
+.node b{font-family:var(--display);font-size:1rem}
+.node small{color:var(--muted)}
+.node small b{font-family:inherit;font-size:inherit;font-weight:600;color:var(--ink)}
+.arrow{display:flex;align-items:center;color:var(--muted);font-family:var(--mono);font-size:1.1rem}
+.block{display:inline-block;font-family:var(--mono);font-size:.74rem;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--accent);color:var(--card);align-self:flex-start}
+.heme .block{background:var(--heme)}
+.lanes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.lane{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.lane ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+.diagcap{font-size:.85rem;color:var(--muted);max-width:68ch}
+
+/* drug class cards */
+.cards{display:flex;flex-direction:column;gap:18px}
+.dcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.dhead{display:grid;grid-template-columns:1fr auto;gap:8px 16px;padding:16px 20px;border-bottom:1px solid var(--rule);border-top:5px solid var(--accent)}
+.heme .dhead{border-top-color:var(--heme)}
+.dhead .stemTag{font-family:var(--mono);font-weight:600;font-size:1.05rem;color:var(--accent);align-self:start;padding:2px 10px;border:1.5px solid currentColor;border-radius:6px;white-space:nowrap}
+.heme .dhead .stemTag{color:var(--heme)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;color:var(--muted);grid-column:1/-1}
+.meta b{color:var(--ink);font-weight:600}
+.ex{grid-column:1/-1;font-size:.92rem}
+.ex span{font-family:var(--mono);font-size:.86rem;background:var(--paper);border:1px solid var(--rule);padding:1px 7px;border-radius:4px;margin:2px 4px 2px 0;display:inline-block}
+.dbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+.cell{padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:6px}
+.cell:nth-child(odd){border-right:1px solid var(--rule)}
+.cell.wide{grid-column:1/-1;border-right:0}
+.cell ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:3px;font-size:.92rem}
+.cell p{font-size:.94rem}
+.cell.adv{background:var(--bad-soft)}
+.cell.adv h4{color:var(--bad)}
+.dtrap{padding:10px 20px;background:var(--warn-soft);font-size:.9rem}
+.dtrap b{color:var(--warn)}
+
+/* quiz */
+.quiz{display:flex;flex-direction:column;gap:16px}
+.quizHead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;border-top:2px solid var(--ink);padding-top:16px}
+.score{font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.q .qn{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.q .stemQ{font-weight:500;max-width:72ch}
+.q .tag{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:4px;background:var(--warn-soft);color:var(--warn);margin-left:6px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--card);cursor:pointer;font-size:.95rem}
+.opt:hover{border-color:var(--muted)}
+.opt input{margin:3px 0 0;accent-color:var(--heme);width:16px;height:16px}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border:2px dashed var(--good);background:var(--good-soft)}
+.qfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--card);padding:8px 16px;border-radius:6px;font-weight:600;font-size:.9rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.verdict{font-weight:600;font-size:.92rem}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.why{border-left:3px solid var(--heme);padding:8px 12px;background:var(--heme-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:18px}
+
+/* summary */
+.sumgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.sumcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.sumcard .big{font-family:var(--display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:10px}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.mid{background:var(--warn-soft);color:var(--warn)}
+.pill.low{background:var(--bad-soft);color:var(--bad)}
+.pill.none{background:var(--paper);color:var(--muted)}
+.misslist{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.receptor td:first-child{font-family:var(--mono);font-weight:600}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule)}
+  nav ol{flex-direction:row;flex-wrap:wrap}
+  nav a{grid-template-columns:auto auto;padding:6px 10px}
+  nav a .chip{display:none}
+  nav .navgroup{width:100%;padding:8px 4px 0}
+  .dbody{grid-template-columns:1fr}
+  .cell:nth-child(odd){border-right:0}
+}
+@media (prefers-reduced-motion:no-preference){
+  .opt,.flip{transition:background .15s,border-color .15s}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <span class="rx">UNIT 6 · PHARMACOLOGY</span>
+      <b>GI Drug Decoder</b>
+      <span>Gastrointestinal medications</span>
+    </div>
+    <nav aria-label="Sections"><ol id="nav"></ol></nav>
+    <div class="overall">
+      <div style="display:flex;justify-content:space-between"><span>Questions answered</span><span id="ovText" class="mono">0 / 0</span></div>
+      <div class="bar"><i id="ovBar"></i></div>
+      <button class="btn ghost" id="resetAll" type="button" style="font-size:.8rem;padding:6px 10px">Start over</button>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ============================================================
+   CONTENT
+   Card fields: name, pharm, ther, stem, ex[], how, mon[], edu[], se[], ae[], trap
+   Question fields: t ("mc"|"sata"), s (stem), o[] (options), a[] (correct indexes), w (rationale)
+   ============================================================ */
+const SECTIONS = [
+{
+  id:"start", num:"00", group:"Getting started", title:"Start here", kind:"intro"
+},
+{
+  id:"decode", num:"01", group:"Getting started", title:"How to learn pharmacology", kind:"decode",
+  lede:"There are too many drugs to memorize one at a time. These three habits turn a long list into a few patterns you can reason from, and help those patterns stick.",
+  quiz:[
+    {t:"mc", s:"A drug reference lists omeprazole with pharmacologic class “proton pump inhibitor” and therapeutic class “gastric acid suppressant.” Which statement best explains the two labels?",
+     o:["Pharmacologic class tells how it works; therapeutic class tells what it treats",
+        "Pharmacologic class tells what it treats; therapeutic class tells how it works",
+        "Both labels describe the chemical structure the drug's stem is based on",
+        "Therapeutic class is assigned only to drugs whose names have no stem"],
+     a:[0], w:"The pharmacologic class names the mechanism (blocks the proton pump). The therapeutic class names the clinical use (suppresses stomach acid). H2 blockers work differently but share the same therapeutic class."},
+    {t:"mc", s:"A student has 40 medications to learn for the next exam. Which approach will help the most?",
+     o:["Learn one key drug per class, then compare the rest to it","Make a separate flashcard for every drug and reread them","Memorize each drug's side effects as one long list","Focus only on the drugs that seem most likely to be tested"],
+     a:[0], w:"Drugs in the same class share a mechanism, monitoring, teaching and adverse effects. Learning one prototype well (omeprazole for the PPIs) and then noting how the others differ turns 40 separate facts into a handful of patterns."},
+    {t:"mc", s:"Which study method leads to the best long-term recall of drug information?",
+     o:["Quizzing yourself on the material over several days","Rereading your notes and highlighting the key terms","Reviewing everything in one long session the night before","Copying the textbook's drug tables word for word"],
+     a:[0], w:"Retrieval practice (pulling information out of memory) spread over several days is one of the best-supported learning strategies. Rereading, highlighting and cramming feel productive but fade quickly."},
+    {t:"mc", s:"A nurse knows only that a drug stops the stomach from making acid. What can the nurse predict from that alone?",
+     o:["Less acid may mean less B12, calcium and iron absorbed","It will pull extra water into the bowel and cause diarrhea","It will speed stomach emptying and cause cramping","It will coat the ulcer with a thick protective paste"],
+     a:[0], w:"Stomach acid helps release B12, calcium and iron from food and helps kill swallowed bacteria. Long-term acid suppression can lower those nutrients and raise the risk of some infections. The mechanism predicts the monitoring."},
+    {t:"mc", s:"Which statement best describes the difference between a side effect and an adverse effect?",
+     o:["A side effect is expected and mild; an adverse effect is harmful","A side effect happens only in overdose; an adverse effect never does","A side effect is an allergy; an adverse effect is a drug interaction","The two terms mean the same thing and can be used interchangeably"],
+     a:[0], w:"Side effects are predictable, usually mild effects the patient can be taught to expect (dark stools with iron). Adverse effects are harmful or dangerous and need action (tardive dyskinesia with metoclopramide)."}
+  ]
+},
+{
+  id:"acid", num:"02", group:"Stomach & ulcers", title:"Acid & ulcer drugs", kind:"drug", theme:"cardiac",
+  lede:"Ulcers and reflux happen when stomach acid overwhelms the lining's defenses. These drugs either make less acid, neutralize the acid already there, or strengthen the lining.",
+  diagram:"acid",
+  cards:[
+    {name:"H2 receptor antagonists", pharm:"Histamine-2 (H2) receptor antagonist", ther:"Gastric acid suppressant", stem:"-tidine", ex:["famotidine","cimetidine","ranitidine"],
+     how:"Block histamine at H2 receptors on the stomach's parietal cells, reducing acid production, especially at night. Used for GERD, peptic ulcers, heartburn and preventing stress ulcers. Weaker than PPIs but work faster for occasional heartburn.",
+     mon:["Epigastric pain and signs of GI bleeding (black stools, coffee-ground emesis)","Confusion in older adults or kidney disease","Renal function (dose reduced)","Cimetidine: other drugs on the list (warfarin, phenytoin, theophylline)"],
+     edu:["Take at bedtime or before meals as directed","Take 1 hour apart from antacids","Avoid smoking, alcohol, aspirin and NSAIDs","Report black stools, vomiting blood or severe stomach pain"],
+     se:["Headache","Constipation or diarrhea","Dizziness"],
+     ae:["Confusion, delirium (older adults, IV, kidney disease)","Gynecomastia and impotence (cimetidine)","Raised levels of interacting drugs (cimetidine)"],
+     trap:"Ranitidine was removed from the US market in 2020 over a contaminant (NDMA). Cimetidine blocks liver enzymes and has the most interactions."},
+    {name:"Proton pump inhibitors (PPIs)", pharm:"Proton pump inhibitor", ther:"Gastric acid suppressant", stem:"-prazole", ex:["omeprazole","esomeprazole","pantoprazole","lansoprazole"],
+     how:"Irreversibly block the proton pump (H+/K+ ATPase), the final step of acid production, so they are the strongest acid suppressants. Used for GERD, erosive esophagitis, peptic ulcers, H. pylori (with antibiotics), Zollinger-Ellison syndrome and stress-ulcer prevention (IV pantoprazole).",
+     mon:["Signs of GI bleeding","Magnesium level with long-term use","B12 with long-term use","Watery diarrhea (C. difficile)","Whether the drug is still needed"],
+     edu:["Take 30–60 minutes before the first meal of the day","Swallow delayed-release capsules and tablets whole; some capsules can be opened onto applesauce","Report severe watery diarrhea, black stools or muscle cramps","Don't stop suddenly after long use; acid can rebound"],
+     se:["Headache","Nausea","Diarrhea","Abdominal pain"],
+     ae:["C. difficile infection","Pneumonia","Fractures with long-term use","Hypomagnesemia","B12 deficiency","Kidney inflammation (interstitial nephritis)"],
+     trap:"Your list names pantoprazole twice. Omeprazole and esomeprazole can reduce the effect of clopidogrel."},
+    {name:"Antacids", pharm:"Acid-neutralizing agent", ther:"Antacid", stem:"n/a", ex:["magnesium hydroxide","calcium carbonate"],
+     how:"Neutralize acid already in the stomach, giving fast but short relief of heartburn and indigestion. They don't reduce acid production. Magnesium products tend to cause diarrhea; calcium (and aluminum) products tend to cause constipation, so they are often combined.",
+     mon:["Bowel pattern","Renal function (magnesium can build up in kidney disease)","Serum calcium with heavy calcium carbonate use","Other drugs on the list (antacids block absorption of many)"],
+     edu:["Chew tablets well and follow with water; shake liquids","Take other drugs 1–2 hours before or after an antacid","Don't use daily for more than 2 weeks without seeing a provider","Report black stools or vomiting blood"],
+     se:["Diarrhea (magnesium)","Constipation (calcium)","Belching, gas (calcium carbonate)"],
+     ae:["Hypermagnesemia in kidney disease","Hypercalcemia and kidney stones","Acid rebound (calcium carbonate)","Reduced absorption of tetracyclines, fluoroquinolones, iron and levothyroxine"],
+     trap:"Your list leaves the pharmacologic class blank for antacids."},
+    {name:"Sucralfate", pharm:"Mucosal barrier fortifier", ther:"Mucosal protectant", stem:"n/a", ex:["sucralfate"],
+     how:"In acid, sucralfate forms a thick paste that sticks to the ulcer base like a bandage, protecting it from acid and pepsin while it heals. Almost none is absorbed, so it has few body-wide effects.",
+     mon:["Ulcer pain","Bowel pattern (constipation)","Blood glucose in diabetes","Other drugs on the list (it binds many)"],
+     edu:["Take on an empty stomach, 1 hour before meals and at bedtime","Take 30 minutes apart from antacids (it needs acid to work)","Take other drugs 2 hours apart","Increase fluids and fiber for constipation"],
+     se:["Constipation","Dry mouth"],
+     ae:["Aluminum buildup in kidney failure","Reduced absorption of digoxin, phenytoin, warfarin, levothyroxine, fluoroquinolones","Bezoar (rare)"]},
+    {name:"Prostaglandin E analog", pharm:"Prostaglandin E1 analog", ther:"Mucosal protectant", stem:"n/a", ex:["misoprostol"],
+     how:"Replaces the protective prostaglandins that NSAIDs block. It reduces acid secretion and increases mucus and bicarbonate. Used to prevent ulcers in patients who must take NSAIDs. It also causes uterine contractions.",
+     mon:["Pregnancy status (negative test before starting)","Bowel pattern; hydration","GI symptoms"],
+     edu:["Can cause miscarriage and birth defects: use reliable contraception","Take with food","Diarrhea is common and usually improves in about a week","Avoid magnesium antacids (worsen diarrhea)"],
+     se:["Diarrhea","Abdominal cramps","Nausea"],
+     ae:["Miscarriage, premature birth, birth defects (boxed warning)","Uterine rupture"],
+     trap:"Misoprostol's uterine effect is why it is also used in obstetrics."}
+  ],
+  quiz:[
+    {t:"mc", s:"Which drug on the Unit 6 list is no longer sold in the US?",
+     o:["Famotidine","Ranitidine","Cimetidine","Omeprazole"],
+     a:[1], w:"Ranitidine was withdrawn in 2020 because of a contaminant (NDMA). Famotidine and cimetidine remain available."},
+    {t:"mc", s:"When should a patient take omeprazole for the best effect?",
+     o:["30–60 minutes before breakfast","With a bedtime snack","With an antacid at each meal","Only when heartburn starts after meals"],
+     a:[0], w:"PPIs block only pumps that are active. Taking them before the first meal, when pumps switch on, gives the most acid suppression."},
+    {t:"mc", s:"An older adult with kidney disease receiving IV famotidine becomes newly confused. The nurse recognizes:",
+     o:["H2 blockers can cause confusion","Confusion is expected after age 65","Famotidine raises blood sugar","The patient needs an antacid"],
+     a:[0], w:"H2 blockers can cause confusion and delirium, especially in older adults, with IV use and when kidney function is reduced. Report it; the dose may need adjusting."},
+    {t:"mc", s:"A patient on long-term pantoprazole has new severe watery diarrhea. What should the nurse suspect?",
+     o:["C. difficile infection","Expected PPI side effect","Hypermagnesemia","Lactose intolerance"],
+     a:[0], w:"Acid suppression lets bacteria such as C. difficile survive. Severe watery diarrhea needs a stool test and prompt reporting."},
+    {t:"mc", s:"A patient takes sucralfate and an aluminum-magnesium antacid. Which instruction is correct?",
+     o:["Separate them by at least 30 minutes","Take them together to save time","Take the antacid first, then sucralfate","Mix the two into one glass of water"],
+     a:[0], w:"Sucralfate needs acid to form its protective paste. Separating it from antacids by at least 30 minutes keeps it working."},
+    {t:"mc", s:"A 28-year-old woman taking daily NSAIDs for arthritis is prescribed misoprostol. Which is the priority teaching?",
+     o:["Use reliable contraception; it can cause miscarriage","Take it on an empty stomach at bedtime only","Expect constipation that lasts for the first two weeks or so","Stop the NSAID while you take misoprostol"],
+     a:[0], w:"Misoprostol causes uterine contractions and carries a boxed warning for miscarriage and birth defects. A negative pregnancy test and reliable contraception are required."},
+    {t:"mc", s:"Which antacid is most likely to cause diarrhea?",
+     o:["Magnesium hydroxide","Calcium carbonate","Aluminum hydroxide","Sucralfate suspension"],
+     a:[0], w:"Magnesium draws water into the bowel (it is also a laxative). Calcium and aluminum antacids tend to cause constipation."}
+  ]
+},
+{
+  id:"abx", num:"03", group:"Stomach & ulcers", title:"Antibiotics refresher & H. pylori", kind:"drug", theme:"cardiac",
+  lede:"Most peptic ulcers not caused by NSAIDs are caused by H. pylori, a bacterium that lives in the stomach lining. Curing it takes a PPI plus antibiotics. This section reviews the antibiotic classes on your list and how they're combined.",
+  diagram:"hpylori",
+  cards:[
+    {name:"Macrolides", pharm:"Macrolide antibiotic", ther:"Antibiotic", stem:"-mycin", ex:["azithromycin","clarithromycin","erythromycin"],
+     how:"Bind the bacterial 50S ribosome and stop protein synthesis (usually bacteriostatic). Used for respiratory infections, chlamydia and, for clarithromycin, H. pylori. Erythromycin also speeds stomach emptying and is sometimes used for gastroparesis.",
+     mon:["ECG for QT prolongation (especially with other QT drugs)","Liver function","Watery diarrhea (C. difficile)","Other drugs on the list: clarithromycin and erythromycin raise levels of statins, warfarin and many others"],
+     edu:["Finish the whole course","GI upset is common; take with food if allowed","Report palpitations, fainting or severe diarrhea","Clarithromycin may leave a metallic taste"],
+     se:["Nausea, diarrhea, abdominal cramps","Altered taste"],
+     ae:["QT prolongation, torsades de pointes","C. difficile infection","Hepatotoxicity","Hearing loss (high doses)"],
+     trap:"-mycin is not reliable: vancomycin and gentamicin also end in -mycin and are different classes. The true macrolide stem is -thromycin."},
+    {name:"Penicillins", pharm:"Penicillin (beta-lactam) antibiotic", ther:"Antibiotic", stem:"-cillin", ex:["amoxicillin","ampicillin","oxacillin","piperacillin"],
+     how:"Block bacterial cell wall synthesis, so bacteria burst (bactericidal). Amoxicillin is part of H. pylori regimens. Oxacillin resists the penicillinase enzyme of some staph; piperacillin (given with tazobactam) covers more gram-negative organisms, including Pseudomonas.",
+     mon:["Allergy history before the first dose","Signs of anaphylaxis, especially 30 minutes after IV or IM doses","Rash, diarrhea (C. difficile)","Renal function (dose adjusted)"],
+     edu:["Finish the whole course","Report hives, wheezing, swelling or rash right away","Report severe watery diarrhea","Wear a medical ID if you are allergic"],
+     se:["Nausea, diarrhea","Mild rash"],
+     ae:["Anaphylaxis","C. difficile infection","Seizures with very high doses in kidney failure","Stevens-Johnson syndrome (rare)"]},
+    {name:"Nitroimidazoles", pharm:"Nitroimidazole antimicrobial", ther:"Antibacterial / antiprotozoal", stem:"-nidazole", ex:["metronidazole","tinidazole"],
+     how:"Enter anaerobic bacteria and protozoa and damage their DNA. Used for H. pylori (quadruple therapy), C. difficile when first-line drugs aren't available, Giardia, trichomoniasis, bacterial vaginosis and anaerobic abdominal infections.",
+     mon:["Neurologic symptoms: numbness, tingling, seizures","INR if on warfarin (rises)","Alcohol use"],
+     edu:["No alcohol during treatment and for 3 days after: severe nausea, vomiting, flushing and headache can result","Metallic taste is common","Urine may turn dark red-brown; this is harmless","Report numbness, tingling or a seizure"],
+     se:["Metallic taste","Nausea","Dark urine","Headache"],
+     ae:["Disulfiram-like reaction with alcohol","Peripheral neuropathy","Seizures","Raised INR with warfarin"],
+     trap:"Your list spells the class “nitromidazoles” and adds albendazole and mebendazole. Those share the -dazole ending but are anthelmintics; see the next card."},
+    {name:"Benzimidazole anthelmintics", pharm:"Benzimidazole anthelmintic", ther:"Antiparasitic (anthelmintic)", stem:"-bendazole", ex:["albendazole","mebendazole"],
+     how:"Stop worms from taking up glucose by blocking their microtubules, so they starve and die. Used for pinworm, roundworm, hookworm and whipworm; albendazole also treats tapeworm infections, including cysts in the brain.",
+     mon:["Liver function and CBC with longer albendazole courses","Pregnancy status","Symptoms in household contacts (pinworm)"],
+     edu:["Pinworm: treat the whole household, and repeat the dose in 2 weeks","Wash hands after toileting and before eating; keep nails short","Wash bedding, towels and underwear in hot water","Albendazole for tissue infections: take with a fatty meal"],
+     se:["Abdominal pain","Nausea","Diarrhea"],
+     ae:["Bone marrow suppression (albendazole, long courses)","Hepatotoxicity","Birth defects"],
+     trap:"These are antiparasitic drugs, not antibiotics. They share the -dazole ending with metronidazole only by chance of chemistry."},
+    {name:"Tetracyclines", pharm:"Tetracycline antibiotic", ther:"Antibiotic", stem:"-cycline", ex:["tetracycline","doxycycline","minocycline"],
+     how:"Bind the bacterial 30S ribosome and stop protein synthesis (bacteriostatic). Broad spectrum: acne, Lyme disease, rickettsial infections, chlamydia and, for tetracycline, H. pylori quadruple therapy.",
+     mon:["Pregnancy and age (avoid in pregnancy and children under 8)","Skin for sunburn reactions","Diarrhea (C. difficile) and yeast infections","Dizziness (minocycline)"],
+     edu:["Take with a full glass of water and stay upright for 30 minutes","Take 1–2 hours apart from milk, antacids, iron, calcium and magnesium","Use sunscreen and protective clothing","Discard expired tetracycline (can damage the kidneys)"],
+     se:["Nausea, diarrhea","Photosensitivity","Esophageal irritation"],
+     ae:["Permanent tooth discoloration and slowed bone growth in children","Esophageal ulceration","Superinfection (C. difficile, candidiasis)","Hepatotoxicity"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient taking metronidazole for H. pylori says he plans to have a few beers this weekend. What should the nurse teach?",
+     o:["Avoid alcohol during treatment and for 3 days after","One or two drinks are fine if you take it with food","Alcohol only matters if you also take an antacid","Stop the metronidazole on the day you drink"],
+     a:[0], w:"Metronidazole with alcohol can cause a disulfiram-like reaction: flushing, severe nausea and vomiting, headache and tachycardia."},
+    {t:"mc", s:"A 6-year-old needs treatment for an infection. Which antibiotic should the nurse question?",
+     o:["Doxycycline","Amoxicillin","Azithromycin","Clarithromycin"],
+     a:[0], w:"Tetracyclines bind to developing teeth and bone, causing permanent tooth staining and slowed bone growth. They are generally avoided under age 8."},
+    {t:"mc", s:"Which instruction is correct for tetracycline?",
+     o:["Take it with water, apart from milk and antacids","Take it with milk to protect your stomach","Take it lying down so it stays in the stomach longer","Take it with your iron pill to save a step"],
+     a:[0], w:"Calcium, magnesium, aluminum and iron bind tetracycline and block its absorption. A full glass of water and staying upright also prevent esophageal ulcers."},
+    {t:"mc", s:"Ten minutes after the first IV dose of piperacillin, a patient reports throat tightness and has hives. What is the priority?",
+     o:["Stop the infusion and assess the airway","Slow the infusion rate by half","Give oral diphenhydramine and continue the infusion","Recheck vital signs in 30 minutes"],
+     a:[0], w:"These are signs of anaphylaxis. Stop the drug, maintain the airway, call for help and prepare epinephrine."},
+    {t:"mc", s:"A patient taking simvastatin is prescribed clarithromycin. What is the main concern?",
+     o:["Raised statin levels and muscle injury","Lower statin levels and a rise in LDL cholesterol","Severe constipation from both drugs","Orange discoloration of the urine"],
+     a:[0], w:"Clarithromycin strongly inhibits the liver enzyme that clears simvastatin, raising levels and the risk of rhabdomyolysis. The statin is often held during treatment."},
+    {t:"mc", s:"A child has pinworms and is prescribed mebendazole. What should the nurse teach the family?",
+     o:["Treat the household and repeat the dose in 2 weeks","Only the child with symptoms needs any treatment at all","Avoid fatty foods for a week after the dose","Expect the urine to turn red-brown for a few days"],
+     a:[0], w:"Pinworm eggs spread easily in a household and survive on bedding. Treating everyone, repeating the dose and careful handwashing prevent reinfection."},
+    {t:"sata", s:"Which drugs are used in common H. pylori treatment regimens? Select all that apply.",
+     o:["A proton pump inhibitor","Clarithromycin","Amoxicillin","Albendazole","Diphenoxylate with atropine"],
+     a:[0,1,2], w:"H. pylori regimens combine a PPI with two or more antibiotics (clarithromycin plus amoxicillin, or metronidazole plus tetracycline with bismuth). Albendazole is an anthelmintic and loperamide an antidiarrheal."}
+  ]
+},
+{
+  id:"lax", num:"04", group:"Bowel", title:"Laxatives & stool softeners", kind:"drug", theme:"heme",
+  lede:"Laxatives work in four different ways, and they differ a lot in how fast they act. Matching the type to the patient (and never giving one for unexplained abdominal pain) is the core nursing skill.",
+  diagram:"laxtable",
+  cards:[
+    {name:"Bulk-forming laxative", pharm:"Bulk-forming laxative", ther:"Laxative", stem:"n/a", ex:["psyllium"],
+     how:"Absorbs water in the intestine, forming a soft, bulky gel that stimulates normal peristalsis. The most natural option and first-line for chronic constipation; also firms loose stools in IBS. Works in 12–72 hours.",
+     mon:["Bowel pattern","Fluid intake","Swallowing ability"],
+     edu:["Mix with at least 8 oz of water or juice and drink right away; follow with more fluid","Not for patients who can't drink enough or have trouble swallowing","Take other drugs 2 hours apart","Gas and bloating usually ease after a few days"],
+     se:["Bloating","Gas"],
+     ae:["Esophageal or bowel obstruction without enough fluid","Choking if swallowed dry"]},
+    {name:"Stool softener", pharm:"Surfactant stool softener", ther:"Laxative", stem:"n/a", ex:["docusate sodium"],
+     how:"Lowers the surface tension of stool so water and fat mix in, making it softer and easier to pass. Prevents straining after surgery, childbirth, an MI or with hemorrhoids. Mild; works in 1–3 days. On its own it is not enough for opioid-induced constipation.",
+     mon:["Bowel pattern","Abdominal discomfort"],
+     edu:["Drink plenty of fluids","Liquid forms taste bitter: mix with juice or milk","It softens stool but doesn't strongly cause a bowel movement"],
+     se:["Mild cramping","Bitter taste (liquid)"],
+     ae:["Rare; electrolyte imbalance with long-term overuse"]},
+    {name:"Stimulant laxatives", pharm:"Stimulant laxative", ther:"Laxative", stem:"n/a", ex:["bisacodyl","senna"],
+     how:"Stimulate the nerves of the colon wall to increase peristalsis and draw water into the bowel. Used for bowel preparation and for opioid-induced constipation (often senna with docusate). Oral doses work in 6–12 hours (often taken at bedtime); a bisacodyl suppository works in 15–60 minutes.",
+     mon:["Bowel pattern","Abdominal cramping","Potassium and fluid status with frequent use"],
+     edu:["Swallow bisacodyl tablets whole; don't take within 1 hour of milk or antacids (the coating dissolves and irritates the stomach)","Senna may turn urine yellow-brown or reddish","Not for daily long-term use unless prescribed","Report cramping that doesn't ease"],
+     se:["Abdominal cramping","Diarrhea","Urine discoloration (senna)"],
+     ae:["Fluid and electrolyte loss (hypokalemia)","Laxative dependence with chronic overuse"],
+     trap:"Your list spells it “biscodyl.” The correct spelling is bisacodyl."},
+    {name:"Osmotic laxatives", pharm:"Osmotic laxative", ther:"Laxative", stem:"n/a", ex:["magnesium hydroxide","lactulose"],
+     how:"Hold or draw water into the bowel by osmosis, softening stool and increasing volume. Magnesium salts act fast (30 minutes to 6 hours). Lactulose, a synthetic sugar, takes 24–48 hours for constipation; it also treats hepatic encephalopathy, because gut bacteria turn it into acids that trap ammonia in the colon so it is excreted.",
+     mon:["Bowel pattern, hydration, electrolytes (potassium)","Renal function (magnesium can build up)","Lactulose for hepatic encephalopathy: ammonia level, mental status, number of stools (goal often 2–3 soft stools a day)"],
+     edu:["Drink extra fluids","Lactulose tastes very sweet; mix with juice or water","Report diarrhea that doesn't stop, dizziness or weakness","Magnesium products: avoid with kidney disease unless the provider approves"],
+     se:["Cramping, gas","Diarrhea","Very sweet taste (lactulose)"],
+     ae:["Dehydration and hypokalemia","Hypermagnesemia in kidney failure"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient reports severe abdominal pain of unknown cause and asks for a laxative. What should the nurse do?",
+     o:["Hold the laxative and notify the provider","Give a stimulant laxative to clear the bowel","Give a bisacodyl suppository for fast relief","Give magnesium hydroxide with extra fluids"],
+     a:[0], w:"Laxatives are contraindicated with undiagnosed abdominal pain, which could be appendicitis or bowel obstruction. A laxative could cause perforation."},
+    {t:"mc", s:"Which instruction is essential for psyllium?",
+     o:["Mix it with a full glass of fluid and drink right away","Swallow the powder dry, then drink a small sip of water after","Take it with your other medications all at once","Take it only when you have diarrhea"],
+     a:[0], w:"Without enough fluid, psyllium can swell in the esophagus or bowel and cause obstruction."},
+    {t:"mc", s:"A patient takes bisacodyl tablets with a glass of milk at bedtime and wakes with stomach cramping and nausea. Why?",
+     o:["Milk dissolves its coating early, irritating the stomach","Milk speeds the drug into the colon too quickly","Bisacodyl and milk combine into a laxative gas","Milk blocks the drug, so it causes cramping instead of a stool"],
+     a:[0], w:"Bisacodyl's enteric coating protects the stomach. Milk and antacids raise stomach pH and dissolve it early."},
+    {t:"mc", s:"A patient with cirrhosis is receiving lactulose for hepatic encephalopathy. Which finding best shows the drug is working?",
+     o:["Improved mental status and a lower ammonia","No bowel movements for at least 24 hours in a row","A rise in serum potassium","Firm, formed stools once a day"],
+     a:[0], w:"Lactulose traps ammonia in the colon so it is excreted. Clearer thinking and a falling ammonia level show effect, usually with 2–3 soft stools a day."},
+    {t:"mc", s:"Which laxative is best for preventing straining in a patient recovering from a myocardial infarction?",
+     o:["Docusate sodium","Magnesium citrate","Bisacodyl suppository","Lactulose"],
+     a:[0], w:"Docusate softens stool to prevent straining (which can trigger vagal responses and dysrhythmias) without causing strong cramping or fluid shifts."},
+    {t:"mc", s:"A patient with chronic kidney disease asks for milk of magnesia. What is the concern?",
+     o:["Magnesium can build up to toxic levels","It will make the kidneys produce more urine","It will cause severe constipation","It will raise the patient's blood glucose"],
+     a:[0], w:"The kidneys excrete magnesium. In kidney disease it accumulates and can cause hypermagnesemia: low BP, weakness, loss of reflexes and respiratory depression."}
+  ]
+},
+{
+  id:"diarrhea", num:"05", group:"Bowel", title:"Antidiarrheals, IBS & IBD drugs", kind:"drug", theme:"heme",
+  lede:"Antidiarrheals slow the gut, but slowing it is dangerous when diarrhea comes from an invasive infection. The IBS drugs target constipation or diarrhea, and the 5-aminosalicylates treat inflammatory bowel disease.",
+  cards:[
+    {name:"Opioid antidiarrheals", pharm:"Opioid receptor agonist (antidiarrheal)", ther:"Antidiarrheal", stem:"n/a", ex:["loperamide","diphenoxylate","paregoric"],
+     how:"Activate opioid receptors in the intestinal wall, slowing peristalsis so more water is absorbed and stools firm up. Loperamide stays in the gut at normal doses. Diphenoxylate is combined with a small amount of atropine to discourage misuse. Paregoric is a tincture of opium.",
+     mon:["Number and consistency of stools","Abdominal distention and bowel sounds","Hydration and electrolytes","Sedation (diphenoxylate, paregoric)"],
+     edu:["Don't use with fever or bloody diarrhea; contact the provider","Stop and call if diarrhea lasts more than 48 hours or the abdomen swells","Don't take more than directed; high-dose loperamide can cause dangerous heart rhythms","Replace fluids and electrolytes"],
+     se:["Constipation","Dizziness, drowsiness","Dry mouth (diphenoxylate with atropine)"],
+     ae:["Toxic megacolon (especially with infectious or inflammatory diarrhea)","Paralytic ileus","QT prolongation and cardiac arrest with loperamide overdose","Respiratory depression and dependence (paregoric, diphenoxylate)"],
+     trap:"Avoid in diarrhea caused by C. difficile or invasive bacteria, because slowing the bowel keeps the toxin in. Keep out of reach of children."},
+    {name:"IBS with constipation (IBS-C)", pharm:"Chloride channel activator", ther:"IBS-C treatment", stem:"n/a", ex:["lubiprostone"],
+     how:"Activates chloride channels in the intestinal lining, drawing fluid into the bowel to soften stool and speed transit. Used for IBS with constipation, chronic idiopathic constipation and opioid-induced constipation.",
+     mon:["Bowel pattern","Nausea","Shortness of breath after doses","Pregnancy status"],
+     edu:["Take twice daily with food and water to reduce nausea","Report severe diarrhea","Chest tightness or shortness of breath within an hour of a dose usually passes, but report it"],
+     se:["Nausea","Diarrhea","Headache"],
+     ae:["Severe diarrhea and dehydration","Dyspnea"],
+     trap:"Your list shows n/a for both classes. Contraindicated with known bowel obstruction."},
+    {name:"IBS with diarrhea (IBS-D)", pharm:"Serotonin (5-HT3) antagonist", ther:"IBS-D treatment", stem:"-setron", ex:["alosetron"],
+     how:"Blocks 5-HT3 receptors in the gut, slowing transit and reducing pain and urgency. Restricted to women with severe, chronic IBS-D that hasn't responded to other treatment, under a special safety program.",
+     mon:["Constipation","Abdominal pain, rectal bleeding, bloody diarrhea"],
+     edu:["Stop the drug and call right away for constipation, new or worse abdominal pain, or blood in the stool","Read and sign the patient agreement","Don't restart after stopping for constipation without the provider"],
+     se:["Constipation","Nausea"],
+     ae:["Ischemic colitis (boxed warning)","Severe complications of constipation: obstruction, perforation, death (boxed warning)"],
+     trap:"Alosetron ends in -setron, like ondansetron. Your list shows n/a for both classes."},
+    {name:"5-Aminosalicylates (5-ASAs)", pharm:"5-Aminosalicylate", ther:"Anti-inflammatory (inflammatory bowel disease)", stem:"-salamine / -salazine", ex:["mesalamine","olsalazine"],
+     how:"Act directly on the intestinal lining to reduce inflammation, partly by blocking prostaglandin and leukotriene production. Used to induce and maintain remission in mild to moderate ulcerative colitis. Given orally (delayed- or extended-release) or rectally as enemas or suppositories.",
+     mon:["Stool frequency, blood, abdominal pain","Renal function","CBC","Salicylate (aspirin) allergy history"],
+     edu:["Swallow tablets whole","Report if whole tablets appear in the stool","Enema: lie on the left side and try to retain it (often overnight)","Report fever, chest pain or worsening bloody diarrhea","Olsalazine: watery diarrhea is common"],
+     se:["Headache","Nausea, abdominal pain","Diarrhea (olsalazine)"],
+     ae:["Kidney inflammation (interstitial nephritis)","Acute intolerance syndrome (cramping, bloody diarrhea, fever)","Pericarditis, myocarditis (rare)","Blood dyscrasias (rare)"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient on antibiotics develops frequent watery stools and a fever and asks for loperamide. What should the nurse do?",
+     o:["Hold it and report the diarrhea and fever","Give it and recheck in 4 hours","Give it with extra fluids by mouth","Give double the dose so relief comes faster"],
+     a:[0], w:"Diarrhea with fever after antibiotics suggests C. difficile. Antidiarrheals keep the toxin in the colon and raise the risk of toxic megacolon."},
+    {t:"mc", s:"Why is atropine combined with diphenoxylate?",
+     o:["To discourage misuse at high doses","To speed up the antidiarrheal effect","To prevent the drug from causing nausea","To protect the stomach lining"],
+     a:[0], w:"The small atropine dose is too low to matter at normal doses, but at high doses it causes unpleasant anticholinergic effects, discouraging misuse of the opioid."},
+    {t:"mc", s:"A woman taking alosetron for IBS-D reports she hasn't had a bowel movement in 3 days and has new abdominal pain. What should the nurse tell her?",
+     o:["Stop alosetron and contact the provider now","Take a stimulant laxative and keep taking it","Skip one dose, then restart tomorrow morning","This is expected; it means the drug is working"],
+     a:[0], w:"Alosetron carries boxed warnings for ischemic colitis and serious complications of constipation. Constipation or new abdominal pain means stop the drug and call."},
+    {t:"mc", s:"How should a patient take lubiprostone to reduce nausea?",
+     o:["With food and water","On an empty stomach","With an antacid","Only at bedtime"],
+     a:[0], w:"Nausea is the most common side effect of lubiprostone, and taking it with food and water reduces it."},
+    {t:"mc", s:"Which teaching is correct for a mesalamine retention enema?",
+     o:["Lie on your left side and try to hold it","Stand up right away so it reaches the colon","Expel it after 5 minutes so it doesn't irritate","Use it only on days when you have cramping"],
+     a:[0], w:"Lying on the left side follows the shape of the colon, and keeping the enema in (often overnight) lets mesalamine act on the inflamed lining."},
+    {t:"mc", s:"Before starting mesalamine, which allergy should the nurse ask about?",
+     o:["Aspirin or other salicylates","Penicillin or other beta-lactam antibiotics","Shellfish or iodine","Latex"],
+     a:[0], w:"Mesalamine is a salicylate. Patients allergic to aspirin or other salicylates may react to it."}
+  ]
+},
+{
+  id:"emesis", num:"06", group:"Nausea", title:"Antiemetics & prokinetics", kind:"drug", theme:"cardiac",
+  lede:"Nausea is triggered from several places: the chemoreceptor trigger zone, the gut, the inner ear and the mind. Each antiemetic blocks a different receptor, which is why the right drug depends on the cause.",
+  diagram:"nausea",
+  cards:[
+    {name:"Serotonin (5-HT3) antagonists", pharm:"Serotonin (5-HT3) receptor antagonist", ther:"Antiemetic", stem:"-setron", ex:["ondansetron","granisetron"],
+     how:"Block serotonin at 5-HT3 receptors in the chemoreceptor trigger zone and on vagal nerve endings in the gut. First-line for chemotherapy, radiation and postoperative nausea.",
+     mon:["ECG for QT prolongation (especially IV, with other QT drugs or low potassium or magnesium)","Constipation","Headache","Serotonergic drugs on the list"],
+     edu:["Take 30 minutes before chemotherapy as prescribed","Orally disintegrating tablets: dry hands, place on the tongue, don't swallow whole","Granisetron patch: apply 24–48 hours before chemotherapy","Report palpitations or fainting"],
+     se:["Headache","Constipation","Dizziness"],
+     ae:["QT prolongation, torsades de pointes","Serotonin syndrome with other serotonergic drugs"]},
+    {name:"Dopamine antagonists", pharm:"Dopamine (D2) receptor antagonist", ther:"Antiemetic (metoclopramide: also prokinetic)", stem:"n/a", ex:["prochlorperazine","promethazine","metoclopramide"],
+     how:"Block dopamine in the chemoreceptor trigger zone. Prochlorperazine and promethazine are phenothiazines; promethazine also has strong antihistamine effects. Metoclopramide also speeds stomach emptying (prokinetic) and is used for diabetic gastroparesis and GERD. Blocking dopamine in movement pathways causes their key adverse effects.",
+     mon:["Extrapyramidal symptoms: muscle spasms, restlessness, tremor","Involuntary face and tongue movements (tardive dyskinesia)","Sedation, BP, fever with rigidity (neuroleptic malignant syndrome)","Promethazine IV site: pain, burning, swelling","Metoclopramide: mood, depression"],
+     edu:["Report muscle spasms, restlessness, or involuntary movements of the face or tongue","Avoid alcohol and driving","Rise slowly","Metoclopramide: take 30 minutes before meals and at bedtime; not for more than 12 weeks"],
+     se:["Drowsiness","Dry mouth","Restlessness"],
+     ae:["Acute dystonia (treat with diphenhydramine or benztropine)","Tardive dyskinesia (metoclopramide boxed warning)","Neuroleptic malignant syndrome","Promethazine: severe tissue injury and gangrene with IV leakage; fatal respiratory depression under age 2 (boxed warnings)"],
+     trap:"Metoclopramide appears twice on your list (prokinetic and dopamine antagonist). It is contraindicated with bowel obstruction or GI bleeding."},
+    {name:"NK1 receptor antagonists", pharm:"Substance P / neurokinin-1 (NK1) receptor antagonist", ther:"Antiemetic", stem:"-pitant", ex:["aprepitant"],
+     how:"Block substance P at NK1 receptors in the brain. Prevents both immediate and delayed chemotherapy nausea, given together with a 5-HT3 antagonist and dexamethasone. Fosaprepitant is the IV form.",
+     mon:["INR if on warfarin (falls; recheck in 7–10 days)","Effect on hormonal birth control","Infusion reactions with IV fosaprepitant","Dexamethasone dose (aprepitant raises its level)"],
+     edu:["Use a backup method of birth control during treatment and for 1 month after","Take as scheduled with the chemotherapy plan","Report rash or trouble breathing"],
+     se:["Fatigue","Hiccups","Constipation or diarrhea"],
+     ae:["Hypersensitivity and infusion reactions","Reduced effect of warfarin and hormonal contraceptives"],
+     trap:"Your list shows n/a for the stem; -pitant is the stem for NK1 antagonists."},
+    {name:"Motion-sickness drugs", pharm:"Anticholinergic (scopolamine); H1 antihistamine (dimenhydrinate, hydroxyzine)", ther:"Antiemetic", stem:"n/a", ex:["scopolamine","dimenhydrinate","hydroxyzine"],
+     how:"Block acetylcholine and histamine signals from the inner ear (vestibular system) to the vomiting center. Best for preventing motion sickness and some postoperative nausea. Hydroxyzine is also used for anxiety and itching.",
+     mon:["Sedation, fall risk","Anticholinergic effects: dry mouth, blurred vision, urinary retention, confusion in older adults","Narrow-angle glaucoma, BPH","QT prolongation (hydroxyzine)"],
+     edu:["Scopolamine patch: apply behind the ear at least 4 hours before travel; wash hands after handling","Remove the patch before an MRI","Dimenhydrinate: take 30–60 minutes before travel","Avoid alcohol and driving"],
+     se:["Drowsiness","Dry mouth","Blurred vision"],
+     ae:["Confusion and delirium in older adults","Urinary retention","Acute narrow-angle glaucoma"],
+     trap:"Touching your eye after handling a scopolamine patch can dilate that pupil. Hydroxyzine is given orally or deep IM only."},
+    {name:"Adjuncts for chemotherapy nausea", pharm:"Glucocorticoid (dexamethasone); cannabinoid (dronabinol); benzodiazepine (lorazepam)", ther:"Antiemetic (adjunct)", stem:"n/a", ex:["dexamethasone","dronabinol","lorazepam"],
+     how:"Dexamethasone boosts the effect of 5-HT3 and NK1 antagonists in chemotherapy regimens. Dronabinol, a synthetic THC, treats nausea that doesn't respond to other drugs and stimulates appetite. Lorazepam prevents anticipatory nausea (nausea that starts before treatment) by reducing anxiety and memory of past episodes.",
+     mon:["Dexamethasone: blood glucose, mood, sleep","Dronabinol: mental status, HR, BP, misuse","Lorazepam: sedation, respiratory rate, fall risk"],
+     edu:["Dexamethasone: take in the morning with food; check blood sugar if diabetic","Dronabinol: avoid driving; may cause a “high” feeling","Lorazepam: avoid alcohol; don't drive"],
+     se:["Insomnia, increased appetite (dexamethasone)","Dizziness, euphoria (dronabinol)","Drowsiness (lorazepam)"],
+     ae:["Hyperglycemia (dexamethasone)","Psychiatric effects, tachycardia (dronabinol)","Respiratory depression (lorazepam)"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient receiving IV ondansetron also takes another QT-prolonging drug. What should the nurse monitor?",
+     o:["ECG for QT prolongation","Blood glucose before meals and at bedtime","Peak flow","Urine color"],
+     a:[0], w:"5-HT3 antagonists can prolong the QT interval. Combined with other QT drugs or low potassium or magnesium, the risk of torsades rises."},
+    {t:"mc", s:"After IV prochlorperazine, a patient's neck twists to one side and the eyes roll upward. Which drug does the nurse anticipate?",
+     o:["Diphenhydramine","Sodium bicarbonate","Naloxone","Flumazenil"],
+     a:[0], w:"This is acute dystonia, an extrapyramidal reaction to dopamine blockade. IV diphenhydramine or benztropine reverses it."},
+    {t:"mc", s:"A patient on metoclopramide for 4 months has lip smacking and tongue movements. What should the nurse do?",
+     o:["Report it; this may be tardive dyskinesia","Reassure the patient that this will pass soon","Give an extra dose before the next meal","Teach the patient to take it at bedtime"],
+     a:[0], w:"Metoclopramide carries a boxed warning for tardive dyskinesia, which can be permanent. Risk rises with use over 12 weeks; the drug should be stopped."},
+    {t:"mc", s:"While IV promethazine is infusing, the patient reports burning at the IV site. What is the priority?",
+     o:["Stop the infusion and assess the site","Slow the rate and apply a cold pack","Flush the line to push the drug through","Finish the dose and then check the site"],
+     a:[0], w:"Promethazine is a vesicant. Leakage or intra-arterial injection can cause severe tissue injury and gangrene. Stop it immediately and follow policy."},
+    {t:"mc", s:"A patient will take a cruise next week and wants to prevent seasickness. Which drug fits best?",
+     o:["Scopolamine patch","Ondansetron","Aprepitant","Metoclopramide tablets"],
+     a:[0], w:"Motion sickness comes from the inner ear, where acetylcholine and histamine carry the signal. Scopolamine or an antihistamine like dimenhydrinate fits best."},
+    {t:"mc", s:"A patient receiving chemotherapy with aprepitant takes warfarin. What should the nurse plan?",
+     o:["Recheck the INR about 7–10 days later","Hold warfarin during the chemo cycle","Give vitamin K with each aprepitant dose","No change; the drugs don't interact"],
+     a:[0], w:"Aprepitant speeds the breakdown of warfarin, so the INR can fall. Checking it 7–10 days after each cycle catches the change."},
+    {t:"mc", s:"A patient becomes nauseated in the car on the way to every chemotherapy session. Which drug targets this?",
+     o:["Lorazepam","Ondansetron","Loperamide","Misoprostol"],
+     a:[0], w:"This is anticipatory nausea, a learned response. Lorazepam reduces anxiety and memory of past episodes. Ondansetron treats nausea from the chemotherapy itself."}
+  ]
+},
+{
+  id:"supp", num:"07", group:"Supplements", title:"Supplements: iron, vitamins & minerals", kind:"drug", theme:"heme",
+  lede:"The GI tract is where these nutrients are absorbed, so GI disease, surgery and acid-reducing drugs all cause deficiencies. Each supplement has one teaching point that matters most.",
+  diagram:"supptable",
+  cards:[
+    {name:"Iron preparations", pharm:"Iron supplement", ther:"Supplement (antianemic)", stem:"ferr-", ex:["ferrous sulfate","ferrous gluconate","ferrous fumarate"],
+     how:"Replace the iron needed to make hemoglobin in iron-deficiency anemia (from GI bleeding, heavy menstrual periods, pregnancy or poor absorption). The salts differ in how much elemental iron they contain: fumarate the most, gluconate the least.",
+     mon:["Hgb, Hct, reticulocyte count (rises within about a week) and ferritin","Stool color and constipation","GI upset","Other drugs on the list (absorption interactions)"],
+     edu:["Absorbs best on an empty stomach with vitamin C (orange juice); take with food if it upsets your stomach","Take 1–2 hours apart from antacids, dairy, tetracyclines, fluoroquinolones and levothyroxine","Stools will turn dark green or black; this is expected","Liquid iron: use a straw and rinse to avoid staining teeth","Keep out of reach of children"],
+     se:["Constipation","Nausea, stomach upset","Dark stools"],
+     ae:["Iron poisoning in children (can be fatal)","GI irritation and ulceration","Anaphylaxis with some IV iron products"]},
+    {name:"Vitamin B12", pharm:"Vitamin (cobalamin)", ther:"Supplement (antianemic)", stem:"n/a", ex:["cyanocobalamin"],
+     how:"Needed to make DNA in red blood cells and to maintain the myelin around nerves. Deficiency causes megaloblastic anemia and nerve damage. Absorption needs intrinsic factor from the stomach, so pernicious anemia, gastrectomy, ileal disease, long-term PPIs and metformin all cause deficiency.",
+     mon:["CBC, B12 level, reticulocytes","Neurologic symptoms: numbness, tingling, balance, memory","Potassium in the first days of treating severe anemia (new red cells take it up)"],
+     edu:["Pernicious anemia: injections (or high-dose oral or nasal B12) are needed for life","Food sources: meat, fish, eggs, dairy, fortified foods","Report numbness, tingling or trouble walking"],
+     se:["Injection-site pain","Mild diarrhea"],
+     ae:["Hypokalemia early in treatment of severe anemia","Anaphylaxis (rare, injection)"]},
+    {name:"Folic acid", pharm:"Vitamin (folate)", ther:"Supplement (antianemic)", stem:"n/a", ex:["folic acid"],
+     how:"Needed for DNA synthesis; deficiency causes megaloblastic anemia without nerve damage. Common causes: alcohol use, poor diet, pregnancy, malabsorption, and drugs such as methotrexate and phenytoin. Taken before and during early pregnancy, it prevents neural tube defects.",
+     mon:["CBC, folate level","B12 level before treating megaloblastic anemia","Pregnancy plans"],
+     edu:["Anyone who could become pregnant: take folic acid daily, starting before conception","Food sources: leafy greens, beans, citrus, fortified grains","Limit alcohol"],
+     se:["Rare; high doses can turn urine bright yellow"],
+     ae:["Masks B12 deficiency: the anemia improves while nerve damage progresses"],
+     trap:"Always check B12 before treating megaloblastic anemia with folic acid alone."},
+    {name:"Potassium supplements", pharm:"Electrolyte (potassium) supplement", ther:"Supplement", stem:"n/a", ex:["potassium gluconate","potassium phosphate","potassium bicarbonate"],
+     how:"Replace potassium lost through diuretics, vomiting, diarrhea or NG suction. Potassium keeps heart rhythm and muscle function normal (serum level about 3.5–5.0 mEq/L).",
+     mon:["Serum potassium","Urine output and renal function before giving","ECG with IV replacement or abnormal levels","IV site for pain and burning"],
+     edu:["Take with food and a full glass of water; swallow extended-release tablets whole","Dilute liquid forms in juice or water","Avoid salt substitutes unless prescribed","Report muscle weakness, irregular heartbeat, or black stools"],
+     se:["Nausea, stomach upset","Diarrhea"],
+     ae:["Hyperkalemia (dysrhythmias, cardiac arrest)","GI ulceration (tablets)","Phlebitis with IV infusion"],
+     trap:"IV potassium is never given by IV push or IM. It is diluted and given by infusion pump at a limited rate per policy. Use extra caution with ACE inhibitors, ARBs and potassium-sparing diuretics."},
+    {name:"Magnesium supplements", pharm:"Electrolyte (magnesium) supplement", ther:"Antacid / laxative / supplement", stem:"n/a", ex:["magnesium sulfate","magnesium hydroxide","magnesium oxide","magnesium citrate"],
+     how:"Replace magnesium (needed for nerve, muscle and heart function). The salt decides the use: oxide for oral supplementation, hydroxide as an antacid or laxative, citrate as a bowel prep, and IV sulfate for low magnesium, torsades de pointes, severe asthma and seizure prevention in preeclampsia.",
+     mon:["Serum magnesium","IV sulfate: deep tendon reflexes, respiratory rate, urine output, BP","Renal function"],
+     edu:["Oral magnesium can cause diarrhea","Take 2 hours apart from tetracyclines, fluoroquinolones and bisphosphonates","Report weakness, drowsiness or slow breathing"],
+     se:["Diarrhea","Flushing (IV)"],
+     ae:["Hypermagnesemia: loss of reflexes, hypotension, respiratory depression, cardiac arrest","Antidote for IV toxicity: calcium gluconate"],
+     trap:"Your list includes magnesium supplements twice, once with the antacids and once here."}
+  ],
+  quiz:[
+    {t:"mc", s:"Which instruction helps oral iron absorb best?",
+     o:["Take it with orange juice between meals","Take it with milk to protect the stomach","Take it with your antacid at bedtime","Take it with your levothyroxine"],
+     a:[0], w:"Vitamin C improves iron absorption. Milk, antacids and levothyroxine all interfere with it (and iron interferes with levothyroxine)."},
+    {t:"mc", s:"A patient taking ferrous sulfate calls worried that her stools are dark green-black. The nurse explains:",
+     o:["This is expected with iron","This means internal bleeding","Stop the iron right away","Take it with milk instead"],
+     a:[0], w:"Iron darkens stools. Tarry, sticky stools with dizziness or abdominal pain would still be reported as possible bleeding."},
+    {t:"mc", s:"A patient had a total gastrectomy. Which supplement will the patient need for life?",
+     o:["Vitamin B12 injections","Folic acid tablets","Potassium gluconate tablets","Magnesium citrate"],
+     a:[0], w:"The stomach makes intrinsic factor, which is needed to absorb B12. Without it, B12 must be given by injection (or high-dose oral or nasal forms) for life."},
+    {t:"mc", s:"Why should a B12 level be checked before treating megaloblastic anemia with folic acid?",
+     o:["Folic acid can hide B12 deficiency while nerves are damaged","Folic acid blocks the absorption of B12 from the gut entirely","Folic acid and B12 can't be taken in the same week","A low B12 level means folic acid will cause bleeding"],
+     a:[0], w:"Folic acid corrects the anemia of B12 deficiency but not the nerve damage, which can progress unnoticed and become permanent."},
+    {t:"mc", s:"A nurse is about to hang IV potassium. Which action is correct?",
+     o:["Confirm adequate urine output first","Give it by IV push to save time on the unit","Give it IM if IV access is lost","Mix it into a running bag by hand"],
+     a:[0], w:"The kidneys excrete potassium; poor urine output risks hyperkalemia. IV potassium is never given by push or IM and is infused by pump in a diluted form."},
+    {t:"mc", s:"During an IV magnesium sulfate infusion, the patient's knee reflexes are absent and respirations are 10. What should the nurse do?",
+     o:["Stop the infusion and prepare calcium gluconate","Increase the rate to reach a therapeutic level sooner","Recheck reflexes and respirations in an hour","Give potassium to balance the magnesium"],
+     a:[0], w:"Loss of reflexes and slow breathing are signs of magnesium toxicity. Stop the infusion, support breathing and have calcium gluconate ready."}
+  ]
+},
+{
+  id:"final", num:"08", group:"Wrap-up", title:"Final review", kind:"final",
+  lede:"Mixed questions across every class. Most are NCLEX-style application items: read the scenario, then decide what matters most.",
+  quiz:[
+    {t:"mc", s:"Which patient should the nurse see first?",
+     o:["On promethazine IV, with a pale, cold hand below the IV","On psyllium, asking how much water to mix it with","On ferrous sulfate, reporting dark green stools","On omeprazole, asking when to take the morning dose each day"],
+     a:[0], w:"A pale, cold hand after IV promethazine suggests arterial injury or severe extravasation, which can lead to gangrene. The others are teaching needs or expected effects."},
+    {t:"mc", s:"What is the pharmacologic class of ondansetron?",
+     o:["Antiemetic","Serotonin (5-HT3) antagonist","Dopamine (D2) receptor antagonist","NK1 receptor antagonist"],
+     a:[1], w:"Serotonin (5-HT3) antagonist is the pharmacologic class (mechanism); antiemetic is the therapeutic class (use)."},
+    {t:"mc", s:"Which drug and teaching point are correctly paired?",
+     o:["Metronidazole – avoid alcohol","Sucralfate – take with an antacid","Bisacodyl – take with milk","Tetracycline – take with dairy"],
+     a:[0], w:"Metronidazole causes a disulfiram-like reaction with alcohol. Sucralfate needs acid, bisacodyl's coating dissolves in milk, and dairy blocks tetracycline absorption."},
+    {t:"sata", s:"Which drugs reduce the absorption of other medications taken at the same time? Select all that apply.",
+     o:["Calcium carbonate","Sucralfate","Magnesium hydroxide","Ondansetron dissolving tablets","Lorazepam"],
+     a:[0,1,2], w:"Antacids and sucralfate bind or block absorption of many drugs, so other medications are separated from them by 1–2 hours."},
+    {t:"mc", s:"A patient with C. difficile diarrhea has an order for diphenoxylate with atropine. What should the nurse do?",
+     o:["Question the order","Give it with extra fluids","Give it after each loose stool","Give it with an antacid"],
+     a:[0], w:"Antidiarrheals slow the colon and keep C. difficile toxin in contact with it, raising the risk of toxic megacolon."},
+    {t:"mc", s:"What is the therapeutic class of misoprostol?",
+     o:["Mucosal protectant","Prostaglandin E analog","Gastric acid suppressant","Proton pump inhibitor"],
+     a:[0], w:"Misoprostol's therapeutic class is mucosal protectant; its pharmacologic class is prostaglandin E analog."},
+    {t:"mc", s:"Which pair of drugs both raise the risk of QT prolongation?",
+     o:["Ondansetron and clarithromycin","Psyllium and docusate","Iron and folic acid","Sucralfate and famotidine together"],
+     a:[0], w:"5-HT3 antagonists and macrolides both prolong the QT interval; together the risk of torsades de pointes rises."},
+    {t:"mc", s:"A patient on long-term omeprazole reports muscle cramps and tremor. Which lab should the nurse check?",
+     o:["Serum magnesium","Serum amylase","Hemoglobin A1c level","Serum sodium"],
+     a:[0], w:"Long-term PPI use can cause hypomagnesemia, which presents with cramps, tremor, tetany and dysrhythmias."},
+    {t:"mc", s:"A patient with hepatic encephalopathy takes lactulose. Which finding should the nurse report?",
+     o:["Six watery stools and dizziness","Two soft stools a day","A sweet taste in the mouth after doses","Mild gas and bloating"],
+     a:[0], w:"Too much lactulose causes diarrhea, dehydration and hypokalemia, which can worsen encephalopathy. Two to three soft stools a day is the usual goal."},
+    {t:"mc", s:"An older adult takes scopolamine, hydroxyzine and promethazine for nausea. Which finding most needs attention?",
+     o:["New confusion and urinary retention","Mild dry mouth","Slight drowsiness after meals and in the evening","Less nausea than yesterday"],
+     a:[0], w:"Stacking anticholinergic and sedating drugs in an older adult can cause delirium and urinary retention. These need prompt reporting and a medication review."}
+  ]
+},
+{ id:"summary", num:"09", group:"Wrap-up", title:"Your results", kind:"summary" },
+{ id:"stems", num:"10", group:"Wrap-up", title:"Stem cheat sheet", kind:"stems" }
+];
+
+/* ============================================================
+   STEM TABLE (from the GI medication list, with corrections)
+   ============================================================ */
+const STEMS = [
+  ["Medications for reflux and GERD",null],
+  ["Histamine-2 receptor antagonist","Gastric acid suppressant","-tidine","famotidine, cimetidine, ranitidine*","c"],
+  ["Proton pump inhibitor","Gastric acid suppressant","-prazole","esomeprazole, omeprazole, pantoprazole, lansoprazole","c"],
+  ["Acid-neutralizing agent (list: blank)","Antacid","n/a","magnesium hydroxide, calcium carbonate","c"],
+  ["Medications for ulcers",null],
+  ["Mucosal barrier fortifier","Mucosal protectant","n/a","sucralfate","c"],
+  ["Prostaglandin E analog","Mucosal protectant","n/a","misoprostol","c"],
+  ["Antibiotics and antimicrobials (refresher)",null],
+  ["Macrolide","Antibiotic","-mycin*","azithromycin, clarithromycin, erythromycin","c"],
+  ["Penicillin","Antibiotic","-cillin","amoxicillin, ampicillin, oxacillin, piperacillin","c"],
+  ["Nitroimidazole (list: nitromidazoles)","Antibacterial / antiprotozoal","-nidazole","metronidazole, tinidazole","c"],
+  ["Benzimidazole anthelmintic (listed as nitroimidazole)","Antiparasitic","-bendazole","albendazole, mebendazole","c"],
+  ["Tetracycline","Antibiotic","-cycline","tetracycline, minocycline, doxycycline","c"],
+  ["Laxatives and stool softeners",null],
+  ["Bulk-forming laxative","Laxative","n/a","psyllium","h"],
+  ["Stool softener","Laxative","n/a","docusate sodium","h"],
+  ["Stimulant laxative","Laxative","n/a","bisacodyl, senna","h"],
+  ["Osmotic laxative","Laxative","n/a","magnesium hydroxide, lactulose","h"],
+  ["Antidiarrheals and bowel disease",null],
+  ["Opioid antidiarrheal","Antidiarrheal","n/a","diphenoxylate, loperamide, paregoric","h"],
+  ["Chloride channel activator","IBS-C treatment","n/a","lubiprostone","h"],
+  ["Serotonin (5-HT3) antagonist","IBS-D treatment","-setron","alosetron","h"],
+  ["5-Aminosalicylate","Anti-inflammatory","-salamine / -salazine","mesalamine, olsalazine","h"],
+  ["Antiemetics",null],
+  ["Serotonin (5-HT3) antagonist","Antiemetic","-setron","ondansetron, granisetron","c"],
+  ["Dopamine antagonist","Antiemetic / prokinetic","n/a","prochlorperazine, promethazine, metoclopramide","c"],
+  ["NK1 receptor antagonist","Antiemetic","-pitant (list: n/a)","aprepitant","c"],
+  ["Glucocorticoid","Antiemetic (adjunct)","n/a","dexamethasone","c"],
+  ["Cannabinoid","Antiemetic (adjunct)","n/a","dronabinol","c"],
+  ["Anticholinergic","Antiemetic","n/a","scopolamine","c"],
+  ["H1 antihistamine","Antiemetic","n/a","dimenhydrinate, hydroxyzine","c"],
+  ["Benzodiazepine","Antiemetic (adjunct)","n/a","lorazepam","c"],
+  ["Supplements",null],
+  ["Iron preparation","Supplement","ferr-","ferrous sulfate, gluconate, fumarate","h"],
+  ["Vitamin B12","Supplement","n/a","cyanocobalamin","h"],
+  ["Folic acid","Supplement","n/a","folic acid","h"],
+  ["Potassium","Supplement","n/a","potassium gluconate, phosphate, bicarbonate","h"],
+  ["Magnesium","Antacid / laxative / supplement","n/a","magnesium sulfate, hydroxide, oxide, citrate","h"]
+];
+const DRILL_GROUPS = [];
+let drillGroup = "";
+let currentId = "start";
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const KEY = "gi-decoder-v1";
+let state = {answers:{}};   // answers[qid] = {sel:[...], done:true, ok:bool}
+try{ const s = localStorage.getItem(KEY); if(s){ state = JSON.parse(s) || state; if(!state.answers) state.answers = {}; } }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+// stable shuffle of options per question (seeded by question id) so order is consistent across visits
+function seeded(str){ let h = 2166136261; for(const c of str){ h ^= c.charCodeAt(0); h = Math.imul(h,16777619); } return function(){ h ^= h<<13; h ^= h>>>17; h ^= h<<5; return ((h>>>0)%100000)/100000; }; }
+SECTIONS.forEach(sec=>{ (sec.quiz||[]).forEach((q,i)=>{
+  q.id = sec.id + "-" + (i+1);
+  const r = seeded(q.id); const order = q.o.map((_,k)=>k);
+  for(let k=order.length-1;k>0;k--){ const j = Math.floor(r()*(k+1)); [order[k],order[j]]=[order[j],order[k]]; }
+  q.order = order;
+});});
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const quizSections = SECTIONS.filter(s=>s.quiz);
+const totalQ = quizSections.reduce((n,s)=>n+s.quiz.length,0);
+
+function secStats(sec){
+  let done=0, ok=0;
+  (sec.quiz||[]).forEach(q=>{ const a = state.answers[q.id]; if(a&&a.done){ done++; if(a.ok) ok++; } });
+  return {done, ok, total:(sec.quiz||[]).length};
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderNav(current){
+  const nav = document.getElementById("nav");
+  let lastGroup = "";
+  nav.innerHTML = SECTIONS.map(s=>{
+    let head = "";
+    if(s.group && s.group!==lastGroup){ lastGroup = s.group; head = `<li class="navgroup">${esc(s.group)}</li>`; }
+    let chip = "";
+    if(s.quiz){ const st = secStats(s); chip = `<span class="chip ${st.done===st.total?'done':''}">${st.ok}/${st.total}</span>`; }
+    return head + `<li><a href="#${s.id}" ${s.id===current?'aria-current="page"':''}><span class="num">${s.num}</span><span>${esc(s.title)}</span>${chip}</a></li>`;
+  }).join("");
+  let done=0; quizSections.forEach(s=>done+=secStats(s).done);
+  document.getElementById("ovText").textContent = done + " / " + totalQ;
+  document.getElementById("ovBar").style.width = (100*done/totalQ) + "%";
+}
+
+function pager(idx){
+  const prev = SECTIONS[idx-1], next = SECTIONS[idx+1];
+  return `<div class="pager">${prev?`<a class="btn ghost" href="#${prev.id}">← ${esc(prev.title)}</a>`:'<span></span>'}${next?`<a class="btn" href="#${next.id}">${esc(next.title)} →</a>`:''}</div>`;
+}
+
+function card(c, sid, ci){
+  const list = a => `<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  return `<article class="dcard">
+    <div class="dhead">
+      <h3>${esc(c.name)}</h3><div class="cardTools">${sid!==undefined?`<button type="button" class="printbtn" data-print-card="${sid}|${ci}" aria-label="Print ${esc(c.name)}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print</button>`:""}<span class="stemTag">${esc(c.stem)}</span></div>
+      <div class="meta"><span><b>Pharmacologic class:</b> ${esc(c.pharm)}</span><span><b>Therapeutic class:</b> ${esc(c.ther)}</span></div>
+      <div class="ex">${c.ex.map(e=>`<span>${esc(e)}</span>`).join("")}</div>
+    </div>
+    <div class="dbody">
+      <div class="cell wide"><h4>How it works</h4><p>${esc(c.how)}</p></div>
+      <div class="cell"><h4>Monitoring &amp; safe administration</h4>${list(c.mon)}</div>
+      <div class="cell"><h4>Patient education</h4>${list(c.edu)}</div>
+      <div class="cell"><h4>Side effects</h4>${list(c.se)}</div>
+      <div class="cell adv"><h4>Adverse effects</h4>${list(c.ae)}</div>
+    </div>
+    ${c.trap?`<div class="dtrap"><b>Watch for:</b> ${esc(c.trap)}</div>`:""}
+  </article>`;
+}
+
+function diagram(kind){
+  if(kind==="acid") return `
+  <section class="panel" aria-labelledby="acidH">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h3 id="acidH">Where the acid and ulcer drugs act</h3>
+      <div class="flow">
+        <div class="node"><b>Signals to the parietal cell</b><small>histamine, gastrin, acetylcholine</small><span class="block">-tidine blocks histamine</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Proton pump</b><small>the final step that releases acid</small><span class="block">-prazole blocks</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Acid in the stomach</b><small>already made</small><span class="block">antacids neutralize</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Stomach lining</b><small>protected by mucus, bicarbonate and prostaglandins</small><span class="block">misoprostol replaces</span><span class="block">sucralfate coats</span></div>
+      </div>
+      <p class="diagcap">NSAIDs block the protective prostaglandins, and H. pylori damages the lining directly. Those are the two main causes of peptic ulcers.</p>
+    </div>
+  </section>`;
+  if(kind==="hpylori") return `
+  <section aria-labelledby="hpH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="hpH">Treating H. pylori: always a combination</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Bismuth quadruple therapy</h4><ol>
+        <li>PPI <span class="block">-prazole</span></li>
+        <li>Bismuth subsalicylate</li>
+        <li>Metronidazole <span class="block">-nidazole</span></li>
+        <li>Tetracycline <span class="block">-cycline</span></li>
+      </ol></div>
+      <div class="lane"><h4>Clarithromycin triple therapy</h4><ol>
+        <li>PPI <span class="block">-prazole</span></li>
+        <li>Clarithromycin <span class="block">-mycin</span></li>
+        <li>Amoxicillin <span class="block">-cillin</span></li>
+        <li>Used only where clarithromycin resistance is low</li>
+      </ol></div>
+      <div class="lane"><h4>Teaching for any regimen</h4><ol>
+        <li>Take every dose for the full 10–14 days</li>
+        <li>Bismuth turns the stool and tongue black</li>
+        <li>No alcohol with metronidazole</li>
+        <li>A follow-up test confirms the cure</li>
+      </ol></div>
+    </div>
+    <p class="diagcap">The PPI raises stomach pH, helping the antibiotics work and letting the ulcer heal. Regimens vary with local resistance; follow the provider's order.</p>
+  </section>`;
+  if(kind==="laxtable") return `
+  <section aria-labelledby="laxH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="laxH">Four types, four speeds</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Type</th><th>Examples</th><th>Onset</th><th>Key teaching</th></tr></thead>
+      <tbody>
+        <tr><td>Bulk-forming</td><td>psyllium</td><td>12–72 hours</td><td>Full glass of water every time</td></tr>
+        <tr><td>Stool softener</td><td>docusate</td><td>1–3 days</td><td>Prevents straining; mild</td></tr>
+        <tr><td>Stimulant</td><td>bisacodyl, senna</td><td>6–12 hours oral; 15–60 minutes suppository</td><td>No milk or antacids with bisacodyl</td></tr>
+        <tr><td>Osmotic</td><td>magnesium hydroxide, lactulose</td><td>30 minutes–6 hours (magnesium); 24–48 hours (lactulose)</td><td>Watch fluids and electrolytes</td></tr>
+      </tbody></table></div>
+    <p class="diagcap">Never give a laxative for abdominal pain of unknown cause, suspected appendicitis or bowel obstruction.</p>
+  </section>`;
+  if(kind==="nausea") return `
+  <section aria-labelledby="nauH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="nauH">Match the antiemetic to the cause</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Chemotherapy</h4><ol>
+        <li>5-HT3 antagonist <span class="block">-setron</span></li>
+        <li>NK1 antagonist <span class="block">-pitant</span></li>
+        <li>Dexamethasone</li>
+        <li>Anticipatory nausea: lorazepam; refractory: dronabinol</li>
+      </ol></div>
+      <div class="lane"><h4>After surgery</h4><ol>
+        <li>Ondansetron, dexamethasone</li>
+        <li>Scopolamine patch</li>
+        <li>Prochlorperazine or promethazine</li>
+      </ol></div>
+      <div class="lane"><h4>Motion sickness</h4><ol>
+        <li>Scopolamine</li>
+        <li>Dimenhydrinate, hydroxyzine</li>
+      </ol></div>
+      <div class="lane"><h4>Slow stomach emptying</h4><ol>
+        <li>Metoclopramide (prokinetic)</li>
+        <li>Limit to 12 weeks</li>
+      </ol></div>
+    </div>
+  </section>`;
+  if(kind==="supptable") return `
+  <section aria-labelledby="supH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="supH">One thing to remember for each supplement</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Supplement</th><th>Common GI cause of deficiency</th><th>Key lab</th><th>Most important teaching</th></tr></thead>
+      <tbody>
+        <tr><td>Iron</td><td>GI bleeding, celiac disease, acid suppression</td><td>Hgb, ferritin</td><td>Vitamin C helps; separate from antacids; stools turn dark</td></tr>
+        <tr><td>Vitamin B12</td><td>Gastrectomy, pernicious anemia, ileal disease, long-term PPIs</td><td>B12, CBC</td><td>Injections for life when intrinsic factor is missing</td></tr>
+        <tr><td>Folic acid</td><td>Alcohol use, malabsorption</td><td>Folate, CBC</td><td>Check B12 first; take before pregnancy</td></tr>
+        <tr><td>Potassium</td><td>Vomiting, diarrhea, NG suction, laxative overuse</td><td>K⁺ 3.5–5.0</td><td>Never IV push; check urine output</td></tr>
+        <tr><td>Magnesium</td><td>Diarrhea, long-term PPIs, alcohol use</td><td>Mg²⁺</td><td>IV: watch reflexes and breathing</td></tr>
+      </tbody></table></div>
+  </section>`;
+  return "";
+}
+
+function renderQuiz(sec){
+  const st = secStats(sec);
+  return `<section class="quiz" aria-labelledby="qh-${sec.id}">
+    <div class="quizHead"><div><div class="eyebrow">CHECK YOUR UNDERSTANDING</div><h2 id="qh-${sec.id}">${sec.kind==="final"?"Final review":"Section check"}</h2></div>
+      <div style="display:flex;gap:10px;align-items:center"><span class="score">${st.ok} correct · ${st.done}/${st.total} answered</span><button class="btn ghost" type="button" data-reset="${sec.id}" style="font-size:.8rem;padding:6px 10px">Retry section</button></div></div>
+    ${sec.quiz.map((q,i)=>renderQ(q,i)).join("")}
+  </section>`;
+}
+
+function renderQ(q,i){
+  const a = state.answers[q.id] || {sel:[]};
+  const multi = q.t==="sata";
+  const opts = q.order.map(k=>{
+    let cls = "opt";
+    if(a.done){
+      const chosen = a.sel.includes(k), right = q.a.includes(k);
+      if(chosen && right) cls += " correct"; else if(chosen && !right) cls += " wrong"; else if(!chosen && right) cls += " missed";
+    }
+    return `<label class="${cls}"><input type="${multi?'checkbox':'radio'}" name="${q.id}" value="${k}" ${a.sel.includes(k)?'checked':''} ${a.done?'disabled':''} data-q="${q.id}"><span>${esc(q.o[k])}</span></label>`;
+  }).join("");
+  let foot = "";
+  if(a.done){
+    foot = `<div class="verdict ${a.ok?'ok':'no'}">${a.ok?'Correct.':(multi?'Not quite. Dashed outlines show answers you missed.':'Not quite. The correct answer is outlined in green.')}</div><div class="why">${esc(q.w)}</div>`;
+  } else {
+    foot = `<div class="qfoot"><button class="btn" type="button" data-check="${q.id}" ${a.sel.length?'':'disabled'}>Check answer</button></div>`;
+  }
+  return `<div class="q" id="q-${q.id}"><div class="qn">QUESTION ${i+1}${multi?'<span class="tag">SELECT ALL THAT APPLY</span>':''}</div><div class="stemQ">${esc(q.s)}</div><div class="opts" role="${multi?'group':'radiogroup'}" aria-label="Answer choices">${opts}</div>${foot}</div>`;
+}
+
+function stemTable(){
+  return `<div class="tablewrap"><table>
+    <thead><tr><th>Pharmacologic class</th><th>Therapeutic class</th><th>Stem</th><th>Examples on your list</th></tr></thead>
+    <tbody>${STEMS.map(r=> r[1]===null ? `<tr class="groupRow"><td colspan="4">${esc(r[0])}</td></tr>`
+      : `<tr class="${r[4]}"><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td><span class="stem">${esc(r[2])}</span></td><td>${esc(r[3])}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <p class="diagcap">* Does not follow the stem. Learn these by name; each one is flagged on its drug card.</p>`;
+}
+
+function render(){
+  let id = viewId;
+  if(!id){ try{ id = (location.hash||"").replace("#",""); }catch(e){} }
+  id = id || "start";
+  const idx = Math.max(0, SECTIONS.findIndex(s=>s.id===id));
+  const sec = SECTIONS[idx];
+  currentId = sec.id;
+  renderNav(sec.id);
+  const main = document.getElementById("main");
+  let h = "";
+  if(sec.kind==="intro"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">UNIT 6 · METABOLISM: GASTROINTESTINAL</div><h1>GI Drug Decoder</h1>
+      <p class="lede">Every medication on the GI list, organized by class: acid and ulcer drugs, an antibiotic refresher with H. pylori treatment, laxatives, antidiarrheals and bowel disease drugs, antiemetics, and supplements. Learn to read a drug name, then work through each class: how it works, what you monitor, what you teach, and what can go wrong. Each section ends with questions that explain the answer as soon as you check it.</p></header>
+      <section class="panel"><h3 style="margin-bottom:10px">By the end, you should be able to</h3><ol class="objectives">
+        <li>Use prefixes, roots and suffixes to identify the class of a gastrointestinal drug.</li>
+        <li>Tell the pharmacologic class (how it works) from the therapeutic class (what it treats).</li>
+        <li>Explain the mechanism of action of each class in plain language.</li>
+        <li>Identify the assessments, labs and hold parameters for safe administration.</li>
+        <li>Teach patients how to take each drug safely and what to report.</li>
+        <li>Distinguish common side effects from adverse effects that need action.</li>
+      </ol></section>
+      <div class="steps">
+        <div class="panel"><span class="eyebrow">STEP 1</span><b>Read the labels</b><p>Each drug class is a card with the same six parts, so you can compare classes side by side.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 2</span><b>Check yourself</b><p>Answer every question at the end of the section. You'll see the rationale right away.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 3</span><b>Review your results</b><p>The results page shows your score by section and lists the topics to revisit.</p></div>
+      </div>
+      <p class="diagcap">Your answers are saved in this browser only. Use “Retry section” to clear one section, or “Start over” to clear everything.</p>
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="decode"){
+    const g = DRILL_GROUPS.find(x=>x.id===drillGroup) || DRILL_GROUPS[0];
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      <section class="panel" aria-labelledby="readH" style="display:flex;flex-direction:column;gap:14px">
+        <div><span class="eyebrow">HABIT 1</span><h3 id="readH">Learn the class, not the drug</h3></div>
+        <p class="prose" style="max-width:68ch">Drugs in a class share a mechanism, monitoring, teaching and adverse effects. Learn one key drug (the prototype) well, then notice how the others differ. The stem tells you which class you're looking at.</p>
+        <div class="decodeSteps">
+          <div class="dstep"><span class="eyebrow">1 · FIND THE STEM</span><p class="big mono">ome<mark>prazole</mark></p></div>
+          <div class="dstep"><span class="eyebrow">2 · PHARMACOLOGIC CLASS</span><p class="big">Proton pump inhibitor</p><small>How it works</small></div>
+          <div class="dstep"><span class="eyebrow">3 · THERAPEUTIC CLASS</span><p class="big">Gastric acid suppressant</p><small>What it treats</small></div>
+        </div>
+        <p class="diagcap">Several pharmacologic classes can share one therapeutic class: H2 blockers and PPIs work differently but are both gastric acid suppressants. Stems don't always hold, so each card flags the exceptions. The full list is on the <a href="#stems">Stem cheat sheet</a>.</p>
+      </section>
+      <section class="panel" aria-labelledby="mechH" style="display:flex;flex-direction:column;gap:14px">
+        <div><span class="eyebrow">HABIT 2</span><h3 id="mechH">Let the mechanism do the work</h3></div>
+        <p class="prose" style="max-width:68ch">Once you know how a drug works, most of the nursing care follows. Ask the same questions in the same order for every class, the way each drug card is laid out.</p>
+        <div class="flow">
+          <div class="node"><b>How it works</b><small>Omeprazole blocks the <b>proton pump</b>, the last step in making stomach acid.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>Expected effect</b><small>Much less acid, so ulcers heal and reflux eases. Acid also helps absorb B12, calcium, magnesium and iron and kills swallowed bacteria.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>Too much of it</b><small>With long-term use: low B12 and magnesium, fractures, C. difficile and pneumonia (adverse effects)</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>What you check</b><small>Signs of GI bleeding; magnesium and B12 with long-term use; watery diarrhea; whether it is still needed</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>What you teach</b><small>Take 30–60 minutes before breakfast; swallow whole; report black stools or watery diarrhea</small></div>
+        </div>
+        <p class="diagcap"><b>Side effects</b> are expected and usually mild (headache); teach patients to expect them. <b>Adverse effects</b> are harmful (C. difficile infection) and need action.</p>
+      </section>
+      <section aria-labelledby="studyH" style="display:flex;flex-direction:column;gap:12px">
+        <div><span class="eyebrow">HABIT 3</span><h3 id="studyH">Study in ways that stick</h3></div>
+        <div class="steps">
+          <div class="panel"><b>Quiz yourself</b><p>Answer the section check before you reread anything. Pulling facts out of memory builds recall far better than rereading or highlighting.</p></div>
+          <div class="panel"><b>Space it out</b><p>Several short sessions over a week beat one long one. Come back to a section a few days later and retry its questions.</p></div>
+          <div class="panel"><b>Mix it up</b><p>Once you know a few classes, practice them together. Telling an H2 blocker from a PPI is what exams test.</p></div>
+          <div class="panel"><b>Explain the why</b><p>Say out loud why a finding matters: “Long-term PPIs matter for bone health because…” If you can explain it, you can apply it.</p></div>
+        </div>
+      </section>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="drug"){
+    h = `<div class="view ${sec.theme==='heme'?'heme':''}">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">SECTION ${sec.num}</div><button type="button" class="printbtn" data-print-section="${sec.id}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print this section</button></div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${sec.diagram?sec.diagram.split(" ").map(diagram).join(""):""}
+      <div class="cards">${sec.cards.map((c,i)=>card(c,sec.id,i)).join("")}</div>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="final"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="stems"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">REFERENCE</div><button type="button" class="printbtn" data-print-section="stems"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print cheat sheet</button></div><h2>Stem cheat sheet</h2>
+      <p class="lede">Every class in this activity, with its stem and the examples from your GI medication list. Use it to review, not as the place to start.</p></header>
+      ${stemTable()}
+      ${pager(idx)}</div>`;
+  } else {
+    let tot=0, ok=0, done=0;
+    const rows = quizSections.map(s=>{ const st = secStats(s); tot+=st.total; ok+=st.ok; done+=st.done;
+      const pct = st.done? Math.round(100*st.ok/st.total) : null;
+      const pill = st.done<st.total ? `<span class="pill none">${st.done}/${st.total} answered</span>` : pct>=80?`<span class="pill ok">Solid</span>`:pct>=60?`<span class="pill mid">Review</span>`:`<span class="pill low">Revisit</span>`;
+      return `<a class="sumcard" href="#${s.id}" style="text-decoration:none;color:inherit"><span class="eyebrow">${s.num}</span><b>${esc(s.title)}</b><span class="big">${st.ok}/${st.total}</span>${pill}</a>`; }).join("");
+    const misses = [];
+    quizSections.forEach(s=>s.quiz.forEach((q,i)=>{ const a = state.answers[q.id]; if(a&&a.done&&!a.ok) misses.push(`<li><a href="#${s.id}">${esc(s.title)}, question ${i+1}</a>: ${esc(q.s)}</li>`); }));
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">RESULTS</div><h2>Your results</h2>
+      <p class="lede">${done===0?"You haven't answered any questions yet. Start with How to learn pharmacology.":`You've answered ${done} of ${tot} questions and got ${ok} correct (${Math.round(100*ok/Math.max(done,1))}% of those answered).`}</p></header>
+      <div class="sumgrid">${rows}</div>
+      <section class="panel" style="display:flex;flex-direction:column;gap:10px"><h3>Questions to revisit</h3>
+        ${misses.length?`<ol class="misslist">${misses.join("")}</ol>`:`<p class="diagcap">${done?"None. Nice work.":"Missed questions will be listed here."}</p>`}</section>
+      ${pager(idx)}</div>`;
+  }
+  main.innerHTML = h;
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+document.addEventListener("change", e=>{
+  const inp = e.target.closest("input[data-q]"); if(!inp) return;
+  const qid = inp.dataset.q; const a = state.answers[qid] || {sel:[]}; if(a.done) return;
+  const k = +inp.value;
+  if(inp.type==="radio") a.sel = [k];
+  else a.sel = inp.checked ? [...new Set([...a.sel,k])] : a.sel.filter(x=>x!==k);
+  state.answers[qid] = a; save();
+  const btn = document.querySelector(`[data-check="${qid}"]`); if(btn) btn.disabled = !a.sel.length;
+});
+document.addEventListener("click", e=>{
+  const chk = e.target.closest("[data-check]");
+  if(chk){
+    const qid = chk.dataset.check; let q; SECTIONS.forEach(s=>(s.quiz||[]).forEach(x=>{ if(x.id===qid) q=x; }));
+    const a = state.answers[qid]; if(!a||!a.sel.length) return;
+    const sel = [...a.sel].sort(), ans = [...q.a].sort();
+    a.ok = sel.length===ans.length && sel.every((v,i)=>v===ans[i]); a.done = true; save();
+    const sec = SECTIONS.find(s=>(s.quiz||[]).includes(q));
+    document.getElementById("q-"+qid).outerHTML = renderQ(q, sec.quiz.indexOf(q));
+    renderNav(sec.id);
+    const st = secStats(sec); const sc = document.querySelector(".score"); if(sc) sc.textContent = `${st.ok} correct · ${st.done}/${st.total} answered`;
+    return;
+  }
+  const rs = e.target.closest("[data-reset]");
+  if(rs){ const sec = SECTIONS.find(s=>s.id===rs.dataset.reset); sec.quiz.forEach(q=>delete state.answers[q.id]); save(); render(); return; }
+  const tg = e.target.closest("[data-group]");
+  if(tg){ drillGroup = tg.dataset.group; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  const fl = e.target.closest("[data-flip]");
+  if(fl){ const on = fl.getAttribute("aria-pressed")!=="true"; fl.setAttribute("aria-pressed", on); fl.querySelector(".back").hidden = !on; fl.querySelector(".hint").textContent = on?"Tap to hide":"Tap to reveal"; return; }
+});
+document.getElementById("resetAll").addEventListener("click", ()=>{
+  const b = document.getElementById("resetAll");
+  if(b.dataset.confirm){ state = {answers:{}}; save(); delete b.dataset.confirm; b.textContent="Start over"; render(); }
+  else { b.dataset.confirm = "1"; b.textContent = "Click again to clear all answers"; setTimeout(()=>{ delete b.dataset.confirm; b.textContent="Start over"; }, 4000); }
+});
+let viewId = "";
+/* ============================================================
+   PRINTING
+   Standalone file: prints from a hidden frame.
+   Published page (printing is blocked there): saves a print-ready copy
+   that opens its own print dialog.
+   ============================================================ */
+const UNIT_LABEL = "UNIT 6 · GASTROINTESTINAL", APP_TITLE = "GI Drug Decoder";
+function inViewer(){ try{ return !!(window.claude && typeof window.claude.use === "function"); }catch(e){ return false; } }
+function toast(msg){
+  const t = document.getElementById("toast"); if(!t) return;
+  t.textContent = msg; t.hidden = false; clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ t.hidden = true; }, 6000);
+}
+function fileSafe(x){ return String(x).replace(/[^A-Za-z0-9 &()-]+/g," ").replace(/\s+/g," ").trim().slice(0,80) || "Printout"; }
+function printDoc(title, bodyHtml, heme){
+  const css = document.querySelector("style").textContent;
+  return '<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="utf-8"><title>' + esc(title) + '</title>'
+   + '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">'
+   + '<style>' + css + '\nbody{background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+   + 'main.printdoc{max-width:960px;margin:0 auto;padding:24px}.printbtn,.abcd,#toast{display:none !important}'
+   + '.dcard,.lane,.panel,tr{break-inside:avoid;page-break-inside:avoid}h2,h3{break-after:avoid}'
+   + '.printbar{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:10px}'
+   + '@media print{.printbar button{display:none}main.printdoc{padding:0}@page{margin:0.5in}}</style></head>'
+   + '<body><main class="printdoc"><div class="view' + (heme?' heme':'') + '">'
+   + '<div class="printbar"><span class="eyebrow">' + esc(UNIT_LABEL + " · " + APP_TITLE) + '</span><button class="btn" type="button" onclick="window.print()">Print</button></div>'
+   + bodyHtml + '</div></main>'
+   + '<scr'+'ipt>window.addEventListener("load",function(){setTimeout(function(){try{window.print()}catch(e){}},500)});</scr'+'ipt></body></html>';
+}
+async function doPrint(title, bodyHtml, heme){
+  const html = printDoc(title, bodyHtml, heme);
+  if(inViewer()){
+    let dl = null;
+    try{ dl = await window.claude.use("downloads"); }catch(e){}
+    if(!dl){ toast("Printing isn't available in this view. Open the downloaded HTML file in your browser to print."); return; }
+    try{
+      await dl.save({filename: fileSafe(title) + ".html", data: html});
+      toast("Saved. Open the file and the print window appears; choose Save as PDF if you'd rather keep a PDF.");
+    }catch(err){
+      if(err && err.code === "declined") return;
+      if(err && err.code === "rate_limited"){ toast("A save prompt is already open. Finish that one first."); return; }
+      toast("This view couldn't save the printable copy. Use the downloadable HTML file to print instead.");
+    }
+    return;
+  }
+  try{
+    let f = document.getElementById("printFrame"); if(f) f.remove();
+    f = document.createElement("iframe");
+    f.id = "printFrame"; f.title = "Print preview"; f.setAttribute("aria-hidden","true"); f.tabIndex = -1;
+    f.style.cssText = "position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0;";
+    document.body.appendChild(f);
+    f.srcdoc = html;
+  }catch(e){ toast("Your browser blocked printing. Try Ctrl+P (Cmd+P on a Mac)."); }
+}
+function sectionPrintBody(sec){
+  if(sec.kind==="stems") return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">REFERENCE</div><h2>Stem cheat sheet</h2></header>' + stemTable();
+  return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">SECTION ' + esc(sec.num) + '</div><h2>' + esc(sec.title) + '</h2><p class="lede">' + esc(sec.lede) + '</p></header>'
+    + (sec.diagram ? sec.diagram.split(" ").filter(d=>d!=="abcd").map(diagram).join("") : "")
+    + '<div class="cards">' + sec.cards.map(c=>card(c)).join("") + '</div>';
+}
+document.addEventListener("click", e=>{
+  const pc = e.target.closest("[data-print-card]");
+  if(pc){
+    const [sid, ci] = pc.dataset.printCard.split("|");
+    const sec = SECTIONS.find(x=>x.id===sid); const c = sec && sec.cards[+ci]; if(!c) return;
+    doPrint(c.name, '<div class="eyebrow">' + esc(sec.title.toUpperCase()) + '</div>' + card(c), sec.theme==="heme");
+    return;
+  }
+  const ps = e.target.closest("[data-print-section]");
+  if(ps){
+    const sec = SECTIONS.find(x=>x.id===ps.dataset.printSection); if(!sec) return;
+    doPrint(sec.kind==="stems" ? "Stem cheat sheet" : sec.title, sectionPrintBody(sec), sec.theme==="heme");
+  }
+});
+function go(id){
+  viewId = id; render();
+  try{ history.replaceState(null, "", "#"+id); }catch(e){}
+}
+// Navigate with script instead of relying on hash links, which some viewers block.
+document.addEventListener("click", e=>{
+  const a = e.target.closest('a[href^="#"]'); if(!a) return;
+  const id = a.getAttribute("href").slice(1);
+  if(!SECTIONS.some(s=>s.id===id)) return;
+  e.preventDefault(); go(id);
+}, true);
+window.addEventListener("hashchange", ()=>{ try{ const h = location.hash.replace("#",""); if(h && h!==viewId){ viewId = h; render(); } }catch(e){} });
+render();
+</script>
+</body>
+</html>

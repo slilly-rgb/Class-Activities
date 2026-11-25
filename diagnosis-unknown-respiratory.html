@@ -1,0 +1,1215 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Diagnosis Unknown Respiratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: black case-file masthead, case board grid, then a single case workspace with tabbed evidence and a diagnosis board. Single dark brand theme (Clinical Mysteries). */
+:root{
+  color-scheme: dark;
+  --bg:#070a0b; --panel:#0e1416; --panel2:#131c1e; --line:#203034;
+  --fg:#dfe9e8; --muted:#8ea3a2; --teal:#1ec8b8; --teal-dim:#0f6b63; --teal-ink:#03211e;
+  --red:#ef6a5f; --amber:#efb54a; --green:#53d48e;
+  --display:"Oxanium","Eurostile","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible,input:focus-visible+label{outline:2px solid var(--teal);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px}
+
+/* masthead */
+.mast{background:#000;border-bottom:1px solid var(--line)}
+.mast .wrap{display:flex;align-items:center;gap:14px;padding-block:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo svg{width:44px;height:44px;flex:none}
+.brand{font-family:var(--display);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:18px;color:var(--teal);line-height:1}
+.tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.edition{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 10px;border-radius:3px}
+
+/* board */
+.hero{padding-block:28px 10px}
+.hero h1{font-size:clamp(28px,5vw,44px);font-weight:700;letter-spacing:.01em}
+.hero h1 span{color:var(--teal)}
+.hero p{max-width:66ch;color:var(--muted);margin:10px 0 0}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:18px 0 6px}
+.rule{border-top:2px solid var(--teal-dim);padding-top:8px;font-size:13.5px;color:var(--muted)}
+.rule b{display:block;color:var(--fg);font-family:var(--display);font-size:14px;letter-spacing:.04em;margin-bottom:2px}
+.progress{font-family:var(--mono);font-size:13px;color:var(--muted);margin:18px 0 10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.progress .bar{flex:1;min-width:120px;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.progress .bar i{display:block;height:100%;background:var(--teal)}
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding-bottom:40px}
+.case{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:8px;min-width:0;transition:border-color .15s}
+.case:hover{border-color:var(--teal-dim)}
+.case .num{font-family:var(--mono);font-size:12px;color:var(--teal);display:flex;justify-content:space-between}
+.case .nm{font-family:var(--display);font-size:18px;font-weight:700}
+.case .meta{font-size:12.5px;color:var(--muted)}
+.case .cc{font-size:13.5px;color:var(--fg);opacity:.85;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pill{font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:2px;border:1px solid var(--line);color:var(--muted)}
+.pill.solved{border-color:var(--green);color:var(--green)}
+.pill.open{border-color:var(--amber);color:var(--amber)}
+
+/* case view */
+.topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-block:16px 6px}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:7px 12px;font-size:13.5px}
+.btn:hover{border-color:var(--teal-dim)}
+.btn.primary{background:var(--teal);color:var(--teal-ink);border-color:var(--teal);font-weight:600}
+.btn.primary:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:none}
+.spacer{flex:1}
+.file{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start}
+.file .who{min-width:0}
+.file h2{font-size:26px}
+.file .meta{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:3px}
+.file .cc{margin:10px 0 0;max-width:70ch}
+.tokens{text-align:right}
+.tokens .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.tokens .count{font-family:var(--display);font-size:34px;font-weight:700;color:var(--teal);line-height:1;font-variant-numeric:tabular-nums}
+.tokens .count.low{color:var(--amber)}
+.tokens .count.out{color:var(--red)}
+.pips{display:grid;grid-template-columns:repeat(5,10px);gap:4px;justify-content:end;margin-top:8px}
+.pips i{width:10px;height:10px;border-radius:50%;border:1px solid var(--teal-dim)}
+.pips i.on{background:var(--teal);border-color:var(--teal)}
+
+.tabs{display:flex;gap:2px;margin-top:16px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:thin;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg)}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px;font-family:var(--display);font-size:14px;letter-spacing:.03em;color:var(--muted);white-space:nowrap;display:flex;gap:6px;align-items:center}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--teal)}
+.tab .lock{font-size:11px;opacity:.7}
+.tab .badge{font-family:var(--mono);font-size:11px;background:var(--teal-dim);color:var(--fg);padding:0 6px;border-radius:8px}
+.pane{padding-block:16px 40px}
+.locked{border:1px dashed var(--line);border-radius:4px;padding:28px 18px;text-align:center;color:var(--muted)}
+.locked p{margin:0 0 12px}
+.hint{font-size:13px;color:var(--muted);margin:0 0 12px;max-width:72ch}
+
+.items{display:flex;flex-direction:column;gap:8px}
+.item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 12px}
+.item.in{border-color:var(--teal);background:linear-gradient(90deg,rgba(30,200,184,.08),transparent 60%),var(--panel)}
+.item .txt{min-width:0}
+.item .tname{font-family:var(--display);font-size:14px;letter-spacing:.02em}
+.item .res{font-family:var(--mono);font-size:13px;color:var(--fg);margin-top:4px}
+.item .res.def{color:var(--amber)}
+.ev{border:1px solid var(--line);background:var(--panel2);border-radius:3px;padding:6px 10px;font-size:12.5px;white-space:nowrap;color:var(--muted)}
+.ev[aria-pressed="true"]{border-color:var(--teal);color:var(--teal);font-weight:600}
+.order{border:1px solid var(--teal-dim);background:none;border-radius:3px;padding:6px 10px;font-size:12.5px;white-space:nowrap;color:var(--teal)}
+.order:disabled{opacity:.35;cursor:not-allowed}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.vgrid .item{font-family:var(--mono);font-size:14px}
+
+/* diagnosis */
+.dxhead{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:12px}
+.dxhead h3{font-size:18px}
+.dxhead .left{font-family:var(--mono);font-size:13px;color:var(--teal)}
+.dxzone{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.dxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.dx{position:relative;display:block;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 12px 10px 38px;cursor:pointer;min-width:0}
+.dx input{position:absolute;left:12px;top:13px;accent-color:var(--teal)}
+.dx .dn{font-weight:600}
+.dx .why{font-size:12px;color:var(--red);margin-top:3px}
+.dx.out{opacity:.55;cursor:not-allowed;background:var(--bg)}
+.dx.out .dn{text-decoration:line-through;text-decoration-color:var(--red)}
+.dx.sel{border-color:var(--teal)}
+.submitrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.msg{font-size:14px}
+.msg.bad{color:var(--red)} .msg.ok{color:var(--green)}
+
+.reveal{margin-top:20px;border:1px solid var(--green);border-radius:4px;background:var(--panel);overflow:hidden}
+.reveal .rh{background:rgba(83,212,142,.12);padding:14px 16px;border-bottom:1px solid var(--line)}
+.reveal .rh .k{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--green)}
+.reveal .rh h3{font-size:24px;margin-top:4px}
+.reveal .rb{padding:6px 16px 16px;display:grid;gap:12px}
+.reveal .blk{max-width:72ch}
+.reveal .blk b{display:block;font-family:var(--display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin:8px 0 2px}
+.reveal .blk p{margin:0}
+.reveal .stats{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--amber)}
+.sata{border-top:1px solid var(--line);padding-top:6px}
+.sata .sq{display:block;font-family:var(--display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin:8px 0 2px}
+.sata .sp{margin:0 0 10px;max-width:72ch}
+.nopts{display:flex;flex-direction:column;gap:8px}
+.nopt{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:10px 12px;cursor:pointer}
+.nopt input{margin-top:4px;accent-color:var(--teal);width:16px;height:16px}
+.nopt.on{border-color:var(--teal)}
+.nopt.res{cursor:default}
+.nopt.res.good{border-color:var(--green)}
+.nopt.res.bad{border-color:var(--red)}
+.nmark{font-weight:700;font-size:16px;width:16px;text-align:center}
+.nopt.good .nmark{color:var(--green)} .nopt.bad .nmark{color:var(--red)}
+.ntag{font-family:var(--mono);font-size:12px;margin-top:3px}
+.nopt.good .ntag{color:var(--green)} .nopt.bad .ntag{color:var(--red)}
+.nrat{font-size:13.5px;color:var(--muted);margin-top:4px}
+.nrat b{color:var(--fg)}
+.nscore{margin-top:12px;font-size:14px}
+.nscore.good{color:var(--green)}
+@media (max-width:560px){
+  .file{grid-template-columns:1fr}
+  .tokens{text-align:left}.pips{justify-content:start}
+  .item{grid-template-columns:1fr}
+  .item .ev,.item .order{justify-self:start}
+  .edition{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="logo" aria-label="Clinical Mysteries">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="20" cy="20" r="14" fill="none" stroke="#1ec8b8" stroke-width="3"/><path d="M30.5 30.5 L43 43" stroke="#1ec8b8" stroke-width="5" stroke-linecap="round"/><path d="M8 21 h6 l2.5 -6 l3.5 12 l3 -9 l2 3 h6" fill="none" stroke="#dfe9e8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      <div><div class="brand">Clinical Mysteries</div><div class="tag">Investigate. Analyze. Solve.</div></div>
+    </div>
+    <div class="edition">Diagnosis Unknown · Respiratory</div>
+  </div>
+</header>
+<main id="app" class="wrap"></main>
+
+<script>
+const F = (t, ro, s) => ({ t, ro: ro || [], s: s || null });
+
+const DX = [
+  { id: "epi", name: "Acute epiglottitis", zone: "Upper" },
+  { id: "facial", name: "Facial fracture / trauma", zone: "Upper" },
+  { id: "laryn", name: "Laryngeal trauma", zone: "Upper" },
+  { id: "pta", name: "Peritonsillar abscess", zone: "Upper" },
+  { id: "asthma", name: "Asthma / status asthmaticus", zone: "Lower" },
+  { id: "osa", name: "Obstructive sleep apnea", zone: "Upper" },
+  { id: "cb", name: "COPD: chronic bronchitis", zone: "Lower" },
+  { id: "emph", name: "COPD: emphysema", zone: "Lower" },
+  { id: "cf", name: "Cystic fibrosis", zone: "Lower" },
+  { id: "pah", name: "Pulmonary arterial hypertension", zone: "Lower" },
+  { id: "ipf", name: "Pulmonary fibrosis", zone: "Lower" },
+  { id: "lca", name: "Lung cancer", zone: "Lower" }
+];
+
+// el = elective/outpatient test: deferred (token still spent) when the patient is acute
+const TESTS = [
+  // LABS
+  { id: "cbc", cat: "labs", name: "CBC with differential", normal: F("WBC 7.4 K/µL, Hgb 14.0 g/dL, Hct 42%, platelets 248 K/µL. Differential normal.") },
+  { id: "bmp", cat: "labs", name: "Basic metabolic panel + calcium", normal: F("Na 139, K 4.1, Cl 102, HCO₃ 25 mEq/L; BUN 14, Cr 0.9 mg/dL; glucose 96 mg/dL; Ca 9.4 mg/dL.") },
+  { id: "abg", cat: "labs", name: "Arterial blood gas (room air)", normal: F("pH 7.40, PaCO₂ 40 mmHg, PaO₂ 92 mmHg, HCO₃ 24 mEq/L, SaO₂ 97%.") },
+  { id: "bnp", cat: "labs", name: "BNP", normal: F("42 pg/mL (normal < 100).") },
+  { id: "strep", cat: "labs", name: "Rapid strep / throat culture", normal: F("Negative for group A streptococcus.") },
+  { id: "bcx", cat: "labs", name: "Blood cultures × 2", normal: F("No growth at 48 hours.") },
+  { id: "sputum", cat: "labs", name: "Sputum culture & Gram stain", normal: F("Normal oral flora. No predominant pathogen.") },
+  { id: "cyto", cat: "labs", name: "Sputum cytology", normal: F("No malignant cells identified.") },
+  { id: "ige", cat: "labs", name: "Serum IgE & eosinophil count", normal: F("IgE 58 IU/mL (normal). Eosinophils 2%.") },
+  { id: "a1at", cat: "labs", name: "Alpha-1 antitrypsin level", normal: F("142 mg/dL (normal). MM phenotype.") },
+  { id: "sweat", cat: "labs", name: "Sweat chloride test", el: true, normal: F("Sweat chloride 18 mmol/L (≤ 29 = CF unlikely).", ["cf"], "Normal sweat chloride") },
+  { id: "elastase", cat: "labs", name: "Fecal elastase", el: true, normal: F("410 µg/g (normal > 200). Normal pancreatic function.") },
+
+  // DIAGNOSTICS
+  { id: "peak", cat: "diag", name: "Peak expiratory flow (pre/post bronchodilator)", normal: F("PEF 94% of predicted. No change after bronchodilator.", ["asthma"], "Normal peak flow, no reversibility") },
+  { id: "pft", cat: "diag", name: "Pulmonary function tests (spirometry, lung volumes, DLCO)", el: true, normal: F("FEV₁ 96%, FVC 98%, FEV₁/FVC 0.80. TLC 100%. DLCO 94%. All normal.", ["cb", "emph", "ipf"], "Normal PFTs") },
+  { id: "psg", cat: "diag", name: "Polysomnography (overnight sleep study)", el: true, normal: F("AHI 2 events/hr (normal < 5). Lowest SpO₂ 93%.", ["osa"], "Normal sleep study") },
+  { id: "laryngo", cat: "diag", name: "Flexible laryngoscopy", normal: F("Normal epiglottis. Vocal cords move symmetrically. No edema, hematoma, or mucosal tear.", ["epi", "laryn"], "Normal laryngoscopy") },
+  { id: "aspirate", cat: "diag", name: "Needle aspiration, peritonsillar space", normal: F("Not performed. No peritonsillar swelling to aspirate.", ["pta"], "No peritonsillar collection") },
+  { id: "ecg", cat: "diag", name: "12-lead ECG", normal: F("Sinus rhythm at the patient's current rate. Normal axis. No hypertrophy or ST changes.") },
+  { id: "echo", cat: "diag", name: "Echocardiogram", normal: F("Normal LV and RV size and function. Estimated PA systolic pressure 24 mmHg.", ["pah"], "Normal echo / PA pressure") },
+  { id: "rhc", cat: "diag", name: "Right heart catheterization", el: true, normal: F("mPAP 15 mmHg, PAWP 9 mmHg, PVR 1.4 Wood units. Normal.", ["pah"], "Normal right heart cath") },
+  { id: "bronch", cat: "diag", name: "Bronchoscopy with biopsy", el: true, normal: F("Normal airways. Biopsy benign. No malignancy.", ["lca"], "Benign bronchoscopy biopsy") },
+  { id: "cftr", cat: "diag", name: "CFTR genetic testing", el: true, normal: F("No disease-causing CFTR variants detected.", ["cf"], "Negative CFTR genetics") },
+
+  // IMAGING
+  { id: "cxr", cat: "img", name: "Chest X-ray", normal: F("Clear lungs. Normal heart size. No mass, infiltrate, or hyperinflation.") },
+  { id: "latneck", cat: "img", name: "Lateral soft-tissue neck X-ray", normal: F("Normal epiglottis and prevertebral soft tissue.", ["epi"], "Normal epiglottis on neck X-ray") },
+  { id: "ctneck", cat: "img", name: "CT neck with contrast", normal: F("No abscess. No laryngeal fracture. Normal epiglottis and soft tissues.", ["epi", "pta", "laryn"], "Normal CT neck") },
+  { id: "ctface", cat: "img", name: "Maxillofacial CT", normal: F("No facial bone fractures.", ["facial"], "No facial fractures on CT") },
+  { id: "ctchest", cat: "img", name: "High-resolution CT chest", normal: F("Normal lung tissue. No nodules, emphysema, bronchiectasis, or fibrosis.", ["emph", "ipf", "cf", "lca"], "Normal HRCT chest") },
+  { id: "cta", cat: "img", name: "CT pulmonary angiogram", normal: F("No pulmonary embolism. Main pulmonary artery normal caliber (2.6 cm).") },
+  { id: "pet", cat: "img", name: "PET-CT", el: true, normal: F("No hypermetabolic lesions.", ["lca"], "Negative PET-CT") }
+];
+
+const DEFERRED = F("Deferred. This test isn't appropriate for an unstable, acute patient. Think about what this patient needs right now.");
+
+const PATIENTS = [
+  // 1 EPIGLOTTITIS
+  {
+    id: "p1", dx: "epi", acute: true, name: "Marcus Bell", age: 42, sex: "M", setting: "Emergency Department",
+    summary: "Brought in by his wife with a severe sore throat that started this morning and has worsened fast. He is sitting bolt upright, leaning forward, and drooling. His voice sounds muffled.",
+    history: [
+      F("Sore throat began about 8 hours ago. Now so painful he cannot swallow his own saliva."),
+      F("No chronic cough, sputum, or shortness of breath with activity before today.", ["cb", "emph", "ipf", "pah"], "No chronic cough or exertional dyspnea"),
+      F("No history of asthma, wheezing, or inhaler use.", ["asthma"], "No asthma history"),
+      F("Former smoker, quit 15 years ago (10 pack-years)."),
+      F("Wife says he does not snore and sleeps well.", ["osa"], "No snoring"),
+      F("Healthy childhood. No recurrent lung infections or digestive problems.", ["cf"], "Healthy childhood"),
+      F("Born overseas; childhood vaccination records (including Hib) are unavailable."),
+      F("Teaches high school chemistry. Several students have been out with the flu."),
+      F("No weight loss, night sweats, or coughing up blood.", ["lca"], "No weight loss or hemoptysis")
+    ],
+    vitals: [F("Temp 103.1 °F (39.5 °C)"), F("HR 124 bpm"), F("RR 28/min"), F("BP 138/84 mmHg"), F("SpO₂ 93% on room air")],
+    physical: [
+      F("Sitting upright, leaning forward with neck extended (sniffing position). Drooling."),
+      F("Muffled, 'hot potato' voice. Soft inspiratory stridor."),
+      F("Provider deferred the tongue-blade throat exam to avoid triggering laryngospasm."),
+      F("Exquisite tenderness over the anterior neck at the level of the hyoid. No bruising."),
+      F("Face symmetric, nontender, no swelling or deformity.", ["facial"], "Normal facial exam"),
+      F("Lungs: upper-airway noise transmitted, no wheezes.", ["asthma"], "No wheezing")
+    ],
+    tests: {
+      cbc: F("WBC 19,800/µL with 86% neutrophils and bands (left shift)."),
+      abg: F("pH 7.33, PaCO₂ 49 mmHg, PaO₂ 68 mmHg, HCO₃ 25 mEq/L."),
+      bcx: F("Preliminary: gram-negative coccobacilli, identified as Haemophilus influenzae."),
+      peak: F("Not performed. Forced breathing maneuvers could worsen upper-airway obstruction."),
+      aspirate: F("Not performed. Manipulating the oropharynx risks complete airway obstruction."),
+      latneck: F("Swollen, thickened epiglottis: positive 'thumb sign.'"),
+      laryngo: F("Done in the OR with the airway team at bedside: cherry-red, markedly swollen epiglottis. No hematoma or mucosal tear.", ["laryn"], "No laryngeal injury on scope"),
+      ctneck: F("Epiglottic and aryepiglottic fold swelling. No abscess. No fracture.", ["pta", "laryn"], "CT: no abscess, no fracture"),
+      ecg: F("Sinus tachycardia 124. Otherwise normal.")
+    },
+    reveal: {
+      normal: "The epiglottis is a flap of cartilage that closes over the larynx when you swallow, then opens so air can pass.",
+      broke: "Bacterial infection (classically H. influenzae type b) makes the epiglottis and surrounding tissue swell fast. A swollen epiglottis can seal the airway opening within hours.",
+      clues: "Rapid onset, high fever, drooling, muffled voice, sniffing position, stridor, thumb sign on neck X-ray, no Hib vaccine record.",
+      nursing: "Airway first. Keep him upright and calm, never put a tongue blade or swab in the throat, and have intubation and emergency surgical airway equipment at the bedside. IV antibiotics after the airway is secured."
+    }
+  },
+
+  // 2 FACIAL FRACTURE
+  {
+    id: "p2", dx: "facial", acute: true, name: "Tyler Okafor", age: 24, sex: "M", setting: "Emergency Department",
+    summary: "Arrived by EMS after a hockey puck hit him in the face. His left eye and cheek are swollen, he says he is seeing double, and his teeth 'don't fit together right.'",
+    history: [
+      F("Struck in the left cheek by a puck about 1 hour ago. No face shield."),
+      F("No chronic cough, sputum, or exertional shortness of breath.", ["cb", "emph", "ipf", "pah"], "No chronic lung symptoms"),
+      F("Mild intermittent asthma. Uses albuterol about once a month. No wheezing today."),
+      F("Never smoker. No weight loss or coughing up blood.", ["lca"], "Never smoker, no hemoptysis"),
+      F("Healthy childhood. No recurrent infections or digestive problems.", ["cf"], "Healthy childhood"),
+      F("No sore throat or fever before the injury.", ["epi", "pta"], "No sore throat or fever"),
+      F("Roommate says he doesn't snore.", ["osa"], "No snoring")
+    ],
+    vitals: [F("Temp 98.8 °F (37.1 °C)"), F("HR 104 bpm"), F("RR 20/min"), F("BP 132/78 mmHg"), F("SpO₂ 98% on room air")],
+    physical: [
+      F("Left periorbital bruising and swelling. Subconjunctival hemorrhage, left eye."),
+      F("Step-off deformity at the left infraorbital rim. Numbness of the left cheek and upper lip."),
+      F("Double vision on upward gaze. Left eye does not move fully upward."),
+      F("Malocclusion: teeth do not meet normally."),
+      F("Nosebleed, controlled with pressure. No clear fluid draining from the nose."),
+      F("Voice normal. Some swelling and tenderness extends down to the left jaw angle."),
+      F("Lungs clear bilaterally. No wheezes. No accessory muscle use.", ["asthma"], "Lungs clear, no wheeze")
+    ],
+    tests: {
+      ctface: F("Left zygomaticomaxillary complex fracture with orbital floor (blowout) fracture. Inferior rectus muscle herniating into the fracture."),
+      ecg: F("Sinus tachycardia 104. Otherwise normal.")
+    },
+    reveal: {
+      normal: "The facial bones frame the nasal passages and support the upper airway, eyes, and jaw.",
+      broke: "A blow to the cheek broke the zygoma and the thin orbital floor. The eye muscle got trapped in the fracture (double vision, limited upward gaze), the infraorbital nerve was injured (numbness), and the bite no longer lines up.",
+      clues: "Mechanism of injury, step-off deformity, diplopia with limited upward gaze, cheek numbness, malocclusion, CT findings.",
+      nursing: "Airway is the priority: swelling, bleeding, and broken bones can block it. Keep the head of bed up, suction ready, and watch for clear nasal drainage (possible CSF leak). Apply ice and check vision. If jaws are wired later, keep wire cutters at the bedside."
+    }
+  },
+
+  // 3 LARYNGEAL TRAUMA
+  {
+    id: "p3", dx: "laryn", acute: true, name: "Dana Whitfield", age: 37, sex: "F", setting: "Trauma Bay",
+    summary: "Restrained driver in a front-end collision. Her neck hit the steering wheel. She is hoarse, coughing up small amounts of blood, and says it hurts to swallow.",
+    history: [
+      F("Car crash about 45 minutes ago. Airbag deployed late; her neck struck the steering wheel."),
+      F("Coughing up small amounts of bright red blood since the crash."),
+      F("Smokes ½ pack a day for 15 years."),
+      F("No chronic cough, sputum, or shortness of breath with activity.", ["cb", "emph", "ipf", "pah"], "No chronic lung symptoms"),
+      F("Healthy childhood. No recurrent infections or digestive problems.", ["cf"], "Healthy childhood"),
+      F("No history of asthma or inhaler use.", ["asthma"], "No asthma history"),
+      F("Husband says she snores occasionally but has never stopped breathing. She wakes rested.", ["osa"], "No apneas, wakes rested"),
+      F("No sore throat or fever before the crash.", ["epi", "pta"], "No sore throat or fever")
+    ],
+    vitals: [F("Temp 98.4 °F (36.9 °C)"), F("HR 112 bpm"), F("RR 24/min"), F("BP 118/72 mmHg"), F("SpO₂ 94% on room air")],
+    physical: [
+      F("Hoarse voice. Soft inspiratory stridor."),
+      F("Bruising across the anterior neck. Tender over the thyroid cartilage; normal contour of the 'Adam's apple' is lost."),
+      F("Crackling under the skin (subcutaneous emphysema) when the anterior neck is palpated."),
+      F("Face symmetric, no tenderness or deformity. Bite normal.", ["facial"], "Normal facial exam"),
+      F("Oropharynx: uvula midline, no swelling.", ["pta"], "Uvula midline"),
+      F("Lungs clear and equal. No wheezes.", ["asthma"], "No wheezing")
+    ],
+    tests: {
+      cxr: F("Subcutaneous air in the neck tissues. Lungs clear. No pneumothorax."),
+      peak: F("Not performed. Forced breathing maneuvers could worsen an injured airway."),
+      latneck: F("Prevertebral soft-tissue swelling and air in the neck tissues. Epiglottis normal.", ["epi"], "Epiglottis normal"),
+      laryngo: F("Vocal cord hematoma, mucosal tear, and edema. Left vocal cord does not move. Epiglottis normal.", ["epi"], "Epiglottis normal on scope"),
+      ctneck: F("Fractured thyroid cartilage with surrounding hematoma narrowing the airway. No abscess.", ["epi", "pta"], "CT: no abscess, epiglottis normal"),
+      ctchest: F("Small pneumomediastinum tracking down from the neck. Lung tissue normal: no nodules, mass, emphysema, or fibrosis.", ["emph", "ipf", "cf", "lca"], "No lung mass or disease on CT"),
+      ecg: F("Sinus tachycardia 112. Otherwise normal.")
+    },
+    reveal: {
+      normal: "The larynx is a cartilage box protecting the vocal cords and the opening to the trachea.",
+      broke: "Blunt force fractured the thyroid cartilage. Bleeding and swelling are narrowing the airway, a torn mucosa is leaking air into the neck, and a nerve injury has paralyzed one vocal cord.",
+      clues: "Steering-wheel neck impact, hoarseness, stridor, hemoptysis after the crash (not before), crepitus, laryngoscopy and CT findings.",
+      nursing: "This airway can close suddenly. Watch for worsening stridor, voice change, and rising work of breathing. Keep her upright if the spine is cleared, have emergency airway and tracheostomy equipment ready, and keep her NPO."
+    }
+  },
+
+  // 4 PERITONSILLAR ABSCESS
+  {
+    id: "p4", dx: "pta", acute: true, name: "Priya Nandakumar", age: 19, sex: "F", setting: "Urgent Care → ED",
+    summary: "College freshman with five days of sore throat that suddenly got much worse on one side. She can barely open her mouth and her voice sounds like she's talking with a mouthful of food.",
+    history: [
+      F("Sore throat for 5 days. Prescribed amoxicillin 3 days ago but stopped after 1 day because she 'felt a little better.'"),
+      F("Pain is much worse on the right and radiates to her right ear."),
+      F("Vapes nicotine daily."),
+      F("Childhood asthma, outgrown. No inhaler use in 8 years."),
+      F("No injury to the face or neck.", ["facial", "laryn"], "No injury"),
+      F("No chronic cough, sputum, or exertional shortness of breath.", ["cb", "emph", "ipf", "pah"], "No chronic lung symptoms"),
+      F("Normal growth as a child. No recurrent pneumonias or digestive problems.", ["cf"], "Healthy childhood"),
+      F("Roommate says she doesn't snore.", ["osa"], "No snoring"),
+      F("No weight loss or coughing up blood.", ["lca"], "No weight loss or hemoptysis")
+    ],
+    vitals: [F("Temp 102.4 °F (39.1 °C)"), F("HR 108 bpm"), F("RR 18/min"), F("BP 116/70 mmHg"), F("SpO₂ 98% on room air")],
+    physical: [
+      F("Trismus: can open her mouth only about 1.5 cm."),
+      F("Muffled 'hot potato' voice. Drooling a small amount."),
+      F("Bulging, fluctuant swelling above the right tonsil. Uvula pushed toward the left."),
+      F("Tender, enlarged right cervical lymph nodes."),
+      F("Lungs clear. No wheezes.", ["asthma"], "No wheezing")
+    ],
+    tests: {
+      cbc: F("WBC 17,200/µL, 84% neutrophils."),
+      strep: F("Positive for group A streptococcus."),
+      aspirate: F("3 mL of purulent material aspirated. Sent for culture."),
+      laryngo: F("Normal epiglottis and larynx. Large right peritonsillar bulge seen.", ["epi", "laryn"], "Normal epiglottis on scope"),
+      ctneck: F("3 cm rim-enhancing fluid collection in the right peritonsillar space. Epiglottis normal. No fracture.", ["epi", "laryn"], "CT: epiglottis normal, no fracture")
+    },
+    reveal: {
+      normal: "The tonsils are lymph tissue guarding the entrance to the throat. A thin capsule separates each tonsil from the muscle around it.",
+      broke: "A strep throat that wasn't fully treated spread beyond the tonsil capsule and formed a pocket of pus. The abscess pushes the uvula aside, spasms the jaw muscles (trismus), and can narrow the airway.",
+      clues: "Untreated strep, one-sided pain to the ear, trismus, hot potato voice, uvula deviated away from the swelling, pus on aspiration.",
+      nursing: "Watch the airway, give pain and fever control, and keep her hydrated (swallowing hurts). After drainage, use ice collar and warm saline gargles, and teach her to finish the full antibiotic course."
+    }
+  },
+
+  // 5 STATUS ASTHMATICUS
+  {
+    id: "p5", dx: "asthma", acute: true, name: "Alicia Romero", age: 28, sex: "F", setting: "Emergency Department",
+    summary: "Brought in by EMS after using her rescue inhaler 8 times in 2 hours with no relief. She can only speak 2–3 words at a time.",
+    history: [
+      F("Breathing problems since childhood. Two ED visits this year; intubated in the ICU 3 years ago."),
+      F("Ran out of her daily inhaled steroid 3 weeks ago. Had a cold last week."),
+      F("Just adopted a cat."),
+      F("Frequent 'chest colds' as a child."),
+      F("Never smoker. No weight loss or coughing up blood.", ["lca"], "Never smoker, no hemoptysis"),
+      F("No daily cough or sputum between flare-ups.", ["cb"], "No chronic sputum"),
+      F("Between flare-ups she runs 3 miles with no shortness of breath.", ["pah", "ipf"], "Normal exercise tolerance between flares"),
+      F("No injury to the face or neck.", ["facial", "laryn"], "No injury"),
+      F("No sore throat or trouble swallowing.", ["epi", "pta"], "No sore throat"),
+      F("Partner reports no snoring or pauses in breathing.", ["osa"], "No snoring or apneas")
+    ],
+    vitals: [F("Temp 98.9 °F (37.2 °C)"), F("HR 132 bpm"), F("RR 34/min"), F("BP 148/90 mmHg"), F("SpO₂ 88% on room air"), F("Pulsus paradoxus 18 mmHg")],
+    physical: [
+      F("Tripod position. Using neck and intercostal accessory muscles. Speaking 2–3 words at a time."),
+      F("Diffuse expiratory and inspiratory wheezes. Prolonged expiration. Air movement is decreasing."),
+      F("Diaphoretic and anxious."),
+      F("Oropharynx normal, uvula midline. No stridor.", ["epi", "pta"], "Normal throat, no stridor"),
+      F("No crackles.", ["ipf"], "No crackles")
+    ],
+    tests: {
+      cbc: F("WBC 11,200/µL. Eosinophils 9% (elevated)."),
+      abg: F("pH 7.34, PaCO₂ 46 mmHg, PaO₂ 58 mmHg, HCO₃ 24 mEq/L."),
+      ige: F("IgE 640 IU/mL (elevated). Eosinophils 9%."),
+      sputum: F("Many eosinophils. Curschmann spirals and Charcot-Leyden crystals."),
+      peak: F("PEF 28% of personal best. Rises only to 41% after continuous nebulized albuterol."),
+      ecg: F("Sinus tachycardia 132. Otherwise normal."),
+      cxr: F("Hyperinflated lungs with flattened diaphragms. No pneumothorax or infiltrate."),
+      ctchest: F("Hyperinflation, bronchial wall thickening, scattered mucus plugs. No emphysema, bronchiectasis, fibrosis, or mass.", ["emph", "ipf", "cf", "lca"], "CT: no emphysema, bronchiectasis, or mass")
+    },
+    reveal: {
+      normal: "Healthy airways stay open, and the smooth muscle around the bronchi stays relaxed.",
+      broke: "A trigger (a cold, a new cat, no controller steroid) set off airway inflammation, smooth-muscle spasm, and mucus plugging. Air gets in but can't get out. Status asthmaticus is an attack that does not respond to usual rescue treatment.",
+      clues: "Lifelong episodic history, prior intubation, eosinophilia and high IgE, PEF under 40% with poor response, normal breathing between attacks.",
+      nursing: "Her PaCO₂ of 46 is a danger sign. A tiring asthmatic's CO₂ should be low, so a 'normal' or rising CO₂ means she's failing. Fewer wheezes with less air movement (a quiet chest) is an emergency. Give oxygen, continuous bronchodilators, and IV steroids, and prepare for intubation."
+    }
+  },
+
+  // 6 OSA
+  {
+    id: "p6", dx: "osa", acute: false, name: "Gerald Kowalski", age: 56, sex: "M", setting: "Primary Care Referral",
+    summary: "Referred after he fell asleep at a red light. His wife says he snores 'like a freight train' and sometimes stops breathing at night.",
+    history: [
+      F("Daytime sleepiness, morning headaches, irritability. Epworth Sleepiness Scale 16."),
+      F("Wife has seen him stop breathing, then gasp, several times a night."),
+      F("High blood pressure on 3 medications, still not controlled."),
+      F("Drinks 3–4 beers every night and takes an OTC sleep aid."),
+      F("Former smoker, quit 20 years ago (15 pack-years)."),
+      F("No chronic cough or sputum.", ["cb"], "No chronic sputum"),
+      F("No sore throat, fever, or recent injury.", ["epi", "pta", "facial", "laryn"], "No sore throat, fever, or injury"),
+      F("No wheezing episodes or inhaler use.", ["asthma"], "No wheezing history"),
+      F("Healthy childhood.", ["cf"], "Healthy childhood")
+    ],
+    vitals: [F("Temp 98.2 °F (36.8 °C)"), F("HR 84 bpm"), F("RR 16/min"), F("BP 162/98 mmHg"), F("SpO₂ 95% on room air (awake)"), F("BMI 38. Neck circumference 18.5 in (47 cm).")],
+    physical: [
+      F("Crowded oropharynx, Mallampati class IV, large tongue. Tonsils symmetric, uvula midline.", ["pta"], "Uvula midline, tonsils symmetric"),
+      F("Lungs clear. No crackles or wheezes.", ["ipf", "asthma"], "Lungs clear"),
+      F("Mild ankle swelling, both legs."),
+      F("Face and neck without injury.", ["facial", "laryn"], "No injury")
+    ],
+    tests: {
+      cbc: F("Hgb 16.9 g/dL, Hct 51% (mildly elevated). WBC and platelets normal."),
+      psg: F("AHI 42 events/hr (severe OSA, ≥ 30). Lowest SpO₂ 74%. Repeated airway collapse with arousals.")
+    },
+    reveal: {
+      normal: "During sleep, the throat muscles relax but the airway stays open enough to breathe.",
+      broke: "Extra soft tissue in the neck and a crowded throat, made worse by alcohol and sedatives, let the upper airway collapse during sleep. Oxygen drops, the brain jolts him awake, and the cycle repeats all night.",
+      clues: "Loud snoring, witnessed apneas, daytime sleepiness, BMI 38, 18.5-inch neck, resistant hypertension, AHI 42 on sleep study.",
+      nursing: "CPAP teaching and mask fitting, weight loss, avoiding alcohol and sedatives at night, and sleeping on his side. Driving safety matters. Before any surgery or sedation, flag the anesthesia team: OSA patients are at high risk of airway obstruction after opioids."
+    }
+  },
+
+  // 7 CHRONIC BRONCHITIS
+  {
+    id: "p7", dx: "cb", acute: false, name: "Hal Jensen", age: 64, sex: "M", setting: "Pulmonary Clinic",
+    summary: "\"I've been coughing up phlegm every morning for years, but this winter it's worse.\" He is more short of breath and his ankles are swelling.",
+    history: [
+      F("Productive cough most days, at least 3 months each year, for the past 4 years."),
+      F("Smokes 1½ packs a day for 45 years (67 pack-years)."),
+      F("Worked 20 years in a grain elevator."),
+      F("Several winter 'chest colds' needing antibiotics."),
+      F("Lost 4 lb this year."),
+      F("Snores, but wife has never noticed pauses. Not sleepy during the day.", ["osa"], "No apneas or daytime sleepiness"),
+      F("No injury, sore throat, or fever.", ["facial", "laryn", "epi", "pta"], "No injury, sore throat, or fever"),
+      F("Healthy childhood, normal growth.", ["cf"], "Healthy childhood"),
+      F("Symptoms never fully clear between bad spells. No allergy triggers.", ["asthma"], "Not episodic or trigger-related")
+    ],
+    vitals: [F("Temp 98.6 °F (37.0 °C)"), F("HR 92 bpm"), F("RR 22/min"), F("BP 146/88 mmHg"), F("SpO₂ 88% on room air"), F("BMI 31")],
+    physical: [
+      F("Stocky build. Bluish lips and nail beds (central cyanosis)."),
+      F("Coarse crackles (rhonchi) that partly clear with coughing. Scattered expiratory wheezes."),
+      F("Jugular vein distention. 2+ pitting edema, both ankles."),
+      F("Normal chest shape and AP diameter. No hyperresonance.", ["emph"], "No hyperinflation"),
+      F("Uses a sputum cup; sputum is thick and gray-yellow.")
+    ],
+    tests: {
+      cbc: F("Hgb 17.8 g/dL, Hct 54% (polycythemia)."),
+      bmp: F("HCO₃ 31 mEq/L (elevated). Others normal."),
+      abg: F("pH 7.36, PaCO₂ 54 mmHg, PaO₂ 55 mmHg, HCO₃ 30 mEq/L."),
+      bnp: F("236 pg/mL (elevated)."),
+      sputum: F("Mucopurulent. Heavy growth of Haemophilus influenzae."),
+      peak: F("PEF 48% of predicted. Improves only 5% after bronchodilator."),
+      pft: F("FEV₁ 52%, FEV₁/FVC 0.58. Minimal bronchodilator response. TLC 104%. DLCO 78% (near normal).", ["ipf", "asthma"], "Obstruction, not restriction; not reversible"),
+      ecg: F("Right axis deviation. Tall peaked P waves (P pulmonale)."),
+      echo: F("RV mildly enlarged. Estimated PA systolic pressure 40 mmHg. Pressure elevation is mild and explained by chronic low oxygen from lung disease (cor pulmonale), not primary PAH.", ["pah"], "PH explained by lung disease, not PAH"),
+      rhc: F("mPAP 26 mmHg, PAWP 11 mmHg. Mild pulmonary hypertension due to chronic hypoxemic lung disease (Group 3), not PAH.", ["pah"], "Cath: Group 3 PH, not PAH"),
+      bronch: F("Red, swollen airway lining with thick mucus. Biopsy: goblet cell hyperplasia. No malignancy.", ["lca"], "Benign bronchoscopy biopsy"),
+      cxr: F("Increased bronchovascular markings. Mildly enlarged right heart border. No mass. Diaphragms normal."),
+      ctchest: F("Bronchial wall thickening and mucus plugging. No significant emphysema. No fibrosis or mass.", ["emph", "ipf", "lca", "cf"], "CT: no emphysema, fibrosis, or mass")
+    },
+    reveal: {
+      normal: "Airways make a thin mucus layer that cilia sweep upward and out.",
+      broke: "Years of smoke and grain dust inflamed the bronchi, multiplied the mucus glands, and paralyzed the cilia. Thick mucus plugs the airways, air gets trapped, oxygen drops, and the low oxygen squeezes the pulmonary arteries until the right heart strains (cor pulmonale).",
+      clues: "Productive cough ≥ 3 months for ≥ 2 consecutive years, heavy smoking, cyanosis, polycythemia, high CO₂, FEV₁/FVC < 0.70 with near-normal DLCO, edema and JVD.",
+      nursing: "Give oxygen to the ordered target (often 88–92%), then reassess; the goal is adequate oxygenation, not a perfect SpO₂. Teach airway clearance, huff coughing, and smoking cessation. Watch fluid status and right-sided heart failure."
+    }
+  },
+
+  // 8 EMPHYSEMA
+  {
+    id: "p8", dx: "emph", acute: false, name: "Linda Marsh", age: 61, sex: "F", setting: "Pulmonary Clinic",
+    summary: "Shortness of breath that has slowly worsened over two years. She now gets winded walking to her mailbox. \"I don't really cough much. I just can't get the air out.\"",
+    history: [
+      F("Shortness of breath with activity for 2 years, slowly worsening."),
+      F("Smoked 1 pack a day for 40 years. Quit 1 year ago."),
+      F("Very little cough. Scant clear sputum.", ["cb"], "Minimal cough or sputum"),
+      F("Lost 15 lb over the past year. Says eating makes her tired and short of breath."),
+      F("Father died of 'lung problems.'"),
+      F("No injury, sore throat, or fever.", ["facial", "laryn", "epi", "pta"], "No injury, sore throat, or fever"),
+      F("Sister who lives with her has never heard her snore. Not sleepy during the day.", ["osa"], "No snoring or daytime sleepiness"),
+      F("No childhood lung or digestive problems.", ["cf"], "Healthy childhood"),
+      F("Never had wheezing attacks. Breathing doesn't change with triggers.", ["asthma"], "Not episodic or trigger-related")
+    ],
+    vitals: [F("Temp 98.1 °F (36.7 °C)"), F("HR 96 bpm"), F("RR 24/min"), F("BP 128/76 mmHg"), F("SpO₂ 91% on room air"), F("BMI 18.2")],
+    physical: [
+      F("Thin. Pursed-lip breathing. Sits in tripod position using accessory muscles."),
+      F("Barrel chest (increased AP diameter). Hyperresonant to percussion."),
+      F("Diminished breath sounds throughout. Prolonged expiration. No crackles.", ["ipf"], "No crackles"),
+      F("Pink skin. No cyanosis. No edema.")
+    ],
+    tests: {
+      abg: F("pH 7.42, PaCO₂ 38 mmHg, PaO₂ 64 mmHg, HCO₃ 24 mEq/L."),
+      a1at: F("135 mg/dL (normal), MM phenotype. Disease is smoking-related, not genetic."),
+      peak: F("PEF 44% of predicted. No improvement after bronchodilator."),
+      pft: F("FEV₁ 45%, FEV₁/FVC 0.52. No bronchodilator response. TLC 128% (hyperinflation). DLCO 38% (markedly reduced).", ["ipf", "asthma"], "Obstruction, not restriction; not reversible"),
+      cxr: F("Hyperinflated lungs, flattened diaphragms, narrow heart shadow. No mass."),
+      cta: F("No pulmonary embolism. Main pulmonary artery normal caliber. Emphysematous changes noted."),
+      ctchest: F("Centrilobular emphysema with upper-lobe bullae. No nodules, mass, bronchiectasis, or fibrosis.", ["ipf", "lca", "cf"], "CT: no mass, fibrosis, or bronchiectasis")
+    },
+    reveal: {
+      normal: "Alveolar walls are elastic. They recoil on exhale to push air out and give a huge surface for gas exchange.",
+      broke: "Smoking destroyed alveolar walls and their elastic fibers. The air sacs merge into large, floppy spaces that trap air. The lungs over-inflate, and with less surface area, gas exchange falls (low DLCO).",
+      clues: "Long smoking history, dyspnea more than cough, barrel chest, hyperresonance, pursed-lip breathing, weight loss, FEV₁/FVC < 0.70, high TLC, very low DLCO, bullae on CT.",
+      nursing: "Teach pursed-lip and diaphragmatic breathing and energy conservation. Nutrition matters: small, high-calorie meals because breathing burns calories. Pulmonary rehab, vaccines, and watching for a sudden pneumothorax from a ruptured bulla."
+    }
+  },
+
+  // 9 CYSTIC FIBROSIS
+  {
+    id: "p9", dx: "cf", acute: false, name: "Ethan Brooks", age: 23, sex: "M", setting: "Pulmonary Clinic",
+    summary: "Referred after his third pneumonia in two years. He says he's \"always been the sickly one\" and can't seem to gain weight no matter how much he eats.",
+    history: [
+      F("Pneumonias and bronchitis since childhood. Chronic sinus infections; nasal polyps removed at age 15."),
+      F("Bulky, greasy, foul-smelling stools."),
+      F("Told as a child he had 'asthma.' Albuterol never helped much."),
+      F("Daily cough with thick yellow-green sputum."),
+      F("He and his wife have tried to conceive for 2 years. Semen analysis showed no sperm."),
+      F("Never smoked or vaped. No occupational dust exposure.", ["cb"], "No smoke or dust exposure"),
+      F("No injury, sore throat, or fever this week.", ["facial", "laryn", "epi", "pta"], "No injury or acute throat illness"),
+      F("Wife says he does not snore.", ["osa"], "No snoring")
+    ],
+    vitals: [F("Temp 99.8 °F (37.7 °C)"), F("HR 98 bpm"), F("RR 22/min"), F("BP 112/68 mmHg"), F("SpO₂ 93% on room air"), F("BMI 17.6")],
+    physical: [
+      F("Digital clubbing."),
+      F("Coarse crackles and rhonchi, worst in the upper lobes."),
+      F("Nasal polyps visible."),
+      F("Oropharynx normal, uvula midline.", ["pta"], "Uvula midline")
+    ],
+    tests: {
+      cbc: F("WBC 11,800/µL. Hgb 12.9 g/dL."),
+      bmp: F("Na 134, Cl 96 mEq/L (mildly low). Others normal."),
+      abg: F("pH 7.43, PaCO₂ 37 mmHg, PaO₂ 68 mmHg, HCO₃ 24 mEq/L."),
+      sputum: F("Mucoid Pseudomonas aeruginosa and Staphylococcus aureus."),
+      sweat: F("Sweat chloride 98 mmol/L (≥ 60 = consistent with CF). Repeat test: 102 mmol/L."),
+      elastase: F("< 15 µg/g (severe pancreatic insufficiency)."),
+      cftr: F("Two disease-causing variants: F508del and G551D."),
+      peak: F("PEF 61% of predicted. Improves only 6% after bronchodilator."),
+      pft: F("FEV₁ 58%, FEV₁/FVC 0.62. Bronchodilator response 6% (not significant). TLC 108%. DLCO 82%.", ["asthma", "ipf"], "Obstruction, not restriction; not reversible"),
+      bronch: F("Thick purulent secretions throughout. No endobronchial lesion. Biopsy benign.", ["lca"], "Benign bronchoscopy biopsy"),
+      cxr: F("Upper-lobe ring shadows and tram-track lines (bronchiectasis). Hyperinflation."),
+      ctchest: F("Diffuse bronchiectasis with mucus plugging, worst in the upper lobes. No emphysema, fibrosis, or mass.", ["emph", "ipf", "lca"], "CT: no emphysema, fibrosis, or mass")
+    },
+    reveal: {
+      normal: "The CFTR protein moves chloride (and water) across cell membranes, keeping mucus thin in the lungs, pancreas, sinuses, and reproductive tract.",
+      broke: "Two faulty CFTR genes mean chloride and water stay inside cells. Mucus everywhere turns thick and sticky. It plugs airways (infection, bronchiectasis), blocks pancreatic ducts (no digestive enzymes, greasy stools, poor weight), and blocks the vas deferens in males.",
+      clues: "Lifelong infections, sinus polyps, greasy stools, low BMI, infertility, clubbing, Pseudomonas, sweat chloride ≥ 60, two CFTR variants. Not all CF is diagnosed in childhood.",
+      nursing: "Airway clearance (vest therapy, huff coughing) before meals, pancreatic enzymes with every meal and snack, high-calorie diet, strict infection control (CF patients shouldn't share rooms), and genetic counseling."
+    }
+  },
+
+  // 10 PAH
+  {
+    id: "p10", dx: "pah", acute: false, name: "Maya Thompson", age: 34, sex: "F", setting: "Cardiopulmonary Clinic",
+    summary: "More short of breath over the past year. Last week she nearly fainted climbing the stairs at work. Her chest X-ray at urgent care was called \"basically normal.\"",
+    history: [
+      F("Shortness of breath and fatigue with activity for 12 months. Chest pressure and near-fainting with exertion."),
+      F("Took an appetite suppressant bought online for about a year, several years ago."),
+      F("Her sister was diagnosed with a 'heart-lung problem' at 40."),
+      F("Never smoker."),
+      F("No chronic cough or sputum.", ["cb"], "No chronic sputum"),
+      F("Urgent care gave her an albuterol inhaler; it didn't help. No wheezing episodes.", ["asthma"], "No wheezing; no inhaler response"),
+      F("Doesn't snore. Not sleepy during the day.", ["osa"], "No snoring or sleepiness"),
+      F("No injury, sore throat, or fever.", ["facial", "laryn", "epi", "pta"], "No injury, sore throat, or fever"),
+      F("Healthy childhood.", ["cf"], "Healthy childhood")
+    ],
+    vitals: [F("Temp 98.4 °F (36.9 °C)"), F("HR 102 bpm"), F("RR 22/min"), F("BP 108/70 mmHg"), F("SpO₂ 92% at rest; drops to 85% walking")],
+    physical: [
+      F("Loud pulmonic component of S2 (loud P2). Right ventricular heave."),
+      F("Holosystolic murmur at the left lower sternal border, louder with inspiration."),
+      F("Jugular vein distention. 1+ ankle edema. Liver edge palpable."),
+      F("Lungs clear. No crackles or wheezes.", ["ipf", "asthma"], "Lungs clear")
+    ],
+    tests: {
+      abg: F("pH 7.46, PaCO₂ 32 mmHg, PaO₂ 64 mmHg, HCO₃ 23 mEq/L."),
+      bnp: F("820 pg/mL (markedly elevated)."),
+      ecg: F("Right axis deviation. Right ventricular hypertrophy with strain. Peaked P waves."),
+      echo: F("Dilated, thickened right ventricle with a flattened septum. Estimated PA systolic pressure 78 mmHg. LV normal."),
+      rhc: F("mPAP 48 mmHg, PAWP 10 mmHg, PVR 9 Wood units. Confirms precapillary pulmonary arterial hypertension."),
+      pft: F("Spirometry normal (FEV₁/FVC 0.81). TLC 98%. DLCO 54% (isolated reduction).", ["cb", "emph", "ipf", "asthma"], "No obstruction or restriction"),
+      cxr: F("Enlarged central pulmonary arteries with peripheral 'pruning.' Enlarged right heart border. Lungs clear."),
+      cta: F("No pulmonary embolism. Main pulmonary artery dilated (3.8 cm). Right ventricle enlarged."),
+      ctchest: F("Lung tissue normal: no emphysema, bronchiectasis, fibrosis, or nodules. Main pulmonary artery enlarged (3.8 cm).", ["emph", "ipf", "cf", "lca"], "CT: normal lung tissue")
+    },
+    reveal: {
+      normal: "The pulmonary arteries are low-pressure vessels (mean about 15 mmHg). The thin-walled right ventricle easily pumps blood through them.",
+      broke: "The small pulmonary arteries thickened and narrowed (linked here to family history and diet-drug exposure). Pressure climbs, the right ventricle hypertrophies and then fails, and less blood reaches the left heart, so she nearly faints with exertion. The lungs themselves are normal.",
+      clues: "Young woman, unexplained exertional dyspnea and near-syncope, loud P2, RV heave, high BNP, normal spirometry with low DLCO, RV strain on echo, mPAP > 20 with normal PAWP on right heart cath.",
+      nursing: "Watch for right heart failure (edema, JVD, weight gain). PAH drugs such as continuous IV epoprostenol must never be interrupted; a pause can be fatal. Teach energy conservation, oxygen use, and avoiding pregnancy and heavy exertion."
+    }
+  },
+
+  // 11 PULMONARY FIBROSIS
+  {
+    id: "p11", dx: "ipf", acute: false, name: "Frank Delgado", age: 68, sex: "M", setting: "Pulmonary Clinic",
+    summary: "Retired machinist with a dry, hacking cough and shortness of breath that have slowly worsened over 18 months.",
+    history: [
+      F("Dry, nonproductive cough. Shortness of breath with activity for 18 months.", ["cb"], "Dry cough, no sputum"),
+      F("Former smoker, quit 25 years ago (20 pack-years)."),
+      F("Machinist for 35 years; around metal dust daily."),
+      F("Acid reflux, takes omeprazole."),
+      F("Brother has 'scarred lungs.'"),
+      F("Lost 8 lb over the past year."),
+      F("Wife says no snoring. He feels rested in the morning.", ["osa"], "No snoring, feels rested"),
+      F("No wheezing attacks. An inhaler he was given didn't help.", ["asthma"], "No wheezing; no inhaler response"),
+      F("No injury, sore throat, or fever.", ["facial", "laryn", "epi", "pta"], "No injury, sore throat, or fever"),
+      F("Healthy childhood.", ["cf"], "Healthy childhood")
+    ],
+    vitals: [F("Temp 98.0 °F (36.7 °C)"), F("HR 94 bpm"), F("RR 24/min, shallow"), F("BP 134/80 mmHg"), F("SpO₂ 90% at rest; drops to 82% walking")],
+    physical: [
+      F("Fine, dry 'Velcro' crackles at both lung bases on inspiration."),
+      F("Digital clubbing."),
+      F("Rapid, shallow breathing. No wheezes."),
+      F("No edema. Normal heart sounds.")
+    ],
+    tests: {
+      abg: F("pH 7.45, PaCO₂ 34 mmHg, PaO₂ 62 mmHg, HCO₃ 23 mEq/L."),
+      peak: F("PEF 74% of predicted. No change after bronchodilator.", ["asthma"], "No bronchodilator response"),
+      pft: F("FVC 58%, FEV₁ 62%, FEV₁/FVC 0.86 (restrictive pattern). TLC 60%. DLCO 40%.", ["emph", "cb", "asthma"], "Restriction, no obstruction"),
+      bronch: F("No endobronchial lesion. Transbronchial biopsy: interstitial fibrosis. No malignancy.", ["lca"], "No malignancy on biopsy"),
+      cxr: F("Low lung volumes. Reticular (net-like) opacities at both bases."),
+      cta: F("No pulmonary embolism. Main pulmonary artery normal caliber. Basal fibrotic changes noted."),
+      ctchest: F("Subpleural, basal-predominant reticulation with honeycombing and traction bronchiectasis (UIP pattern). No emphysema. No mass.", ["emph", "lca", "cf"], "CT: no emphysema or mass")
+    },
+    reveal: {
+      normal: "The interstitium (the thin tissue between alveoli and capillaries) is delicate, so oxygen crosses easily and the lungs stretch easily.",
+      broke: "Repeated microscopic injury (age, past smoking, metal dust, reflux, family genes) triggered scarring instead of healing. The interstitium thickens and stiffens. The lungs can't expand (restriction) and oxygen can't cross (low DLCO), so oxygen drops with exertion.",
+      clues: "Dry cough, slowly progressive dyspnea, Velcro crackles, clubbing, restrictive PFTs with low DLCO, honeycombing on HRCT.",
+      nursing: "Oxygen titrated for activity (he desaturates walking), energy conservation, pulmonary rehab, and teaching about antifibrotic drugs. Scarring can't be reversed, so goals-of-care conversations belong early."
+    }
+  },
+
+  // 12 LUNG CANCER
+  {
+    id: "p12", dx: "lca", acute: false, name: "Carol Pierce", age: 66, sex: "F", setting: "Primary Care",
+    summary: "Has had a cough that \"just won't quit\" for three months. This week she noticed streaks of blood in her tissue.",
+    history: [
+      F("New, persistent cough for 3 months. Blood-streaked sputum this week."),
+      F("Still smoking. 50 pack-years."),
+      F("Has had a mild morning 'smoker's cough' for years."),
+      F("Lost 18 lb in 4 months without trying. Very tired."),
+      F("Home tested high for radon 10 years ago; never fixed."),
+      F("Hoarse voice for 3 weeks."),
+      F("No injury.", ["facial", "laryn"], "No injury"),
+      F("No fever or sore throat.", ["epi", "pta"], "No fever or sore throat"),
+      F("No snoring or daytime sleepiness.", ["osa"], "No snoring or sleepiness"),
+      F("Healthy childhood.", ["cf"], "Healthy childhood"),
+      F("Never had wheezing attacks.", ["asthma"], "No wheezing history")
+    ],
+    vitals: [F("Temp 99.1 °F (37.3 °C)"), F("HR 90 bpm"), F("RR 20/min"), F("BP 138/82 mmHg"), F("SpO₂ 94% on room air"), F("BMI 20 (was 23 four months ago)")],
+    physical: [
+      F("Diminished breath sounds and dullness to percussion over the left upper lobe. Localized wheeze in that one area."),
+      F("Digital clubbing."),
+      F("Firm, nontender, 2 cm left supraclavicular lymph node."),
+      F("No crackles at the lung bases.", ["ipf"], "No basilar crackles"),
+      F("Hoarse voice. No stridor.")
+    ],
+    tests: {
+      cbc: F("Hgb 11.2 g/dL (mild anemia). WBC and platelets normal."),
+      bmp: F("Calcium 11.8 mg/dL (elevated). Others normal."),
+      cyto: F("Atypical cells suspicious for malignancy."),
+      pft: F("FEV₁ 80%, FVC 84%, FEV₁/FVC 0.74. TLC 92%. DLCO 82%.", ["cb", "emph", "ipf", "asthma"], "FEV₁/FVC ≥ 0.70, no COPD or restriction"),
+      laryngo: F("Left vocal cord paralyzed. No edema, hematoma, or tear. Epiglottis normal.", ["epi", "laryn"], "Scope: no swelling or injury"),
+      bronch: F("Mass narrowing the left upper lobe bronchus. Biopsy: squamous cell carcinoma."),
+      cxr: F("4 cm mass in the left upper lobe. Widened left hilum."),
+      ctneck: F("Enlarged left supraclavicular lymph node. Larynx and epiglottis normal. No abscess.", ["epi", "pta", "laryn"], "CT neck: no abscess or injury"),
+      cta: F("No pulmonary embolism. Left upper lobe mass noted."),
+      ctchest: F("4.2 cm spiculated mass in the left upper lobe. Enlarged left hilar and mediastinal lymph nodes. No significant emphysema or fibrosis.", ["emph", "ipf", "cf"], "CT: no emphysema or fibrosis"),
+      pet: F("Hypermetabolic left upper lobe mass with hilar, mediastinal, and left supraclavicular node uptake.")
+    },
+    reveal: {
+      normal: "Airway lining cells divide in a controlled way and repair damage from what we inhale.",
+      broke: "Decades of smoke (plus radon) damaged the DNA of airway cells until they grew out of control. The tumor narrows a bronchus (localized wheeze, dullness), bleeds (hemoptysis), invades the nerve to the left vocal cord (hoarseness), spreads to lymph nodes, and secretes a hormone-like protein that raises calcium.",
+      clues: "Change in a long-standing smoker's cough, hemoptysis, weight loss, hoarseness, clubbing, supraclavicular node, hypercalcemia, spiculated mass, biopsy-proven squamous cell carcinoma.",
+      nursing: "Monitor for complications: hypercalcemia (confusion, weakness), airway obstruction, and superior vena cava syndrome. Manage symptoms and pain, support her through diagnosis and staging, and offer smoking cessation; it still improves treatment outcomes."
+    }
+  }
+];
+
+
+// Pertinent positives: findings that point toward the diagnosis (sup) and eliminate diagnoses that can't explain them.
+const NONTRAUMA = ["epi","pta","asthma","osa","cb","emph","cf","ipf","pah","lca"];
+const LOWER_CHRONIC = ["asthma","cb","emph","cf","ipf","pah","lca"];
+const POS = {
+  p1: { f: [
+      ["Sore throat began", ["cb","emph","ipf","pah","cf","lca","osa"], "Acute onset over hours"],
+      ["Sitting upright, leaning forward", [...LOWER_CHRONIC,"osa"], "Drooling and sniffing position (upper airway)"],
+      ["Muffled, 'hot potato' voice", [...LOWER_CHRONIC,"osa"], "Inspiratory stridor and muffled voice (upper airway)"],
+      ["Exquisite tenderness", [], null], ["Born overseas", [], null], ["Temp", [], null], ["HR", [], null], ["RR", [], null], ["SpO₂", [], null]
+    ], t: ["laryngo","ctneck"] },
+  p2: { f: [
+      ["Step-off deformity", NONTRAUMA, "Facial bone step-off deformity"],
+      ["Struck in the left cheek", [], null], ["Double vision", [], null], ["Malocclusion", [], null], ["Left periorbital", [], null], ["HR", [], null]
+    ], t: [] },
+  p3: { f: [
+      ["Bruising across the anterior neck", [...NONTRAUMA.filter(d=>d!=="lca"),"facial"], "Deformed, tender thyroid cartilage"],
+      ["Crackling under the skin", ["epi","pta","osa","facial"], "Neck crepitus after blunt neck trauma"],
+      ["Hoarse voice. Soft inspiratory stridor.", ["asthma","cb","emph","cf","ipf","pah"], "Stridor (upper airway)"],
+      ["Car crash", [], null], ["Coughing up small amounts", [], null], ["HR", [], null], ["RR", [], null], ["SpO₂", [], null]
+    ], t: ["latneck","laryngo","ctneck","ctchest"] },
+  p4: { f: [
+      ["Bulging, fluctuant swelling", ["facial","laryn",...LOWER_CHRONIC,"osa"], "Fluctuant peritonsillar bulge, uvula deviated"],
+      ["Trismus", [...LOWER_CHRONIC,"osa"], "Trismus"],
+      ["Sore throat for 5 days", [], null], ["Pain is much worse on the right", [], null], ["Muffled 'hot potato' voice", [], null], ["Tender, enlarged right cervical", [], null], ["Temp", [], null]
+    ], t: ["laryngo","ctneck"] },
+  p5: { f: [
+      ["Diffuse expiratory and inspiratory wheezes", ["epi","facial","laryn","pta","osa","ipf","pah","lca"], "Diffuse wheezing (lower airways)"],
+      ["Breathing problems since childhood", [], null], ["Ran out of her daily", [], null], ["Just adopted a cat", [], null], ["Tripod position", [], null],
+      ["Pulsus paradoxus", [], null], ["SpO₂", [], null], ["RR", [], null], ["HR", [], null]
+    ], t: ["ctchest"] },
+  p6: { f: [
+      ["Wife has seen him stop breathing", ["epi","facial","laryn","pta","asthma","cb","cf","ipf"], "Witnessed apneas with gasping"],
+      ["Daytime sleepiness", [], null], ["High blood pressure on 3", [], null], ["Drinks 3–4 beers", [], null], ["BMI 38", [], null], ["Crowded oropharynx", [], null], ["BP", [], null]
+    ], t: [] },
+  p7: { f: [
+      ["Productive cough most days", ["epi","facial","laryn","pta","osa"], "Chronic productive cough ≥ 3 months/year"],
+      ["Smokes 1½ packs", [], null], ["Worked 20 years", [], null], ["Stocky build", [], null], ["Coarse crackles (rhonchi)", [], null], ["Jugular vein distention", [], null],
+      ["Uses a sputum cup", [], null], ["SpO₂", [], null], ["RR", [], null]
+    ], t: ["pft","echo","rhc","bronch","ctchest"] },
+  p8: { f: [
+      ["Barrel chest", ["ipf","epi","facial","laryn","pta","osa"], "Barrel chest, hyperresonance (hyperinflation)"],
+      ["Shortness of breath with activity for 2 years", ["epi","facial","laryn","pta"], "Slowly progressive dyspnea over years"],
+      ["Smoked 1 pack a day", [], null], ["Lost 15 lb", [], null], ["Thin. Pursed-lip", [], null], ["Diminished breath sounds", [], null], ["BMI", [], null], ["RR", [], null], ["SpO₂", [], null]
+    ], t: ["pft","ctchest"] },
+  p9: { f: [
+      ["Pneumonias and bronchitis since childhood", ["epi","facial","laryn","pta","osa"], "Lifelong lung and sinus infections, nasal polyps"],
+      ["Bulky, greasy", [], null], ["He and his wife", [], null], ["Daily cough with thick", [], null], ["Digital clubbing", [], null], ["Coarse crackles and rhonchi", [], null],
+      ["Nasal polyps visible", [], null], ["BMI", [], null], ["SpO₂", [], null], ["Temp", [], null]
+    ], t: ["pft","bronch","ctchest"] },
+  p10: { f: [
+      ["Shortness of breath and fatigue with activity for 12 months", ["epi","facial","laryn","pta"], "Progressive exertional dyspnea over a year"],
+      ["Took an appetite suppressant", [], null], ["Her sister was diagnosed", [], null], ["Loud pulmonic component", [], null], ["Holosystolic murmur", [], null],
+      ["Jugular vein distention", [], null], ["SpO₂", [], null], ["HR", [], null]
+    ], t: ["pft","ctchest"] },
+  p11: { f: [
+      ["Fine, dry 'Velcro' crackles", ["asthma","cb","cf","epi","facial","laryn","pta","osa"], "Fine 'Velcro' crackles at the bases"],
+      ["Dry, nonproductive cough", [], null], ["Machinist for 35 years", [], null], ["Acid reflux", [], null], ["Brother has", [], null], ["Digital clubbing", [], null],
+      ["Rapid, shallow breathing", [], null], ["SpO₂", [], null], ["RR", [], null]
+    ], t: ["pft","bronch","ctchest"] },
+  p12: { f: [
+      ["Firm, nontender, 2 cm left supraclavicular", ["asthma","osa","epi","facial","laryn","pta","ipf","cf"], "Hard, fixed supraclavicular node"],
+      ["Diminished breath sounds and dullness", ["asthma","ipf","osa"], "Localized wheeze and dullness, one lobe"],
+      ["New, persistent cough", [], null], ["Still smoking", [], null], ["Lost 18 lb", [], null], ["Home tested high for radon", [], null], ["Hoarse voice for 3 weeks", [], null],
+      ["Digital clubbing", [], null], ["BMI", [], null]
+    ], t: ["laryngo","ctneck","ctchest"] }
+};
+const POS_ERRORS = [];
+PATIENTS.forEach(p => {
+  const spec = POS[p.id]; if (!spec) return;
+  const all = [...p.history, ...p.vitals, ...p.physical];
+  spec.f.forEach(([pre, ro, s]) => {
+    const hits = all.filter(f => f.t.startsWith(pre));
+    if (hits.length !== 1) { POS_ERRORS.push(p.id + " prefix '" + pre + "' matched " + hits.length); return; }
+    const f = hits[0];
+    f.sup = true;
+    const add = ro.filter(d => !f.ro.includes(d));
+    if (add.length) { f.ro = [...f.ro, ...add]; if (!f.s) f.s = s; }
+  });
+  spec.t.forEach(id => { if (p.tests[id]) p.tests[id].sup = true; else POS_ERRORS.push(p.id + " test " + id); });
+});
+
+
+// Select-all-that-apply nursing priorities. ok = should be selected. r = rationale.
+const N = (t, ok, r) => ({ t, ok, r });
+const NURSING = {
+  p1: [
+    N("Let him stay sitting upright in the position he chose; don't make him lie down.", true, "Sitting upright and leaning forward keeps the airway as open as possible. Lying flat can let the swollen epiglottis fall back and block the airway."),
+    N("Keep intubation and emergency surgical airway (cricothyrotomy/tracheostomy) equipment at the bedside.", true, "Complete obstruction can happen suddenly. A swollen epiglottis makes intubation hard, so a surgical airway may be needed."),
+    N("Use a tongue depressor to look at his throat and swab it for a culture.", false, "Putting anything in the throat can trigger laryngospasm and complete obstruction. The throat is examined only in a controlled setting with the airway team ready."),
+    N("Keep him calm and hold off on nonurgent procedures until the airway is secured.", true, "Agitation raises oxygen demand and turbulent airflow and can tip a narrowed airway into complete obstruction."),
+    N("Give a sedative to help him relax.", false, "Sedation depresses the drive to breathe and relaxes the airway muscles, which can cause sudden obstruction."),
+    N("Send him to radiology by himself for the neck X-ray.", false, "He should never be left without staff who can manage the airway. Use a portable X-ray or send him with airway-capable staff and equipment."),
+    N("Start IV antibiotics as ordered once the airway is secure.", true, "Epiglottitis is bacterial (classically H. influenzae type b), so IV antibiotics treat the cause. Securing the airway comes first."),
+    N("Encourage sips of water to soothe his throat.", false, "He can't swallow his own saliva, so oral fluids risk aspiration. Keep him NPO and hydrate with IV fluids.")
+  ],
+  p2: [
+    N("Assess airway patency first and keep suction ready.", true, "Swelling, bleeding, loose teeth, and broken bones can all block the airway. Airway always comes first."),
+    N("Elevate the head of the bed (once the spine is cleared) and apply ice packs.", true, "Elevation and cold reduce facial swelling and help blood and secretions drain."),
+    N("Check any clear fluid from the nose for glucose or a halo sign.", true, "Clear drainage may be cerebrospinal fluid from a skull-base fracture, which raises the risk of meningitis."),
+    N("Insert a nasogastric tube to decompress the stomach.", false, "With midface fractures, a nasal tube can pass through a fractured skull base into the brain. Use an orogastric tube if one is needed."),
+    N("Encourage him to blow his nose to clear out the blood.", false, "Blowing the nose can push air into the orbit and soft tissues and spread infection through the fracture. Teach him not to blow his nose."),
+    N("Check visual acuity and eye movements often.", true, "His orbital floor is fractured. Trapped muscle or bleeding behind the eye can threaten vision and needs fast action."),
+    N("If his jaws are wired shut later, keep wire cutters at the bedside.", true, "If he vomits or his airway is threatened, the wires must be cut immediately."),
+    N("Have him lie flat to reduce bleeding.", false, "Lying flat increases facial swelling and lets blood drain into the throat, which raises aspiration risk.")
+  ],
+  p3: [
+    N("Monitor continuously for worsening stridor, voice change, and respiratory distress.", true, "Bleeding and swelling in the larynx can close the airway quickly. Changes in stridor or voice are early warnings."),
+    N("Keep emergency airway equipment, including a tracheostomy tray, immediately available.", true, "Intubating through a fractured larynx can make the injury worse, so a surgical airway may be needed."),
+    N("Keep her NPO.", true, "An injured larynx protects the airway poorly, so she's at risk of aspiration. She may also need surgery."),
+    N("Mark the edges of the subcutaneous emphysema and check whether it spreads.", true, "Spreading air under the skin means air is still leaking from the injured airway."),
+    N("Maintain cervical spine precautions until the spine is cleared.", true, "A blow hard enough to fracture the larynx can also injure the cervical spine."),
+    N("Encourage her to keep talking so you can track her voice.", false, "Voice rest protects the injured vocal cords. Check her voice briefly and on a schedule instead."),
+    N("If she worsens, attempt a quick blind nasotracheal intubation.", false, "A blind tube can create a false passage through the torn larynx. The airway should be secured by experts under direct view or surgically."),
+    N("Attribute her hemoptysis to her smoking history and schedule an outpatient workup.", false, "The bleeding started after the crash and fits a torn laryngeal lining. Treat it as part of the acute injury.")
+  ],
+  p4: [
+    N("Monitor her airway: watch for stridor, more drooling, or inability to handle secretions.", true, "The abscess can grow and narrow the airway. Trouble handling secretions is an early danger sign."),
+    N("Give analgesics and antipyretics as ordered.", true, "Pain control makes swallowing and fluid intake possible, and treating fever adds comfort."),
+    N("Maintain hydration, with IV fluids if she can't swallow enough.", true, "Painful swallowing and fever quickly lead to dehydration."),
+    N("After drainage, use warm saline gargles or irrigations and an ice collar.", true, "Gargles keep the drainage site clean and ease pain. An ice collar reduces swelling."),
+    N("Teach her to finish the entire antibiotic course.", true, "Stopping amoxicillin after one day let the strep infection spread into an abscess."),
+    N("Tell her she can stop the antibiotics once her fever is gone.", false, "Stopping early lets surviving bacteria come back and can lead to another abscess."),
+    N("Position her flat on her back after the drainage procedure.", false, "Lying flat lets blood and pus run into the airway. Keep the head of the bed up or have her lie on her side."),
+    N("Give aspirin for throat pain after the abscess is drained.", false, "Aspirin raises the risk of bleeding from the drainage site. Use the prescribed analgesic or acetaminophen.")
+  ],
+  p5: [
+    N("Give oxygen to reach the ordered SpO₂ target.", true, "She is hypoxemic at 88%. Oxygen treats hypoxemia while the bronchodilators work."),
+    N("Give continuous or back-to-back nebulized albuterol with ipratropium as ordered.", true, "Short-acting bronchodilators relax airway smooth muscle quickly. Ipratropium adds more bronchodilation in severe attacks."),
+    N("Give systemic corticosteroids early, as ordered.", true, "Steroids reduce the airway inflammation driving the attack. They take hours to work, so they're started right away."),
+    N("Treat a rising PaCO₂ or fading wheezes as signs of respiratory failure, and prepare for intubation.", true, "As she tires, CO₂ rises. Less wheezing with less air movement means less air is getting through, not that she's improving."),
+    N("Give a sedative to ease her anxiety.", false, "Sedation depresses the drive to breathe in a patient who is already tiring and can bring on respiratory arrest."),
+    N("Have her use her inhaled corticosteroid (fluticasone) now as a rescue treatment.", false, "Inhaled corticosteroids are long-term controllers and don't relieve an acute attack. She needs bronchodilators and systemic steroids."),
+    N("Have her lie flat so she can rest.", false, "Sitting upright lets the diaphragm move better and reduces the work of breathing."),
+    N("Before discharge, teach controller adherence, trigger avoidance, and a written asthma action plan.", true, "Running out of her controller and a new cat helped trigger this attack. Education prevents the next one.")
+  ],
+  p6: [
+    N("Teach nightly CPAP use and help him get a mask that fits.", true, "CPAP splints the airway open during sleep. Poor mask fit is a major reason people stop using it."),
+    N("Encourage weight loss.", true, "Fat around the neck and throat narrows the airway. Weight loss can reduce how severe the OSA is."),
+    N("Teach him to avoid alcohol and sedating sleep aids at bedtime.", true, "Alcohol and sedatives relax the throat muscles and blunt the brain's wake-up response to apnea."),
+    N("Flag his OSA to the anesthesia team before any surgery and monitor him closely when he gets opioids.", true, "Opioids and anesthesia relax the airway and depress breathing. OSA patients are at high risk of obstruction after surgery."),
+    N("Encourage him to sleep on his back with one flat pillow.", false, "Lying on the back lets the tongue and soft tissue fall back and block the airway. Side-lying is better."),
+    N("Tell him it's fine to drive as long as he drinks coffee first.", false, "He already fell asleep at a red light. He should avoid driving until his OSA is treated and his sleepiness improves."),
+    N("Use supplemental oxygen at night instead of CPAP.", false, "Oxygen doesn't keep the airway open, so the apneas and arousals continue."),
+    N("Give a prescription sleeping pill so he stays asleep through the night.", false, "Hypnotics relax the airway and delay arousal from apneas, which makes OSA more dangerous.")
+  ],
+  p7: [
+    N("Give oxygen to the ordered target (often 88–92%) and watch his ABGs and level of consciousness.", true, "He needs oxygen for hypoxemia. A modest target limits CO₂ retention in a chronic retainer, and confusion or drowsiness can signal rising CO₂."),
+    N("Teach airway clearance: huff coughing, adequate fluids, and chest physiotherapy.", true, "Thick mucus plugs his airways. Clearing it improves airflow and lowers infection risk."),
+    N("Support smoking cessation.", true, "Quitting is the single most effective way to slow COPD progression."),
+    N("Monitor for right-sided heart failure: daily weights, edema, and JVD.", true, "Chronic hypoxemia has strained his right ventricle (cor pulmonale)."),
+    N("Give antibiotics as ordered for his purulent sputum.", true, "Increased purulent sputum during an exacerbation suggests bacterial infection, here H. influenzae."),
+    N("Withhold all oxygen because it will stop his drive to breathe.", false, "Never withhold oxygen from a hypoxemic patient. Titrate it to the target and monitor."),
+    N("Have him limit fluids so his secretions dry up.", false, "Dehydration makes mucus thicker and harder to clear. Follow any heart-failure fluid orders, but don't restrict fluids to treat secretions.")
+  ],
+  p8: [
+    N("Teach pursed-lip breathing.", true, "Pursed lips create back-pressure that holds small airways open, so trapped air can get out and breathing slows."),
+    N("Plan small, frequent, high-calorie, high-protein meals and rest before eating.", true, "The work of breathing burns calories and a full stomach pushes on the diaphragm. She has lost weight and her BMI is 18.2."),
+    N("Teach energy conservation and refer her to pulmonary rehabilitation.", true, "Pacing activities and supervised exercise training improve exercise tolerance and quality of life."),
+    N("Keep her vaccines current (influenza, pneumococcal, COVID-19, RSV).", true, "Respiratory infections are a leading cause of COPD exacerbations."),
+    N("Teach her to report sudden sharp chest pain or a sudden jump in breathlessness right away.", true, "A ruptured bulla can cause a pneumothorax, which is an emergency."),
+    N("Encourage three large meals a day high in carbohydrates.", false, "Large meals crowd the diaphragm, and a high-carbohydrate diet produces more CO₂ to breathe off."),
+    N("Teach her to take rapid, deep breaths through her mouth when she's short of breath.", false, "Fast breathing leaves less time to exhale, which traps more air. Slow, pursed-lip exhalation is better.")
+  ],
+  p9: [
+    N("Do airway clearance therapy (vest or chest physiotherapy) several times a day, before meals.", true, "Thick mucus plugs his airways. Doing it before meals avoids vomiting and aspiration."),
+    N("Give pancreatic enzymes with every meal and snack.", true, "His pancreas can't release digestive enzymes, so he needs them each time he eats fat or protein."),
+    N("Plan a high-calorie, high-fat, high-salt diet with fat-soluble vitamins (A, D, E, K).", true, "Malabsorption and high energy needs cause weight loss, CF sweat loses extra salt, and fat-soluble vitamins are poorly absorbed."),
+    N("Use strict infection control and keep him away from other CF patients.", true, "CF patients can pass resistant organisms like Pseudomonas to each other."),
+    N("Refer him and his wife for genetic counseling and fertility options.", true, "CF is autosomal recessive, and most men with CF are infertile because the vas deferens is absent. Assisted reproduction may still be possible."),
+    N("Give the enzymes once a day in the morning.", false, "Enzymes only work on food eaten at the same time, so they go with every meal and snack."),
+    N("Put him on a low-fat diet to reduce the greasy stools.", false, "He needs extra fat and calories. Proper enzyme dosing, not cutting fat, fixes the greasy stools."),
+    N("Room him with another CF patient so they can support each other.", false, "Sharing a room spreads resistant bacteria between CF patients. They should be kept apart.")
+  ],
+  p10: [
+    N("Never interrupt a continuous epoprostenol infusion; keep a backup pump and supplies on hand.", true, "Epoprostenol has a half-life of minutes. Stopping it can cause rebound pulmonary hypertension and death."),
+    N("Monitor for right-sided heart failure: daily weights, edema, and JVD.", true, "Her right ventricle is failing against high pulmonary pressures."),
+    N("Give oxygen to keep her SpO₂ at the ordered target.", true, "Low oxygen constricts the pulmonary arteries and raises pressure further."),
+    N("Teach her to avoid pregnancy and use reliable contraception.", true, "Pregnancy carries a very high death rate in PAH, and some PAH drugs cause birth defects."),
+    N("Teach energy conservation and avoiding heavy exertion, straining, and high altitude.", true, "These raise pulmonary pressure and oxygen demand and can cause fainting."),
+    N("Encourage vigorous exercise to build her endurance.", false, "Heavy exertion can cause syncope or sudden death in PAH. Only supervised, low-level rehab is advised."),
+    N("Flush the epoprostenol line with a saline bolus to check that it's working.", false, "Flushing pushes a bolus of drug in and can cause severe hypotension. The line is dedicated and never flushed."),
+    N("Suggest OTC decongestants for colds.", false, "Decongestants constrict blood vessels and can worsen pulmonary hypertension.")
+  ],
+  p11: [
+    N("Titrate oxygen for activity and check his SpO₂ while he walks.", true, "His SpO₂ drops from 90% to 82% with walking. His oxygen needs are higher with exertion than at rest."),
+    N("Teach energy conservation and refer him to pulmonary rehabilitation.", true, "Rehab improves exercise tolerance and breathlessness, even though it can't reverse the scarring."),
+    N("Teach about antifibrotic drugs (pirfenidone, nintedanib), including GI side effects and liver monitoring.", true, "Antifibrotics slow the decline in lung function. Side effects are common, and liver labs need monitoring."),
+    N("Start goals-of-care and palliative care conversations early.", true, "IPF is progressive and irreversible, so planning early respects his wishes."),
+    N("Help him manage his reflux (elevate the head of the bed, take medications as prescribed).", true, "GERD is linked with IPF. Microaspiration may contribute to lung injury."),
+    N("Tell him a bronchodilator inhaler will reverse the scarring.", false, "His problem is restriction and poor diffusion from scar tissue. Bronchodilators don't reverse fibrosis."),
+    N("Give oxygen only at rest because he's fine when sitting.", false, "He desaturates most during activity, which is when he needs oxygen most."),
+    N("Expect long-term high-dose steroids to cure the fibrosis.", false, "Steroids don't help IPF and can cause harm. The scarring is permanent.")
+  ],
+  p12: [
+    N("Monitor for hypercalcemia: confusion, weakness, constipation, and frequent urination.", true, "Her calcium is 11.8 from a tumor-produced hormone. Severe hypercalcemia can cause arrhythmias and coma."),
+    N("Watch for superior vena cava syndrome: facial or neck swelling, dyspnea, and distended chest veins.", true, "Mediastinal tumor and lymph nodes can compress the SVC. It's an oncologic emergency."),
+    N("Offer smoking cessation support.", true, "Quitting still improves treatment response, surgical outcomes, and survival after a cancer diagnosis."),
+    N("Assess and manage pain, fatigue, dyspnea, and nutrition.", true, "Symptom management is central to her care. She has lost 18 lb and is fatigued."),
+    N("If she has heavy hemoptysis, position her with the affected (left) side down.", true, "Lying on the bleeding side keeps blood out of the good lung."),
+    N("Tell her quitting smoking won't make a difference now.", false, "False. Quitting improves outcomes even after diagnosis."),
+    N("Restrict fluids because her calcium is high.", false, "Hydration helps the kidneys excrete calcium. IV fluids are first-line treatment for hypercalcemia."),
+    N("Encourage calcium supplements to protect her bones during treatment.", false, "Extra calcium would make her hypercalcemia worse.")
+  ]
+};
+
+</script>
+<script>
+(function(){
+const START_TOKENS = 15;
+const KEY = "cm-du-resp-v2";
+const DXMAP = Object.fromEntries(DX.map(d=>[d.id,d]));
+const TMAP = Object.fromEntries(TESTS.map(t=>[t.id,t]));
+const TABS = [
+  {id:"history", name:"Patient History", kind:"bulk"},
+  {id:"vitals", name:"Vital Signs", kind:"bulk"},
+  {id:"physical", name:"Physical Assessment", kind:"bulk"},
+  {id:"labs", name:"Labs", kind:"test"},
+  {id:"diag", name:"Diagnostics", kind:"test"},
+  {id:"img", name:"Imaging", kind:"test"},
+  {id:"dx", name:"Diagnosis", kind:"dx"}
+];
+
+let S = load();
+function fresh(){ return {tokens:START_TOKENS, tabs:{}, tests:[], ev:{}, solved:false, wrong:0, pick:null, msg:null}; }
+function load(){
+  let s=null;
+  try{ s=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  if(!s||!s.cases) s={view:"board", cur:null, tab:"history", cases:{}, confirmReset:false};
+  PATIENTS.forEach(p=>{ if(!s.cases[p.id]) s.cases[p.id]=fresh(); });
+  const valid = Array.isArray(s.order) && s.order.length===PATIENTS.length && PATIENTS.every(p=>s.order.includes(p.id));
+  if(!valid) s.order=shuffle(PATIENTS.map(p=>p.id));
+  return s;
+}
+function shuffle(a){
+  a=a.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function newGame(){
+  S={view:"board", cur:null, tab:"history", cases:{}, confirmReset:false, confirmNew:false, order:shuffle(PATIENTS.map(p=>p.id))};
+  PATIENTS.forEach(p=>{ S.cases[p.id]=fresh(); });
+}
+const ORDERED = () => S.order.map(P);
+const caseNo = p => String(S.order.indexOf(p.id)+1).padStart(2,"0");
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+const P = id => PATIENTS.find(p=>p.id===id);
+const C = () => S.cases[S.cur];
+function testResult(p, tid){
+  const t=TMAP[tid];
+  if(p.tests[tid]) return p.tests[tid];
+  if(t.el && p.acute) return Object.assign({deferred:true}, DEFERRED);
+  return t.normal;
+}
+function finding(p, key){
+  const [src, rest] = key.split(":");
+  if(src==="t") return testResult(p, rest);
+  return p[src][+rest];
+}
+function label(f){
+  if(f.s) return f.s;
+  const t=f.t.split(/[.;]/)[0];
+  return t.length>60 ? t.slice(0,57)+"…" : t;
+}
+function eliminated(p, c){
+  const out={};
+  Object.keys(c.ev).forEach(k=>{
+    if(!c.ev[k]) return;
+    const f=finding(p,k); if(!f) return;
+    f.ro.forEach(d=>{ if(d===p.dx) return; (out[d]=out[d]||[]).push(label(f)); });
+  });
+  return out;
+}
+const esc = s => String(s).replace(/[&<>"]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+const app = document.getElementById("app");
+
+function render(){
+  save();
+  if(S.view==="case" && S.cur) renderCase(); else renderBoard();
+}
+
+function renderBoard(){
+  const solved = PATIENTS.filter(p=>S.cases[p.id].solved).length;
+  app.innerHTML = `
+  <section class="hero">
+    <h1>Diagnosis <span>Unknown</span>: Airway &amp; Lung</h1>
+    <p>Twelve patients in a shuffled order. Twelve possible diagnoses, each used once. Spend tokens to gather data, decide which findings count as evidence, and eliminate diagnoses until only one fits.</p>
+    <div class="rules">
+      <div class="rule"><b>15 tokens per patient</b>History, Vital Signs, and Physical Assessment cost 1 token to unlock the whole tab. Each lab, diagnostic, or imaging test costs 1 token.</div>
+      <div class="rule"><b>You choose the evidence</b>Mark findings as evidence. The Diagnosis tab crosses off any diagnosis your evidence contradicts and shows why.</div>
+      <div class="rule"><b>Order wisely</b>Some tests aren't appropriate for an unstable patient. They'll be deferred and the token is still spent. A wrong diagnosis costs 1 token.</div>
+      <div class="rule"><b>Think like the body</b>Ask what normal function is failing: upper airway, airways, alveoli, interstitium, or pulmonary vessels.</div>
+    </div>
+  </section>
+  <div class="progress"><span>${solved} of ${PATIENTS.length} solved</span><div class="bar"><i style="width:${solved/PATIENTS.length*100}%"></i></div>
+    ${S.confirmNew
+      ? `<span class="confirm">Shuffle the cases and clear all progress on this device? <button class="btn" id="newYes">Start new game</button><button class="btn ghost" id="newNo">Cancel</button></span>`
+      : `<button class="btn" id="newGame">New game</button>`}</div>
+  <div class="cases">
+    ${ORDERED().map((p,i)=>{
+      const c=S.cases[p.id];
+      const started = c.tokens<START_TOKENS || Object.keys(c.ev).length;
+      const st = c.solved ? '<span class="pill solved">Solved</span>' : started ? `<span class="pill open">${c.tokens} tokens left</span>` : '<span class="pill">New</span>';
+      return `<button class="case" data-open="${p.id}">
+        <div class="num"><span>CASE ${String(i+1).padStart(2,"0")}</span>${st}</div>
+        <div class="nm">${esc(p.name)}</div>
+        <div class="meta">${p.age} · ${p.sex} · ${esc(p.setting)}</div>
+        <div class="cc">${esc(p.summary)}</div>
+      </button>`;}).join("")}
+  </div>`;
+  const ng=document.getElementById("newGame"); if(ng) ng.onclick=()=>{S.confirmNew=true;render();};
+  const ny=document.getElementById("newYes"); if(ny) ny.onclick=()=>{newGame();render();};
+  const nn=document.getElementById("newNo"); if(nn) nn.onclick=()=>{S.confirmNew=false;render();};
+  app.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{ S.view="case"; S.confirmNew=false; S.cur=b.dataset.open; S.tab="history"; S.confirmReset=false; render(); window.scrollTo(0,0); });
+}
+
+function renderCase(){
+  const p=P(S.cur), c=C();
+  const elim=eliminated(p,c);
+  const remaining=DX.filter(d=>!elim[d.id]).length;
+  const tcls = c.tokens===0?"out":c.tokens<=4?"low":"";
+  const evCount=Object.keys(c.ev).filter(k=>{ if(!c.ev[k]) return false; const f=finding(p,k); return f && (f.sup || f.ro.length===0); }).length; // pure rule-out (negative) findings don't count as evidence
+  const oldTabs=app.querySelector(".tabs");
+  const keepLeft=oldTabs?oldTabs.scrollLeft:0, keepY=window.scrollY;
+  app.innerHTML = `
+  <div class="topbar">
+    <button class="btn ghost" id="back">← All cases</button>
+    <span class="spacer"></span>
+    ${S.confirmReset
+      ? `<span class="confirm">Reset this case to 15 tokens and clear all findings? <button class="btn" id="resetYes">Reset case</button><button class="btn ghost" id="resetNo">Cancel</button></span>`
+      : `<button class="btn" id="reset">Reset case</button>`}
+  </div>
+  <section class="file">
+    <div class="who">
+      <div class="meta">CASE ${caseNo(p)} · ${esc(p.setting)}</div>
+      <h2>${esc(p.name)}, ${p.age} ${p.sex}</h2>
+      <p class="cc">${esc(p.summary)}</p>
+    </div>
+    <div class="tokens">
+      <div class="lbl">Tokens</div>
+      <div class="count ${tcls}">${c.tokens}</div>
+      <div class="pips">${Array.from({length:START_TOKENS},(_,i)=>`<i class="${i<c.tokens?"on":""}"></i>`).join("")}</div>
+    </div>
+  </section>
+  <nav class="tabs" role="tablist">
+    ${TABS.map(t=>{
+      let extra="";
+      if(t.kind==="bulk" && !c.tabs[t.id]) extra='<span class="lock">🔒</span>';
+      if(t.kind==="dx") extra=`<span class="badge">${remaining} left</span>`;
+      return `<button class="tab" role="tab" aria-selected="${S.tab===t.id}" data-tab="${t.id}">${t.name}${extra}</button>`;}).join("")}
+  </nav>
+  <section class="pane" id="pane"></section>`;
+  document.getElementById("back").onclick=()=>{S.view="board";S.confirmReset=false;render();window.scrollTo(0,0);};
+  const r=document.getElementById("reset"); if(r) r.onclick=()=>{S.confirmReset=true;render();};
+  const ry=document.getElementById("resetYes"); if(ry) ry.onclick=()=>{S.cases[p.id]=fresh();S.confirmReset=false;S.tab="history";render();};
+  const rn=document.getElementById("resetNo"); if(rn) rn.onclick=()=>{S.confirmReset=false;render();};
+  app.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;tabJump=true;render();});
+  renderPane(p,c,elim,remaining,evCount);
+  // keep the tab strip and page where the student left them
+  const tabs=app.querySelector(".tabs");
+  tabs.scrollLeft=keepLeft;
+  window.scrollTo(0,keepY);
+  const sel=tabs.querySelector('[aria-selected="true"]');
+  if(sel){
+    const l=sel.offsetLeft-tabs.offsetLeft, r=l+sel.offsetWidth;
+    if(l<tabs.scrollLeft) tabs.scrollLeft=l-8;
+    else if(r>tabs.scrollLeft+tabs.clientWidth) tabs.scrollLeft=r-tabs.clientWidth+8;
+  }
+  if(tabJump){
+    tabJump=false;
+    const pane=document.getElementById("pane");
+    const top=pane.getBoundingClientRect().top+window.scrollY-tabs.offsetHeight;
+    if(window.scrollY>top) window.scrollTo(0,top);
+  }
+}
+let tabJump=false;
+
+function evBtn(c,key){
+  const on=!!c.ev[key];
+  return `<button class="ev" aria-pressed="${on}" data-ev="${key}">${on?"✓ Evidence":"+ Add as evidence"}</button>`;
+}
+
+function renderPane(p,c,elim,remaining,evCount){
+  const pane=document.getElementById("pane");
+  const tab=TABS.find(t=>t.id===S.tab);
+  if(tab.kind==="bulk"){
+    if(!c.tabs[tab.id]){
+      pane.innerHTML=`<div class="locked"><p>${tab.name} is locked.</p><button class="btn primary" id="unlock" ${c.tokens<1||c.solved?"disabled":""}>Unlock for 1 token</button>${c.tokens<1?'<p style="margin-top:10px">Out of tokens. Make your diagnosis with the evidence you have.</p>':""}</div>`;
+      document.getElementById("unlock").onclick=()=>{ if(c.tokens<1)return; c.tokens--; c.tabs[tab.id]=true; render(); };
+      return;
+    }
+    const list=p[tab.id];
+    // history and exam findings show in a per-case shuffled order so key clues are mixed in with the rest
+    let order=list.map((_,i)=>i);
+    if(tab.id!=="vitals"){
+      c.ford=c.ford||{};
+      if(!Array.isArray(c.ford[tab.id])||c.ford[tab.id].length!==list.length) c.ford[tab.id]=shuffle(order);
+      order=c.ford[tab.id];
+    }
+    pane.innerHTML=`<p class="hint">Mark the findings you think matter. Only evidence can eliminate a diagnosis.</p>
+      <div class="${tab.id==="vitals"?"vgrid":"items"}">${order.map(i=>{ const f=list[i];
+        const key=`${tab.id}:${i}`;
+        return `<div class="item ${c.ev[key]?"in":""}"><div class="txt">${esc(f.t)}</div>${evBtn(c,key)}</div>`;}).join("")}</div>`;
+  } else if(tab.kind==="test"){
+    const tests=TESTS.filter(t=>t.cat===tab.id);
+    pane.innerHTML=`<p class="hint">Each test costs 1 token and can't be un-ordered. Once a result is back, you decide whether it counts as evidence.</p>
+      <div class="items">${tests.map(t=>{
+        const ordered=c.tests.includes(t.id);
+        if(!ordered) return `<div class="item"><div class="txt"><div class="tname">${esc(t.name)}</div></div><button class="order" data-order="${t.id}" ${c.tokens<1||c.solved?"disabled":""}>Order · 1 token</button></div>`;
+        const r=testResult(p,t.id), key="t:"+t.id;
+        return `<div class="item ${c.ev[key]?"in":""}"><div class="txt"><div class="tname">${esc(t.name)}</div><div class="res ${r.deferred?"def":""}">${esc(r.t)}</div></div>${r.deferred?"":evBtn(c,key)}</div>`;
+      }).join("")}</div>`;
+    pane.querySelectorAll("[data-order]").forEach(b=>b.onclick=()=>{ if(c.tokens<1)return; c.tokens--; c.tests.push(b.dataset.order); render(); });
+  } else {
+    renderDx(pane,p,c,elim,remaining,evCount);
+  }
+  pane.querySelectorAll("[data-ev]").forEach(b=>b.onclick=()=>{ const k=b.dataset.ev; if(c.ev[k]) delete c.ev[k]; else c.ev[k]=true; if(c.pick&&eliminated(p,c)[c.pick]) c.pick=null; render(); });
+}
+
+function renderDx(pane,p,c,elim,remaining,evCount){
+  const group=z=>DX.filter(d=>d.zone===z).map(d=>{
+    const out=elim[d.id];
+    const sel=c.pick===d.id;
+    return `<label class="dx ${out?"out":""} ${sel?"sel":""}">
+      <input type="radio" name="dxpick" id="dx-${d.id}" value="${d.id}" ${out||c.solved?"disabled":""} ${sel?"checked":""}>
+      <div class="dn">${esc(d.name)}</div>
+      ${out?`<div class="why">Ruled out by: ${out.map(esc).join("; ")}</div>`:""}
+    </label>`;}).join("");
+  const rv=p.reveal;
+  pane.innerHTML=`
+    <div class="dxhead"><h3>Differential</h3><span class="left">${remaining} of ${DX.length} still possible · ${evCount} piece${evCount===1?"":"s"} of evidence</span></div>
+    <div class="dxzone">Upper respiratory tract</div><div class="dxgrid">${group("Upper")}</div>
+    <div class="dxzone">Lower respiratory tract</div><div class="dxgrid">${group("Lower")}</div>
+    ${c.solved?"":`<div class="submitrow"><button class="btn primary" id="submit" ${c.pick?"":"disabled"}>Submit diagnosis</button>
+      ${c.msg?`<span class="msg bad">${esc(c.msg)}</span>`:`<span class="msg" style="color:var(--muted)">${c.pick?"Ready when you are.":"Select a diagnosis that hasn't been ruled out."}</span>`}</div>`}
+    ${c.solved?`<div class="reveal">
+      <div class="rh"><div class="k">Good job. Case solved.</div><h3>${esc(DXMAP[p.dx].name)}</h3></div>
+      <div class="rb">
+        <div class="blk"><b>How it should work</b><p>${esc(rv.normal)}</p></div>
+        <div class="blk"><b>What broke</b><p>${esc(rv.broke)}</p></div>
+        <div class="blk"><b>The clues that mattered</b><p>${esc(rv.clues)}</p></div>
+        <div class="stats">Solved with ${c.tokens} of ${START_TOKENS} tokens left · ${c.wrong} wrong guess${c.wrong===1?"":"es"}</div>
+        ${sataHTML(p,c)}
+      </div></div>`:""}`;
+  pane.querySelectorAll("input[name=dxpick]").forEach(i=>i.onchange=()=>{c.pick=i.value;c.msg=null;render();});
+  pane.querySelectorAll("input[data-nq]").forEach(i=>i.onchange=()=>{ const k=+i.dataset.nq; if(i.checked) c.nq.sel[k]=true; else delete c.nq.sel[k]; render(); });
+  const ns=document.getElementById("nqSubmit");
+  if(ns) ns.onclick=()=>{ if(!Object.keys(c.nq.sel).length) return; c.nq.done=true; render(); };
+  const sb=document.getElementById("submit");
+  if(sb) sb.onclick=()=>{
+    if(!c.pick) return;
+    if(c.pick===p.dx){ c.solved=true; c.msg=null; c.nq={order:shuffle(NURSING[p.id].map((_,i)=>i)), sel:{}, done:false}; }
+    else { c.wrong++; if(c.tokens>0) c.tokens--; c.msg = `Not ${DXMAP[c.pick].name}. That cost a token. What evidence haven't you gathered yet?`; c.pick=null; }
+    render();
+  };
+  const nb=document.getElementById("next");
+  if(nb) nb.onclick=()=>{ const nx=nextCase(p); if(nx){S.cur=nx.id;S.tab="history";} else {S.view="board";} render(); window.scrollTo(0,0); };
+}
+function sataHTML(p,c){
+  const opts=NURSING[p.id];
+  if(!c.nq||!c.nq.order||c.nq.order.length!==opts.length) c.nq={order:shuffle(opts.map((_,i)=>i)), sel:{}, done:false};
+  const q=c.nq, nSel=Object.keys(q.sel).length;
+  let body=q.order.map(i=>{
+    const o=opts[i], on=!!q.sel[i];
+    if(!q.done) return `<label class="nopt ${on?"on":""}"><input type="checkbox" id="nq-${p.id}-${i}" data-nq="${i}" ${on?"checked":""}><span>${esc(o.t)}</span></label>`;
+    const right = on===o.ok;
+    const tag = on ? (o.ok?"You selected this · Correct":"You selected this · Should not be selected")
+                   : (o.ok?"Not selected · Should have been selected":"Not selected · Correctly left out");
+    return `<div class="nopt res ${right?"good":"bad"} ${on?"on":""}">
+      <div class="nmark">${right?"✓":"✗"}</div>
+      <div><div>${esc(o.t)}</div><div class="ntag">${tag}</div><div class="nrat"><b>${o.ok?"Priority.":"Not a priority."}</b> ${esc(o.r)}</div></div></div>`;
+  }).join("");
+  let foot;
+  if(!q.done){
+    foot=`<div class="submitrow"><button class="btn primary" id="nqSubmit" ${nSel?"":"disabled"}>Check my answers</button><span class="msg" style="color:var(--muted)">${nSel?nSel+" selected":"Select all that apply."}</span></div>`;
+  } else {
+    const total=opts.filter(o=>o.ok).length;
+    const hit=q.order.filter(i=>opts[i].ok&&q.sel[i]).length;
+    const extra=q.order.filter(i=>!opts[i].ok&&q.sel[i]).length;
+    const perfect=hit===total&&extra===0;
+    foot=`<div class="nscore ${perfect?"good":""}">${perfect?"All correct. ":""}You chose ${hit} of ${total} priorities${extra?` and ${extra} option${extra===1?"":"s"} that should not be selected`:""}.</div>
+      <div class="submitrow">${nextBtn(p)}</div>`;
+  }
+  return `<div class="sata"><b class="sq">Nursing priorities</b>
+    <p class="sp">Which actions are priorities for ${esc(p.name.split(" ")[0])}? Select all that apply.</p>
+    <div class="nopts">${body}</div>${foot}</div>`;
+}
+function nextCase(p){
+  const L=ORDERED(), i=L.indexOf(p);
+  for(let k=1;k<=L.length;k++){ const q=L[(i+k)%L.length]; if(!S.cases[q.id].solved) return q; }
+  return null;
+}
+function nextBtn(p){
+  const nx=nextCase(p);
+  return nx?`<button class="btn primary" id="next">Next patient →</button>`:`<button class="btn primary" id="next">All 12 solved. Back to case board</button>`;
+}
+render();
+})();
+</script>
+
+</body></html>

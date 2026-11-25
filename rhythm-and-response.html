@@ -1,0 +1,929 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Rhythm &amp; Response</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: clinical workstation — sticky bedside monitor + paper strip on the left, stepwise decision panel on the right; stacks on phones. */
+:root{
+  --bg:#edf2f2; --surface:#ffffff; --surface-2:#f4f8f8; --ink:#13232a; --muted:#55676e; --line:#d3dedf;
+  --accent:#0b6b69; --accent-ink:#ffffff; --accent-soft:#d8edeb;
+  --good:#1b7a3d; --good-soft:#e2f3e7; --bad:#b3222b; --bad-soft:#fbe4e5; --hint:#8a5a00; --hint-soft:#fbf0d9;
+  --monitor:#05100e; --trace:#3cf28d; --mon-text:#a6f7c9; --mon-dim:#2f6650;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0c1416; --surface:#132024; --surface-2:#18282d; --ink:#e2ecec; --muted:#9bafb3; --line:#25393e;
+  --accent:#52c4be; --accent-ink:#04201e; --accent-soft:#143a38;
+  --good:#63d18a; --good-soft:#12301f; --bad:#f27d83; --bad-soft:#3b1619; --hint:#f0c060; --hint-soft:#33280f;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0c1416; --surface:#132024; --surface-2:#18282d; --ink:#e2ecec; --muted:#9bafb3; --line:#25393e;
+  --accent:#52c4be; --accent-ink:#04201e; --accent-soft:#143a38;
+  --good:#63d18a; --good-soft:#12301f; --bad:#f27d83; --bad-soft:#3b1619; --hint:#f0c060; --hint-soft:#33280f;
+  color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+button{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible+span,label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+.top-in{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{font-family:var(--f-display);font-weight:700;font-size:1.55rem;letter-spacing:.01em;line-height:1;display:flex;align-items:center;gap:10px}
+.brand svg{flex:none}
+.track{display:flex;gap:3px;flex:1 1 220px;min-width:0;align-items:center}
+.track i{flex:1;height:8px;border-radius:2px;background:var(--line)}
+.track i.done{background:var(--accent)}
+.track i.cur{background:var(--accent);opacity:.45;outline:2px solid var(--accent);outline-offset:1px}
+.top-actions{display:flex;gap:8px;align-items:center}
+.score{font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.score b{color:var(--ink)}
+.btn{border:1px solid var(--line);background:var(--surface-2);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:600;font-size:.92rem}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:disabled{opacity:.4;cursor:not-allowed}
+
+.layout{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 48px}
+@media (max-width:880px){.layout{grid-template-columns:minmax(0,1fr)}}
+.left{position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px);display:grid;gap:14px;min-width:0}
+@media (max-width:880px){.left{position:static}}
+.left>*,.steps>*{min-width:0}
+.monitor,.strip-box{overflow:hidden}
+.strip-scroll{width:100%}
+
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.pt-name{font-family:var(--f-display);font-weight:700;font-size:2.3rem;line-height:1.05;margin:4px 0 4px;text-wrap:balance}
+.pt-meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:.95rem}
+.pt-meta span{white-space:nowrap}
+.story{margin:10px 0 0;max-width:62ch}
+
+.monitor{background:var(--monitor);border-radius:10px;padding:10px 12px 12px;border:1px solid #0f2a23;box-shadow:inset 0 0 0 1px rgba(60,242,141,.06)}
+.mon-head{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--f-mono);color:var(--mon-text)}
+.mon-lead{font-size:.8rem;color:var(--mon-dim);letter-spacing:.06em}
+.mon-hr{display:flex;align-items:baseline;gap:8px}
+.mon-hr small{font-size:.72rem;color:var(--mon-dim);letter-spacing:.08em}
+.mon-hr b{font-size:2rem;line-height:1;color:var(--trace);font-weight:600;font-variant-numeric:tabular-nums;min-width:3ch;text-align:right}
+#mon{display:block;width:100%;max-width:100%;height:170px}
+.mon-tools{display:flex;gap:8px;flex-wrap:wrap}
+.mon-tools .btn{font-size:.85rem;padding:6px 10px}
+
+.strip-box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 10px 8px}
+.strip-scroll{overflow-x:auto}
+#strip{display:block}
+.strip-cap{font-size:.82rem;color:var(--muted);margin:6px 2px 0}
+
+.steps{display:grid;gap:14px;min-width:0}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 16px 18px}
+.step[data-state="locked"]{opacity:.55}
+.step-head{display:flex;gap:12px;align-items:flex-start}
+.step-num{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.1rem;background:var(--surface-2);border:1px solid var(--line)}
+.step[data-state="active"] .step-num{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.step[data-state="done"] .step-num{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.step h3{font-family:var(--f-display);font-weight:600;font-size:1.35rem;line-height:1.15;margin:2px 0 2px}
+.step-q{margin:0;color:var(--muted);font-size:.95rem}
+.step-body{margin-top:14px;display:grid;gap:10px}
+
+.opt{display:block;width:100%;text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:11px 13px;cursor:pointer;line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--good-soft);border-color:var(--good)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.why{font-size:.9rem;margin-top:6px;padding-top:6px;border-top:1px dashed currentColor;border-top-color:color-mix(in srgb,var(--ink) 25%,transparent)}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-right:6px}
+.right .tag,.tag.good{color:var(--good)} .wrong .tag,.tag.bad{color:var(--bad)}
+
+.findings{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.findings h4{margin:0 0 8px;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.vitals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 14px;margin:0}
+@media (max-width:460px){.vitals{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.vitals div{min-width:0}
+.vitals dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vitals dd{margin:0;font-weight:600;font-size:.95rem;line-height:1.3}
+.findings p{margin:10px 0 0;font-size:.93rem}
+
+.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+@media (max-width:420px){.rgrid{grid-template-columns:minmax(0,1fr)}}
+.rbtn{text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:8px 10px;cursor:pointer;font-size:.92rem;line-height:1.3}
+.rbtn:hover:not(:disabled){border-color:var(--accent)}
+.rbtn:disabled{cursor:default}
+.rbtn.wrong{background:var(--bad-soft);border-color:var(--bad);text-decoration:line-through;text-decoration-color:var(--bad)}
+.rbtn.right{background:var(--good-soft);border-color:var(--good);font-weight:700}
+.hint{background:var(--hint-soft);border-left:3px solid var(--hint);border-radius:4px;padding:8px 12px;font-size:.92rem}
+.hint b{color:var(--hint)}
+.crit{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.crit table{width:100%;border-collapse:collapse;font-size:.92rem}
+.crit th,.crit td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.crit tr:last-child th,.crit tr:last-child td{border-bottom:0}
+.crit th{width:30%;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface-2)}
+.teach{margin:0;font-size:.95rem}
+.teach b{color:var(--accent)}
+
+.iv{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer}
+.iv input{margin:3px 0 0;width:18px;height:18px;accent-color:var(--accent);flex:none}
+.iv.locked{cursor:default}
+.iv.r-good{background:var(--good-soft);border-color:var(--good)}
+.iv.r-bad{background:var(--bad-soft);border-color:var(--bad)}
+.iv.r-miss{border-color:var(--hint);border-style:dashed}
+.iv .txt{min-width:0}
+.result{font-weight:600;padding:10px 12px;border-radius:8px;background:var(--accent-soft)}
+.step,.why,.crit,.result{scroll-margin-top:90px}
+.steps::after{content:"";display:block;height:45vh}
+@media (max-width:880px){.steps::after{height:75vh}}
+.casebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:.92rem}
+.casebar span{min-width:0}
+.btn.danger{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.btn.mini{font-size:.78rem;padding:3px 8px;margin-left:6px}
+.nextrow{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.seq{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.srow{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.srow.s-ok{background:var(--good-soft);border-color:var(--good)}
+.srow.s-bad{background:var(--bad-soft);border-color:var(--bad)}
+.snum{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:.85rem;background:var(--surface);border:1px solid var(--line)}
+.srow .txt{flex:1;min-width:0;padding-top:2px}
+.sbtns{display:flex;flex-direction:column;gap:4px;flex:none}
+.mv{width:36px;height:28px;border:1px solid var(--line);background:var(--surface);border-radius:5px;cursor:pointer;font-size:1rem;line-height:1}
+.mv:disabled{opacity:.3;cursor:default}
+.mv:hover:not(:disabled){border-color:var(--accent)}
+
+.summary h2{font-family:var(--f-display);font-size:2rem;margin:0 0 4px}
+.sumtable{width:100%;border-collapse:collapse;font-size:.92rem}
+.sumtable th,.sumtable td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}
+.sumtable th{font-family:var(--f-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.sumtable td.c{text-align:center;font-family:var(--f-mono)}
+.ok{color:var(--good);font-weight:700} .no{color:var(--bad);font-weight:700}
+
+.overlay{position:fixed;inset:0;z-index:40;background:rgba(5,15,14,.55);display:flex;justify-content:flex-end}
+.drawer{width:min(420px,100%);height:100%;background:var(--surface);overflow-y:auto;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) max(18px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) 18px}
+.drawer h2{font-family:var(--f-display);margin:0 0 4px;font-size:1.6rem}
+.drawer p{margin:0 0 12px;color:var(--muted);font-size:.92rem}
+.clist{display:grid;gap:6px;margin-bottom:14px}
+.citem{display:flex;gap:10px;align-items:center;text-align:left;width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:9px 11px;cursor:pointer}
+.citem:hover{border-color:var(--accent)}
+.citem.cur{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.citem .n{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);width:2.2ch;flex:none}
+.citem .s{margin-left:auto;font-family:var(--f-mono);font-size:.75rem;color:var(--muted);white-space:nowrap}
+.drawer-actions{display:flex;flex-wrap:wrap;gap:8px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true"><path d="M1 12h7l2-4 2 9 3-16 3 13 2-2h9" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      Rhythm &amp; Response
+    </div>
+    <div class="track" id="track" aria-hidden="true"></div>
+    <div class="top-actions">
+      <span class="score" id="score"></span>
+      <button class="btn" id="openCases" type="button">Cases</button>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="left" aria-label="Patient and monitor">
+    <div>
+      <div class="eyebrow" id="caseNo"></div>
+      <h1 class="pt-name" id="ptName"></h1>
+      <div class="pt-meta" id="ptMeta"></div>
+      <p class="story" id="story"></p>
+    </div>
+    <div class="monitor">
+      <div class="mon-head">
+        <span class="mon-lead">II &nbsp;·&nbsp; 25 mm/s</span>
+        <span class="mon-hr"><small>HR</small><b id="hr">--</b></span>
+      </div>
+      <canvas id="mon" aria-label="Live cardiac monitor tracing" role="img"></canvas>
+    </div>
+    <div class="mon-tools">
+      <button class="btn" id="pauseBtn" type="button">Freeze monitor</button>
+      <button class="btn" id="stripBtn" type="button">Print new strip</button>
+    </div>
+    <div class="strip-box">
+      <div class="strip-scroll"><canvas id="strip" aria-label="Six-second rhythm strip on ECG paper" role="img"></canvas></div>
+      <p class="strip-cap">6-second strip, lead II. Small box = 0.04 sec · large box = 0.20 sec · tick marks at top every 3 sec. Rate ≈ QRS complexes in 6 sec × 10.</p>
+    </div>
+  </section>
+
+  <section class="steps" id="steps" aria-live="polite"></section>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <h2 id="dTitle">Cases</h2>
+    <p>Jump to any patient. Rhythms are not named here so the list doesn’t give answers away.</p>
+    <div class="clist" id="clist"></div>
+    <div class="drawer-actions">
+      <button class="btn" id="showResults" type="button">See results</button>
+      <button class="btn" id="reshuffle" type="button">Start over (new order)</button>
+      <button class="btn" id="closeCases" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const RHYTHMS=[
+ ["nsr","Normal sinus rhythm"],["st","Sinus tachycardia"],["sb","Sinus bradycardia"],
+ ["af","Atrial fibrillation"],["afl","Atrial flutter"],["avb1","First-degree AV block"],
+ ["avb2i","Second-degree AV block, type I (Wenckebach)"],["avb2ii","Second-degree AV block, type II (Mobitz II)"],
+ ["avb3","Third-degree (complete) heart block"],["pvcu","Sinus rhythm with unifocal (monomorphic) PVCs"],["pvcm","Sinus rhythm with multifocal (polymorphic) PVCs"],["vt","Ventricular tachycardia"],["vf","Ventricular fibrillation"],
+ ["asys","Asystole"],["pea","Pulseless electrical activity (PEA)"]
+];
+const ASSESS="Go to the patient: check responsiveness, airway, breathing, and pulse, then get a full set of vital signs.";
+const ASSESS_ARREST="Check responsiveness, breathing, and a carotid pulse (no more than 10 seconds), and confirm the leads are attached.";
+
+const CASES=[
+{id:"nsr",wave:{type:"sinus",rate:76,pr:.16},patient:"Ellen Park",age:58,sex:"F",setting:"Surgical unit · telemetry",
+ story:"Post-op day 1 after a laparoscopic cholecystectomy. She is on telemetry because of a history of hypertension. You start your 0700 shift and pull up her monitor.",
+ assess:{right:ASSESS,why:"Always connect the monitor to the patient. A tracing only means something next to how the patient is tolerating it.",
+  wrong:[["Document the rhythm and move on","The monitor can’t show pain, bleeding, or hypoxia, and it can’t confirm the leads are placed correctly. Lay eyes and hands on the patient."],
+   ["Call the provider","There is nothing to report yet. Gather assessment data first so any call includes how the patient is doing."],
+   ["Obtain a 12-lead ECG","A 12-lead isn’t needed for a routine rhythm check in a stable patient, and it never replaces a hands-on assessment."]]},
+ vitals:[["Pulse","76, regular, strong"],["BP","124/78"],["RR","16, unlabored"],["SpO₂","97% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry, pink"]],
+ note:"Incision pain 3/10. No chest pain, dizziness, or shortness of breath.",
+ crit:{Rate:"60–100 (here ~76)",Rhythm:"Regular",P:"Upright, one before every QRS",PR:"0.12–0.20 sec, constant",QRS:"Less than 0.12 sec"},
+ hint:"Every QRS has a P wave in front of it, the spacing is regular, and the intervals look normal. Count the rate before you decide.",
+ teach:"Every other rhythm is compared against this one. Use the same order every time: <b>rate, rhythm, P waves, PR, QRS</b>.",
+ iv:[["Document the strip with measured rate, PR, and QRS intervals",1,"A documented baseline lets you spot changes later in the shift."],
+  ["Continue the plan of care: pain control, ambulation, incentive spirometry",1,"She is stable in a normal rhythm, so postoperative priorities continue."],
+  ["Continue telemetry monitoring as ordered",1,"The order is based on her history. A normal rhythm now doesn’t cancel it."],
+  ["Administer atropine 0.5 mg IV",0,"Atropine speeds up the heart and is for symptomatic bradycardia. Her rate is normal."],
+  ["Apply transcutaneous pacing pads",0,"Pacing is for symptomatic bradycardia and high-grade heart block."],
+  ["Activate the rapid response team",0,"She has no abnormal findings. A rapid response would pull resources from patients who need them."]]},
+
+{id:"st",wave:{type:"sinus",rate:128,pr:.14,ta:.24},patient:"Daniel Ortiz",age:34,sex:"M",setting:"Emergency department",
+ story:"Arrived with 3 days of vomiting and diarrhea. Temp 39.2 °C (102.6 °F). His partner says he has barely kept water down since Friday.",
+ assess:{right:ASSESS,why:"Whatever the monitor shows, the patient tells you what it means. Your assessment comes first.",
+  wrong:[["Prepare adenosine 6 mg IV push","You haven’t seen the patient yet. No medication comes before an assessment."],
+   ["Prepare for synchronized cardioversion","Cardioversion is a major intervention. Nothing gets decided until you know how the patient is doing."],
+   ["Have him bear down (vagal maneuver)","You don’t yet know what is driving the rate or how he is tolerating it. Assess first."]]},
+ vitals:[["Pulse","128, regular, slightly thready"],["BP","102/64"],["RR","22"],["SpO₂","98% room air"],["LOC","Alert, fatigued"],["Skin","Hot, flushed; dry mucous membranes"]],
+ note:"Capillary refill 3 seconds. Last voided 6 hours ago, dark amber. Denies chest pain.",
+ crit:{Rate:"101–150 (here ~128)",Rhythm:"Regular",P:"Upright, one before every QRS (may run into the T wave at faster rates)",PR:"0.12–0.20 sec, constant",QRS:"Less than 0.12 sec"},
+ hint:"P waves are present before every QRS and the rhythm is regular. Look closely at the rate.",
+ teach:"Sinus tachycardia is a <b>response, not a disease</b>. Common causes: fever, hypovolemia, pain, anxiety, hypoxia, anemia, stimulants.",
+ tx:"Treat the <b>cause</b>, not the rate.",
+ iv:[["Administer an IV fluid bolus as prescribed",1,"Fluid loss is reducing his preload. Restoring volume lets the heart rate come down on its own."],
+  ["Administer an antipyretic as prescribed",1,"Fever increases metabolic demand and heart rate."],
+  ["Reassess heart rate, BP, and urine output after each intervention",1,"The rate should fall as the cause is corrected. Reassessment shows whether treatment is working."],
+  ["Administer adenosine 6 mg rapid IV push",0,"Adenosine is used for SVT. It won’t fix sinus tachycardia or its cause."],
+  ["Perform synchronized cardioversion",0,"Sinus tachycardia is never cardioverted. The SA node is responding appropriately to a stressor."],
+  ["Give metoprolol to bring the rate below 100",0,"Slowing the heart without replacing volume removes his compensation and can drop his blood pressure further."]]},
+
+{id:"sb",wave:{type:"sinus",rate:42,pr:.18},patient:"Harold Brennan",age:76,sex:"M",setting:"Medical-surgical unit",
+ story:"Admitted for cellulitis of the left leg. Takes metoprolol for hypertension; his morning dose was given at 0900. At 1030 he calls and says he feels “woozy” when he sits up.",
+ assess:{right:ASSESS,why:"A heart rate only needs treatment when the patient isn’t tolerating it. Only your assessment can tell you that.",
+  wrong:[["Give atropine 1 mg IV","Atropine is given only if the heart rate is causing poor perfusion, and you don’t know that yet. Assess first."],
+   ["Start chest compressions","Compressions are for a patient without a pulse. Check responsiveness and pulse first."],
+   ["Silence the alarm","He just reported symptoms. He needs a hands-on assessment now."]]},
+ vitals:[["Pulse","42, regular, weak"],["BP","82/50"],["RR","18"],["SpO₂","94% room air"],["LOC","Drowsy; oriented to person only (baseline ×4)"],["Skin","Cool, pale, clammy"]],
+ note:"Denies chest pain. These findings show poor perfusion.",
+ crit:{Rate:"Less than 60 (here ~42)",Rhythm:"Regular",P:"Upright, one before every QRS",PR:"0.12–0.20 sec, constant",QRS:"Less than 0.12 sec"},
+ hint:"Every QRS has a P wave before it and the spacing is regular. Count the QRS complexes on the 6-second strip.",
+ teach:"Bradycardia matters when it causes symptoms: <b>hypotension, altered mental status, chest pain, shock, or acute heart failure</b>.",
+ tx:"For symptomatic bradycardia: <b>atropine first</b>; if it fails, transcutaneous pacing or a dopamine or epinephrine infusion.",
+ iv:[["Administer atropine 1 mg IV as ordered; may repeat every 3–5 min to a maximum of 3 mg",1,"Atropine blocks vagal input to the SA node. It is the first-line drug for symptomatic bradycardia."],
+  ["Prepare for transcutaneous pacing if atropine is ineffective",1,"Pacing is the next step. Pads can go on while atropine is being given."],
+  ["Hold the next metoprolol dose and notify the provider",1,"A beta-blocker is a likely contributor and the provider needs to know before the next dose."],
+  ["Confirm IV access, give oxygen if hypoxemic, and obtain a 12-lead ECG",1,"Supportive care plus a 12-lead helps find causes such as ischemia."],
+  ["Begin CPR",0,"He has a pulse. CPR is for pulseless patients."],
+  ["Administer adenosine 6 mg rapid IV push",0,"Adenosine slows conduction through the AV node and would make the bradycardia worse."]]},
+
+{id:"af",wave:{type:"afib"},patient:"Gloria Stanton",age:71,sex:"F",setting:"Emergency department",
+ story:"Came in after 2 hours of a “fluttering” feeling in her chest and mild shortness of breath. She is sure it started at 1400 today, during her water aerobics class.",
+ assess:{right:ASSESS,why:"Stable or unstable decides the whole plan. Start with the patient.",
+  wrong:[["Defibrillate","A conscious patient with a pulse is never defibrillated, and you haven’t even checked yet."],
+   ["Give adenosine 6 mg IV push","No medication comes before an assessment. Assess her first."],
+   ["Start a heparin drip","Anticoagulation may come later, but you haven’t assessed her or received an order yet."]]},
+ vitals:[["Pulse","Apical 116, irregular; radial 98"],["BP","128/76"],["RR","22"],["SpO₂","95% room air"],["LOC","Alert, anxious, oriented ×4"],["Skin","Warm, dry"]],
+ note:"Pulse deficit of 18. Mild dyspnea with exertion. No chest pain. No facial droop, arm drift, or speech changes. Hemodynamically stable.",
+ crit:{Rate:"Atrial 350–600 (can’t count); ventricular varies (here ~110)",Rhythm:"Irregularly irregular",P:"No distinct P waves; wavy fibrillatory baseline",PR:"Not measurable",QRS:"Less than 0.12 sec"},
+ hint:"Measure the distance between R waves. Is there any pattern at all? Then look for P waves.",
+ teach:"The two risks in AFib are a <b>fast ventricular rate</b> (less cardiac output) and <b>clots in the quivering atria</b> (stroke).",
+ tx:"Priorities: <b>rate control, anticoagulation</b>, and synchronized cardioversion if the patient becomes unstable.",
+ iv:[["Administer a rate-control drug (diltiazem or metoprolol) as prescribed",1,"Slowing the ventricles improves filling time and cardiac output."],
+  ["Count apical and radial pulses together to measure the pulse deficit",1,"Some beats in AFib don’t produce a palpable pulse. The deficit shows how many are ineffective."],
+  ["Monitor for stroke signs: facial droop, arm drift, speech changes",1,"Clots can form in the fibrillating atria and travel to the brain."],
+  ["Anticipate anticoagulation and a stroke-risk assessment by the provider",1,"Decisions are based on onset time and scores such as CHA₂DS₂-VASc."],
+  ["Perform unsynchronized defibrillation",0,"She is awake with a pulse and stable. Defibrillation is for pulseless VT/VF only."],
+  ["Administer adenosine 6 mg rapid IV push",0,"Adenosine is for regular narrow-complex SVT. It doesn’t convert AFib."]]},
+
+{id:"afl",wave:{type:"flutter"},patient:"Calvin Reyes",age:66,sex:"M",setting:"Step-down unit",
+ story:"Admitted yesterday for a COPD exacerbation. Overnight the monitor tech calls you about a change in his rhythm. When you answer his call light he says his heart “feels like it’s doing something weird.”",
+ assess:{right:ASSESS,why:"A new rhythm needs a full picture, even when the rate on the monitor looks acceptable.",
+  wrong:[["Defibrillate","He’s talking to you, so he has a pulse. Defibrillation is never used on a patient with a pulse."],
+   ["Give atropine 1 mg IV","His rate is in the normal range and you haven’t assessed him. Atropine isn’t indicated."],
+   ["Silence the alarm","A new rhythm always needs evaluation at the bedside."]]},
+ vitals:[["Pulse","75, regular"],["BP","132/80"],["RR","20"],["SpO₂","92% on 2 L NC (his baseline)"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],
+ note:"Reports palpitations. No chest pain or dizziness. Hemodynamically stable.",
+ crit:{Rate:"Atrial 250–350 (here 300); ventricular depends on conduction (here 4:1, ~75)",Rhythm:"Atrial regular; ventricular regular here",P:"Sawtooth flutter (F) waves",PR:"Not measurable",QRS:"Less than 0.12 sec"},
+ hint:"Look at the baseline between the QRS complexes. What shape does it make?",
+ teach:"Count flutter waves per QRS to name the ratio. At <b>2:1 conduction the rate is about 150</b> and the F waves hide in the QRS and T. A regular rate stuck near 150 should make you think of flutter.",
+ iv:[["Obtain a 12-lead ECG and notify the provider of the new rhythm",1,"A new dysrhythmia needs to be confirmed and reported."],
+  ["Anticipate rate-control and anticoagulation orders",1,"Like AFib, flutter carries a stroke risk and may need rate control."],
+  ["Watch for a sudden jump in ventricular rate and signs of decreased cardiac output",1,"If conduction changes from 4:1 to 2:1, his rate can jump to ~150 and he may become unstable."],
+  ["Anticipate possible synchronized cardioversion or catheter ablation",1,"Flutter responds well to cardioversion, and ablation can be curative."],
+  ["Perform unsynchronized defibrillation",0,"He has a pulse and is stable."],
+  ["Begin CPR",0,"He has a pulse and is talking."]]},
+
+{id:"avb1",wave:{type:"sinus",rate:70,pr:.30},patient:"Denise Walker",age:74,sex:"F",setting:"Medical-surgical unit",
+ story:"Being treated for pneumonia. Takes digoxin and diltiazem at home for heart failure and a history of paroxysmal AFib. Today’s strip looks different from her admission strip.",
+ assess:{right:ASSESS,why:"Before deciding whether a change on the monitor matters, find out how the patient is tolerating it.",
+  wrong:[["Give atropine 0.5 mg IV","Her rate is normal and you don’t know whether she has symptoms. Atropine isn’t indicated."],
+   ["Apply pacing pads","Nothing so far suggests she needs pacing. Assess first."],
+   ["Hold all of her medications","Holding every medication without an assessment or provider order can cause harm."]]},
+ vitals:[["Pulse","70, regular"],["BP","118/70"],["RR","18"],["SpO₂","95% on 2 L NC"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],
+ note:"Asymptomatic. Denies nausea or visual changes. Last digoxin level was 3 days ago.",
+ crit:{Rate:"60–100 (here ~70)",Rhythm:"Regular",P:"Upright, one before every QRS",PR:"Greater than 0.20 sec, constant (here 0.30)",QRS:"Less than 0.12 sec"},
+ hint:"Every P wave is followed by a QRS. Measure from the start of the P to the start of the QRS.",
+ teach:"Every impulse is conducted, just <b>slowly</b>. Usually benign, but it can signal drug effect or progression to a higher-grade block.",
+ iv:[["Measure and document the PR interval each shift; compare with prior strips",1,"Tracking the PR shows whether the block is stable or worsening."],
+  ["Report AV-nodal blocking drugs (digoxin, diltiazem, beta-blockers) to the provider",1,"These drugs lengthen the PR interval and are a common, reversible cause."],
+  ["Anticipate a serum digoxin level",1,"A new PR prolongation in a patient on digoxin raises concern for toxicity."],
+  ["Monitor for progression to second- or third-degree block",1,"First-degree block can progress, especially with drug effect."],
+  ["Administer atropine 1 mg IV",0,"She is asymptomatic with a normal rate."],
+  ["Prepare for transcutaneous pacing",0,"No beats are dropped and she is stable. Pacing isn’t indicated."]]},
+
+{id:"avb2i",wave:{type:"wenck"},patient:"Jerome Hughes",age:67,sex:"M",setting:"Coronary care unit",
+ story:"Day 2 after an inferior wall MI treated with a stent to the right coronary artery. He is in bed watching the football game when you notice his monitor.",
+ assess:{right:ASSESS,why:"Many rhythm changes need no treatment at all. Symptoms decide, so assess first.",
+  wrong:[["Give atropine 1 mg IV","You don’t know yet whether he has symptoms. Atropine is only for a symptomatic patient."],
+   ["Call for a transvenous pacemaker","There’s no evidence yet that he needs pacing."],
+   ["Increase the IV fluid rate","Fluids don’t fix a rhythm problem, and he may not need treatment."]]},
+ vitals:[["Pulse","56, irregular"],["BP","116/72"],["RR","16"],["SpO₂","96% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],
+ note:"No dizziness, chest pain, or shortness of breath.",
+ crit:{Rate:"Atrial 60–100 (here 75); ventricular slower (here ~56)",Rhythm:"Irregular, with grouped beating",P:"Regular; more P waves than QRS complexes",PR:"Lengthens with each beat until a P wave isn’t conducted, then the cycle repeats",QRS:"Less than 0.12 sec"},
+ hint:"Measure the PR interval of several beats in a row. Is there a P wave with no QRS after it?",
+ teach:"<b>Longer, longer, longer, drop.</b> The block is at the AV node, so it’s usually transient, especially after an inferior MI, because the RCA supplies the AV node in most people.",
+ iv:[["Continue monitoring and document the conduction pattern",1,"Usually benign; watch for progression."],
+  ["Assess for decreased cardiac output: dizziness, hypotension, chest pain",1,"Treatment depends on symptoms, not just the strip."],
+  ["Keep atropine available in case he becomes symptomatic",1,"Block at the AV node usually responds to atropine if treatment is needed."],
+  ["Notify the provider and review AV-nodal blocking medications",1,"Beta-blockers given after MI can worsen AV-nodal block."],
+  ["Prepare for immediate permanent pacemaker insertion",0,"Mobitz I after inferior MI is usually temporary. A permanent pacemaker isn’t first-line in an asymptomatic patient."],
+  ["Administer adenosine",0,"Adenosine blocks the AV node and would worsen the block."]]},
+
+{id:"avb2ii",wave:{type:"mobitz2"},patient:"Beatrice Lin",age:80,sex:"F",setting:"Medical-surgical unit",
+ story:"Admitted for observation after a fall at home. While you walk her to the bathroom she grabs the rail and says, “Everything is going gray.” You help her sit down.",
+ assess:{right:ASSESS,why:"Near-syncope with a new rhythm is a red flag. Get her perfusion status right now.",
+  wrong:[["Give atropine 1 mg IV","You haven’t assessed her yet. No medication comes before that."],
+   ["Let her rest; recheck in an hour","Near-syncope with a new rhythm needs assessment now."],
+   ["Print the strip for cardiology","The strip matters, but she just nearly passed out. Patient first."]]},
+ vitals:[["Pulse","50, irregular"],["BP","86/54"],["RR","20"],["SpO₂","95% room air"],["LOC","Lightheaded, oriented ×4"],["Skin","Pale, cool"]],
+ note:"Symptomatic: hypotension and near-syncope. Reports two similar spells at home this month.",
+ crit:{Rate:"Atrial 60–100 (here ~77); ventricular slower (here ~51)",Rhythm:"Irregular where beats are dropped",P:"Regular; more P waves than QRS complexes",PR:"Constant on conducted beats, then a P wave suddenly isn’t conducted",QRS:"Often wide (block below the AV node)"},
+ hint:"Compare the PR interval of each conducted beat. Does it change before the dropped beat?",
+ teach:"Mobitz II can progress <b>without warning</b> to third-degree block or asystole.",
+ tx:"The fix is <b>pacing, not drugs</b>.",
+ iv:[["Apply transcutaneous pacing pads and prepare to pace",1,"Pacing is the emergency treatment for symptomatic Mobitz II."],
+  ["Notify the provider or call the rapid response team",1,"Symptomatic high-grade block is an emergency."],
+  ["Anticipate a transvenous and then permanent pacemaker",1,"Mobitz II rarely resolves and often progresses, so a permanent pacemaker is usually needed."],
+  ["Prepare a dopamine or epinephrine infusion as ordered if pacing is delayed or ineffective",1,"Chronotropic infusions can bridge until pacing works."],
+  ["Give atropine and wait to see if it works before setting up pacing",0,"Atropine may be tried, but it often fails for infranodal block. Never delay pacing to wait on it."],
+  ["Administer lidocaine",0,"Lidocaine suppresses ventricular pacemaker cells and isn’t used for heart block."]]},
+
+{id:"avb3",wave:{type:"chb"},patient:"Frank Delgado",age:72,sex:"M",setting:"Emergency department",
+ story:"His daughter brought him in after he passed out in the kitchen. He is awake now but says he feels weak and “not right.”",
+ assess:{right:ASSESS,why:"A slow rate with syncope: how well he is perfusing tells you how fast to move.",
+  wrong:[["Give lidocaine IV","No medication comes before an assessment, and lidocaine isn’t indicated for a slow rate."],
+   ["Defibrillate","He’s talking, so he has a pulse. A conscious patient is never defibrillated."],
+   ["Give atropine; recheck in 30 minutes","You haven’t assessed him yet. Don’t start a drug and walk away."]]},
+ vitals:[["Pulse","38, regular, weak"],["BP","76/40"],["RR","22"],["SpO₂","92% room air"],["LOC","Confused; oriented to person only"],["Skin","Cool, pale, mottled knees"]],
+ note:"Signs of poor perfusion. He is symptomatic and unstable.",
+ crit:{Rate:"Atrial 60–100 (here ~83); ventricular 20–40 (here ~38)",Rhythm:"Atrial and ventricular each regular, but unrelated",P:"Regular, march straight through; some hide in the QRS or T",PR:"None; varies with no pattern",QRS:"Wide here (ventricular escape); narrow with a junctional escape"},
+ hint:"March out the P waves with a paper edge. Then check whether the PR interval has any consistent relationship to the QRS.",
+ teach:"<b>If the Ps and Qs don’t agree, it’s third degree.</b> No atrial impulses reach the ventricles, and a slow escape pacemaker is all that’s keeping him going.",
+ iv:[["Begin transcutaneous pacing",1,"Pacing is the priority for unstable complete heart block."],
+  ["Notify the provider; prepare for transvenous pacing and a permanent pacemaker",1,"Transcutaneous pacing is a bridge. He will need definitive pacing."],
+  ["Establish IV access, give oxygen for hypoxemia, obtain a 12-lead ECG",1,"Supportive care and a search for causes such as MI or drug toxicity."],
+  ["Prepare a dopamine or epinephrine infusion as ordered while pacing is set up",1,"Infusions support rate and blood pressure as a bridge."],
+  ["Administer lidocaine to suppress the wide complexes",0,"The wide complexes are his escape rhythm. Lidocaine could leave him in asystole."],
+  ["Rely on atropine as the definitive treatment",0,"Atropine usually fails in complete heart block, especially with a wide escape rhythm. It never replaces pacing."]]},
+
+{id:"vt",wave:{type:"vt"},patient:"Tyrell Jackson",age:59,sex:"M",setting:"Cardiac step-down unit",
+ story:"Admitted for chest pain; known ischemic cardiomyopathy. His call light goes on. When you walk in he says, “My heart is pounding and I feel like I’m going to pass out.”",
+ assess:{right:ASSESS,why:"Treatment depends entirely on two findings: does he have a pulse, and is he stable?",
+  wrong:[["Defibrillate","He’s talking, so he has a pulse. An unsynchronized shock in a patient with a pulse can cause a lethal rhythm."],
+   ["Start chest compressions","Compressions are only for a patient without a pulse."],
+   ["Give amiodarone 300 mg IV push","That is the cardiac-arrest dose. You need to know his pulse status and stability first."]]},
+ vitals:[["Pulse","180, regular, weak"],["BP","78/46"],["RR","26"],["SpO₂","90% room air"],["LOC","Awake, confused, restless"],["Skin","Cool, diaphoretic"]],
+ note:"Reports crushing chest pressure. He has a pulse but is unstable: hypotension, altered mental status, chest pain.",
+ crit:{Rate:"100–250 (here ~180)",Rhythm:"Regular",P:"Not visible (dissociated or buried)",PR:"Not measurable",QRS:"Wide (≥0.12 sec), bizarre; all complexes look alike (monomorphic)"},
+ hint:"Look at the width of each QRS. Can you find any P waves?",
+ teach:"VT can present three ways: <b>pulseless, with a pulse but unstable, or with a pulse and stable</b>. Pulse and stability decide what happens next.",
+ tx:"Same rhythm, three treatments. <b>Pulseless VT</b> is treated like VF: CPR and defibrillation. <b>VT with a pulse and instability</b> gets synchronized cardioversion. <b>Stable VT with a pulse</b> may get amiodarone 150 mg IV over 10 minutes and expert consultation.",
+ iv:[["Perform synchronized cardioversion",1,"He has a pulse and is unstable. Synchronizing times the shock to the R wave and avoids the vulnerable T wave."],
+  ["Give procedural sedation if it doesn’t delay cardioversion",1,"He is conscious, so sedation is appropriate when time allows."],
+  ["Apply oxygen, confirm IV access, call the rapid response team",1,"Basic support while preparing to shock."],
+  ["If he loses his pulse: start CPR and switch to unsynchronized defibrillation",1,"Unstable VT can deteriorate to pulseless VT or VF at any moment. Pulseless VT is treated exactly like VF."],
+  ["Perform unsynchronized defibrillation now",0,"He has a pulse. An unsynchronized shock in a patient with a pulse can trigger VF."],
+  ["Begin chest compressions",0,"He has a pulse."]]},
+
+{id:"vf",wave:{type:"vf"},patient:"Linda Moreau",age:64,sex:"F",setting:"Telemetry unit",
+ story:"Two days after a large anterior wall MI. The central monitor alarms and shows this rhythm. You are the first one to reach her room.",
+ assess:{right:ASSESS_ARREST,why:"Shivering, brushing teeth, or a loose lead can mimic a lethal rhythm. Confirming takes seconds and keeps you from shocking a conscious patient.",
+  wrong:[["Defibrillate","Artifact can mimic a lethal rhythm. Confirm unresponsiveness and pulselessness first."],
+   ["Give epinephrine 1 mg IV","You must confirm cardiac arrest first."],
+   ["Call the provider for orders","Call for help, but you start the response. Seconds matter."]]},
+ vitals:[["Pulse","None (carotid)"],["BP","Unobtainable"],["RR","Agonal gasps"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Pale, gray"]],
+ note:"Leads are attached correctly. This is cardiac arrest. Agonal gasps are not effective breathing.",
+ crit:{Rate:"Not measurable",Rhythm:"Chaotic",P:"None",PR:"None",QRS:"None; only irregular fibrillatory waves of varying size"},
+ hint:"Can you identify any P waves or QRS complexes at all?",
+ teach:"VF has <b>no organized electrical activity and no cardiac output</b>. It is cardiac arrest.",
+ tx:"Survival drops with every minute without <b>CPR and defibrillation</b>.",
+ iv:[["Call a code and start high-quality CPR",1,"Compressions provide the only blood flow until the rhythm is converted."],
+  ["Defibrillate as soon as the defibrillator is available",1,"VF is shockable. Early defibrillation is the most important treatment."],
+  ["Give epinephrine 1 mg IV/IO every 3–5 min once shocks haven’t converted the rhythm",1,"For shockable rhythms, epinephrine is given after initial defibrillation attempts fail (commonly after the 2nd shock)."],
+  ["Give amiodarone 300 mg IV/IO for shock-refractory VF (second dose 150 mg)",1,"Amiodarone or lidocaine is given when VF persists after shocks."],
+  ["Perform synchronized cardioversion",0,"There are no R waves to sync to. VF requires an unsynchronized shock."],
+  ["Administer atropine 1 mg IV",0,"Atropine has no role in VF."]]},
+
+{id:"asys",wave:{type:"asys"},patient:"Walter Kim",age:81,sex:"M",setting:"Medical-surgical unit · night shift",
+ story:"You are rounding at 0300. As you approach his door, his bedside monitor alarm starts sounding. He is a full code.",
+ assess:{right:ASSESS_ARREST,why:"What’s on the monitor can be a disconnected lead or a real arrest. Only the patient tells you which.",
+  wrong:[["Defibrillate","You haven’t confirmed what is happening, and a loose lead can produce this tracing. Assess first."],
+   ["Silence the alarm","Leads do come off, but you can’t assume it. Check the patient."],
+   ["Begin transcutaneous pacing","You haven’t confirmed what is happening yet. Assess first."]]},
+ vitals:[["Pulse","None"],["BP","Unobtainable"],["RR","None"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Cool, gray"]],
+ note:"Leads are attached and connected.",
+ crit:{Rate:"None",Rhythm:"None",P:"None (occasionally P waves alone)",PR:"None",QRS:"None"},
+ hint:"Is there any organized electrical activity on the strip?",
+ teach:"Asystole is the <b>absence of electrical activity</b>. Fine VF or a loose lead can look flat on the monitor.",
+ tx:"Confirm asystole in <b>more than one lead</b> and check gain and connections. Treatment is CPR, early epinephrine, and a search for reversible causes (Hs and Ts).",
+ iv:[["Call a code and begin high-quality CPR",1,"CPR is the foundation of treatment for every pulseless rhythm."],
+  ["Give epinephrine 1 mg IV/IO as soon as possible, then every 3–5 min",1,"For nonshockable rhythms, epinephrine is given early."],
+  ["Confirm the rhythm in a second lead and increase the gain",1,"Rules out fine VF and lead problems."],
+  ["Search for and treat reversible causes (Hs and Ts)",1,"Hypovolemia, hypoxia, H⁺ (acidosis), hypo/hyperkalemia, hypothermia; tension pneumothorax, tamponade, toxins, thrombosis."],
+  ["Defibrillate",0,"Asystole isn’t shockable. Shocking takes time away from compressions."],
+  ["Begin transcutaneous pacing",0,"Pacing hasn’t been shown to help in asystole."]]},
+
+{id:"pea",wave:{type:"sinus",rate:58,pr:.20,w:1.8,ta:.12},patient:"Rosa Alvarez",age:45,sex:"F",setting:"Surgical unit",
+ story:"Post-op day 1 after a total abdominal hysterectomy. Her drain output has been high this shift. A nursing assistant runs to the station: “She won’t wake up!”",
+ assess:{right:ASSESS_ARREST,why:"A tracing on the monitor does not prove the heart is pumping. Only a pulse check tells you that.",
+  wrong:[["Document the rhythm","Electrical activity on a monitor doesn’t guarantee the heart is pumping. Treat the patient, not the monitor."],
+   ["Give atropine 1 mg IV","The assistant says she won’t wake up. The rate is the least of your concerns until you assess her."],
+   ["Defibrillate","You haven’t assessed her yet. Never shock before you know her status."]]},
+ vitals:[["Pulse","None"],["BP","Unobtainable"],["RR","None"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Pale, cool"]],
+ note:"Abdominal dressing saturated. JP drain has 400 mL of bright red blood in the last 2 hours.",
+ crit:{Rate:"Any (here ~58)",Rhythm:"Any organized rhythm",P:"May or may not be present",PR:"May be normal",QRS:"Any; often widens as perfusion worsens. The key finding: <b>no palpable pulse</b>"},
+ hint:"The waveform alone isn’t the whole answer. What did your assessment find?",
+ teach:"PEA is a <b>clinical diagnosis, not a waveform</b>. The monitor shows organized electrical activity, but the heart isn’t producing a pulse. Here, hypovolemia from hemorrhage is the likely cause.",
+ iv:[["Call a code and begin high-quality CPR",1,"PEA is cardiac arrest."],
+  ["Give epinephrine 1 mg IV/IO as soon as possible, then every 3–5 min",1,"Nonshockable rhythm: give epinephrine early."],
+  ["Treat the likely cause: rapid fluids and blood products for hemorrhage, notify surgery",1,"Hypovolemia is one of the Hs. Correcting the cause is the most likely way to get a pulse back."],
+  ["Defibrillate",0,"PEA isn’t shockable."],
+  ["Give atropine 1 mg IV for the slow rate",0,"Atropine was removed from the PEA algorithm. A faster rate won’t help a heart that isn’t pumping."],
+  ["Watch the monitor for a change before starting CPR",0,"Every second without compressions lowers survival."]]},
+
+{id:"pvcu",wave:{type:"pvc",rate:80,gaps:[2,3,3],shapes:[0]},patient:"Margaret Shaw",age:62,sex:"F",setting:"Telemetry unit",
+ story:"Admitted 2 days ago with a heart failure exacerbation and diuresing well on IV furosemide. This morning’s potassium is 3.2 mEq/L. The monitor tech calls about her rhythm.",
+ assess:{why:"Changes on the monitor mean little until you know whether the patient is perfusing and what might be causing them.",
+  wrong:[["Give lidocaine IV","No medication comes before an assessment."],
+   ["Call a code","She may be perfectly stable. A code is for cardiac arrest."],
+   ["Silence the alarm","Monitor changes can signal an electrolyte problem or ischemia. Assess her before deciding they don’t matter."]]},
+ vitals:[["Pulse","82, irregular with occasional pauses"],["BP","128/74"],["RR","18"],["SpO₂","95% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],
+ note:"Reports an occasional “flip-flop” feeling in her chest. No chest pain or dizziness. K⁺ 3.2 mEq/L, Mg²⁺ 1.6 mg/dL.",
+ crit:{Rate:"Underlying sinus rate ~80",Rhythm:"Irregular because of the early beats",P:"Present before sinus beats; none before the PVCs",PR:"0.12–0.20 sec on sinus beats",QRS:"Sinus beats narrow. PVCs come early, are wide (≥0.12 sec) and bizarre, with a T wave opposite the QRS and a full compensatory pause. <b>Every PVC looks the same</b> (one focus)."},
+ hint:"Most beats look normal. Look at the ones that come early. Do they have P waves? Are they all the same shape?",
+ teach:"Unifocal (monomorphic) PVCs come from <b>one irritable spot</b> in the ventricles, so they all look alike. Common triggers: <b>low potassium or magnesium</b>, hypoxia, caffeine or stimulants, ischemia, heart failure.",
+ tx:"Treat the <b>trigger</b>, not the PVCs. Report increasing frequency, couplets, R-on-T PVCs, or runs.",
+ iv:[["Notify the provider and replace potassium and magnesium as prescribed",1,"Low potassium and magnesium from diuresis are the likely cause of her ventricular irritability."],
+  ["Assess for other causes: hypoxia, caffeine or stimulants, chest pain",1,"PVCs are managed by treating what triggers them."],
+  ["Monitor PVC frequency and pattern; report couplets, R-on-T, or runs",1,"These patterns signal rising irritability and a higher risk of VT."],
+  ["Give potassium chloride by IV push",0,"Potassium is never given IV push; it can cause cardiac arrest. It is given orally or diluted as a slow, controlled infusion."],
+  ["Give a lidocaine bolus to suppress the PVCs",0,"Routine suppression of PVCs isn’t recommended. Treat the cause."],
+  ["Defibrillate",0,"She has a pulse, and PVCs aren’t a shockable rhythm."]]},
+
+{id:"pvcm",wave:{type:"pvc",rate:90,gaps:[2,4,3,2,5],shapes:[0,1,2,1]},patient:"Raymond Okafor",age:70,sex:"M",setting:"Coronary care unit",
+ story:"Admitted 6 hours ago with an NSTEMI and scheduled for cardiac cath in the morning. His monitor has been alarming more and more often over the last 20 minutes.",
+ assess:{why:"A changing rhythm in a patient with active ischemia is a warning sign. You need his perfusion status and symptoms now.",
+  wrong:[["Defibrillate","He has a pulse. A conscious patient is never defibrillated."],
+   ["Give lidocaine IV","Prophylactic lidocaine isn’t recommended in acute coronary syndrome, and you haven’t assessed him."],
+   ["Turn off the alarm","The alarm is telling you something. In an ischemic heart, rhythm changes can quickly turn lethal."]]},
+ vitals:[["Pulse","92, irregular"],["BP","104/66"],["RR","22"],["SpO₂","88% room air"],["LOC","Alert, anxious"],["Skin","Cool, diaphoretic"]],
+ note:"Reports chest pressure 6/10 that started 15 minutes ago. K⁺ 3.4 mEq/L. Troponin trending up.",
+ crit:{Rate:"Underlying sinus rate ~88",Rhythm:"Irregular because of the early beats",P:"Present before sinus beats; none before the PVCs",PR:"0.12–0.20 sec on sinus beats",QRS:"Sinus beats narrow. PVCs wide and bizarre, with <b>different shapes</b> (more than one focus)."},
+ hint:"Compare the early, wide beats with each other. Are they all the same shape?",
+ teach:"Multifocal (polymorphic) PVCs come from <b>more than one irritable area</b>. In an ischemic heart, frequent or multifocal PVCs, couplets, and R-on-T beats signal electrical instability that can trigger <b>VT or VF</b>.",
+ tx:"Treat the <b>ischemia</b> and be ready to defibrillate.",
+ iv:[["Notify the provider now: new chest pain with increasing multifocal PVCs",1,"This is a change in an ischemic patient and needs prompt evaluation."],
+  ["Apply oxygen for SpO₂ below 90%, treat chest pain per ACS orders, and obtain a 12-lead ECG",1,"Less ischemia means less ventricular irritability. The 12-lead looks for new ST changes."],
+  ["Check potassium and magnesium and replace as prescribed",1,"Low electrolytes add to irritability in an ischemic heart."],
+  ["Bring the defibrillator to the bedside and be ready for VT or VF",1,"Multifocal PVCs in an ischemic heart can deteriorate quickly."],
+  ["Defibrillate",0,"He has a pulse. PVCs aren’t shockable."],
+  ["Give prophylactic lidocaine",0,"Routine prophylactic antiarrhythmics aren’t recommended in ACS and can cause harm."],
+  ["Reassure him the extra beats are harmless and silence the alarm",0,"In this patient they’re a warning sign."]]},
+
+{id:"vt2",ans:"vt",wave:{type:"vt",period:.375},patient:"Gregory Haines",age:54,sex:"M",setting:"Emergency department",
+ story:"Walked in with an hour of a racing heartbeat. History of nonischemic cardiomyopathy. He is sitting up on the stretcher, talking in full sentences.",
+ assess:{why:"Pulse and stability decide everything. He looks well, but you have to confirm it.",
+  wrong:[["Defibrillate","He’s talking, so he has a pulse. An unsynchronized shock in a patient with a pulse can trigger a lethal rhythm."],
+   ["Start chest compressions","Compressions are only for a patient without a pulse."],
+   ["Give amiodarone 300 mg IV push","That is the cardiac-arrest dose. In a perfusing patient, amiodarone is given slowly to avoid hypotension."]]},
+ vitals:[["Pulse","160, regular, strong"],["BP","118/76"],["RR","20"],["SpO₂","96% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],
+ note:"No chest pain, shortness of breath, or dizziness. He has a pulse and is stable.",
+ crit:{Rate:"100–250 (here ~160)",Rhythm:"Regular",P:"Not visible",PR:"Not measurable",QRS:"Wide (≥0.12 sec), bizarre; all complexes look alike (monomorphic)"},
+ hint:"Look at the width of each QRS. Can you find any P waves?",
+ teach:"Stable VT buys you <b>time, but not much</b>. It can become unstable or pulseless without warning.",
+ tx:"Capture a <b>12-lead</b>, give an <b>antiarrhythmic</b>, and keep the <b>defibrillator ready</b>.",
+ iv:[["Obtain a 12-lead ECG, start IV access, and notify the provider",1,"The 12-lead confirms VT and guides treatment. Record it before the rhythm changes."],
+  ["Give amiodarone 150 mg IV over 10 minutes as ordered",1,"The antiarrhythmic dose for stable VT with a pulse; may be repeated per orders."],
+  ["Apply defibrillator pads and prepare for synchronized cardioversion if he becomes unstable",1,"With pads on, you can shock immediately if he deteriorates."],
+  ["Defibrillate",0,"He has a pulse and is stable."],
+  ["Begin CPR",0,"He has a pulse."],
+  ["Give amiodarone 300 mg IV push",0,"That is the arrest dose. Given fast to a perfusing patient, it can cause severe hypotension."]]}
+];
+
+/* Sequencing for the lethal rhythms: order = indices into each case's iv list; notes align with positions */
+const ORDER={
+ vt:{order:[2,1,0,3],notes:[
+  "Call for help and get support going first: oxygen, IV access, and the defibrillator with pads to the bedside.",
+  "Sedate him while the pads go on and the defibrillator is set to sync, as long as it doesn’t delay the shock.",
+  "Deliver the synchronized shock. Confirm the sync markers land on each R wave before you press shock.",
+  "Reassess pulse and rhythm after the shock. If he goes pulseless, switch to the arrest algorithm: CPR and unsynchronized defibrillation."]},
+ vf:{order:[0,1,2,3],notes:[
+  "Call for help and start compressions immediately. CPR continues while the defibrillator arrives and pads go on.",
+  "Shock as soon as the defibrillator is ready, then resume CPR right away for 2 minutes with no pulse check.",
+  "If VF persists at the next rhythm check, shock again and give epinephrine; repeat it every 3–5 minutes.",
+  "If VF persists after the third shock, give amiodarone 300 mg (or lidocaine)."]},
+ asys:{order:[0,2,1,3],notes:[
+  "Call the code and start compressions. Nothing else matters until CPR is underway.",
+  "At the first rhythm check, confirm asystole in a second lead and check gain and connections, keeping the pause in compressions short.",
+  "Give epinephrine as soon as IV/IO access is in. For nonshockable rhythms, it goes in early.",
+  "Search for and treat reversible causes (Hs and Ts) throughout the code."]},
+ vt2:{order:[0,2,1],notes:[
+  "Capture the rhythm on a 12-lead and get IV access first. The provider needs the 12-lead to confirm VT.",
+  "Put the pads on before giving any drug, so you can shock immediately if he becomes unstable or pulseless.",
+  "Then give amiodarone 150 mg over 10 minutes and reassess his rhythm and blood pressure."]},
+ pea:{order:[0,1,2],notes:[
+  "Call the code and start compressions immediately.",
+  "Give epinephrine as soon as IV/IO access is in.",
+  "Treat the cause while CPR continues: rapid blood and fluids, and a call to surgery. Stopping the bleeding is how she gets a pulse back."]}
+};
+CASES.forEach(c=>{if(ORDER[c.id]){c.order=ORDER[c.id].order;c.orderNotes=ORDER[c.id].notes}});
+const VARIANTS={
+nsr:[
+ {patient:"Janet Kowalski",age:66,setting:"Orthopedic unit · telemetry",story:"Post-op day 2 after a right total knee replacement. She has a history of coronary artery disease, so she is on telemetry. You are starting your morning assessments.",
+  vitals:[["Pulse","76, regular, strong"],["BP","130/80"],["RR","16, unlabored"],["SpO₂","96% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry, pink"]],note:"Knee pain 4/10 with movement. No chest pain, palpitations, or shortness of breath."},
+ {patient:"Priya Raman",age:49,setting:"Surgical unit · telemetry",story:"Post-op day 1 after an open ventral hernia repair. She had one episode of palpitations in PACU, so the surgeon ordered telemetry overnight. You check on her at the start of your shift.",
+  vitals:[["Pulse","76, regular, strong"],["BP","118/74"],["RR","16, unlabored"],["SpO₂","97% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry, pink"]],note:"Incision pain 3/10. No palpitations since PACU. Denies dizziness or chest pain."}],
+st:[
+ {patient:"Tyler Brooks",age:21,setting:"Emergency department",story:"A college student with 4 days of influenza symptoms. His roommate brought him in because he has barely eaten or had anything to drink. Temp 39.4 °C (102.9 °F).",
+  vitals:[["Pulse","128, regular, slightly thready"],["BP","104/62"],["RR","22"],["SpO₂","97% room air"],["LOC","Alert, fatigued"],["Skin","Hot, flushed; dry mucous membranes"]],note:"Capillary refill 3 seconds. Hasn’t urinated since this morning. Denies chest pain."},
+ {patient:"Albert Nguyen",age:68,setting:"Medical unit",story:"Admitted yesterday with community-acquired pneumonia. He has been drinking very little and is now febrile at 39.0 °C (102.2 °F). His heart rate has been climbing all afternoon.",
+  vitals:[["Pulse","128, regular, slightly thready"],["BP","106/66"],["RR","24"],["SpO₂","93% on 2 L NC"],["LOC","Alert, tired"],["Skin","Hot, flushed; dry mucous membranes"]],note:"Urine output 120 mL over the last 8 hours, dark amber. Productive cough. Denies chest pain."}],
+sb:[
+ {patient:"Leonard Price",age:79,setting:"Medical-surgical unit",story:"Admitted for a COPD flare. He takes metoprolol for rate control of his atrial fibrillation, which converted to sinus rhythm yesterday. His 0800 dose was given on schedule. At 0930 his wife says he “isn’t making sense.”",
+  vitals:[["Pulse","42, regular, weak"],["BP","84/52"],["RR","20"],["SpO₂","93% on 2 L NC"],["LOC","Drowsy; oriented to self only (baseline ×4)"],["Skin","Cool, pale, clammy"]],note:"Denies chest pain. These findings show poor perfusion."},
+ {patient:"Samuel Ortega",age:71,setting:"Post-surgical unit",story:"Post-op day 1 after a colon resection. He received his home metoprolol at 0900. When you help him stand at the bedside an hour later, he says the room is spinning and sits back down hard.",
+  vitals:[["Pulse","42, regular, weak"],["BP","80/48"],["RR","18"],["SpO₂","95% room air"],["LOC","Lightheaded, slow to respond"],["Skin","Cool, pale, clammy"]],note:"No chest pain. These findings show poor perfusion."}],
+af:[
+ {patient:"Helen Murphy",age:77,setting:"Medical unit",story:"Admitted for a urinary tract infection. At 1030 she calls you because her heart feels like it is “jumping around.” Her morning ECG showed sinus rhythm.",
+  vitals:[["Pulse","Apical 116, irregular; radial 96"],["BP","132/78"],["RR","20"],["SpO₂","96% room air"],["LOC","Alert, anxious, oriented ×4"],["Skin","Warm, dry"]],note:"Pulse deficit of 20. Mild fatigue. No chest pain. No facial droop, arm drift, or speech changes. Hemodynamically stable."},
+ {patient:"Carmen Diaz",age:63,setting:"Urgent care → emergency department",story:"She noticed her heart racing while gardening about 3 hours ago and drove herself to urgent care, which sent her to the ED. She has hypertension and drinks 4–5 cups of coffee a day.",
+  vitals:[["Pulse","Apical 116, irregular; radial 100"],["BP","138/84"],["RR","20"],["SpO₂","97% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"Pulse deficit of 16. Mild shortness of breath on exertion. No chest pain or stroke signs. Hemodynamically stable."}],
+afl:[
+ {patient:"Victor Hale",age:72,setting:"Cardiac step-down unit",story:"Two days after coronary bypass surgery. He is sitting in the chair eating lunch when the monitor tech calls you about a new rhythm. He says he feels a “fluttering.”",
+  vitals:[["Pulse","75, regular"],["BP","126/76"],["RR","18"],["SpO₂","95% on 2 L NC"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"Mild palpitations. No chest pain or dizziness. Hemodynamically stable."},
+ {patient:"Eddie Marsh",age:58,setting:"Medical unit",story:"Admitted with alcohol withdrawal and on a symptom-triggered protocol. During a CIWA check, the monitor shows a rhythm change from this morning. He says he has felt “off” since breakfast.",
+  vitals:[["Pulse","75, regular"],["BP","136/84"],["RR","18"],["SpO₂","96% room air"],["LOC","Alert, slight tremor, oriented ×4"],["Skin","Warm, slightly moist"]],note:"Reports palpitations. No chest pain or dizziness. Hemodynamically stable."}],
+avb1:[
+ {patient:"Ruth Callahan",age:81,setting:"Skilled nursing / subacute rehab",story:"Recovering from a hip fracture. She takes digoxin and diltiazem for heart failure and atrial fibrillation history. She was placed on telemetry after a near-fall, and today’s strip looks different from last week’s.",
+  vitals:[["Pulse","70, regular"],["BP","122/72"],["RR","18"],["SpO₂","95% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"Asymptomatic. No nausea or vision changes. No recent digoxin level on the chart."},
+ {patient:"Angela Brooks",age:69,setting:"Medical unit",story:"Admitted for a cellulitis infection of the left arm. Home medications include digoxin and diltiazem. Her diltiazem dose was increased two days ago. You compare her strip with the one from admission.",
+  vitals:[["Pulse","70, regular"],["BP","116/68"],["RR","16"],["SpO₂","97% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"Asymptomatic. Last digoxin level was 4 days ago."}],
+avb2i:[
+ {patient:"Martin Fields",age:61,setting:"Cardiac step-down unit",story:"Admitted 3 days ago with an inferior wall MI; a stent was placed in his right coronary artery. He just walked the hallway with physical therapy and is resting in bed.",
+  vitals:[["Pulse","56, irregular"],["BP","118/74"],["RR","16"],["SpO₂","97% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"No dizziness, chest pain, or shortness of breath."},
+ {patient:"Dwayne Carter",age:57,setting:"Coronary care unit",story:"Admitted overnight with an inferior wall MI and taken to the cath lab for a right coronary artery stent. He is now back on the unit, sleeping on and off.",
+  vitals:[["Pulse","56, irregular"],["BP","112/70"],["RR","14"],["SpO₂","96% room air"],["LOC","Drowsy but easily aroused, oriented ×4"],["Skin","Warm, dry"]],note:"Denies dizziness or chest pain when awake. Femoral site soft, no hematoma."}],
+avb2ii:[
+ {patient:"Dolores Jensen",age:83,setting:"Emergency department",story:"Brought in by her son after two “dizzy spells” at home today. While you are hooking her up to the monitor she says, “It’s happening again,” and grips the side rail.",
+  vitals:[["Pulse","50, irregular"],["BP","84/52"],["RR","20"],["SpO₂","94% room air"],["LOC","Lightheaded, oriented ×4"],["Skin","Pale, cool"]],note:"Symptomatic: hypotension and near-syncope. No chest pain."},
+ {patient:"Grace Whitman",age:76,setting:"Medical-surgical unit",story:"Admitted for a urinary tract infection. As you walk her back from the bathroom, she suddenly stops and says, “My vision is going dark.” You help her into a chair.",
+  vitals:[["Pulse","50, irregular"],["BP","88/54"],["RR","20"],["SpO₂","95% room air"],["LOC","Lightheaded, oriented ×4"],["Skin","Pale, cool"]],note:"Symptomatic: hypotension and near-syncope. She says she has felt like this “on and off for weeks.”"}],
+avb3:[
+ {patient:"Arthur Bennett",age:78,setting:"Medical unit",story:"Admitted for pneumonia. The nursing assistant finds him slumped in his chair. He wakes up when you call his name but is slow to answer.",
+  vitals:[["Pulse","38, regular, weak"],["BP","74/42"],["RR","22"],["SpO₂","91% on 2 L NC"],["LOC","Confused; oriented to person only"],["Skin","Cool, pale, mottled knees"]],note:"Signs of poor perfusion. He is symptomatic and unstable."},
+ {patient:"Lloyd Patterson",age:69,setting:"Emergency department",story:"He fainted while mowing the lawn and his neighbor called 911. EMS reports a very slow heart rate en route. He is awake now but pale and says he feels like he might pass out again.",
+  vitals:[["Pulse","38, regular, weak"],["BP","78/44"],["RR","22"],["SpO₂","93% room air"],["LOC","Drowsy, oriented ×2"],["Skin","Cool, pale, diaphoretic"]],note:"Signs of poor perfusion. He is symptomatic and unstable."}],
+vt:[
+ {patient:"Marcus Bell",age:63,setting:"Coronary care unit",story:"Admitted yesterday with an anterior wall MI. His monitor alarms, and when you get to the room he is clutching his chest and says, “Something’s really wrong.”",
+  vitals:[["Pulse","180, regular, weak"],["BP","76/44"],["RR","28"],["SpO₂","89% room air"],["LOC","Awake, confused, restless"],["Skin","Cool, diaphoretic"]],note:"Chest pressure 8/10. He has a pulse but is unstable: hypotension, altered mental status, chest pain."},
+ {patient:"Kevin Strand",age:56,setting:"Emergency department",story:"Arrived by ambulance with a pounding heartbeat. History of a prior MI and low ejection fraction. In triage he becomes pale and sweaty and tells you he feels faint.",
+  vitals:[["Pulse","180, regular, weak"],["BP","80/48"],["RR","26"],["SpO₂","91% room air"],["LOC","Awake, slow to respond"],["Skin","Cool, gray, diaphoretic"]],note:"Reports chest tightness. He has a pulse but is unstable: hypotension, altered mental status, chest pain."}],
+vf:[
+ {patient:"Barbara Quinn",age:70,setting:"Cardiac step-down unit",story:"Admitted with chest pain and positive troponins; cath scheduled for tomorrow. The central monitor alarms, and you are the closest nurse to her room.",
+  vitals:[["Pulse","None (carotid)"],["BP","Unobtainable"],["RR","Agonal gasps"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Pale, gray"]],note:"Leads are attached correctly. This is cardiac arrest. Agonal gasps are not effective breathing."},
+ {patient:"Teresa Lund",age:59,setting:"Medical unit",story:"Admitted with severe vomiting and a potassium of 2.6 mEq/L; IV potassium replacement is running. Her roommate pulls the call light and yells that she “just stopped talking.”",
+  vitals:[["Pulse","None (carotid)"],["BP","Unobtainable"],["RR","Agonal gasps"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Pale, gray"]],note:"Leads are attached correctly. This is cardiac arrest. Severe hypokalemia is a likely trigger."}],
+asys:[
+ {patient:"George Ellison",age:85,setting:"Telemetry unit",story:"Admitted with heart failure; he is a full code. At 0500 the monitor tech calls to say his tracing has changed. You reach his room within seconds.",
+  vitals:[["Pulse","None"],["BP","Unobtainable"],["RR","None"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Cool, gray"]],note:"Leads are attached and connected."},
+ {patient:"Hector Ruiz",age:66,setting:"Dialysis unit",story:"He missed his last two dialysis sessions. Partway into today’s treatment, his monitor alarms and the dialysis tech calls you over. He is a full code.",
+  vitals:[["Pulse","None"],["BP","Unobtainable"],["RR","None"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Cool, gray"]],note:"Leads are attached and connected. Pre-dialysis potassium was 7.1 mEq/L, a likely reversible cause."}],
+pea:[
+ {patient:"Diane Foster",age:72,setting:"Orthopedic unit",story:"Post-op day 0 after a left total hip replacement. Her dressing has needed reinforcing twice this evening. When you go in for vital signs, she doesn’t respond to her name.",
+  vitals:[["Pulse","None"],["BP","Unobtainable"],["RR","None"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Pale, cool"]],note:"Dressing saturated with bright red blood; the hemovac has 500 mL in the last 2 hours. Hemoglobin was 8.1 g/dL at 1800, down from 12.4."},
+ {patient:"Kim Larson",age:38,setting:"Emergency department · trauma bay",story:"Brought in after a motorcycle crash with a suspected pelvic fracture. While the team is getting a second IV in, she stops answering questions.",
+  vitals:[["Pulse","None"],["BP","Unobtainable"],["RR","None"],["SpO₂","No reading"],["LOC","Unresponsive"],["Skin","Pale, cool, mottled"]],note:"The FAST exam showed free fluid. EMS reported a BP of 82/50 en route. Massive blood loss is the likely cause."}],
+pvcu:[
+ {patient:"Donna Ruiz",age:68,setting:"Medical unit",story:"Admitted with heart failure and diuresing on IV furosemide. She had diarrhea overnight. Her morning potassium is 3.1 mEq/L, and the monitor tech calls about her rhythm.",
+  vitals:[["Pulse","82, irregular with occasional pauses"],["BP","124/72"],["RR","18"],["SpO₂","96% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"Reports an occasional skipped-beat feeling. No chest pain or dizziness. K⁺ 3.1 mEq/L, Mg²⁺ 1.5 mg/dL."},
+ {patient:"Nora Park",age:57,setting:"Telemetry unit",story:"Admitted for heart failure; she takes furosemide and hydrochlorothiazide at home. She drinks several energy drinks a day. The monitor has been alarming since morning.",
+  vitals:[["Pulse","82, irregular with occasional pauses"],["BP","132/80"],["RR","16"],["SpO₂","97% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"Feels “thumps” in her chest. No chest pain or dizziness. K⁺ 3.3 mEq/L, Mg²⁺ 1.6 mg/dL."}],
+pvcm:[
+ {patient:"Walter Simmons",age:74,setting:"Cardiac step-down unit",story:"Admitted this morning with unstable angina. Over the last half hour, his monitor alarms have been going off more and more often.",
+  vitals:[["Pulse","92, irregular"],["BP","102/64"],["RR","22"],["SpO₂","88% room air"],["LOC","Alert, anxious"],["Skin","Cool, diaphoretic"]],note:"New substernal pressure 7/10 that started 10 minutes ago. K⁺ 3.3 mEq/L."},
+ {patient:"Frank Romano",age:66,setting:"Emergency department",story:"Arrived with 2 hours of chest pressure. His first troponin is elevated and he is waiting for a cardiology bed. His monitor keeps alarming.",
+  vitals:[["Pulse","92, irregular"],["BP","108/68"],["RR","22"],["SpO₂","89% room air"],["LOC","Alert, anxious"],["Skin","Cool, diaphoretic"]],note:"Chest pressure has increased to 6/10. K⁺ 3.4 mEq/L. Second troponin pending."}],
+vt2:[
+ {patient:"Brian Cole",age:47,setting:"Emergency department",story:"His smartwatch alerted him to a heart rate of 160 during his morning run. He feels “fluttery” but otherwise fine, and is sitting on the stretcher texting his wife.",
+  vitals:[["Pulse","160, regular, strong"],["BP","122/78"],["RR","18"],["SpO₂","98% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"No chest pain, shortness of breath, or dizziness. He has a pulse and is stable."},
+ {patient:"Russell Grant",age:61,setting:"Cardiac step-down unit",story:"Admitted two days ago for heart failure. The monitor alarms. When you walk in he is reading the newspaper and says, “I feel my heart beating fast.”",
+  vitals:[["Pulse","160, regular, strong"],["BP","114/72"],["RR","20"],["SpO₂","95% room air"],["LOC","Alert, oriented ×4"],["Skin","Warm, dry"]],note:"No chest pain, dizziness, or increased shortness of breath. He has a pulse and is stable."}]
+};
+CASES.forEach(c=>{c.variants=[{patient:c.patient,age:c.age,setting:c.setting,story:c.story,vitals:c.vitals,note:c.note}].concat(VARIANTS[c.id]||[])});
+
+const MAX=CASES.length*3+CASES.filter(c=>c.order).length;
+
+/* ---------- ECG synthesis ---------- */
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const G=(d,c,w)=>Math.exp(-((d-c)/w)*((d-c)/w));
+const TAU=Math.PI*2;
+function buildTrace(w){
+  const D=60, ev=[], R=mulberry(w.type.length*97+(w.rate||1));
+  const add=(k,t,o)=>ev.push(Object.assign({k,t},o||{}));
+  let base=()=>0;
+  if(w.type==="sinus"){const rr=60/w.rate;for(let q=.35;q<D;){add("P",q-w.pr+.01);add("N",q,{w:w.w||1,ta:w.ta});q+=rr*(1+(R()-.5)*.03)}}
+  else if(w.type==="wenck"){const prs=[.16,.26,.34,0];let i=0;for(let p=.25;p<D;p+=.8,i++){add("P",p);const pr=prs[i%4];if(pr)add("N",p+pr-.01)}}
+  else if(w.type==="mobitz2"){let i=0;for(let p=.25;p<D;p+=.78,i++){add("P",p);if(i%3!==2)add("N",p+.17,{w:1.7})}}
+  else if(w.type==="chb"){for(let p=.15;p<D;p+=.72)add("P",p);for(let q=.6;q<D;q+=1.58)add("W",q)}
+  else if(w.type==="afib"){base=t=>.045*Math.sin(TAU*5.8*t)+.035*Math.sin(TAU*7.3*t+1.3)+.03*Math.sin(TAU*9.7*t+2.1)+.02*Math.sin(TAU*4.3*t+.5);
+    for(let q=.3;q<D;){add("N",q,{ta:.22});q+=.36+R()*.44}}
+  else if(w.type==="flutter"){base=t=>{const f=(t/.2)%1;return f<.72?.11-.33*(f/.72):-.22+.33*((f-.72)/.28)};
+    for(let q=.15;q<D;q+=.8)add("N",q,{ta:.06})}
+  else if(w.type==="vt"){for(let q=.2;q<D;q+=(w.period||.333))add("V",q)}
+  else if(w.type==="pvc"){const rr=60/w.rate;let q=.35,n=0,gi=0,si=0;
+    while(q<D){add("P",q-.15);add("N",q);n++;
+      if(n>=w.gaps[gi%w.gaps.length]){n=0;gi++;add("X",q+rr*.58,{s:w.shapes[si++%w.shapes.length]});q+=rr*2}else q+=rr*(1+(R()-.5)*.03)}}
+  else if(w.type==="vf"){base=t=>{const e=.85+.3*Math.sin(TAU*.23*t)+.18*Math.sin(TAU*.61*t+1);
+    return e*(.34*Math.sin(TAU*4.6*t+.4)+.24*Math.sin(TAU*6.1*t+2.2)+.2*Math.sin(TAU*3.3*t+1.1)+.11*Math.sin(TAU*8.2*t+.7))}}
+  else if(w.type==="asys"){base=t=>.03*Math.sin(TAU*.25*t)+.012*Math.sin(TAU*1.1*t+1)}
+  ev.sort((a,b)=>a.t-b.t);
+  return {ev,base,D};
+}
+function shape(e,d){
+  switch(e.k){
+    case "P": return .15*G(d,0,.028);
+    case "N": {const s=e.w||1,ta=e.ta==null?.3:e.ta;return -.1*G(d,-.028*s,.01*s)+1.2*G(d,0,.012*s)-.28*G(d,.028*s,.012*s)+ta*G(d,.26+.03*(s-1),.06)}
+    case "W": return .85*G(d,0,.04)-.45*G(d,.09,.04)-.32*G(d,.34,.08);
+    case "V": return 1.1*G(d,0,.045)-.72*G(d,.13,.055);
+    case "X": return e.s===1?-1.15*G(d,0,.055)+.3*G(d,.11,.045)+.55*G(d,.34,.09)
+                    :e.s===2?.85*G(d,-.02,.04)-1.05*G(d,.08,.05)+.45*G(d,.34,.09)
+                    :1.5*G(d,0,.05)-.35*G(d,.11,.045)-.55*G(d,.33,.09);
+  }
+  return 0;
+}
+function volt(tr,t){
+  t=((t%tr.D)+tr.D)%tr.D;
+  let v=tr.base(t)+.02*Math.sin(TAU*.2*t)+.006*Math.sin(t*311.7)*Math.sin(t*97.3);
+  const ev=tr.ev;let lo=0,hi=ev.length;const s=t-.7;
+  while(lo<hi){const m=(lo+hi)>>1;if(ev[m].t<s)lo=m+1;else hi=m}
+  for(let i=lo;i<ev.length&&ev[i].t<t+.5;i++)v+=shape(ev[i],t-ev[i].t);
+  return v;
+}
+function heartRate(tr,t){
+  t=((t%tr.D)+tr.D)%tr.D;
+  const q=tr.ev.filter(e=>(e.k==="N"||e.k==="W"||e.k==="V"||e.k==="X")&&e.t<=t&&e.t>t-6);
+  if(q.length<2)return null;
+  return Math.round((q.length-1)/(q[q.length-1].t-q[0].t)*60);
+}
+
+/* ---------- Monitor ---------- */
+const mon=document.getElementById("mon"),mctx=mon.getContext("2d");
+let trace=null,simT=0,paused=false,lastTs=0,drawnPx=0,MW=0,MH=0,prevPt=null,hrTimer=0;
+function sizeMonitor(){
+  const dpr=window.devicePixelRatio||1,r=mon.getBoundingClientRect();
+  MW=Math.max(200,Math.floor(r.width));MH=170;mon.style.width="100%";
+  mon.width=MW*dpr;mon.height=MH*dpr;mctx.setTransform(dpr,0,0,dpr,0,0);
+  mctx.fillStyle=getMonBg();mctx.fillRect(0,0,MW,MH);
+  drawnPx=Math.floor(simT*MW/6);prevPt=null;
+}
+function getMonBg(){return getComputedStyle(document.documentElement).getPropertyValue("--monitor").trim()||"#05100e"}
+function monY(v){return MH*.6-v*(MH/3.1)}
+function frame(ts){
+  const dt=lastTs?Math.min(.05,(ts-lastTs)/1000):0;lastTs=ts;
+  if(trace&&!paused){
+    simT+=dt;const pxps=MW/6,target=Math.floor(simT*pxps);
+    const bg=getMonBg(),tc=getComputedStyle(document.documentElement).getPropertyValue("--trace").trim()||"#3cf28d";
+    mctx.lineWidth=1.8;mctx.strokeStyle=tc;mctx.lineJoin="round";mctx.shadowColor=tc;mctx.shadowBlur=4;
+    for(let p=drawnPx+1;p<=target;p++){
+      const x=p%MW,y=monY(volt(trace,p/pxps));
+      mctx.shadowBlur=0;mctx.fillStyle=bg;mctx.fillRect(x+1,0,16,MH);
+      if(x+17>MW)mctx.fillRect(0,0,(x+17)-MW,MH);
+      mctx.shadowBlur=4;
+      if(prevPt&&x>prevPt[0]){mctx.beginPath();mctx.moveTo(prevPt[0],prevPt[1]);mctx.lineTo(x,y);mctx.stroke()}
+      prevPt=[x,y];
+    }
+    drawnPx=Math.max(drawnPx,target);
+    hrTimer+=dt;if(hrTimer>1){hrTimer=0;updateHR()}
+  }
+  requestAnimationFrame(frame);
+}
+function updateHR(){const r=heartRate(trace,simT);document.getElementById("hr").textContent=r==null?"---":r}
+
+/* ---------- Paper strip ---------- */
+const strip=document.getElementById("strip"),sctx=strip.getContext("2d");
+let stripT0=0;
+function drawStrip(t0){
+  stripT0=t0;
+  const wrap=strip.parentElement,cw=Math.max(wrap.clientWidth,540),box=cw/150,ch=Math.round(box*32);
+  const dpr=window.devicePixelRatio||1;
+  strip.style.width=cw+"px";strip.style.height=ch+"px";strip.width=cw*dpr;strip.height=ch*dpr;sctx.setTransform(dpr,0,0,dpr,0,0);
+  sctx.fillStyle="#fff8f6";sctx.fillRect(0,0,cw,ch);
+  for(let i=0;i<=150;i++){sctx.strokeStyle=i%5?"#f6d2d8":"#e39aa6";sctx.lineWidth=i%5?.6:1.1;sctx.beginPath();sctx.moveTo(i*box+.5,0);sctx.lineTo(i*box+.5,ch);sctx.stroke()}
+  for(let j=0;j<=32;j++){sctx.strokeStyle=j%5?"#f6d2d8":"#e39aa6";sctx.lineWidth=j%5?.6:1.1;sctx.beginPath();sctx.moveTo(0,j*box+.5);sctx.lineTo(cw,j*box+.5);sctx.stroke()}
+  sctx.strokeStyle="#3b2a2d";sctx.lineWidth=2;
+  [0,75,150].forEach(b=>{const x=Math.min(cw-1,Math.max(1,b*box));sctx.beginPath();sctx.moveTo(x,0);sctx.lineTo(x,box*2.2);sctx.stroke()});
+  sctx.fillStyle="#6b4a50";sctx.font="600 11px 'IBM Plex Mono', monospace";
+  sctx.fillText("II",box*1.4,box*2.6+8);
+  sctx.fillText("3 sec",75*box+6,box*2.6+8);
+  const baseY=19*box;sctx.strokeStyle="#1d1a1b";sctx.lineWidth=1.5;sctx.lineJoin="round";sctx.beginPath();
+  for(let x=0;x<=cw;x+=.5){const t=t0+x/(box*25),y=baseY-volt(trace,t)*10*box;x?sctx.lineTo(x,y):sctx.moveTo(x,y)}
+  sctx.stroke();
+}
+
+/* ---------- Activity state ---------- */
+let order=[],pos=0,prog={},showingSummary=false;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function newRun(){
+  order=shuffle(CASES.map((_,i)=>i));pos=0;prog={};showingSummary=false;
+  CASES.forEach(c=>Object.assign(c,c.variants[Math.floor(Math.random()*c.variants.length)]));
+  CASES.forEach(c=>{prog[c.id]=freshProg(c)});
+  loadCase(0);
+}
+function cur(){return CASES[order[pos]]}
+function freshProg(c){return {aOpts:buildA(c),aPick:-1,aNext:false,rNext:false,ivNext:false,iOrder:shuffle(c.iv.map((_,i)=>i)),aWrong:[],aDone:false,rWrong:[],rDone:false,sel:[],ivDone:false,seq:c.order?scramble(c.order):null,seqMarks:null,seqTries:0,seqDone:false,seqRevealed:false}}
+let resetArmed=false,resetTimer=0;
+function started(c){const p=prog[c.id];return p.aDone||p.aWrong.length>0}
+const ans=c=>c.ans||c.id;
+const POOL=["Check your patient","Assess the patient","Check a pulse","Check responsiveness","Go to the bedside","Look at your patient","Evaluate the patient","Check on the patient"];
+function buildA(c){const good=shuffle(POOL).slice(0,1).map(t=>({t,why:c.assess.why,ok:true}));return shuffle(good.concat(c.assess.wrong.map(w=>({t:w[0],why:w[1],ok:false}))))}
+function scramble(a){let r;do{r=shuffle(a)}while(a.length>1&&r.every((x,i)=>x===a[i]));return r}
+function caseDone(c){const p=prog[c.id];return p.ivDone&&(!c.order||p.seqDone)}
+function pts(id){const p=prog[id],c=CASES.find(x=>x.id===id);
+  return {a:p.aDone&&!p.aWrong.length,r:p.rDone&&!p.rWrong.length,i:p.ivDone&&ivPerfect(c,p),o:!!c.order&&p.seqDone&&p.seqTries===1&&!p.seqRevealed}}
+function ivPerfect(c,p){return c.iv.every((o,i)=>!!o[1]===p.sel.includes(i))}
+function total(){let s=0;CASES.forEach(c=>{const t=pts(c.id);s+=t.a+t.r+t.i+t.o});return s}
+
+function loadCase(i){
+  resetArmed=false;clearTimeout(resetTimer);
+  pos=i;showingSummary=false;const c=cur();
+  trace=buildTrace(c.wave);simT=0;drawnPx=0;prevPt=null;
+  mctx.fillStyle=getMonBg();mctx.fillRect(0,0,MW,MH);
+  updateHR();drawStrip(0.1);
+  document.getElementById("caseNo").textContent=`Case ${pos+1} of ${CASES.length}`;
+  document.getElementById("ptName").textContent=c.patient;
+  document.getElementById("ptMeta").innerHTML=`<span>${c.age}-year-old ${c.sex==="F"?"woman":"man"}</span><span>${c.setting}</span>`;
+  document.getElementById("story").textContent=c.story;
+  render();
+}
+
+function render(){
+  document.getElementById("track").innerHTML=order.map((ci,k)=>`<i class="${caseDone(CASES[ci])?"done":""} ${k===pos&&!showingSummary?"cur":""}"></i>`).join("");
+  document.getElementById("score").innerHTML=`Score <b>${total()}</b> / ${MAX}`;
+  if(showingSummary){renderSummary();return}
+  const c=cur(),p=prog[c.id],S=document.getElementById("steps");
+  const cont=(st,label)=>`<div class="nextrow"><button class="btn primary" data-act="cont" data-s="${st}">${label}</button></div>`;
+  let h="";
+  if(started(c))h+=`<div class="casebar"><span>${caseDone(c)?"Case complete.":"Case in progress."} Reset to answer it again from the start.</span><button class="btn ${resetArmed?"danger":""}" data-act="resetcase" type="button">${resetArmed?"Tap again to reset":"Reset this case"}</button></div>`;
+  // 1 — First Steps
+  h+=`<section class="step" data-state="${p.aDone?"done":"active"}" id="s1"><div class="step-head"><span class="step-num">1</span><div><h3>First Steps</h3><p class="step-q">What do you do first?</p></div></div><div class="step-body">`;
+  p.aOpts.forEach((o,k)=>{const picked=k===p.aPick,wrong=p.aWrong.includes(k),also=p.aDone&&o.ok&&!picked;let why="";
+    if(picked)why=`<div class="why" id="a-why"><span class="tag">Correct</span>${o.why}</div>`;
+    else if(wrong)why=`<div class="why"><span class="tag">Not first</span>${o.why}</div>`;
+    else if(also)why=`<div class="why"><span class="tag">Also correct</span>Any action that gets you to the patient first is the right call.</div>`;
+    h+=`<button ${picked?'id="a-pick"':""} class="opt ${picked||also?"right":wrong?"wrong":""}" data-act="assess" data-k="${k}" ${p.aDone?"disabled":""}>${o.t}${why}</button>`});
+  if(p.aDone){h+=`<div class="findings"><h4>Assessment findings</h4><dl class="vitals">${c.vitals.map(v=>`<div><dt>${v[0]}</dt><dd>${v[1]}</dd></div>`).join("")}</dl><p>${c.note}</p></div>`;if(!p.aNext)h+=cont("a","Continue to the rhythm →")}
+  h+=`</div></section>`;
+  // 2 — rhythm
+  h+=`<section class="step" data-state="${!p.aNext?"locked":p.rDone?"done":"active"}" id="s2"><div class="step-head"><span class="step-num">2</span><div><h3>Identify the rhythm</h3><p class="step-q">${p.aNext?"Use the strip and your assessment. Work through rate, rhythm, P, PR, QRS.":"Unlocks after First Steps."}</p></div></div>`;
+  if(p.aNext){
+    h+=`<div class="step-body"><div class="rgrid">${RHYTHMS.map(r=>{const w=p.rWrong.includes(r[0]),ok=p.rDone&&r[0]===ans(c);return `<button class="rbtn ${w?"wrong":""} ${ok?"right":""}" data-act="rhythm" data-r="${r[0]}" ${p.rDone||w?"disabled":""}>${r[1]}</button>`}).join("")}</div>`;
+    if(p.rWrong.length&&!p.rDone)h+=`<div class="hint"><b>Look again.</b> ${c.hint}</div>`;
+    if(p.rDone){h+=`<div class="crit" id="r-why"><table>${Object.entries(c.crit).map(([k,v])=>`<tr><th>${k==="P"?"P waves":k==="PR"?"PR interval":k}</th><td>${v}</td></tr>`).join("")}</table></div><p class="teach">${c.teach}</p>`;if(!p.rNext)h+=cont("r","Continue to interventions →")}
+    h+=`</div>`;
+  }
+  h+=`</section>`;
+  // 3 — interventions
+  h+=`<section class="step" data-state="${!p.rNext?"locked":p.ivDone?"done":"active"}" id="s3"><div class="step-head"><span class="step-num">3</span><div><h3>Choose your interventions</h3><p class="step-q">${p.rNext?(c.order?"Select all that apply, then submit. Next you’ll put them in order.":"Select all that apply, then submit."):"Unlocks after you identify the rhythm."}</p></div></div>`;
+  if(p.rNext){
+    h+=`<div class="step-body">`;
+    if(p.ivDone){const nRight=c.iv.filter(o=>o[1]).length,got=p.sel.filter(i=>c.iv[i][1]).length,bad=p.sel.filter(i=>!c.iv[i][1]).length;
+      h+=`<div class="result" id="iv-res">${ivPerfect(c,p)?`All ${nRight} correct interventions selected, and none of the incorrect ones.`:`${got} of ${nRight} correct interventions selected${bad?` · ${bad} incorrect ${bad>1?"choices":"choice"} selected`:""}. Review the rationales below.`}</div>`;if(c.tx)h+=`<p class="teach">${c.tx}</p>`}
+    p.iOrder.forEach(i=>{const o=c.iv[i],sel=p.sel.includes(i);let cls="",tag="";
+      if(p.ivDone){if(o[1]&&sel){cls="r-good";tag=`<span class="tag good">Correct choice</span>`}else if(!o[1]&&sel){cls="r-bad";tag=`<span class="tag bad">Should not be selected</span>`}else if(o[1]&&!sel){cls="r-miss";tag=`<span class="tag" style="color:var(--hint)">Missed</span>`}else{tag=`<span class="tag good">Correctly left out</span>`}}
+      h+=`<label class="iv ${cls} ${p.ivDone?"locked":""}"><input type="checkbox" id="iv-${c.id}-${i}" data-act="iv" data-i="${i}" ${sel?"checked":""} ${p.ivDone?"disabled":""}><span class="txt">${o[0]}${p.ivDone?`<div class="why">${tag}${o[2]}</div>`:""}</span></label>`});
+    if(!p.ivDone)h+=`<div class="nextrow"><button class="btn primary" data-act="submit" ${p.sel.length?"":"disabled"}>Submit interventions</button></div>`;
+    else if(c.order){if(!p.ivNext)h+=cont("iv","Continue to sequencing →")}
+    else h+=nextBtn();
+    h+=`</div>`;
+  }
+  h+=`</section>`;
+  // 4 — sequencing (lethal rhythms)
+  if(c.order){
+    h+=`<section class="step" data-state="${!p.ivNext?"locked":p.seqDone?"done":"active"}" id="s4"><div class="step-head"><span class="step-num">4</span><div><h3>Put them in order</h3><p class="step-q">${p.ivNext?(p.seqDone?"The correct sequence, with the reason for each step’s place.":"These are the correct interventions. Use the arrows to arrange them in the order you would perform them, first at the top."):"Unlocks after you review your interventions."}</p></div></div>`;
+    if(p.ivNext){
+      h+=`<div class="step-body">`;
+      if(p.seqDone)h+=`<div class="result" id="sq-res">${p.seqRevealed?"Here is the correct sequence.":p.seqTries===1?"Correct sequence on the first try.":"Correct sequence."} In a real code, a team does several of these at once; the order shows what has to start first.</div>`;
+      const list=p.seqDone?c.order:p.seq;
+      h+=`<ol class="seq">`;
+      list.forEach((ii,k)=>{const m=p.seqMarks?p.seqMarks[k]:null,cls=p.seqDone?"s-ok":m===true?"s-ok":m===false?"s-bad":"";
+        h+=`<li class="srow ${cls}"><span class="snum">${k+1}</span><span class="txt">${c.iv[ii][0]}${p.seqDone?`<div class="why">${c.orderNotes[k]}</div>`:""}</span>${p.seqDone?"":`<span class="sbtns"><button class="mv" type="button" data-act="up" data-k="${k}" ${k===0?"disabled":""} aria-label="Move up">↑</button><button class="mv" type="button" data-act="down" data-k="${k}" ${k===list.length-1?"disabled":""} aria-label="Move down">↓</button></span>`}</li>`});
+      h+=`</ol>`;
+      if(!p.seqDone){
+        if(p.seqMarks)h+=`<div class="hint"><b>Not quite.</b> Steps marked in red are out of place. Rearrange them and check again.</div>`;
+        h+=`<div class="nextrow">${p.seqTries?`<button class="btn" data-act="reveal">Show the correct order</button>`:""}<button class="btn primary" data-act="checkseq">Check order</button></div>`;
+      } else h+=nextBtn();
+      h+=`</div>`;
+    }
+    h+=`</section>`;
+  }
+  S.innerHTML=h;
+}
+function allDone(){return CASES.every(caseDone)}
+function nextBtn(){return `<div class="nextrow"><button class="btn primary" data-act="next">${allDone()?"See results":"Next patient →"}</button></div>`}
+function nextUndone(){for(let k=1;k<=order.length;k++){const j=(pos+k)%order.length;if(!caseDone(CASES[order[j]]))return j}return -1}
+
+function renderSummary(){
+  const S=document.getElementById("steps"),done=CASES.filter(c=>prog[c.id].ivDone).length;
+  const mark=b=>b?`<span class="ok">✓</span>`:`<span class="no">✗</span>`;
+  S.innerHTML=`<section class="step summary" data-state="done"><h2>Your results</h2><p class="step-q">${done} of ${CASES.length} patients completed · ${total()} of ${MAX} points. A point is earned for choosing a correct first step on the first try, naming the rhythm on the first try, choosing exactly the right interventions, and (for VT, VF, asystole, and PEA) putting them in order on the first try.</p>
+  <div style="overflow-x:auto;margin-top:12px"><table class="sumtable"><thead><tr><th>Patient</th><th>Rhythm</th><th>First</th><th>ID</th><th>Tx</th><th>Order</th></tr></thead><tbody>
+  ${order.map((ci,k)=>{const c=CASES[ci],p=prog[c.id],t=pts(c.id);return `<tr><td>${c.patient}${started(c)?` <button class="btn mini" data-act="redo" data-k="${k}">Redo</button>`:""}</td><td>${p.ivDone?RHYTHMS.find(r=>r[0]===ans(c))[1]:`<button class="btn" data-act="goto" data-k="${k}">Open case</button>`}</td><td class="c">${p.aDone?mark(t.a):"–"}</td><td class="c">${p.rDone?mark(t.r):"–"}</td><td class="c">${p.ivDone?mark(t.i):"–"}</td><td class="c">${c.order?(p.seqDone?mark(t.o):"–"):""}</td></tr>`}).join("")}
+  </tbody></table></div><div class="nextrow" style="margin-top:14px"><button class="btn primary" data-act="restart">Start over (new order)</button></div></section>`;
+}
+
+document.getElementById("steps").addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b||b.disabled)return;
+  const act=b.dataset.act;if(act==="iv")return;
+  if(act==="restart"){newRun();window.scrollTo({top:0});return}
+  if(act==="goto"){loadCase(+b.dataset.k);window.scrollTo({top:0});return}
+  if(act==="redo"){const k=+b.dataset.k,c2=CASES[order[k]];prog[c2.id]=freshProg(c2);loadCase(k);window.scrollTo({top:0});return}
+  if(act==="resetcase"){
+    if(!resetArmed){resetArmed=true;render();clearTimeout(resetTimer);resetTimer=setTimeout(()=>{resetArmed=false;if(!showingSummary)render()},4000);return}
+    resetArmed=false;clearTimeout(resetTimer);const c2=cur();prog[c2.id]=freshProg(c2);loadCase(pos);scrollToEl("s1");return}
+  const c=cur(),p=prog[c.id];
+  if(act==="assess"){const k=+b.dataset.k,o=p.aOpts[k];if(o.ok){p.aDone=true;p.aPick=k;render();scrollToEl("s1")}else if(!p.aWrong.includes(k)){p.aWrong.push(k);render()}}
+  else if(act==="cont"){const st=b.dataset.s;if(st==="a"){p.aNext=true;render();scrollToEl("s2")}else if(st==="r"){p.rNext=true;render();scrollToEl("s3")}else{p.ivNext=true;render();scrollToEl("s4")}}
+  else if(act==="rhythm"){const r=b.dataset.r;if(r===ans(c)){p.rDone=true;render();scrollToEl("s2")}else{p.rWrong.push(r);render()}}
+  else if(act==="submit"){p.ivDone=true;render();scrollToEl("s3")}
+  else if(act==="up"||act==="down"){const k=+b.dataset.k,j=act==="up"?k-1:k+1;[p.seq[k],p.seq[j]]=[p.seq[j],p.seq[k]];p.seqMarks=null;render();
+    const f=document.querySelector(`[data-act="${act}"][data-k="${j}"]:not(:disabled)`)||document.querySelector(`.mv[data-k="${j}"]:not(:disabled)`);if(f)f.focus()}
+  else if(act==="checkseq"){p.seqTries++;p.seqMarks=p.seq.map((ii,k)=>ii===c.order[k]);if(p.seqMarks.every(Boolean))p.seqDone=true;render();if(p.seqDone)scrollToEl("s4")}
+  else if(act==="reveal"){p.seqRevealed=true;p.seqDone=true;p.seqMarks=null;render();scrollToEl("s4")}
+  else if(act==="next"){if(allDone()){showingSummary=true;render();window.scrollTo({top:0})}else{loadCase(nextUndone());window.scrollTo({top:0})}}
+});
+document.getElementById("steps").addEventListener("change",e=>{
+  const b=e.target.closest("[data-act='iv']");if(!b)return;const p=prog[cur().id],i=+b.dataset.i;
+  p.sel=b.checked?[...p.sel,i]:p.sel.filter(x=>x!==i);
+  const sub=document.querySelector("[data-act='submit']");if(sub)sub.disabled=!p.sel.length;
+});
+function scrollToEl(id){
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const el=document.getElementById(id);if(!el)return;
+    const hdr=document.querySelector(".top").getBoundingClientRect().bottom;
+    const y=window.scrollY+el.getBoundingClientRect().top-hdr-12;
+    const rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({top:Math.max(0,y),behavior:rm?"auto":"smooth"});
+  }));
+}
+
+document.getElementById("pauseBtn").addEventListener("click",e=>{paused=!paused;e.currentTarget.textContent=paused?"Resume monitor":"Freeze monitor"});
+document.getElementById("stripBtn").addEventListener("click",()=>drawStrip(Math.max(.1,simT-6)));
+
+const ov=document.getElementById("overlay");
+function openCases(){
+  document.getElementById("clist").innerHTML=order.map((ci,k)=>{const c=CASES[ci],p=prog[c.id];
+    const st=caseDone(c)?"Done":p.aDone?"In progress":"";
+    return `<button class="citem ${k===pos&&!showingSummary?"cur":""}" data-k="${k}"><span class="n">${k+1}</span><span>${c.patient}, ${c.age}<br><small style="color:var(--muted)">${c.setting}</small></span><span class="s">${st}</span></button>`}).join("");
+  ov.hidden=false;document.getElementById("closeCases").focus();
+}
+document.getElementById("openCases").addEventListener("click",openCases);
+document.getElementById("closeCases").addEventListener("click",()=>ov.hidden=true);
+ov.addEventListener("click",e=>{if(e.target===ov)ov.hidden=true;const it=e.target.closest(".citem");if(it){ov.hidden=true;loadCase(+it.dataset.k);window.scrollTo({top:0})}});
+document.getElementById("showResults").addEventListener("click",()=>{ov.hidden=true;showingSummary=true;render();window.scrollTo({top:0})});
+document.getElementById("reshuffle").addEventListener("click",()=>{ov.hidden=true;newRun();window.scrollTo({top:0})});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!ov.hidden)ov.hidden=true});
+
+let rsT;window.addEventListener("resize",()=>{clearTimeout(rsT);rsT=setTimeout(()=>{sizeMonitor();if(trace)drawStrip(stripT0)},120)});
+sizeMonitor();newRun();requestAnimationFrame(frame);
+</script>
+
+</body></html>

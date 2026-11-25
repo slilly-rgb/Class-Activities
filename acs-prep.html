@@ -1,0 +1,430 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ACS Prep</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column (student pre-work), sticky part bar, five parts in order: ACS spectrum, Emergency care, After the event, Quiz, Wrap-up. Shares the After the Storm palette so the unit feels like one set. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb; --ink:#18202e; --muted:#5a6476; --line:#d7dde6;
+  --accent:#b8314b; --accent-soft:#f8e3e8; --ok:#1d7349; --ok-soft:#e1f2e8; --bad:#b03a2e; --bad-soft:#f9e4e1;
+  --warn:#9a5b00; --warn-soft:#fbefd9; --sel:#1f4f8f; --sel-soft:#e2ecf8;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:0;line-height:1.15;text-wrap:balance}
+p{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+.col{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar .col{display:flex;gap:6px;overflow-x:auto;padding-block:8px}
+.bar a{flex:0 0 auto;text-decoration:none;color:var(--muted);font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.04em;padding:6px 12px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.bar a b{font-family:var(--mono);font-weight:400;font-size:12px;margin-left:6px}
+.bar a:hover{color:var(--ink);border-color:var(--accent)}
+
+header.top{padding-block:28px 8px}
+.eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.14em;font-size:15px;font-weight:700;color:var(--accent)}
+header.top h1{font-size:44px;margin:4px 0 10px}
+.lead{font-size:19px;max-width:62ch}
+.plan{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:18px}
+.plan div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
+.plan .n{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.plan .l{font-weight:700;line-height:1.3}
+
+main{display:flex;flex-direction:column;gap:22px;padding-block:20px 60px}
+section.part{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 22px 26px;display:flex;flex-direction:column;gap:16px;scroll-margin-top:70px}
+.part > h2{font-size:32px}
+.part .min{font-family:var(--mono);font-size:13px;color:var(--muted);font-weight:400;margin-left:8px;letter-spacing:0}
+h3{font-size:22px;margin-top:6px}
+.prose{display:flex;flex-direction:column;gap:10px;max-width:66ch}
+.muted{color:var(--muted)}
+ul.tight{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.flow span{border-radius:6px;padding:4px 9px;font-size:15px;font-weight:700}
+.flow .r{background:var(--sel-soft);color:var(--sel)}
+.flow .l{background:var(--accent-soft);color:var(--accent)}
+.flow i{font-style:normal;color:var(--muted)}
+.legend{font-size:14px;color:var(--muted)}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-family:var(--display);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface-2);white-space:nowrap}
+td.k{font-weight:700;white-space:nowrap}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.levers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.lever{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface-2);min-width:0}
+.lever b{display:block;font-family:var(--display);font-size:20px;font-weight:600}
+.lever .an{font-style:italic;color:var(--muted);font-size:15px}
+.formula{font-family:var(--mono);font-size:18px;font-weight:600;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;align-self:flex-start}
+
+.figure{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:18px;align-items:center}
+.figure svg{width:100%;height:auto;max-width:340px}
+svg .t{fill:var(--ink);font-family:var(--body);font-size:13px}
+svg .tm{fill:var(--muted);font-family:var(--mono);font-size:11px}
+svg .tb{fill:var(--ink);font-family:var(--body);font-size:13px;font-weight:700}
+svg .rib{stroke:var(--line);stroke-width:1.5}
+svg .stern{fill:var(--surface-2);stroke:var(--muted);stroke-width:1.5}
+svg .mcl{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 4}
+svg .pt{fill:var(--accent)}
+
+.worked{border:2px solid var(--sel);border-radius:10px;padding:16px 18px;background:var(--sel-soft);display:flex;flex-direction:column;gap:12px}
+.worked .eyebrow{color:var(--sel)}
+.worked ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;max-width:64ch}
+.worked .tbl{background:var(--surface)}
+.H{color:var(--bad);font-weight:700}
+
+/* quiz */
+.qintro{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.att{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.q{border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--surface)}
+.q.done{background:var(--surface-2)}
+.qh{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.qn{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:14px;color:var(--accent);font-weight:700}
+.qt{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.stem{font-weight:700;font-size:18px;max-width:64ch}
+textarea{width:100%;min-height:96px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);resize:vertical}
+input[type=text]{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:8px;padding:10px 12px}
+.opt .dot{width:22px;height:22px;border:2px solid var(--muted);margin-top:2px;display:grid;place-items:center;font-size:13px;font-weight:700}
+.opt .dot.round{border-radius:50%} .opt .dot.sq{border-radius:5px}
+.opt.on{border-color:var(--sel);background:var(--sel-soft)} .opt.on .dot{background:var(--sel);border-color:var(--sel);color:var(--surface)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)} .opt.wrong{border-color:var(--bad);background:var(--bad-soft)} .opt.missed{border-style:dashed;border-color:var(--ok)}
+.opt:disabled{cursor:default}
+.mx th:not(:first-child),.mx td:not(:first-child){text-align:center}
+.mx td:first-child{min-width:170px}
+.cell{width:28px;height:28px;border-radius:50%;border:2px solid var(--muted);background:var(--surface);display:inline-grid;place-items:center}
+.cell.on{border-color:var(--sel);background:var(--sel)} .cell.on::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--surface)}
+tr.right td:first-child{color:var(--ok);font-weight:700} tr.wrong td:first-child{color:var(--bad);font-weight:700}
+tr.right .cell.on{background:var(--ok);border-color:var(--ok)} tr.wrong .cell.on{background:var(--bad);border-color:var(--bad)}
+.cell.key{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ok)}
+.keys{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--surface)}
+.keys label{display:flex;gap:10px;align-items:flex-start}
+.keys input{width:20px;height:20px;margin-top:3px;accent-color:var(--ok);flex:0 0 auto}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:8px;padding:10px 18px;font-weight:700;background:var(--accent);color:#fff}
+.btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:14px;color:var(--muted)}
+.fb{border-left:4px solid var(--ok);padding:4px 0 4px 12px;display:flex;flex-direction:column;gap:6px;max-width:66ch}
+.fb.partial{border-left-color:var(--warn)} .fb.miss{border-left-color:var(--bad)}
+.fb .v{font-weight:700}
+.fb ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.result{border:2px solid var(--accent);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;background:var(--accent-soft)}
+.result .big{font-family:var(--display);font-size:40px;font-weight:700;line-height:1}
+
+.summary{font-family:var(--mono);font-size:14px;min-height:150px;background:var(--surface-2)}
+.ok-msg{color:var(--ok);font-weight:700}
+footer{padding-block:0 40px;color:var(--muted);font-size:14px}
+
+@media (max-width:640px){
+  header.top h1{font-size:34px}.plan{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .levers{grid-template-columns:1fr}.figure{grid-template-columns:1fr}
+  section.part{padding:18px 14px 22px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<nav class="bar" aria-label="Parts">
+  <div class="col">
+    <a href="#spectrum">1 · The ACS spectrum<b>8 min</b></a>
+    <a href="#emergency">2 · Emergency care<b>10 min</b></a>
+    <a href="#after">3 · After the event<b>7 min</b></a>
+    <a href="#quiz">4 · Quiz<b>15 min</b></a>
+    <a href="#wrap">5 · Wrap-up<b>2 min</b></a>
+  </div>
+</nav>
+
+<header class="top col">
+  <div class="eyebrow">Unit 4 · Cardiovascular / Hematology · Section 3</div>
+  <h1>ACS Prep</h1>
+  <p class="lead">Do this before class. It takes about 40 minutes. In class you'll tell look-alike chest pain patients apart and choose what to do first, so as you read, notice what separates each condition from its neighbor. The quiz is for practice: answer from memory first.</p>
+  <div class="plan" aria-label="What you will do">
+    <div><span class="n">Part 1</span><div class="l">Stable angina to STEMI, and who presents atypically</div></div>
+    <div><span class="n">Part 2</span><div class="l">The first 10 minutes, drugs, reperfusion and a worked example</div></div>
+    <div><span class="n">Part 3</span><div class="l">Complications, CABG and discharge teaching</div></div>
+    <div><span class="n">Parts 4–5</span><div class="l">10-question quiz, then your muddiest point</div></div>
+  </div>
+</header>
+
+<main class="col">
+
+<section class="part" id="spectrum">
+  <h2>1 · The ACS spectrum <span class="min">about 8 min</span></h2>
+  <p class="prose">Coronary artery disease narrows arteries with plaque. A stable plaque causes predictable pain when demand rises. When a plaque ruptures, a clot forms on it. That is <b>acute coronary syndrome</b>, and how completely the clot blocks the artery decides which kind.</p>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>Pattern</th><th>Troponin</th><th>ECG</th><th>Urgency</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Stable angina</td><td>Predictable with exertion; relieved by rest or nitroglycerin within minutes</td><td>Normal</td><td>Usually normal at rest</td><td>Not ACS; outpatient management</td></tr>
+      <tr><td class="k">Unstable angina</td><td>At rest, new, or getting more frequent, longer or harder to relieve</td><td>Normal</td><td>May show ST depression or T-wave inversion</td><td>ACS: admit, monitor, treat</td></tr>
+      <tr><td class="k">NSTEMI</td><td>Ischemic pain, usually at rest; partial blockage</td><td>Rising</td><td>ST depression or T-wave inversion; no ST elevation</td><td>ACS: anticoagulate; cath within 24–48 hours based on risk</td></tr>
+      <tr><td class="k">STEMI</td><td>Severe, lasting pain; complete blockage; full-thickness injury</td><td>Rising (don't wait for it)</td><td>ST elevation in two related leads</td><td>Emergency: reperfuse now</td></tr>
+      <tr><td class="k">Variant (Prinzmetal) angina</td><td>Coronary spasm at rest, often early morning; triggers include smoking, cocaine and cold</td><td>Usually normal</td><td>Short-lived ST elevation that resolves</td><td>Calcium channel blockers and nitrates</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose"><b>Who presents atypically:</b> women, older adults and people with diabetes often report fatigue, shortness of breath, nausea, or jaw, back or upper-abdominal discomfort instead of crushing chest pain. Treat these as possible ACS until proven otherwise.</p>
+  <p class="prose"><b>Risk factors:</b> you can change smoking, hypertension, high LDL, diabetes, obesity and inactivity. You can't change age, male sex, family history of early heart disease, or menopause.</p>
+</section>
+
+<section class="part" id="emergency">
+  <h2>2 · Emergency care <span class="min">about 10 min</span></h2>
+  <h3>The first 10 minutes</h3>
+  <ul class="tight">
+    <li><b>12-lead ECG within 10 minutes</b> of arrival. The ECG, not the troponin, decides whether this is a STEMI.</li>
+    <li><b>Aspirin</b> 162–325 mg, chewed and not enteric-coated, unless the client is allergic or actively bleeding.</li>
+    <li><b>Nitroglycerin</b> 0.4 mg SL every 5 minutes, up to 3 doses. Hold for SBP under 90, HR under 50, a PDE5 inhibitor (sildenafil or vardenafil within 24 hours, tadalafil within 48 hours), or suspected right ventricular infarction.</li>
+    <li><b>Oxygen</b> only if SpO₂ is under 90%.</li>
+    <li>IV access, troponin and other labs, continuous cardiac monitoring. <b>Morphine</b> only for pain that nitroglycerin doesn't relieve.</li>
+  </ul>
+
+  <h3>ACS medications</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Class</th><th>Examples</th><th>Why</th><th>Nursing checks</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Antiplatelets</td><td>aspirin; clopidogrel, ticagrelor, prasugrel</td><td>Stop the clot from growing; two together is dual antiplatelet therapy</td><td>Bleeding; after a stent, never stop without the cardiologist</td></tr>
+      <tr><td class="k">Anticoagulants</td><td>heparin, enoxaparin</td><td>Stop new clot formation</td><td>aPTT for heparin; platelets; bleeding</td></tr>
+      <tr><td class="k">Nitrates</td><td>nitroglycerin SL, IV</td><td>Dilate veins and coronaries; lower preload and oxygen demand</td><td>BP before each dose; headache is common</td></tr>
+      <tr><td class="k">Beta-blockers</td><td>metoprolol</td><td>Slow the heart and lower oxygen demand</td><td>Hold for bradycardia, hypotension, heart failure or shock</td></tr>
+      <tr><td class="k">Statins</td><td>atorvastatin 40–80 mg</td><td>Stabilize plaque, lower LDL</td><td>Muscle pain; liver enzymes</td></tr>
+      <tr><td class="k">ACE inhibitors</td><td>lisinopril</td><td>Limit remodeling after MI, especially with low EF</td><td>BP, potassium, creatinine</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Reperfusion for STEMI</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Option</th><th>Time goal</th><th>Nursing focus</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Primary PCI (preferred)</td><td>Door-to-balloon 90 minutes or less</td><td>Prepare for the cath lab; after: site, distal pulses, bleeding (Section 1)</td></tr>
+      <tr><td class="k">Fibrinolytic (when PCI can't happen within 120 minutes)</td><td>Door-to-needle 30 minutes or less; within 12 hours of symptom onset</td><td>Screen for contraindications: any prior intracranial bleed, ischemic stroke within 3 months, active bleeding, suspected aortic dissection, recent head trauma or brain surgery, severe uncontrolled BP. Afterward, watch for bleeding and neuro changes.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose">Signs the artery has opened: pain eases, ST elevation resolves, and brief reperfusion dysrhythmias may appear.</p>
+
+  <div class="worked">
+    <div class="eyebrow">Worked example · read it step by step</div>
+    <p><b>Mr. James Whitaker, 63,</b> has crushing chest pain. The ECG shows ST elevation in the inferior leads. BP 88/56, HR 52. Lungs are clear, but JVD is present at 45°. He asks for "one of those under-the-tongue pills."</p>
+    <ol>
+      <li><b>Name it.</b> ST elevation means STEMI, so the clock starts: activate the cath lab now.</li>
+      <li><b>Think about the artery.</b> The inferior wall is usually fed by the right coronary artery, which also supplies the SA and AV nodes and the right ventricle.</li>
+      <li><b>Explain the findings.</b> HR 52 fits RCA involvement of the conduction system. Hypotension with JVD but clear lungs points to a <b>right ventricular infarction</b>: the right side can't push blood forward, so it backs up into the veins, not the lungs.</li>
+      <li><b>Spot the danger.</b> A failing right ventricle depends on preload. Nitroglycerin, morphine and diuretics lower preload and can crash his pressure, and his SBP is already under 90.</li>
+      <li><b>Decide the priority.</b> Hold the nitroglycerin and tell him why. Give aspirin and IV fluid boluses as ordered, keep atropine or pacing ready for bradycardia, and get him to the cath lab.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="part" id="after">
+  <h2>3 · After the event <span class="min">about 7 min</span></h2>
+  <h3>Complications after MI</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Complication</th><th>When</th><th>What you see</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Dysrhythmias</td><td>First 24–48 hours (the most common early cause of death)</td><td>PVCs, VT, VF; bradycardia and heart blocks with inferior MI</td></tr>
+      <tr><td class="k">Heart failure, cardiogenic shock</td><td>Hours to days</td><td>Crackles, S3, hypotension, low urine output</td></tr>
+      <tr><td class="k">Papillary muscle rupture</td><td>Days 2–7</td><td>New holosystolic murmur at the apex; sudden pulmonary edema</td></tr>
+      <tr><td class="k">Ventricular free wall rupture</td><td>Days 1–7</td><td>Sudden tamponade: hypotension, JVD, muffled heart sounds</td></tr>
+      <tr><td class="k">Pericarditis</td><td>Days 1–3</td><td>Sharp pleuritic pain, friction rub</td></tr>
+      <tr><td class="k">Dressler syndrome</td><td>Weeks later</td><td>Autoimmune pericarditis: fever, pleuritic chest pain, friction rub</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose"><b>CABG</b> bypasses blocked arteries with a vein or artery graft when disease is widespread. Early care focuses on bleeding from chest tubes, tamponade, dysrhythmias, BP control, warming and pain control so the client can cough and deep breathe.</p>
+  <h3>Discharge teaching</h3>
+  <ul class="tight">
+    <li><b>Chest pain at home:</b> stop and sit, take 1 nitroglycerin SL. If the pain isn't better or is worse 5 minutes later, call 911. Keep tablets in their original dark container.</li>
+    <li><b>After a stent:</b> take dual antiplatelet therapy exactly as ordered. Stopping early can make the stent clot. Tell every dentist and provider about it.</li>
+    <li><b>No PDE5 inhibitors</b> (sildenafil, tadalafil) with nitrates. Sexual activity can usually resume when the client can climb 2 flights of stairs without symptoms.</li>
+    <li><b>Cardiac rehab,</b> smoking cessation, a heart-healthy diet, and BP, glucose and lipid control.</li>
+  </ul>
+  <p class="hint">Time goals and drug lists vary slightly by textbook. On exams, use your course text.</p>
+</section>
+
+<section class="part" id="quiz">
+  <div class="qintro">
+    <h2>4 · Retrieval quiz <span class="min">about 15 min</span></h2>
+    <span class="att" id="attLabel">Attempt 1 of 2</span>
+  </div>
+  <p class="prose">Answer each question from memory, then press <b>Check</b> to see why. Topics are mixed on purpose. You get two attempts, and your best score counts.</p>
+  <div id="qs" style="display:flex;flex-direction:column;gap:14px"></div>
+  <div class="row"><button class="btn" id="finishBtn" disabled>Finish attempt</button><span class="hint" id="finishHint">Check all 10 questions to finish.</span></div>
+  <div id="result"></div>
+</section>
+
+<section class="part" id="wrap">
+  <h2>5 · Wrap-up <span class="min">about 2 min</span></h2>
+  <div class="prose">
+    <label for="mud"><b>Muddiest point:</b> which two conditions are you most likely to mix up, or what is still unclear?</label>
+    <textarea id="mud" placeholder="For example: I'm not sure when to hold nitroglycerin."></textarea>
+    <label for="sname"><b>Your name</b></label>
+    <input type="text" id="sname" autocomplete="name">
+  </div>
+  <div class="row"><button class="btn" id="sumBtn">Create my summary</button></div>
+  <div id="sumWrap" hidden style="display:flex;flex-direction:column;gap:10px">
+    <p>Copy this and paste it into the course assignment.</p>
+    <textarea id="summary" class="summary" readonly aria-label="Your summary"></textarea>
+    <div class="row"><button class="btn ghost" id="copyBtn">Copy summary</button><span id="copyMsg" class="hint" aria-live="polite"></span></div>
+  </div>
+</section>
+
+</main>
+<footer class="col">Your answers stay in this browser only. Nothing is sent anywhere until you paste your summary.</footer>
+
+<script>
+const QS=[
+ {type:"recall",stem:"From memory, explain how stable angina and unstable angina differ, and why the difference matters.",
+  keys:["Stable: predictable, brought on by exertion","Stable: relieved by rest or nitroglycerin within minutes","Unstable: at rest, new, or worsening in frequency or length","Unstable is ACS (a ruptured plaque with clot) and needs emergency care"],
+  model:"Stable angina is predictable, comes with exertion and goes away with rest or nitroglycerin. Unstable angina happens at rest, is new, or is getting worse. It means a plaque has ruptured and a clot is forming, so it is an emergency (ACS), even though troponin is normal."},
+ {type:"matrix",stem:"Classify each presentation.",cols:["Stable angina","Unstable angina","NSTEMI","STEMI"],
+  rows:[["Chest pressure climbing stairs, gone after 3 minutes of rest",0,"Predictable and relieved by rest."],["New chest pain at rest; troponin normal on two draws",1,"Rest pain without myocardial injury."],["Chest pain at rest; troponin rising; ST depression",2,"Injury (rising troponin) without ST elevation."],["Crushing pain with ST elevation in two related leads",3,"ST elevation means complete blockage: reperfuse now."]]},
+ {type:"mc",stem:"A client arrives at the ED with chest pain. How soon should the 12-lead ECG be done?",
+  opts:[["Within 10 minutes of arrival",1,"The ECG decides whether this is a STEMI that needs immediate reperfusion."],["Within 30 minutes of arrival",0,"Too slow; time is muscle."],["After the first troponin comes back",0,"Never wait for troponin to get the ECG."],["Only if the pain lasts more than 20 minutes",0,"Every possible ACS gets an ECG right away."]]},
+ {type:"mc",stem:"The nurse is about to give nitroglycerin 0.4 mg SL to a client with chest pain. Which finding should make the nurse hold the dose?",
+  opts:[["The client took sildenafil last night",1,"PDE5 inhibitors plus nitrates can cause severe, lasting hypotension."],["BP 136/84 mm Hg",0,"This BP is safe for nitroglycerin."],["HR 88",0,"This heart rate is safe."],["A headache after the first tablet",0,"Headache is an expected side effect, not a reason to hold."]]},
+ {type:"selectN",need:2,stem:"A client with suspected ACS arrives in the ED. SpO₂ is 97% on room air. Which 2 actions should the nurse take first?",
+  opts:[["Obtain a 12-lead ECG",1,"Within 10 minutes of arrival."],["Give aspirin 324 mg, chewed",1,"Chewing gets the antiplatelet effect working quickly."],["Start oxygen at 4 L/min by nasal cannula",0,"Oxygen is for SpO₂ under 90%; this client doesn't need it."],["Give enteric-coated aspirin",0,"The coating slows absorption; use chewable aspirin."],["Walk the client to the bathroom for a urine sample",0,"Exertion raises oxygen demand during possible ischemia."]]},
+ {type:"mc",stem:"A client with a STEMI arrives at a hospital with a cath lab. What is the goal for reperfusion?",
+  opts:[["Door-to-balloon time of 90 minutes or less",1,"Primary PCI is preferred when it can be done quickly."],["Door-to-needle time of 90 minutes or less",0,"The fibrinolytic goal is 30 minutes, and PCI is preferred here."],["Reperfusion within 24 hours",0,"Far too slow for a STEMI."],["Reperfusion after troponin peaks",0,"Waiting lets more muscle die."]]},
+ {type:"matrix",stem:"A client with a STEMI may receive a fibrinolytic. Which findings are contraindications?",cols:["Contraindication","Not a contraindication"],
+  rows:[["Hemorrhagic stroke 2 years ago",0,"Any prior intracranial bleed is an absolute contraindication."],["Active GI bleeding",0,"Fibrinolytics would make bleeding worse."],["Suspected aortic dissection",0,"A fibrinolytic could cause a catastrophic bleed."],["Age 72",1,"Age alone isn't a contraindication."],["Hypertension well controlled on lisinopril",1,"Only severe, uncontrolled BP is a concern."]]},
+ {type:"recall",stem:"A client with an inferior MI has BP 86/54, JVD and clear lungs. What is likely happening, and what should the nurse avoid and give?",
+  keys:["Right ventricular infarction","The right ventricle depends on preload","Avoid nitrates (and morphine or diuretics), which lower preload","Give IV fluids as ordered to support preload"],
+  model:"This is likely a right ventricular infarction (the RCA feeds the inferior wall and the right ventricle). The failing right ventricle depends on preload, so avoid nitroglycerin, morphine and diuretics. Give IV fluid boluses as ordered to keep blood moving forward."},
+ {type:"matrix",stem:"Match each finding to the complication after MI.",cols:["Papillary muscle rupture","Dressler syndrome","Ventricular dysrhythmia","Free wall rupture"],
+  rows:[["New holosystolic murmur and sudden pulmonary edema on day 3",0,"The mitral valve's support tears, so blood floods back toward the lungs."],["Fever, pleuritic chest pain and a friction rub 3 weeks later",1,"Autoimmune pericarditis weeks after the MI."],["PVCs progressing to ventricular tachycardia in the first 24 hours",2,"The most common cause of early death after MI."],["Sudden hypotension, JVD and muffled heart sounds on day 4",3,"Blood fills the pericardium: tamponade."]]},
+ {type:"mc",stem:"A client with a new drug-eluting stent takes aspirin and clopidogrel. He says he'll stop the clopidogrel a week before a dental cleaning. What should the nurse say?",
+  opts:[["\"Don't stop it unless your cardiologist says to. Stopping early can cause the stent to clot.\"",1,"Stent thrombosis can cause a sudden, large MI."],["\"That's a good plan to prevent bleeding.\"",0,"Unsafe advice."],["\"Stop both drugs for a week to be safe.\"",0,"Even more dangerous."],["\"You can switch to ibuprofen for that week.\"",0,"Ibuprofen doesn't protect the stent and adds bleeding risk."]]}
+];
+
+const st={attempt:1,scores:[],resp:{},checked:{},order:{}};
+function load(){try{const d=JSON.parse(localStorage.getItem("acsp-v1")||"null");if(d){st.scores=d.scores||[];st.attempt=Math.min(2,(d.scores||[]).length+1);if(d.name)document.getElementById("sname").value=d.name;if(d.mud)document.getElementById("mud").value=d.mud;}}catch(e){}}
+function save(){try{localStorage.setItem("acsp-v1",JSON.stringify({scores:st.scores,name:document.getElementById("sname").value,mud:document.getElementById("mud").value}))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(n){const a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function newOrders(){QS.forEach((q,i)=>{if(q.opts)st.order[i]=shuffle(q.opts.length)})}
+const TYPE={recall:"Free recall",mc:"Single answer",matrix:"Matrix · one per row",selectN:"Select 2"};
+
+function score(i){const q=QS[i],r=st.resp[i]||{};
+  if(q.type==="recall") return (r.keys||[]).length/q.keys.length;
+  if(q.type==="mc") return q.opts[r.sel]&&q.opts[r.sel][1]?1:0;
+  if(q.type==="matrix") return q.rows.reduce((a,row,k)=>a+(r[k]===row[1]?1:0),0)/q.rows.length;
+  if(q.type==="selectN"){const s=r.sel||[];return s.filter(k=>q.opts[k][1]).length/q.need;}
+}
+function ready(i){const q=QS[i],r=st.resp[i]||{};
+  if(q.type==="recall") return r.revealed;
+  if(q.type==="mc") return r.sel!=null;
+  if(q.type==="matrix") return q.rows.every((_,k)=>r[k]!=null);
+  if(q.type==="selectN") return (r.sel||[]).length===q.need;
+}
+function fbBox(i){const s=score(i),cls=s===1?"":s>0?" partial":" miss",v=s===1?"Correct.":s>0?"Partly correct.":"Not quite.";
+  const q=QS[i];let li="";
+  if(q.type==="mc") li=st.order[i].map(k=>`<li><b>${q.opts[k][1]?"Correct":"Incorrect"}:</b> ${esc(q.opts[k][0])}. ${esc(q.opts[k][2])}</li>`).join("");
+  if(q.type==="selectN") li=st.order[i].map(k=>`<li><b>${q.opts[k][1]?"Do this":"Don't"}:</b> ${esc(q.opts[k][0])}. ${esc(q.opts[k][2])}</li>`).join("");
+  if(q.type==="matrix") li=q.rows.map(row=>`<li><b>${esc(row[0])}: ${esc(q.cols[row[1]])}.</b> ${esc(row[2])}</li>`).join("");
+  if(q.type==="recall") li=`<li>${esc(q.model)}</li>`;
+  return `<div class="fb${cls}"><span class="v">${v} ${q.type==="recall"?"You marked "+(st.resp[i].keys||[]).length+" of "+q.keys.length+" key points.":""}</span><ul>${li}</ul></div>`;
+}
+function renderQ(i){
+  const q=QS[i],r=st.resp[i]||(st.resp[i]={}),done=!!st.checked[i];let body="";
+  if(q.type==="recall"){
+    body=`<textarea id="rec${i}" data-rec="${i}" ${done?"readonly":""} placeholder="Type your answer from memory.">${esc(r.text||"")}</textarea>`;
+    if(r.revealed){body+=`<div class="keys"><b>Model answer</b><p>${esc(q.model)}</p><span class="hint">Tick each key point your answer included.</span>${q.keys.map((k,j)=>`<label><input type="checkbox" id="key${i}_${j}" data-key="${i}" data-j="${j}" ${(r.keys||[]).includes(j)?"checked":""} ${done?"disabled":""}><span>${esc(k)}</span></label>`).join("")}</div>`}
+  }
+  if(q.type==="mc"||q.type==="selectN"){
+    const multi=q.type==="selectN";
+    body=`<div class="opts">${st.order[i].map(k=>{const o=q.opts[k];const on=multi?(r.sel||[]).includes(k):r.sel===k;let c="opt"+(on?" on":"");
+      if(done){if(on&&o[1])c+=" right";else if(on&&!o[1])c+=" wrong";else if(!on&&o[1])c+=" missed";}
+      return `<button class="${c}" data-q="${i}" data-o="${k}" aria-pressed="${on}" ${done?"disabled":""}><span class="dot ${multi?"sq":"round"}">${on&&multi?"✓":""}</span><span>${esc(o[0])}</span></button>`}).join("")}</div>`;
+  }
+  if(q.type==="matrix"){
+    body=`<div class="tbl"><table class="mx"><thead><tr><th></th>${q.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${q.rows.map((row,k)=>{
+      const cls=done?(r[k]===row[1]?"right":"wrong"):"";
+      return `<tr class="${cls}"><td>${esc(row[0])}</td>${q.cols.map((c,j)=>`<td><button class="cell${r[k]===j?" on":""}${done&&row[1]===j&&r[k]!==j?" key":""}" data-q="${i}" data-r="${k}" data-c="${j}" aria-label="${esc(row[0])}: ${esc(c)}" aria-pressed="${r[k]===j}" ${done?"disabled":""}></button></td>`).join("")}</tr>`}).join("")}</tbody></table></div>`;
+  }
+  let actions="";
+  if(!done){
+    if(q.type==="recall"&&!r.revealed) actions=`<button class="btn" data-reveal="${i}" ${(r.text||"").trim()?"":"disabled"}>Show model answer</button><span class="hint">Write something first, even a guess.</span>`;
+    else actions=`<button class="btn" data-check="${i}" ${ready(i)?"":"disabled"}>Check</button>`;
+  }
+  const el=document.getElementById("q"+i);
+  el.className="q"+(done?" done":"");
+  el.innerHTML=`<div class="qh"><span class="qn">Question ${i+1}</span><span class="qt">${TYPE[q.type]}</span></div><p class="stem">${esc(q.stem)}</p>${body}<div class="row">${actions}</div>${done?fbBox(i):""}`;
+  updateFinish();
+}
+function renderQuiz(){
+  document.getElementById("qs").innerHTML=QS.map((_,i)=>`<article id="q${i}"></article>`).join("");
+  QS.forEach((_,i)=>renderQ(i));
+  document.getElementById("attLabel").textContent=`Attempt ${st.attempt} of 2`+(st.scores.length?` · best so far ${best().toFixed(1)} / 10`:"");
+  renderResult();
+}
+function best(){return st.scores.length?Math.max(...st.scores):0}
+function updateFinish(){const n=QS.filter((_,i)=>st.checked[i]).length;const b=document.getElementById("finishBtn");
+  const finished=st.scores.length>=st.attempt;
+  b.disabled=n<QS.length||finished; document.getElementById("finishHint").textContent=finished?"":n<QS.length?`${n} of ${QS.length} checked.`:"Ready to finish.";}
+function renderResult(){
+  const el=document.getElementById("result");
+  if(st.scores.length<st.attempt&&!(st.scores.length===2)){el.innerHTML="";return}
+  const last=st.scores[st.scores.length-1];
+  const missed=QS.map((q,i)=>[i,score(i)]).filter(x=>x[1]<1).map(x=>x[0]+1);
+  const canRetake=st.scores.length<2;
+  el.innerHTML=`<div class="result"><span class="eyebrow">Attempt ${st.scores.length} score</span><span class="big">${last.toFixed(1)} / 10</span>
+   <p>${missed.length?`Review questions ${missed.join(", ")} before class. Those topics come up again in the session.`:"Every question correct. Bring a question of your own to class."}</p>
+   <div class="row">${canRetake?`<button class="btn ghost" id="retakeBtn">Retake quiz (attempt 2)</button><span class="hint">Questions and options are reshuffled.</span>`:`<span class="hint">Best score: ${best().toFixed(1)} / 10. Go on to the wrap-up.</span>`}</div></div>`;
+}
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.o!=null){const i=+b.dataset.q,k=+b.dataset.o,q=QS[i],r=st.resp[i];
+    if(q.type==="mc") r.sel=k; else {r.sel=r.sel||[]; if(r.sel.includes(k)) r.sel=r.sel.filter(x=>x!==k); else if(r.sel.length<q.need) r.sel.push(k);}
+    renderQ(i);return;}
+  if(b.dataset.r!=null){const i=+b.dataset.q;st.resp[i][+b.dataset.r]=+b.dataset.c;renderQ(i);return;}
+  if(b.dataset.reveal!=null){const i=+b.dataset.reveal;st.resp[i].revealed=true;renderQ(i);return;}
+  if(b.dataset.check!=null){const i=+b.dataset.check;st.checked[i]=true;renderQ(i);return;}
+  if(b.id==="finishBtn"){st.scores.push(QS.reduce((a,_,i)=>a+score(i),0));save();renderQuiz();document.getElementById("result").scrollIntoView({block:"center"});return;}
+  if(b.id==="retakeBtn"){st.attempt=2;st.resp={};st.checked={};newOrders();renderQuiz();document.getElementById("quiz").scrollIntoView();return;}
+  if(b.id==="sumBtn"){makeSummary();return;}
+  if(b.id==="copyBtn"){const t=document.getElementById("summary");const msg=document.getElementById("copyMsg");
+    const done=()=>{msg.textContent="Copied. Paste it into the course assignment.";msg.className="ok-msg"};
+    const fallback=()=>{t.focus();t.select();msg.textContent="Text selected. Press Ctrl+C (or ⌘C) to copy.";msg.className="hint"};
+    try{navigator.clipboard.writeText(t.value).then(done,fallback)}catch(err){fallback()}
+    return;}
+});
+document.addEventListener("input",e=>{
+  if(e.target.dataset.rec!=null){const i=+e.target.dataset.rec;st.resp[i].text=e.target.value;
+    const btn=document.querySelector(`[data-reveal="${i}"]`);if(btn)btn.disabled=!e.target.value.trim();}
+  if(e.target.id==="mud"||e.target.id==="sname") save();
+});
+document.addEventListener("change",e=>{
+  if(e.target.dataset.key!=null){const i=+e.target.dataset.key,j=+e.target.dataset.j,r=st.resp[i];r.keys=r.keys||[];
+    if(e.target.checked){if(!r.keys.includes(j))r.keys.push(j)}else r.keys=r.keys.filter(x=>x!==j);}
+});
+function makeSummary(){
+  const name=document.getElementById("sname").value.trim()||"(name not entered)";
+  const mud=document.getElementById("mud").value.trim()||"(none entered)";
+  const d=new Date();
+  const att=st.scores.length?st.scores.map((s,i)=>`Attempt ${i+1}: ${s.toFixed(1)} / 10`).join("; ")+` (best ${best().toFixed(1)})`:"Quiz not finished";
+  document.getElementById("summary").value=`ACS Prep (pre-class assignment)\nName: ${name}\nCompleted: ${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}\nQuiz: ${att}\nMuddiest point: ${mud}`;
+  document.getElementById("sumWrap").hidden=false; save();
+}
+load(); newOrders(); renderQuiz();
+</script>
+
+</body></html>

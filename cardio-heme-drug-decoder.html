@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cardio-Heme Drug Decoder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a pharmacy-label reference — sticky section rail on the left, one section at a time on the right; every drug class is a "label" card, every section ends in a check. */
+:root{
+  --paper:#f6f7f8;
+  --card:#ffffff;
+  --ink:#16202b;
+  --muted:#56616d;
+  --rule:#d9dee3;
+  --accent:#a3172f;      /* cardiac crimson */
+  --accent-soft:#f8e6e9;
+  --heme:#1f4f86;        /* hematology blue */
+  --heme-soft:#e4edf8;
+  --good:#1d6b42; --good-soft:#e2f2e8;
+  --bad:#a12a1b;  --bad-soft:#fbe7e3;
+  --warn:#8a5a00; --warn-soft:#fbf0d9;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+    --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+    --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+  --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+  --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.1rem;font-weight:700}
+h2{font-size:1.65rem;font-weight:700}
+h3{font-size:1.25rem;font-weight:600}
+h4{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+p{margin:0}
+a{color:var(--heme)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--heme);outline-offset:2px}
+.mono{font-family:var(--mono)}
+
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px 16px;border-right:1px solid var(--rule);background:var(--card);display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand .rx{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.08em}
+.brand b{font-family:var(--display);font-size:1.2rem}
+.brand span{font-size:.82rem;color:var(--muted)}
+nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+nav a{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;text-decoration:none;color:var(--ink);font-size:.92rem}
+nav a:hover{background:var(--paper)}
+nav a[aria-current="page"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+nav .num{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+nav .chip{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:10px;background:var(--paper);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+nav .chip.done{background:var(--good-soft);color:var(--good)}
+.overall{font-size:.85rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.bar{height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good);width:0}
+
+main{padding:32px clamp(16px,4vw,48px) 80px;max-width:1080px;width:100%}
+.view{display:flex;flex-direction:column;gap:28px}
+.eyebrow{font-family:var(--mono);font-size:.78rem;color:var(--accent);letter-spacing:.06em}
+.heme .eyebrow{color:var(--heme)}
+.lede{max-width:68ch;color:var(--muted);font-size:1.05rem}
+.prose{max-width:68ch;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:20px}
+.objectives{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.steps .panel{display:flex;flex-direction:column;gap:6px}
+.steps .panel b{font-family:var(--display);font-size:1.05rem}
+
+/* stem table */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--display);font-weight:600;font-size:.85rem;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td .stem{font-family:var(--mono);font-weight:600;color:var(--accent)}
+tr.h td .stem{color:var(--heme)}
+.groupRow td{background:var(--paper);font-family:var(--display);font-weight:600;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+
+/* flip drill */
+.drill{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.flip{border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:14px 12px;min-height:96px;text-align:left;display:flex;flex-direction:column;gap:4px;color:var(--ink)}
+.flip .front{font-family:var(--mono);font-size:1.05rem;font-weight:600;color:var(--accent)}
+.flip.h .front{color:var(--heme)}
+.flip .back{font-size:.82rem;color:var(--muted)}
+.flip .hint{font-size:.75rem;color:var(--muted)}
+.flip[aria-pressed="true"]{background:var(--paper)}
+
+/* grouped nav, decode steps, tabs, ABCD tiles */
+nav .navgroup{font-family:var(--display);font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 10px 2px}
+nav .navgroup:first-child{padding-top:0}
+.decodeSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dstep{border:1px solid var(--rule);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--paper)}
+.dstep .big{font-family:var(--display);font-size:1.35rem;font-weight:600}
+.dstep .big.mono{font-family:var(--mono);font-size:1.25rem}
+.dstep mark{background:var(--accent-soft);color:var(--accent);padding:0 2px;border-radius:3px}
+.dstep small{color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--rule);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:999px;font-size:.88rem}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.flip .ex1{font-size:.8rem;color:var(--muted)}
+.abcd{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.abcdTile{display:flex;flex-direction:column;gap:4px;padding:14px;border:1px solid var(--rule);border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink)}
+.abcdTile .letter{font-family:var(--display);font-size:2rem;font-weight:700;line-height:1;color:var(--accent)}
+.abcdTile small{color:var(--muted);font-size:.82rem}
+.abcdTile:hover{border-color:var(--accent)}
+.abcdTile[aria-current="page"]{border:2px solid var(--accent);background:var(--accent-soft)}
+@media (max-width:700px){ .decodeSteps,.abcd{grid-template-columns:1fr 1fr} }
+/* print controls */
+.secHead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cardTools{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.printbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);background:var(--card);color:var(--muted);font-size:.8rem;font-weight:600;padding:5px 10px;border-radius:6px}
+.printbtn:hover{color:var(--ink);border-color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--card);padding:12px 16px;border-radius:8px;font-size:.9rem;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:10}
+@media print{ .rail,.printbtn,.quiz,.pager,.toast{display:none !important} .shell{display:block} }
+/* traps */
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.trap{border-left:4px solid var(--warn);background:var(--warn-soft);border-radius:0 8px 8px 0;padding:12px 14px;font-size:.92rem}
+.trap b{display:block;font-family:var(--display);margin-bottom:2px}
+
+/* pathway diagrams */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.node{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:.9rem;display:flex;flex-direction:column;gap:4px;min-width:120px;flex:1 1 120px}
+.node b{font-family:var(--display);font-size:1rem}
+.node small{color:var(--muted)}
+.node small b{font-family:inherit;font-size:inherit;font-weight:600;color:var(--ink)}
+.arrow{display:flex;align-items:center;color:var(--muted);font-family:var(--mono);font-size:1.1rem}
+.block{display:inline-block;font-family:var(--mono);font-size:.74rem;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--accent);color:var(--card);align-self:flex-start}
+.heme .block{background:var(--heme)}
+.lanes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.lane{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.lane ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+.diagcap{font-size:.85rem;color:var(--muted);max-width:68ch}
+
+/* drug class cards */
+.cards{display:flex;flex-direction:column;gap:18px}
+.dcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.dhead{display:grid;grid-template-columns:1fr auto;gap:8px 16px;padding:16px 20px;border-bottom:1px solid var(--rule);border-top:5px solid var(--accent)}
+.heme .dhead{border-top-color:var(--heme)}
+.dhead .stemTag{font-family:var(--mono);font-weight:600;font-size:1.05rem;color:var(--accent);align-self:start;padding:2px 10px;border:1.5px solid currentColor;border-radius:6px;white-space:nowrap}
+.heme .dhead .stemTag{color:var(--heme)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;color:var(--muted);grid-column:1/-1}
+.meta b{color:var(--ink);font-weight:600}
+.ex{grid-column:1/-1;font-size:.92rem}
+.ex span{font-family:var(--mono);font-size:.86rem;background:var(--paper);border:1px solid var(--rule);padding:1px 7px;border-radius:4px;margin:2px 4px 2px 0;display:inline-block}
+.dbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+.cell{padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:6px}
+.cell:nth-child(odd){border-right:1px solid var(--rule)}
+.cell.wide{grid-column:1/-1;border-right:0}
+.cell ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:3px;font-size:.92rem}
+.cell p{font-size:.94rem}
+.cell.adv{background:var(--bad-soft)}
+.cell.adv h4{color:var(--bad)}
+.dtrap{padding:10px 20px;background:var(--warn-soft);font-size:.9rem}
+.dtrap b{color:var(--warn)}
+
+/* quiz */
+.quiz{display:flex;flex-direction:column;gap:16px}
+.quizHead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;border-top:2px solid var(--ink);padding-top:16px}
+.score{font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.q .qn{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.q .stemQ{font-weight:500;max-width:72ch}
+.q .tag{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:4px;background:var(--warn-soft);color:var(--warn);margin-left:6px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--card);cursor:pointer;font-size:.95rem}
+.opt:hover{border-color:var(--muted)}
+.opt input{margin:3px 0 0;accent-color:var(--heme);width:16px;height:16px}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border:2px dashed var(--good);background:var(--good-soft)}
+.qfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--card);padding:8px 16px;border-radius:6px;font-weight:600;font-size:.9rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.verdict{font-weight:600;font-size:.92rem}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.why{border-left:3px solid var(--heme);padding:8px 12px;background:var(--heme-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:18px}
+
+/* summary */
+.sumgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.sumcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.sumcard .big{font-family:var(--display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:10px}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.mid{background:var(--warn-soft);color:var(--warn)}
+.pill.low{background:var(--bad-soft);color:var(--bad)}
+.pill.none{background:var(--paper);color:var(--muted)}
+.misslist{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.receptor td:first-child{font-family:var(--mono);font-weight:600}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule)}
+  nav ol{flex-direction:row;flex-wrap:wrap}
+  nav a{grid-template-columns:auto auto;padding:6px 10px}
+  nav a .chip{display:none}
+  nav .navgroup{width:100%;padding:8px 4px 0}
+  .dbody{grid-template-columns:1fr}
+  .cell:nth-child(odd){border-right:0}
+}
+@media (prefers-reduced-motion:no-preference){
+  .opt,.flip{transition:background .15s,border-color .15s}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <span class="rx">UNIT 4 · PHARMACOLOGY</span>
+      <b>Cardio-Heme Drug Decoder</b>
+      <span>Cardiovascular &amp; hematology medications</span>
+    </div>
+    <nav aria-label="Sections"><ol id="nav"></ol></nav>
+    <div class="overall">
+      <div style="display:flex;justify-content:space-between"><span>Questions answered</span><span id="ovText" class="mono">0 / 0</span></div>
+      <div class="bar"><i id="ovBar"></i></div>
+      <button class="btn ghost" id="resetAll" type="button" style="font-size:.8rem;padding:6px 10px">Start over</button>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ============================================================
+   CONTENT
+   Card fields: name, pharm, ther, stem, ex[], how, mon[], edu[], se[], ae[], trap
+   Question fields: t ("mc"|"sata"), s (stem), o[] (options), a[] (correct indexes), w (rationale)
+   ============================================================ */
+const SECTIONS = [
+{
+  id:"start", num:"00", group:"Getting started", title:"Start here", kind:"intro"
+},
+{
+  id:"decode", num:"01", group:"Getting started", title:"How to learn pharmacology", kind:"decode",
+  lede:"There are too many drugs to memorize one at a time. These three habits turn a long list into a few patterns you can reason from, and help those patterns stick.",
+  quiz:[
+    {t:"mc", s:"A drug reference lists metoprolol with pharmacologic class “beta-adrenergic blocker” and therapeutic class “antihypertensive.” Which statement best explains the two labels?",
+     o:["Pharmacologic class tells how it works; therapeutic class tells what it treats",
+        "Pharmacologic class tells what it treats; therapeutic class tells how it works",
+        "Both labels describe the chemical structure the drug's stem is based on",
+        "Therapeutic class is assigned only to drugs whose names have no stem"],
+     a:[0], w:"The pharmacologic class names the mechanism (blocks beta-adrenergic receptors). The therapeutic class names the clinical use (lowers blood pressure). One pharmacologic class can serve several therapeutic classes: calcium channel blockers are both antihypertensives and antiarrhythmics."},
+    {t:"mc", s:"A student has 40 medications to learn for the next exam. Which approach will help the most?",
+     o:["Learn one key drug per class, then compare the rest to it","Make a separate flashcard for every drug and reread them","Memorize each drug's side effects as one long list","Focus only on the drugs that seem most likely to be tested"],
+     a:[0], w:"Drugs in the same class share a mechanism, monitoring, teaching and adverse effects. Learning one prototype well (metoprolol for beta blockers) and then noting how the others differ turns 40 separate facts into a handful of patterns."},
+    {t:"mc", s:"Which study method leads to the best long-term recall of drug information?",
+     o:["Quizzing yourself on the material over several days","Rereading your notes and highlighting the key terms","Reviewing everything in one long session the night before","Copying the textbook's drug tables word for word"],
+     a:[0], w:"Retrieval practice (pulling information out of memory) spread over several days is one of the best-supported learning strategies. Rereading, highlighting and cramming feel productive but fade quickly."},
+    {t:"mc", s:"A nurse knows only that a drug blocks beta-1 receptors in the heart. What can the nurse predict from that alone?",
+     o:["It may slow the heart, so check the pulse before giving it","It will cause a cough by letting bradykinin build up","It will lower potassium, so a supplement will be needed","It will thin the blood, so bleeding precautions are needed"],
+     a:[0], w:"Beta-1 receptors speed up the heart and strengthen its contraction. Blocking them slows it and lowers BP, so the expected effect, the adverse effects (bradycardia, hypotension), the assessments (apical pulse and BP) and the hold parameters all follow from the mechanism."},
+    {t:"mc", s:"Which statement best describes the difference between a side effect and an adverse effect?",
+     o:["A side effect is expected and mild; an adverse effect is harmful","A side effect happens only in overdose; an adverse effect never does","A side effect is an allergy; an adverse effect is a drug interaction","The two terms mean the same thing and can be used interchangeably"],
+     a:[0], w:"Side effects are predictable, usually mild effects the patient can be taught to expect (a headache with nitroglycerin). Adverse effects are harmful or dangerous and need action (angioedema with an ACE inhibitor)."}
+  ]
+},
+{
+  id:"abcd-a", num:"A", group:"Antihypertensives: the ABCDs", title:"ACE inhibitors & ARBs", kind:"drug", theme:"cardiac",
+  lede:"The ABCDs are the four main antihypertensive families: A for ACE inhibitors and ARBs, B for beta blockers, C for calcium channel blockers, D for diuretics. Start with A, which works on the renin–angiotensin–aldosterone system (RAAS).",
+  diagram:"abcd raas",
+  cards:[
+    {name:"ACE inhibitors", pharm:"Angiotensin-converting enzyme (ACE) inhibitor", ther:"Antihypertensive", stem:"-pril", ex:["enalapril","lisinopril"],
+     how:"Block ACE, so less angiotensin I becomes angiotensin II. Result: vasodilation, less aldosterone (less sodium and water retention, more potassium kept). ACE also breaks down bradykinin, so bradykinin builds up, which explains the cough and angioedema. Used for hypertension, heart failure, post-MI, and to protect the kidneys in diabetes.",
+     mon:["BP before each dose; watch for first-dose hypotension","Serum potassium (hyperkalemia) and BUN/creatinine","Face, lips, tongue and airway for swelling","Pregnancy status before starting"],
+     edu:["Rise slowly from lying or sitting","Report a persistent dry cough","Swelling of lips, tongue or throat: call 911","Avoid potassium supplements and salt substitutes unless prescribed","Use reliable contraception; report pregnancy right away"],
+     se:["Dry, nonproductive cough","Dizziness, headache","Altered taste"],
+     ae:["Angioedema (airway emergency)","Hyperkalemia","First-dose hypotension","Acute kidney injury","Fetal toxicity"]},
+    {name:"Angiotensin II receptor blockers (ARBs)", pharm:"Angiotensin II receptor blocker", ther:"Antihypertensive", stem:"-sartan", ex:["valsartan","irbesartan"],
+     how:"Block angiotensin II at its AT1 receptor, so it can't constrict vessels or release aldosterone. ARBs don't affect bradykinin, so cough is uncommon. Often substituted for an ACE inhibitor when cough is intolerable.",
+     mon:["BP, potassium, BUN/creatinine","Signs of angioedema (rare, but possible)","Pregnancy status","Don't combine with an ACE inhibitor or aliskiren"],
+     edu:["Rise slowly; report dizziness or fainting","Avoid potassium salt substitutes","Use contraception; report pregnancy","Keep taking it even when you feel well"],
+     se:["Dizziness","Headache","Fatigue"],
+     ae:["Hyperkalemia","Hypotension","Kidney impairment","Fetal toxicity","Angioedema (rare)"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient's home medication list includes valsartan. Using the stem, the nurse identifies the drug as which pharmacologic class?",
+     o:["Angiotensin-converting enzyme inhibitor","Angiotensin II receptor blocker","Dihydropyridine calcium channel blocker","Direct renin inhibitor"],
+     a:[1], w:"The stem -sartan marks an angiotensin II receptor blocker (ARB). ACE inhibitors end in -pril, direct renin inhibitors in -kiren, and dihydropyridine calcium channel blockers in -dipine."},
+    {t:"mc", s:"A patient taking lisinopril reports a persistent dry, hacking cough. The nurse understands the cause is:",
+     o:["Bradykinin builds up because ACE normally breaks it down","Angiotensin II builds up in the bronchial smooth muscle","Potassium loss irritates the cough receptors in the airway","Beta-2 receptors in the lungs are being blocked by the drug"],
+     a:[0], w:"ACE has two jobs: making angiotensin II and breaking down bradykinin. Blocking it lets bradykinin accumulate, which causes the dry cough and contributes to angioedema. ARBs don't touch bradykinin, so they are a common switch."},
+    {t:"mc", s:"Two hours after a first dose of enalapril, a patient's lips and tongue are visibly swollen. What is the priority action?",
+     o:["Assess the airway and activate the rapid response team","Give the next dose early along with an oral antihistamine","Apply ice to the lips and reassess the swelling in an hour","Document the swelling as an expected first-dose side effect"],
+     a:[0], w:"Angioedema can close the airway. Airway comes first: stop the drug, call for help, and prepare for epinephrine or airway support. It is never an expected, document-only finding."},
+    {t:"sata", s:"A patient is starting valsartan. Which teaching points should the nurse include? Select all that apply.",
+     o:["Avoid salt substitutes that contain potassium","Use reliable contraception and report a pregnancy","Change positions slowly, especially at first","Expect a dry cough; it is harmless and passes","Take each dose with grapefruit juice for absorption"],
+     a:[0,1,2], w:"ARBs raise potassium, are fetotoxic, and can cause dizziness from hypotension. Cough is uncommon with ARBs (that's an ACE inhibitor effect), and grapefruit juice is a calcium channel blocker teaching point, not an ARB one."},
+    {t:"mc", s:"A patient on lisinopril has a morning potassium of 5.9 mEq/L. What should the nurse do?",
+     o:["Give the dose with a glass of orange juice","Hold the dose and notify the provider","Give the dose and recheck potassium tomorrow","Give a potassium supplement with the dose"],
+     a:[1], w:"ACE inhibitors reduce aldosterone, so the body keeps potassium. A level of 5.9 is hyperkalemia, which can cause dangerous dysrhythmias. Hold and notify; orange juice and supplements would add more potassium."}
+  ]
+},
+{
+  id:"abcd-b", num:"B", group:"Antihypertensives: the ABCDs", title:"Beta blockers", kind:"drug", theme:"cardiac",
+  lede:"Beta blockers slow the heart and lower its workload. The most important things to know are which receptors each drug blocks and why you never stop one suddenly.",
+  diagram:"abcd betas",
+  cards:[
+    {name:"Beta-adrenergic blockers", pharm:"Beta-adrenergic blocker", ther:"Antihypertensive", stem:"-lol", ex:["metoprolol","carvedilol","sotalol","propranolol"],
+     how:"Block beta receptors. Beta-1 (heart): lower heart rate, contractility and AV conduction, and less renin release. Beta-2 (lungs): blocking it can cause bronchoconstriction. Metoprolol is beta-1 selective (cardioselective). Propranolol is nonselective (beta-1 and beta-2). Carvedilol blocks beta-1, beta-2 and alpha-1, which is why it's favored in heart failure. Sotalol also blocks potassium channels (class III antiarrhythmic) and prolongs QT.",
+     mon:["Apical pulse for a full minute and BP before each dose; hold if HR is below 60 or systolic BP is below 100 (or per order)","Lung sounds, wheezing (nonselective agents)","Blood glucose in diabetes; signs of hypoglycemia may be masked","Daily weight and edema in heart failure","QT interval with sotalol"],
+     edu:["Never stop suddenly; taper with the provider","Check your pulse; report a slow pulse or fainting","Diabetes: tremor and racing heart may not warn you of low blood sugar","Rise slowly","Report fatigue or sexual dysfunction instead of stopping"],
+     se:["Fatigue","Dizziness","Cold hands and feet","Erectile dysfunction"],
+     ae:["Bradycardia and heart block","Hypotension","Bronchospasm (nonselective)","Masked hypoglycemia","Rebound tachycardia, angina or MI if stopped abruptly","Torsades de pointes (sotalol)"],
+     trap:"All four end in -lol, but they don't block the same receptors. Check the table above."}
+  ],
+  quiz:[
+    {t:"mc", s:"Before giving metoprolol, the nurse finds an apical pulse of 52 and BP 100/64. What should the nurse do?",
+     o:["Give the dose and recheck the apical pulse in one hour","Hold the dose and notify the provider per parameters","Give half the dose and document the low heart rate","Give the dose after the patient drinks a glass of water"],
+     a:[1], w:"Beta blockers are held when the heart rate is below 60 or the systolic BP is below 100 (or per the ordered parameters), since the drug will slow the heart and lower BP further. A pulse of 52 meets the hold point. Hold, document, and notify. Nurses don't change the dose on their own."},
+    {t:"mc", s:"Which beta blocker is most likely to trigger bronchospasm in a patient with asthma?",
+     o:["Metoprolol","Propranolol","Amlodipine","Atorvastatin"],
+     a:[1], w:"Propranolol is nonselective, so it blocks beta-2 receptors in the lungs and can cause bronchoconstriction. Metoprolol is beta-1 selective at usual doses. Amlodipine and atorvastatin are not beta blockers."},
+    {t:"mc", s:"A patient with type 1 diabetes is starting propranolol. Which teaching point is most important?",
+     o:["This drug will push your blood sugar into a dangerous high range","A racing heart may not warn you when your blood sugar is low","You can stop insulin because this drug lowers blood sugar too","Low blood sugar is impossible while you take a beta blocker"],
+     a:[1], w:"Beta blockade hides the adrenergic warning signs of hypoglycemia, especially tachycardia and tremor. Sweating usually remains. Patients should check glucose more often rather than rely on symptoms."},
+    {t:"mc", s:"A patient on metoprolol says, “I'm so tired, I'm going to stop it.” What is the best response?",
+     o:["Stopping suddenly can cause chest pain or a heart attack","Fatigue means the drug is not working and can be stopped","You can stop it if you take an extra aspirin each day","Cut the dose in half on your own until you feel better"],
+     a:[0], w:"Abrupt withdrawal of a beta blocker causes rebound tachycardia, hypertension, angina, and possibly MI. Fatigue is common; the provider can adjust or taper."}
+  ]
+},
+{
+  id:"abcd-c", num:"C", group:"Antihypertensives: the ABCDs", title:"Calcium channel blockers", kind:"drug", theme:"cardiac", diagram:"abcd",
+  lede:"Calcium channel blockers come in two kinds. The -dipines relax blood vessels. Verapamil and diltiazem slow the heart. Knowing which kind you're giving tells you what to watch for.",
+  cards:[
+    {name:"Calcium channel blockers (CCBs)", pharm:"Calcium channel blocker", ther:"Antihypertensive / antiarrhythmic", stem:"-dipine", ex:["nifedipine","amlodipine","verapamil","diltiazem"],
+     how:"Block calcium entry into smooth and cardiac muscle. Dihydropyridines (-dipines) work mostly on arterioles: vasodilation, lower BP. Non-dihydropyridines (verapamil, diltiazem) work mostly on the heart: slower SA rate, slower AV conduction, less contractility. That's why diltiazem is used for rate control in atrial fibrillation.",
+     mon:["BP and apical pulse; hold per parameters","ECG (PR interval, heart block) with verapamil/diltiazem","Peripheral edema and signs of heart failure","Bowel pattern with verapamil"],
+     edu:["Swallow extended-release tablets whole","Avoid grapefruit juice","Rise slowly; report fainting or a slow pulse","Increase fluids and fiber (verapamil constipation)","Report ankle swelling or shortness of breath"],
+     se:["Headache, flushing","Ankle edema (-dipines)","Constipation (verapamil)","Dizziness"],
+     ae:["Bradycardia and heart block (verapamil, diltiazem)","Reflex tachycardia (-dipines)","Severe hypotension","Worsening heart failure (non-dihydropyridines)"],
+     trap:"Verapamil and diltiazem don't end in -dipine. Learn them by name; they slow the heart."}
+  ],
+  quiz:[
+    {t:"sata", s:"Which calcium channel blockers do NOT carry the -dipine stem? Select all that apply.",
+     o:["Verapamil","Diltiazem","Amlodipine","Nifedipine"],
+     a:[0,1], w:"Verapamil and diltiazem are non-dihydropyridine calcium channel blockers, so they lack the -dipine stem. That difference matters: they act mainly on the heart (slowing rate and AV conduction), while the -dipines act mainly on blood vessels."},
+    {t:"mc", s:"A patient has atrial fibrillation with a rapid ventricular rate. Which calcium channel blocker would the nurse expect for rate control?",
+     o:["Amlodipine","Nifedipine","Diltiazem","Prazosin"],
+     a:[2], w:"Diltiazem is a non-dihydropyridine CCB that slows AV node conduction and heart rate. Amlodipine and nifedipine (-dipines) act mainly on vessels and can cause reflex tachycardia. Prazosin is an alpha blocker."},
+    {t:"mc", s:"A patient taking nifedipine extended-release asks to crush the tablet because it's hard to swallow. The best response is:",
+     o:["Crushing is fine if you mix the powder into applesauce","Swallow it whole; crushing releases the whole dose at once","Crushing is fine as long as you take it with grapefruit juice","Chew the tablet slowly instead so it absorbs more evenly"],
+     a:[1], w:"Crushing an extended-release tablet dumps the full dose at once, risking a sharp BP drop. Ask the provider or pharmacist about a different formulation if swallowing is a problem."},
+    {t:"mc", s:"A patient taking amlodipine asks why her ankles are swollen at the end of the day. The nurse explains:",
+     o:["The drug widens small arteries, so fluid leaks into tissue","The drug damages the kidneys, so they can't remove fluid","The drug is causing an allergic reaction in the lower legs","The drug weakens the heart, so blood pools in the feet"],
+     a:[0], w:"Dihydropyridines dilate arterioles more than veins, raising capillary pressure so fluid leaks into tissue. It's a common, dose-related side effect. Report it, especially with shortness of breath."},
+    {t:"mc", s:"A patient taking verapamil reports hard stools every 3 days. What should the nurse teach?",
+     o:["Increase fluids and fiber to prevent constipation","Stop the drug until your bowel movements are daily","Take the dose with grapefruit juice instead","Expect this to resolve after the first dose"],
+     a:[0], w:"Constipation is a common side effect of verapamil because it relaxes intestinal smooth muscle. Fluids, fiber and activity help; the patient should not stop the drug without the provider."}
+  ]
+},
+{
+  id:"abcd-d", num:"D", group:"Antihypertensives: the ABCDs", title:"Diuretics", kind:"drug", theme:"cardiac",
+  lede:"Diuretics lower blood pressure and fluid overload by making the kidneys excrete more sodium and water. Where in the nephron each one acts decides how strong it is and what it does to potassium.",
+  diagram:"abcd nephron",
+  cards:[
+    {name:"Loop diuretics", pharm:"Loop diuretic", ther:"Diuretic / antihypertensive", stem:"-semide", ex:["furosemide","torsemide","bumetanide"],
+     how:"Block the sodium-potassium-chloride pump in the thick ascending loop of Henle. This is where most sodium is reabsorbed, so loops cause the strongest diuresis. Used for edema from heart failure, pulmonary edema, and kidney or liver disease, and for hypertension when other drugs aren't enough.",
+     mon:["Daily weight (same time, scale and clothing) and intake and output","BP, including orthostatic changes","Potassium, sodium, magnesium; BUN/creatinine","Hearing (ototoxicity, especially with rapid IV push)","Blood glucose; digoxin level if also on digoxin"],
+     edu:["Take in the morning so you aren't up at night to urinate","Weigh yourself daily; report a quick gain per your provider's limits","Eat potassium-rich foods unless told otherwise","Rise slowly","Report muscle cramps, weakness, dizziness, or ringing in the ears"],
+     se:["Frequent urination","Dizziness","Thirst"],
+     ae:["Hypokalemia (raises digoxin toxicity risk)","Hyponatremia, hypomagnesemia","Dehydration and hypotension","Ototoxicity","Hyperglycemia, hyperuricemia (gout)"],
+     trap:"Bumetanide is a loop diuretic but doesn't end in -semide. IV furosemide is pushed slowly, per the drug reference, to protect hearing."},
+    {name:"Thiazide diuretics", pharm:"Thiazide diuretic", ther:"Diuretic / antihypertensive", stem:"-thiazide", ex:["hydrochlorothiazide","chlorthalidone"],
+     how:"Block sodium-chloride reabsorption in the distal convoluted tubule. Diuresis is moderate, and the long-term effect is lower vascular resistance. A first-line choice for hypertension. Less effective when kidney function is poor.",
+     mon:["BP","Potassium and sodium","Blood glucose and uric acid","Serum calcium (thiazides retain calcium)","Renal function"],
+     edu:["Take in the morning","Eat potassium-rich foods","Use sunscreen; the drug can cause photosensitivity","Diabetes: check blood sugar more often","Report muscle weakness, cramps, or joint pain"],
+     se:["Frequent urination","Dizziness","Photosensitivity"],
+     ae:["Hypokalemia","Hyponatremia","Hypercalcemia","Hyperglycemia","Hyperuricemia and gout attacks"],
+     trap:"Chlorthalidone is thiazide-like and doesn't carry the -thiazide stem."},
+    {name:"Potassium-sparing diuretics", pharm:"Potassium-sparing diuretic (aldosterone antagonist or sodium-channel blocker)", ther:"Diuretic / antihypertensive", stem:"-renone / -actone", ex:["spironolactone","eplerenone","triamterene"],
+     how:"Act at the collecting duct. Spironolactone and eplerenone block aldosterone; triamterene blocks sodium channels. Sodium and water leave, potassium stays. Diuresis is mild. Used in heart failure (aldosterone antagonists lower mortality), cirrhosis with ascites, primary hyperaldosteronism, and with a loop or thiazide to offset potassium loss.",
+     mon:["Serum potassium (hyperkalemia)","Renal function","BP","Extra caution with ACE inhibitors, ARBs, or potassium supplements"],
+     edu:["Avoid salt substitutes and potassium supplements unless prescribed","Don't add extra high-potassium foods","Report muscle weakness or an irregular heartbeat","Spironolactone: report breast tenderness or enlargement, menstrual changes"],
+     se:["Dizziness","GI upset","Headache"],
+     ae:["Hyperkalemia","Gynecomastia (spironolactone)","Kidney impairment"],
+     trap:"Triamterene doesn't follow either stem."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient receiving IV furosemide has a potassium of 2.9 mEq/L. Which finding would the nurse expect?",
+     o:["Muscle weakness and leg cramps","Peaked T waves on the ECG","Hyperactive deep tendon reflexes","Facial twitching and tingling"],
+     a:[0], w:"Hypokalemia causes muscle weakness, cramps, fatigue, and ECG changes such as flattened T waves and U waves. Peaked T waves point to hyperkalemia; twitching and tingling point to low calcium."},
+    {t:"mc", s:"Which assessment best shows whether a patient's furosemide is working?",
+     o:["Daily weight on the same scale","Color of the urine at each void","Skin turgor on the back of the hand","How often the patient asks for water"],
+     a:[0], w:"Daily weight is the most accurate indicator of fluid gain or loss: 1 kg is about 1 liter. Weigh at the same time, on the same scale, in similar clothing."},
+    {t:"sata", s:"A patient with heart failure is starting spironolactone. Which teaching points should the nurse include? Select all that apply.",
+     o:["Avoid salt substitutes that contain potassium","Report muscle weakness or an irregular heartbeat","Report breast tenderness or enlargement","Eat extra bananas and oranges every day","Take a potassium supplement each morning"],
+     a:[0,1,2], w:"Spironolactone keeps potassium in the body, so extra potassium from salt substitutes, supplements or added fruit can cause hyperkalemia. Gynecomastia is a known side effect from its hormonal action."},
+    {t:"mc", s:"A patient has taken hydrochlorothiazide for several months. Which lab change would the nurse expect?",
+     o:["Increased blood glucose","Decreased serum calcium","Increased serum potassium","Decreased serum uric acid"],
+     a:[0], w:"Thiazides can raise blood glucose, uric acid and calcium while lowering potassium and sodium. Patients with diabetes may need closer glucose monitoring."},
+    {t:"mc", s:"When should the nurse teach a patient to take a once-daily diuretic?",
+     o:["At bedtime, so it works while you sleep","In the morning, to avoid waking up to urinate","With dinner, so it absorbs with the meal","Only on days you notice swelling in your feet"],
+     a:[1], w:"Morning dosing puts the peak diuresis during the day, so the patient isn't up at night. Diuretics are taken daily as prescribed, not only when swelling appears."}
+  ]
+},
+{
+  id:"htn-other", num:"+", group:"Antihypertensives: the ABCDs", title:"Other antihypertensives", kind:"drug", theme:"cardiac",
+  lede:"Two more classes on your list lower blood pressure without fitting the ABCDs. Direct renin inhibitors act on the RAAS at its first step; alpha-1 blockers relax vessels and the prostate.",
+  cards:[
+    {name:"Direct renin inhibitors", pharm:"Direct renin inhibitor", ther:"Antihypertensive", stem:"-kiren", ex:["aliskiren","enalkiren","remikiren"],
+     how:"Bind renin itself, stopping the very first RAAS step (angiotensinogen → angiotensin I). Less angiotensin I means less angiotensin II downstream. See the RAAS diagram in section A.",
+     mon:["BP and potassium","Renal function","Pregnancy status","Not combined with ACE inhibitors or ARBs in patients with diabetes"],
+     edu:["Take it the same way each day; high-fat meals reduce absorption","Report diarrhea that persists","Report facial or throat swelling","Use contraception"],
+     se:["Diarrhea","Dizziness","Headache"],
+     ae:["Hyperkalemia","Hypotension","Angioedema (rare)","Fetal toxicity"],
+     trap:"Aliskiren is the only one in clinical use; enalkiren and remikiren were studied but never marketed. They are on your list to practice the stem."},
+    {name:"Alpha-1 adrenergic blockers", pharm:"Alpha-adrenergic blocker", ther:"Antihypertensive / sympatholytic", stem:"-azosin", ex:["prazosin","terazosin","doxazosin"],
+     how:"Block alpha-1 receptors on arterioles and veins, causing vasodilation and lower BP. They also relax smooth muscle in the prostate and bladder neck, so they are used for benign prostatic hyperplasia (BPH).",
+     mon:["Orthostatic BP (lying, sitting, standing)","Fall risk, especially after the first dose","Urinary symptoms if used for BPH","Other vasodilators on the med list (PDE-5 inhibitors add to the BP drop)"],
+     edu:["Take the first dose at bedtime","Rise slowly; sit down if dizzy","Avoid driving until you know how the drug affects you","Stuffy nose is common"],
+     se:["Dizziness, fatigue","Nasal congestion","Headache"],
+     ae:["First-dose orthostatic hypotension and syncope","Reflex tachycardia","Falls in older adults"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient is starting doxazosin for hypertension and BPH. What should the nurse teach about the first dose?",
+     o:["Take it in the morning with a large, high-fat meal","Take it at bedtime to lower the risk of fainting","Double the first dose if your blood pressure stays high","Stop the drug if your nose feels stuffy or congested"],
+     a:[1], w:"Alpha-1 blockers cause a first-dose orthostatic drop that can lead to syncope. Taking the first dose at bedtime, lying down, limits that risk. Nasal congestion is an expected, mild side effect."},
+    {t:"mc", s:"Where in the RAAS does aliskiren act?",
+     o:["It blocks renin, the system's first step","It blocks ACE, which makes angiotensin II","It blocks the angiotensin II receptor","It blocks aldosterone at the collecting duct"],
+     a:[0], w:"Aliskiren binds renin and stops angiotensinogen from becoming angiotensin I. ACE inhibitors block the next step, ARBs block the receptor, and spironolactone blocks aldosterone."},
+    {t:"mc", s:"A patient with BPH asks how terazosin makes it easier to urinate. The nurse explains that the drug:",
+     o:["Relaxes smooth muscle in the prostate and bladder neck","Shrinks the prostate by blocking testosterone production","Increases the amount of urine the kidneys produce","Strengthens the bladder muscle so it empties fully"],
+     a:[0], w:"Alpha-1 receptors in the prostate and bladder neck tighten smooth muscle. Blocking them eases urine flow, so terazosin and doxazosin can treat both hypertension and BPH."}
+  ]
+},
+{
+  id:"cardiac", num:"02", group:"Other medications", title:"Heart failure & coronary", kind:"drug", theme:"cardiac",
+  lede:"These drugs change how hard the heart squeezes, how fast it beats, or how much work it has to do. Digoxin has a narrow therapeutic range; the adrenergic agonists are high-alert IV drips; nitroglycerin is the classic angina rescue drug; and the PDE-5 inhibitors (sildenafil, tadalafil) matter because of one deadly interaction with nitrates.",
+  diagram:"receptors",
+  cards:[
+    {name:"Cardiac glycoside", pharm:"Cardiac glycoside", ther:"Inotrope (no therapeutic class listed); used for heart failure and AF rate control", stem:"no stem", ex:["digoxin"],
+     how:"Inhibits the sodium-potassium ATPase pump in heart cells, so more calcium is available inside the cell: stronger contraction (positive inotrope). It also slows conduction through the AV node and slows the heart rate (negative chronotrope and dromotrope).",
+     mon:["Apical pulse for a full minute; hold if below 60 (adult) or per order and notify","Serum potassium: hypokalemia raises toxicity risk","Digoxin level (therapeutic range is narrow, about 0.5–2.0 ng/mL; lower in heart failure)","Renal function, magnesium, calcium","ECG for dysrhythmias"],
+     edu:["Take at the same time daily; don't double a missed dose","Count your pulse before each dose","Report nausea, loss of appetite, or vision changes","Check with the provider before antacids, herbal products, or new drugs","Eat potassium-rich foods if also on a loop diuretic"],
+     se:["Fatigue","Mild GI upset"],
+     ae:["Digoxin toxicity: anorexia, nausea and vomiting (often first)","Blurred or yellow-green vision, halos","Confusion","Bradycardia, heart block, PVCs and other dysrhythmias"],
+     trap:"Antidote for toxicity: digoxin immune fab. No class stem, but note the -oxin ending."},
+    {name:"Adrenergic agonists", pharm:"Adrenergic agonist", ther:"Sympathomimetic", stem:"-ine (not a true stem)", ex:["epinephrine","dopamine","dobutamine"],
+     how:"Stimulate adrenergic receptors. Epinephrine: alpha and beta (vasoconstriction, faster and stronger heartbeat, bronchodilation); used in cardiac arrest and anaphylaxis. Dopamine is dose-dependent: low doses act on dopamine receptors, moderate doses on beta-1, high doses on alpha-1 (vasoconstriction). Dobutamine acts mainly on beta-1, increasing contractility in cardiogenic shock and acute decompensated heart failure.",
+     mon:["Continuous ECG, BP (often arterial line), HR","Urine output (perfusion)","IV site hourly; central line preferred for vasopressors","Infusion pump, titration per protocol; high-alert drug double check","Correct hypovolemia before starting a vasopressor"],
+     edu:["Explain the monitoring and frequent checks","Report chest pain, palpitations, or pain/burning at the IV site","Epinephrine auto-injector: outer thigh, follow the device's hold time, then call 911"],
+     se:["Anxiety, tremor","Headache","Palpitations"],
+     ae:["Tachydysrhythmias","Hypertension","Myocardial ischemia, chest pain","Extravasation causing tissue necrosis (treat with phentolamine per protocol)"],
+     trap:"Many unrelated drugs end in -ine. Learn these three by name and receptor."},
+    {name:"Nitrates", pharm:"Nitrate", ther:"Vasodilator (antianginal)", stem:"nitr-", ex:["nitroglycerin"],
+     how:"Converted to nitric oxide, which relaxes vascular smooth muscle. Mostly venous dilation: less blood returns to the heart (lower preload), so the heart needs less oxygen. Also dilates coronary arteries. Used to relieve and prevent angina.",
+     mon:["BP and HR before and after each dose","Chest pain rating before and 5 minutes after","Headache","IV: titrate to pain and BP; use the manufacturer's recommended tubing"],
+     edu:["Sublingual: sit down, 1 tablet; if pain is not better or is worse 5 minutes after the first dose, call 911; may repeat every 5 minutes, up to 3 doses","Keep tablets in the original dark glass bottle, away from heat and moisture","Patch: rotate sites, remove the old patch, have a nitrate-free period (often overnight) to prevent tolerance","Never take with sildenafil or tadalafil (PDE-5 inhibitors); see the next card","Headache is common; acetaminophen usually helps"],
+     se:["Headache (most common)","Flushing","Dizziness"],
+     ae:["Severe hypotension","Reflex tachycardia","Profound hypotension with PDE-5 inhibitors","Tolerance with continuous use"]},
+    {name:"Phosphodiesterase-5 (PDE-5) inhibitors", pharm:"Phosphodiesterase-5 inhibitor", ther:"Pulmonary vasodilator / erectile dysfunction agent", stem:"-afil", ex:["sildenafil","tadalafil"],
+     how:"Block PDE-5, the enzyme that breaks down cGMP. cGMP builds up and relaxes smooth muscle, dilating blood vessels in the lungs and the penis. Used for pulmonary arterial hypertension (PAH) and erectile dysfunction; tadalafil also treats BPH. Nitrates raise cGMP from the other direction, so together the BP drop can be severe.",
+     mon:["BP, especially when starting or with other vasodilators","Med list for any nitrate (nitroglycerin, isosorbide) or alpha blocker","PAH: oxygen saturation, dyspnea, activity tolerance","Vision or hearing changes; priapism"],
+     edu:["Never combine with any nitrate, including nitroglycerin for chest pain","Tell EMS and ED staff when you last took it (nitrates are avoided for 24 hours after sildenafil, 48 hours after tadalafil)","An erection lasting more than 4 hours is an emergency","Stop and seek care for sudden vision or hearing loss","Avoid grapefruit juice; limit alcohol"],
+     se:["Headache","Flushing","Nasal congestion","Dyspepsia","Back pain or muscle aches (tadalafil)","Bluish-tinged vision (sildenafil)"],
+     ae:["Severe hypotension with nitrates","Priapism","Sudden vision loss (optic neuropathy)","Sudden hearing loss"],
+     trap:"Not on the original Unit 4 list. The stem -afil marks the class. Tadalafil lasts much longer than sildenafil, which is why the nitrate wait is longer."}
+  ],
+  quiz:[
+    {t:"mc", s:"A classmate says, “Any drug ending in -ine is an adrenergic agonist.” Which response is most accurate?",
+     o:["Agreed; -ine reliably marks every sympathomimetic drug on the list",
+        "-ine is a common chemical ending, so it can't identify a class",
+        "-ine marks catecholamines only when the drug is given by IV push",
+        "Agreed, except nitroglycerin, which is the one known exception"],
+     a:[1], w:"Many unrelated drugs end in -ine (morphine, codeine, nicotine). Epinephrine, dopamine and dobutamine have to be learned by name and receptor action, not by suffix."},
+    {t:"mc", s:"A patient due for digoxin has an apical pulse of 54 and a potassium of 3.1 mEq/L. What should the nurse do?",
+     o:["Give digoxin with a potassium-rich snack and recheck later","Hold digoxin and report both the pulse and the potassium","Give digoxin and recheck the apical pulse in one hour","Hold this dose and give a double dose in the evening"],
+     a:[1], w:"Both findings point to danger. A pulse below 60 is a hold point, and hypokalemia increases digoxin toxicity. Hold, notify the provider, and expect a digoxin level and potassium replacement."},
+    {t:"sata", s:"Which findings suggest digoxin toxicity? Select all that apply.",
+     o:["Loss of appetite","Nausea and vomiting","Yellow-green halos around lights","Increased urine output","New rash across the trunk"],
+     a:[0,1,2], w:"GI symptoms (anorexia, nausea, vomiting) are often the first signs, followed by visual changes, confusion, and dysrhythmias. Increased urine output and rash are not typical signs."},
+    {t:"mc", s:"A patient on digoxin and furosemide asks why the nurse keeps checking potassium. The best explanation is:",
+     o:["Low potassium lets more digoxin bind, raising toxicity risk","High potassium is the main cause of digoxin's effect on vision","Potassium tells the nurse whether digoxin is lowering the BP","Potassium is checked only to see if the furosemide is working"],
+     a:[0], w:"Digoxin and potassium compete for the same site on the sodium-potassium pump. When potassium is low, more digoxin binds, so toxicity can occur even at a normal digoxin level. Loop diuretics waste potassium."},
+    {t:"mc", s:"A patient is being discharged with sublingual nitroglycerin. Which instruction is correct?",
+     o:["If pain isn't better 5 minutes after one tablet, call 911","Take up to 5 tablets, 1 minute apart, before you call for help","Swallow the tablet with water so it absorbs completely","Store the tablets in a weekly pill organizer so they're handy"],
+     a:[0], w:"Current teaching: call 911 if chest pain is unchanged or worse 5 minutes after the first dose. Doses may be repeated every 5 minutes up to 3. Tablets dissolve under the tongue and lose potency outside the original dark glass bottle."},
+    {t:"mc", s:"A patient using a nitroglycerin patch asks about taking sildenafil. What is the nurse's best response?",
+     o:["They're safe together if you take them 2 hours apart","Together they can cause a sudden, severe drop in BP","Sildenafil only increases the headache nitroglycerin causes","Remove the patch for one hour before taking sildenafil"],
+     a:[1], w:"Both drugs raise nitric oxide signaling and dilate vessels. Combined, they can cause life-threatening hypotension. The combination is contraindicated; the patient should talk with the provider about alternatives."},
+    {t:"mc", s:"A patient on a dopamine infusion has an IV site that is cool, pale and swollen. What is the priority?",
+     o:["Slow the rate and apply a warm compress to the IV site","Stop the infusion and follow extravasation protocol","Flush the line with saline to clear the vein first","Elevate the arm and recheck the site in one hour"],
+     a:[1], w:"Dopamine is a vasoconstrictor. Extravasation causes local ischemia and tissue necrosis. Stop the infusion and follow protocol, which often includes infiltrating the area with phentolamine, an alpha blocker."},
+    {t:"mc", s:"A patient in cardiogenic shock is started on dobutamine. The nurse understands its main action is to:",
+     o:["Constrict the arterioles by stimulating alpha-1 receptors","Increase contractility by stimulating beta-1 receptors","Dilate bronchioles by stimulating beta-2 receptors","Slow AV conduction by blocking calcium channels"],
+     a:[1], w:"Dobutamine is primarily a beta-1 agonist. It strengthens contraction and raises cardiac output in a failing heart, with less vasoconstriction than dopamine or epinephrine."},
+    {t:"mc", s:"Which instruction is correct for a transdermal nitroglycerin patch?",
+     o:["Apply the new patch directly on top of the old one","Remove the patch for a planned nitrate-free period","Cut the patch in half if you develop a headache","Apply it to the same spot every day for steady dosing"],
+     a:[1], w:"Continuous nitrate exposure leads to tolerance. A daily nitrate-free interval (often 10–12 hours overnight, per the order) keeps the drug effective. Rotate sites and remove the old patch first."},
+    {t:"mc", s:"A patient with chest pain arrives in the ED. Before giving sublingual nitroglycerin, which question is most important?",
+     o:["When did you last eat a full meal?","When did you last take tadalafil or sildenafil?","Do you have any allergy to shellfish or iodine?","How many hours did you sleep last night?"],
+     a:[1], w:"Nitrates given within 24 hours of sildenafil or 48 hours of tadalafil can cause profound, life-threatening hypotension. Ask every patient with chest pain, men and women alike, since both drugs are also used for pulmonary hypertension."},
+    {t:"mc", s:"A patient with pulmonary arterial hypertension is prescribed sildenafil. The nurse understands that it helps by:",
+     o:["Blocking PDE-5 so cGMP builds and lung vessels relax","Blocking beta-1 receptors so the right ventricle slows","Pulling extra fluid off the lungs through the kidneys","Thinning the blood so clots can't form in the lungs"],
+     a:[0], w:"PDE-5 normally breaks down cGMP. Blocking it keeps cGMP high, relaxing pulmonary arterial smooth muscle and lowering pulmonary pressure, which eases the right heart's workload."}
+  ]
+},
+{
+  id:"lipids", num:"03", group:"Other medications", title:"Antihyperlipidemics", kind:"drug", theme:"cardiac",
+  lede:"Statins and fibrates lower cardiovascular risk by changing blood lipids. Statins mainly lower LDL; fibrates mainly lower triglycerides. Both share a key danger: muscle injury.",
+  cards:[
+    {name:"Statins", pharm:"HMG-CoA reductase inhibitor (statin)", ther:"Antihypercholesterolemic", stem:"-statin", ex:["pravastatin","atorvastatin","simvastatin"],
+     how:"Block HMG-CoA reductase, the rate-limiting enzyme for cholesterol made in the liver. The liver responds by adding LDL receptors and pulling more LDL out of the blood. Main effect: lower LDL; modest drop in triglycerides and rise in HDL.",
+     mon:["Lipid panel (baseline, then periodically)","Liver function tests at baseline and if symptoms","CK if muscle pain or weakness","Blood glucose (small increase possible)"],
+     edu:["Report unexplained muscle pain, tenderness or weakness, and dark urine","Simvastatin works best taken in the evening; atorvastatin any time","Limit alcohol; avoid large amounts of grapefruit juice","Diet and exercise still matter","Not for use in pregnancy"],
+     se:["GI upset","Headache","Mild muscle aches"],
+     ae:["Myopathy and rhabdomyolysis","Hepatotoxicity","Higher risk with fibrates (especially gemfibrozil)"]},
+    {name:"Fibrates", pharm:"Fibric acid derivative (fibrate)", ther:"Antitriglyceridemic", stem:"fibr-", ex:["fenofibrate","gemfibrozil","simfibrate"],
+     how:"Activate PPAR-alpha, a receptor that increases lipoprotein lipase. That enzyme clears triglyceride-rich particles, so triglycerides drop sharply and HDL rises.",
+     mon:["Triglycerides and lipid panel","Liver and kidney function","INR if on warfarin (fibrates increase its effect)","Muscle symptoms, CK"],
+     edu:["Gemfibrozil: 30 minutes before morning and evening meals","Report right upper abdominal pain (gallstones)","Report muscle pain or weakness","Report bleeding signs if on warfarin"],
+     se:["Abdominal pain, dyspepsia","Nausea"],
+     ae:["Cholelithiasis (gallstones)","Myopathy, especially with a statin","Hepatotoxicity","Increased bleeding risk with warfarin"],
+     trap:"Simfibrate is an older fibrate not marketed in the US. Know the fibr- root."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient taking atorvastatin reports unexplained muscle aches and tea-colored urine. What should the nurse do first?",
+     o:["Hold the statin, notify the provider, and expect a CK","Encourage stretching and give the next dose as ordered","Tell the patient to take the statin with grapefruit juice","Reassure the patient that muscle aches are expected"],
+     a:[0], w:"Muscle pain plus dark urine suggests rhabdomyolysis, which can cause acute kidney injury. Hold the drug, notify the provider, and expect a CK level and renal function tests."},
+    {t:"mc", s:"When should a patient take simvastatin?",
+     o:["In the morning, so it is absorbed with breakfast","In the evening, when cholesterol synthesis peaks","Only on days when the patient eats high-fat food","With an antacid to protect the stomach lining"],
+     a:[1], w:"The liver makes most of its cholesterol overnight. Short-acting statins like simvastatin work best in the evening. Longer-acting atorvastatin can be taken any time of day."},
+    {t:"mc", s:"A patient is prescribed gemfibrozil along with simvastatin. The nurse should monitor closely for:",
+     o:["Hyperkalemia and dysrhythmias","Dry cough and angioedema","Myopathy and rhabdomyolysis","Hypoglycemia and confusion"],
+     a:[2], w:"Fibrates, especially gemfibrozil, raise statin levels and add their own muscle toxicity. The combination raises rhabdomyolysis risk; teach the patient to report muscle pain right away."},
+    {t:"mc", s:"Which statement best describes how a fibrate lowers lipids?",
+     o:["It blocks HMG-CoA reductase to lower LDL in the liver","It activates lipoprotein lipase to lower triglycerides","It binds bile acids in the gut so they're lost in the stool","It blocks cholesterol absorption from the small bowel"],
+     a:[1], w:"Fibrates activate PPAR-alpha, which increases lipoprotein lipase and clears triglycerides. Blocking HMG-CoA reductase is how statins work; bile acid binding and absorption blocking are other drug classes."},
+    {t:"sata", s:"Which teaching points apply to a patient starting a statin? Select all that apply.",
+     o:["Report unexplained muscle pain or weakness","Limit alcohol, since the liver processes the drug","Avoid large amounts of grapefruit juice","Stop the drug once your LDL reaches its goal","The drug is safe to continue during pregnancy"],
+     a:[0,1,2], w:"Muscle and liver toxicity are the key risks, and grapefruit raises levels of some statins. Statins are long-term therapy; stopping them lets LDL rise again. They are contraindicated in pregnancy."},
+    {t:"mc", s:"A patient on warfarin is started on fenofibrate. Which lab result should the nurse watch most closely?",
+     o:["Serum potassium","INR","Hemoglobin A1c","Serum sodium"],
+     a:[1], w:"Fibrates increase warfarin's anticoagulant effect, so the INR can climb and bleeding risk rises. The warfarin dose often needs to be lowered."}
+  ]
+},
+{
+  id:"clot", num:"04", group:"Other medications", title:"Anticoagulants, antiplatelets & thrombolytics", kind:"drug", theme:"heme",
+  lede:"Three groups, three targets. Antiplatelets stop platelets from sticking (arterial clots: MI, stents, stroke). Anticoagulants interrupt the clotting cascade (venous clots, AF). Thrombolytics dissolve a clot that has already formed. All three share the same headline risk: bleeding.",
+  diagram:"clot",
+  cards:[
+    {name:"Heparin, enoxaparin & warfarin", pharm:"Anticoagulant (heparin, low-molecular-weight heparin, vitamin K antagonist)", ther:"Anticoagulant", stem:"-arin", ex:["heparin","enoxaparin","warfarin"],
+     how:"Heparin binds antithrombin and supercharges it, inactivating thrombin (IIa) and factor Xa; IV or subcut, immediate effect. Enoxaparin (low-molecular-weight heparin) acts mostly on Xa; subcut, more predictable. Warfarin works differently: it blocks vitamin K recycling in the liver, so factors II, VII, IX and X aren't made. It is oral and takes several days to reach full effect, so heparin often overlaps (bridging).",
+     mon:["Heparin: aPTT or anti-Xa per protocol; platelets (HIT); Hgb/Hct","Enoxaparin: platelets, renal function, no routine aPTT","Warfarin: PT/INR (goal often 2–3; higher for mechanical valves)","All: signs of bleeding (gums, stool, urine, bruising, neuro changes)","High-alert drugs: independent double check, infusion pump"],
+     edu:["Soft toothbrush, electric razor, avoid contact sports","Report black stools, blood in urine, nosebleeds, unusual bruising","Avoid aspirin and NSAIDs unless prescribed","Warfarin: keep vitamin K intake consistent; don't suddenly add or drop leafy greens","Warfarin: many drug and herbal interactions; keep INR appointments; wear medical ID","Enoxaparin: abdomen at least 2 inches from navel, don't expel the air bubble, don't rub"],
+     se:["Bruising","Injection-site hematoma (subcut)"],
+     ae:["Hemorrhage","Heparin-induced thrombocytopenia (HIT)","Spinal/epidural hematoma (enoxaparin with neuraxial anesthesia)","Warfarin: fetal toxicity, skin necrosis (rare)","Antidotes: protamine (heparin; partial for enoxaparin), vitamin K (warfarin)"],
+     trap:"Same -arin letters, different mechanisms. Heparin: aPTT and protamine. Warfarin: INR and vitamin K."},
+    {name:"Direct thrombin inhibitors", pharm:"Direct thrombin inhibitor", ther:"Anticoagulant", stem:"-gatr- / -rudin", ex:["argatroban","dabigatran","inogatran","melagatran","hirudin","bivalirudin","lepirudin"],
+     how:"Bind thrombin (factor IIa) directly, without needing antithrombin, so thrombin can't turn fibrinogen into fibrin. Argatroban and bivalirudin are IV (used in HIT and during PCI). Dabigatran is oral (atrial fibrillation, VTE).",
+     mon:["aPTT for IV argatroban and bivalirudin","Renal function (dabigatran is cleared by the kidneys)","Liver function (argatroban is hepatically cleared)","CBC and signs of bleeding"],
+     edu:["Dabigatran: swallow capsules whole; don't open or chew","Keep dabigatran in its original bottle (moisture-sensitive)","Take with food if stomach upset occurs","Don't stop without talking to the provider","Bleeding precautions"],
+     se:["Dyspepsia, GI upset (dabigatran)"],
+     ae:["Hemorrhage, including GI bleeding","Spinal/epidural hematoma","Clot risk if stopped abruptly","Dabigatran reversal: idarucizumab"],
+     trap:"Lepirudin has been discontinued, and inogatran and melagatran are investigational or withdrawn. The stems still identify the class."},
+    {name:"Direct factor Xa inhibitors", pharm:"Direct inhibitor of factor Xa", ther:"Anticoagulant", stem:"-xaban", ex:["apixaban","rivaroxaban","edoxaban","betrixaban"],
+     how:"Bind factor Xa directly, cutting thrombin production at the point where the two cascade pathways meet. Oral, fixed doses, no routine coagulation monitoring. Used for atrial fibrillation stroke prevention and to treat and prevent DVT and PE.",
+     mon:["Renal and liver function","CBC; signs of bleeding","No routine INR or aPTT","Drug interactions (strong CYP3A4/P-gp inhibitors or inducers)"],
+     edu:["Don't stop abruptly: clot and stroke risk rise","Rivaroxaban 15 and 20 mg tablets: take with food","Avoid NSAIDs and aspirin unless prescribed","Tell dentists and surgeons you take an anticoagulant","Bleeding precautions"],
+     se:["Minor bleeding, bruising","Nausea"],
+     ae:["Major hemorrhage","Spinal/epidural hematoma","Thrombosis after premature discontinuation","Reversal: andexanet alfa or prothrombin complex concentrate"],
+     trap:"Betrixaban is no longer sold in the US; the -xaban stem still tells you the class."},
+    {name:"Glycoprotein IIb/IIIa inhibitors", pharm:"Glycoprotein IIb/IIIa inhibitor", ther:"Antiplatelet aggregator", stem:"no stem", ex:["abciximab","eptifibatide","tirofiban"],
+     how:"Block the GP IIb/IIIa receptor on platelets, the final common step where fibrinogen links platelets together. Very potent, IV only; used in acute coronary syndrome and during PCI, usually with heparin and aspirin.",
+     mon:["Platelet count (thrombocytopenia)","Bleeding at the femoral or radial access site; Hgb/Hct","aPTT or ACT when given with heparin","Renal function (eptifibatide and tirofiban dosing)","Back or flank pain (retroperitoneal bleed)"],
+     edu:["Keep the affected leg straight as instructed after femoral access","Report bleeding, back pain, or dizziness right away","Expect frequent site and vital sign checks"],
+     se:["Minor bleeding at puncture sites","Hypotension"],
+     ae:["Major or retroperitoneal hemorrhage","Thrombocytopenia","Intracranial bleeding"],
+     trap:"Abciximab is no longer manufactured in the US, but it still appears on exams."},
+    {name:"ADP receptor (P2Y12) inhibitors", pharm:"Adenosine diphosphate (ADP) receptor inhibitor", ther:"Antiplatelet aggregator", stem:"-grel", ex:["clopidogrel","cangrelor","ticagrelor"],
+     how:"Block the P2Y12 ADP receptor on platelets so they can't activate and aggregate. Clopidogrel is an oral prodrug (activated by CYP2C19) with an irreversible effect. Ticagrelor is oral and reversible. Cangrelor is IV and short-acting during PCI. Paired with aspirin as dual antiplatelet therapy (DAPT) after stents and ACS.",
+     mon:["Signs of bleeding; CBC","Shortness of breath (ticagrelor)","Rare: thrombotic thrombocytopenic purpura (clopidogrel)","Interacting drugs (omeprazole may reduce clopidogrel activation)"],
+     edu:["Never stop without your cardiologist's OK; stent thrombosis can be fatal","Tell dentists and surgeons; the provider decides when to hold it","Report black stools, blood in urine, or easy bruising","Ticagrelor: avoid aspirin doses above 100 mg/day; report breathlessness"],
+     se:["Bruising, minor bleeding","Dyspnea (ticagrelor)","GI upset"],
+     ae:["Major or GI hemorrhage","Stent thrombosis if stopped early","TTP (rare)"]},
+    {name:"Irreversible cyclooxygenase inhibitors", pharm:"Irreversible cyclooxygenase (COX) inhibitor", ther:"Antiplatelet aggregator", stem:"no stem", ex:["aspirin","triflusal"],
+     how:"Aspirin permanently acetylates COX-1 in platelets, so they can't make thromboxane A2, a signal for aggregation. Platelets have no nucleus and can't make new COX, so the effect lasts for the platelet's life (about 7–10 days). Low dose (81 mg) for prevention; chew 162–325 mg non-enteric-coated aspirin for suspected MI.",
+     mon:["Signs of bleeding, especially GI (black stools, coffee-ground emesis)","Tinnitus (salicylate toxicity at high doses)","Wheezing in aspirin-sensitive asthma","Other NSAIDs and anticoagulants on the med list"],
+     edu:["Take with food or water to reduce GI upset","Avoid other NSAIDs unless approved; ibuprofen can blunt aspirin's effect","Tell surgeons and dentists; the provider decides about holding it","Not for children or teens with viral illness (Reye syndrome)"],
+     se:["Dyspepsia, heartburn","Easy bruising"],
+     ae:["GI ulceration and bleeding","Hemorrhagic stroke","Bronchospasm in sensitive patients","Salicylism (tinnitus, confusion)"],
+     trap:"Your list spells it “trifusal”; the drug name is triflusal. It is not available in the US."},
+    {name:"Thrombolytics", pharm:"Thrombolytic (tissue plasminogen activator)", ther:"Thrombolytic", stem:"-teplase", ex:["alteplase","reteplase"],
+     how:"Convert plasminogen to plasmin, which breaks down fibrin and dissolves an existing clot. Used in acute ischemic stroke (within the time window from last known well), STEMI when timely PCI isn't available, and massive PE.",
+     mon:["Frequent neuro checks and vital signs during and after infusion","BP limits for stroke (below 185/110 before, below 180/105 after)","Bleeding: IV sites, gums, urine, stool; sudden headache or drop in LOC means possible intracranial bleed","Avoid IM injections, arterial sticks, and new invasive lines","Angioedema of the tongue; reperfusion dysrhythmias (MI)"],
+     edu:["Explain the frequent checks","Report headache, vision change, weakness, or bleeding right away","Use bleeding precautions afterward"],
+     se:["Minor oozing at IV sites","Bruising"],
+     ae:["Intracranial hemorrhage","Major internal bleeding","Angioedema","Reperfusion dysrhythmias"],
+     trap:"Contraindications include active bleeding, prior intracranial hemorrhage, recent major surgery or trauma, and uncontrolled hypertension."}
+  ],
+  quiz:[
+    {t:"mc", s:"Which stem-to-class pairing is correct?",
+     o:["-teplase → antiplatelet aggregator","-xaban → direct factor Xa inhibitor","-grel → direct thrombin inhibitor","-gatr- → glycoprotein IIb/IIIa inhibitor"],
+     a:[1], w:"-xaban drugs (apixaban, rivaroxaban) directly inhibit factor Xa. -teplase drugs are thrombolytics, -grel drugs are ADP (P2Y12) receptor inhibitors, and -gatr- drugs are direct thrombin inhibitors (GP IIb/IIIa inhibitors have no stem)."},
+    {t:"mc", s:"A patient on a continuous heparin infusion is being monitored. Which lab result guides the infusion rate?",
+     o:["PT and INR drawn each morning","aPTT or anti-Xa, per protocol","Serum digoxin level","Fasting lipid panel"],
+     a:[1], w:"Heparin is titrated to the aPTT or an anti-Xa level according to the facility's protocol. PT/INR is used to monitor warfarin."},
+    {t:"mc", s:"On day 6 of heparin therapy, a patient's platelet count falls from 240,000 to 95,000/mm³. What should the nurse suspect and do?",
+     o:["Expected dilution; keep the infusion at the same rate","Suspect HIT; stop heparin and notify the provider","Suspect bleeding; give protamine and continue heparin","Suspect lab error; repeat the count in one week"],
+     a:[1], w:"A drop of more than 50% in platelets 5–10 days after starting heparin suggests heparin-induced thrombocytopenia, which paradoxically causes clotting. Stop all heparin (including flushes) and expect a direct thrombin inhibitor like argatroban."},
+    {t:"sata", s:"Which are correct techniques for giving enoxaparin from a prefilled syringe? Select all that apply.",
+     o:["Inject in the abdomen, 2+ inches from the navel","Leave the air bubble in the prefilled syringe","Don't rub the site after the injection","Aspirate before injecting to check for blood","Give it IM in the deltoid for faster action"],
+     a:[0,1,2], w:"The air bubble keeps the full dose in the tissue. Aspirating and rubbing increase bruising. Anticoagulants are never given IM because of hematoma risk."},
+    {t:"mc", s:"A patient taking warfarin has an INR of 5.8 and no bleeding. Which antidote should the nurse anticipate if the provider orders reversal?",
+     o:["Protamine sulfate","Vitamin K (phytonadione)","Idarucizumab","Digoxin immune fab (DigiFab)"],
+     a:[1], w:"Vitamin K lets the liver make factors II, VII, IX and X again. Hold warfarin and notify the provider. Protamine reverses heparin, and idarucizumab reverses dabigatran."},
+    {t:"mc", s:"Which diet instruction is correct for a patient taking warfarin?",
+     o:["Avoid all green vegetables while you're on warfarin","Keep vitamin K foods steady from week to week","Eat extra spinach each day to protect the liver","Take a vitamin K supplement with every dose"],
+     a:[1], w:"The goal is consistency, not avoidance. A sudden increase in vitamin K lowers the INR; a sudden decrease raises it. The warfarin dose is set around the patient's usual diet."},
+    {t:"mc", s:"A patient taking dabigatran says the capsules are hard to swallow. The nurse's best response is:",
+     o:["Open the capsule and sprinkle the beads on applesauce","Swallow it whole; ask about another option if needed","Chew the capsule so it starts to dissolve quickly","Store the capsules in a pill organizer for ease"],
+     a:[1], w:"Opening dabigatran capsules sharply increases absorption and bleeding risk. Capsules also need to stay in the original container to protect them from moisture."},
+    {t:"mc", s:"Which statement about apixaban is accurate?",
+     o:["The INR is checked weekly to adjust the dose","Stopping it abruptly raises the risk of stroke","Vitamin K is the reversal agent used for apixaban","It must be given IV during the first 48 hours"],
+     a:[1], w:"Factor Xa inhibitors carry a boxed warning: premature discontinuation increases thrombotic events. They need no routine INR. Reversal is andexanet alfa or prothrombin complex concentrate."},
+    {t:"mc", s:"A patient with a new coronary stent on clopidogrel wants to stop it before a dental cleaning. The best response is:",
+     o:["Stop it 7 days before, since bleeding is the main concern","Don't stop it unless your cardiologist approves it first","Switch to ibuprofen for the week before the cleaning","Take a double dose the day after to make up for it"],
+     a:[1], w:"Stopping dual antiplatelet therapy early can cause stent thrombosis and MI. Only the cardiologist decides on any interruption. Most dental cleanings proceed without stopping it."},
+    {t:"mc", s:"During an alteplase infusion for ischemic stroke, the patient develops a sudden severe headache and becomes harder to arouse. What is the priority?",
+     o:["Stop the infusion and notify the provider at once","Give acetaminophen and continue the infusion","Lower the head of bed and recheck in 30 minutes","Increase the rate so the infusion finishes sooner"],
+     a:[0], w:"A sudden headache with a falling level of consciousness suggests intracranial hemorrhage. Stop the infusion, notify the provider or stroke team, and expect an emergency CT."},
+    {t:"mc", s:"Why does a single dose of aspirin affect platelets for about a week?",
+     o:["It is stored in fat and released slowly over 7 days","It permanently blocks COX in platelets for their lifespan","The liver keeps converting it into an active form all week","It destroys platelets, and new ones take 7 days to form"],
+     a:[1], w:"Aspirin irreversibly acetylates platelet COX-1. Platelets have no nucleus, so they can't make new enzyme; the effect lasts until those platelets are replaced (about 7–10 days)."},
+    {t:"mc", s:"A patient receiving eptifibatide after PCI through the femoral artery reports new back pain. What should the nurse suspect?",
+     o:["Retroperitoneal bleeding","Expected muscle strain","Heparin-induced thrombocytopenia","Allergic reaction to contrast"],
+     a:[0], w:"Back or flank pain after femoral access in a patient on GP IIb/IIIa inhibitors can mean retroperitoneal bleeding. Check vital signs and the site, and notify the provider right away."}
+  ]
+},
+{
+  id:"growth", num:"05", group:"Other medications", title:"Hematopoietic growth factors", kind:"drug", theme:"heme",
+  lede:"These are lab-made versions of the body's own signals that tell bone marrow to make more red cells, white cells, or platelets. The risk comes from too much of a good thing: high hemoglobin causes clots, high platelets cause clots.",
+  diagram:"marrow",
+  cards:[
+    {name:"Erythropoiesis-stimulating agents (ESAs)", pharm:"Erythropoiesis-stimulating agent", ther:"Antianemic", stem:"-poetin", ex:["epoetin alfa","darbepoetin"],
+     how:"Act like erythropoietin, the hormone the kidneys make, to stimulate red blood cell production in the bone marrow. Used for anemia from chronic kidney disease and chemotherapy to reduce transfusions. Effect takes weeks.",
+     mon:["Hemoglobin (CKD: reduce or hold when Hgb approaches 11 g/dL, per order)","BP (hypertension is common)","Iron studies (ferritin, transferrin saturation); iron is needed to make RBCs","Seizures; signs of clots (DVT, stroke, MI)"],
+     edu:["It takes 2–6 weeks to see a rise in hemoglobin","Keep BP controlled; take BP medications","Take iron supplements as prescribed","Report chest pain, leg swelling, severe headache, or seizure"],
+     se:["Hypertension","Headache","Injection-site pain","Arthralgia"],
+     ae:["MI, stroke, VTE (boxed warning when Hgb is too high)","Seizures","Tumor progression in some cancers","Pure red cell aplasia (rare)"],
+     trap:"Don't shake the vial; it can damage the protein. Give subcut or IV."},
+    {name:"Granulocyte colony-stimulating factors", pharm:"Granulocyte colony-stimulating factor (G-CSF)", ther:"Leukopoietic growth factor", stem:"-stim", ex:["filgrastim","pegfilgrastim","sargramostim"],
+     how:"Stimulate bone marrow to produce and release neutrophils. Filgrastim is daily; pegfilgrastim is long-acting, given once per chemotherapy cycle. Sargramostim is GM-CSF and also stimulates macrophages. Used to prevent and shorten chemotherapy-induced neutropenia and to mobilize stem cells.",
+     mon:["CBC with ANC (often twice weekly with filgrastim)","Bone pain","Left upper quadrant or shoulder pain (splenic rupture)","Respiratory distress (ARDS); allergic reaction"],
+     edu:["Bone pain is common; ask about pain relief","Report pain in the left upper abdomen or left shoulder right away","Keep using infection precautions until counts recover","Refrigerate; let it reach room temperature; don't shake"],
+     se:["Bone pain (most common)","Headache","Injection-site reaction"],
+     ae:["Splenic rupture","ARDS","Severe allergic reaction","Leukocytosis"],
+     trap:"Not given within 24 hours before or after chemotherapy, because rapidly dividing marrow cells would be targeted by chemo. Note: sargramostim's full stem is -gramostim; filgrastim's is -grastim."},
+    {name:"Thrombopoietin receptor agonists", pharm:"Thrombopoietin receptor agonist", ther:"Thrombopoietic growth factor", stem:"-plostim / -trombopag", ex:["romiplostim","eltrombopag","avatrombopag","lusutrombopag"],
+     how:"Activate the thrombopoietin receptor on megakaryocytes, which then produce more platelets. Romiplostim is a weekly subcut injection dosed by platelet count. Eltrombopag, avatrombopag and lusutrombopag are oral. Used for chronic immune thrombocytopenia (ITP) and, for avatrombopag and lusutrombopag, to raise platelets in chronic liver disease before a procedure.",
+     mon:["Platelet count (weekly until stable)","Liver function tests (eltrombopag)","Signs of thrombosis, including portal vein thrombosis in liver disease","Bleeding if therapy stops (platelets can fall below baseline)"],
+     edu:["Eltrombopag: take on an empty stomach; separate from antacids, dairy, calcium and iron by several hours","Avatrombopag: take with food","Report leg swelling, abdominal pain, or chest pain","Don't stop on your own; platelets can drop suddenly"],
+     se:["Headache","Fatigue","Nausea","Arthralgia"],
+     ae:["Thromboembolism","Hepatotoxicity (eltrombopag)","Rebound thrombocytopenia and bleeding after stopping","Bone marrow fibrosis"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient with chronic kidney disease is due for epoetin alfa. Today's hemoglobin is 11.8 g/dL. What should the nurse do?",
+     o:["Give the dose and recheck hemoglobin in one month","Hold the dose and notify the provider per protocol","Double the dose to keep the hemoglobin rising","Give the dose IM to slow down its absorption"],
+     a:[1], w:"Targeting a hemoglobin above 11 g/dL in CKD increases the risk of MI, stroke, VTE and death. The dose is reduced or held as Hgb approaches 11; follow the protocol and notify the provider."},
+    {t:"sata", s:"Which assessments are priorities for a patient receiving epoetin alfa? Select all that apply.",
+     o:["Blood pressure","Hemoglobin","Iron studies","Serum digoxin level","Fasting lipid panel"],
+     a:[0,1,2], w:"ESAs raise BP and need iron to work, and hemoglobin guides the dose. Digoxin levels and lipid panels are unrelated to ESA therapy."},
+    {t:"mc", s:"A patient receiving filgrastim reports sharp pain in the left upper abdomen radiating to the left shoulder. What should the nurse suspect?",
+     o:["Expected bone pain as the marrow grows quickly","Possible splenic rupture; report it at once","Gas pain from reduced activity in bed","Injection-site reaction spreading upward"],
+     a:[1], w:"G-CSFs can enlarge the spleen, and splenic rupture is a rare but life-threatening adverse effect. Left upper quadrant or left shoulder (Kehr's sign) pain needs immediate evaluation."},
+    {t:"mc", s:"When should pegfilgrastim be given in relation to chemotherapy?",
+     o:["Right before the chemotherapy infusion starts","At least 24 hours after chemotherapy finishes","Through the same IV line during chemotherapy","Only after the patient develops a high fever"],
+     a:[1], w:"Stimulating marrow cells to divide just before or during chemo would make them more vulnerable to it. Pegfilgrastim is given at least 24 hours after chemotherapy, once per cycle."},
+    {t:"mc", s:"A patient is starting eltrombopag for chronic ITP. Which instruction is correct?",
+     o:["Take it with a glass of milk to protect your stomach","Take it apart from antacids, dairy and iron by hours","Take it with your calcium supplement to boost uptake","Take it with a large meal so it absorbs more evenly"],
+     a:[1], w:"Polyvalent cations (calcium, iron, magnesium, aluminum) bind eltrombopag and block its absorption. It is taken on an empty stomach, separated from these products by several hours."},
+    {t:"mc", s:"Which lab result is used to adjust the weekly dose of romiplostim?",
+     o:["Hemoglobin","Platelet count","Absolute neutrophil count","Serum ferritin"],
+     a:[1], w:"Romiplostim stimulates platelet production and is dosed by the platelet count, usually checked weekly until stable."}
+  ]
+},
+{
+  id:"final", num:"06", group:"Wrap-up", title:"Final review", kind:"final",
+  lede:"Mixed questions across every class. Most are NCLEX-style application items: read the scenario, then decide what matters most.",
+  quiz:[
+    {t:"mc", s:"Which patient should the nurse see first?",
+     o:["On alteplase, with new slurred speech and headache","On atorvastatin, asking whether to take it at bedtime","On amlodipine, with 1+ ankle edema at day's end","On filgrastim, with a mild ache in the hips"],
+     a:[0], w:"New neurologic changes during thrombolytic therapy suggest intracranial hemorrhage, a life-threatening emergency. The other findings are expected side effects or teaching needs."},
+    {t:"mc", s:"A patient takes digoxin and furosemide. Which lab result puts this patient at the greatest risk for digoxin toxicity?",
+     o:["Potassium 2.9 mEq/L","Sodium 140 mEq/L","Glucose 110 mg/dL","Magnesium 2.0 mg/dL"],
+     a:[0], w:"Furosemide wastes potassium, and hypokalemia increases digoxin binding and toxicity. The other values are within normal limits."},
+    {t:"mc", s:"What is the pharmacologic class of rivaroxaban?",
+     o:["Anticoagulant","Direct factor Xa inhibitor","Tissue plasminogen activator","Antiplatelet aggregator"],
+     a:[1], w:"“Direct factor Xa inhibitor” is the pharmacologic class (mechanism). “Anticoagulant” is its therapeutic class (use). Keeping them separate is a common exam check."},
+    {t:"sata", s:"Which instructions apply to any patient taking an anticoagulant? Select all that apply.",
+     o:["Use a soft-bristled toothbrush","Shave with an electric razor","Report black, tarry stools","Use ibuprofen freely for aches","Ask for IM shots over pills"],
+     a:[0,1,2], w:"Bleeding precautions apply across every anticoagulant. NSAIDs add bleeding risk and IM injections cause hematomas, so both are avoided."},
+    {t:"mc", s:"A patient is starting sotalol. Which assessment is the priority?",
+     o:["Serum lipid levels","QT interval on the ECG","Hemoglobin A1c every 3 months","Peak flow readings"],
+     a:[1], w:"Sotalol is a beta blocker with class III antiarrhythmic action. It prolongs the QT interval and can cause torsades de pointes, so ECG monitoring is required when starting it."},
+    {t:"mc", s:"A patient taking lisinopril tells the nurse she is 10 weeks pregnant. What is the priority action?",
+     o:["Tell her to take the dose every other day instead","Notify the provider; the drug can harm the fetus","Reassure her that ACE inhibitors are safe in pregnancy","Teach her to take the drug with a prenatal vitamin"],
+     a:[1], w:"ACE inhibitors, ARBs and direct renin inhibitors are fetotoxic and contraindicated in pregnancy. The provider needs to switch her to a pregnancy-safe antihypertensive."},
+    {t:"mc", s:"What is the therapeutic class of epoetin alfa?",
+     o:["Antianemic","Leukopoietic growth factor","Thrombopoietic growth factor","Antiplatelet aggregator"],
+     a:[0], w:"Epoetin treats anemia, so its therapeutic class is antianemic. Its pharmacologic class is erythropoiesis-stimulating agent."},
+    {t:"mc", s:"Which drug–antidote pairing is correct?",
+     o:["Warfarin – protamine sulfate","Heparin – protamine sulfate","Dabigatran – vitamin K","Digoxin – phentolamine"],
+     a:[1], w:"Protamine reverses heparin (and partly enoxaparin). Warfarin is reversed with vitamin K, dabigatran with idarucizumab, and digoxin with digoxin immune fab. Phentolamine treats vasopressor extravasation."},
+    {t:"mc", s:"Which pair of drugs should never be given together?",
+     o:["Nitroglycerin and sildenafil","Lisinopril and hydrochlorothiazide","Metoprolol and atorvastatin","Aspirin and clopidogrel"],
+     a:[0], w:"A nitrate plus a PDE-5 inhibitor can cause a profound, life-threatening drop in BP. The other pairs are commonly prescribed together (aspirin plus clopidogrel is dual antiplatelet therapy)."},
+    {t:"mc", s:"Carvedilol is preferred for many patients with heart failure. Which receptors does it block?",
+     o:["Beta-1 only, sparing the lungs","Beta-1, beta-2, and alpha-1","Alpha-1 and alpha-2 receptors","Beta-2 and dopamine receptors"],
+     a:[1], w:"Carvedilol blocks beta-1, beta-2 and alpha-1 receptors. The alpha-1 blockade adds vasodilation (less afterload), which helps the failing heart."}
+  ]
+},
+{ id:"summary", num:"07", group:"Wrap-up", title:"Your results", kind:"summary" },
+{ id:"stems", num:"08", group:"Wrap-up", title:"Stem cheat sheet", kind:"stems" }
+];
+
+/* ============================================================
+   STEM TABLE (straight from the Unit 4 medication list)
+   ============================================================ */
+const STEMS = [
+  ["A · ACE inhibitors and ARBs",null],
+  ["ACE inhibitor","Antihypertensive","-pril","enalapril, lisinopril","c"],
+  ["Angiotensin II receptor blocker (ARB)","Antihypertensive","-sartan","valsartan, irbesartan","c"],
+  ["B · Beta blockers",null],
+  ["Beta-adrenergic blocker","Antihypertensive","-lol","metoprolol, carvedilol, sotalol, propranolol","c"],
+  ["C · Calcium channel blockers",null],
+  ["Calcium channel blocker","Antihypertensive / antiarrhythmic","-dipine","nifedipine, amlodipine, verapamil*, diltiazem*","c"],
+  ["D · Diuretics",null],
+  ["Loop diuretic","Diuretic / antihypertensive","-semide","furosemide, torsemide, bumetanide*","c"],
+  ["Thiazide diuretic","Diuretic / antihypertensive","-thiazide","hydrochlorothiazide, chlorthalidone*","c"],
+  ["Potassium-sparing diuretic","Diuretic / antihypertensive","-renone / -actone","spironolactone, eplerenone, triamterene*","c"],
+  ["Other antihypertensives",null],
+  ["Direct renin inhibitor","Antihypertensive","-kiren","aliskiren, enalkiren, remikiren","c"],
+  ["Alpha-adrenergic blocker","Antihypertensive / sympatholytic","-azosin","prazosin, terazosin, doxazosin","c"],
+  ["Heart failure and coronary",null],
+  ["Cardiac glycoside","n/a","n/a","digoxin","c"],
+  ["Adrenergic agonist","Sympathomimetic","-ine*","epinephrine, dopamine, dobutamine","c"],
+  ["Nitrate","Vasodilator","nitr-","nitroglycerin","c"],
+  ["Phosphodiesterase-5 inhibitor","Pulmonary vasodilator / ED agent","-afil","sildenafil, tadalafil","c"],
+  ["Antihyperlipidemics",null],
+  ["Fibrate","Antitriglyceridemic","fibr-","fenofibrate, gemfibrozil, simfibrate","c"],
+  ["Statin","Antihypercholesterolemic","-statin","pravastatin, atorvastatin, simvastatin","c"],
+  ["Anticoagulants, antiplatelets, thrombolytics",null],
+  ["Anticoagulant","Anticoagulant","-arin*","heparin, warfarin, enoxaparin","h"],
+  ["Direct thrombin inhibitor","Anticoagulant","-gatr- / -rudin","argatroban, dabigatran, inogatran, melagatran, hirudin, bivalirudin, lepirudin","h"],
+  ["Direct factor Xa inhibitor","Anticoagulant","-xaban","apixaban, rivaroxaban, edoxaban, betrixaban","h"],
+  ["Glycoprotein IIb/IIIa inhibitor","Antiplatelet aggregator","n/a","abciximab, eptifibatide, tirofiban","h"],
+  ["ADP receptor inhibitor","Antiplatelet aggregator","-grel","clopidogrel, cangrelor, ticagrelor","h"],
+  ["Irreversible COX inhibitor","Antiplatelet aggregator","n/a","aspirin, triflusal","h"],
+  ["Thrombolytic","Thrombolytic","-teplase","alteplase, reteplase","h"],
+  ["Growth factors",null],
+  ["Erythropoiesis-stimulating agent","Antianemic","-poetin","epoetin alfa, darbepoetin","h"],
+  ["Granulocyte colony-stimulating factor","Leukopoietic growth factor","-stim","filgrastim, pegfilgrastim, sargramostim","h"],
+  ["Thrombopoietin receptor agonist","Thrombopoietic growth factor","-plostim / -trombopag","romiplostim, eltrombopag, avatrombopag, lusutrombopag","h"]
+];
+const DRILL_GROUPS = [
+  {id:"abcd", label:"ABCDs", cards:[["-pril","A · ACE inhibitor","lisinopril"],["-sartan","A · ARB","valsartan"],["-lol","B · Beta blocker","metoprolol"],["-dipine","C · Calcium channel blocker","amlodipine"],["-semide","D · Loop diuretic","furosemide"],["-thiazide","D · Thiazide diuretic","hydrochlorothiazide"]]},
+  {id:"other", label:"Other BP & heart", cards:[["-kiren","Direct renin inhibitor","aliskiren"],["-azosin","Alpha-1 blocker","doxazosin"],["nitr-","Nitrate","nitroglycerin"],["-afil","PDE-5 inhibitor","sildenafil"]]},
+  {id:"lipid", label:"Lipids", cards:[["-statin","HMG-CoA reductase inhibitor","atorvastatin"],["fibr-","Fibrate","fenofibrate"]]},
+  {id:"clot", label:"Clotting", cards:[["-xaban","Direct factor Xa inhibitor","apixaban"],["-gatr- / -rudin","Direct thrombin inhibitor","dabigatran"],["-grel","ADP receptor inhibitor","clopidogrel"],["-teplase","Thrombolytic","alteplase"]]},
+  {id:"growth", label:"Growth factors", cards:[["-poetin","Erythropoiesis-stimulating agent","epoetin alfa"],["-stim","Colony-stimulating factor (WBCs)","filgrastim"],["-plostim / -trombopag","Thrombopoietin receptor agonist","romiplostim"]]}
+];
+let drillGroup = "abcd";
+let currentId = "start";
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const KEY = "cardioheme-decoder-v4";
+let state = {answers:{}};   // answers[qid] = {sel:[...], done:true, ok:bool}
+try{ const s = localStorage.getItem(KEY); if(s){ state = JSON.parse(s) || state; if(!state.answers) state.answers = {}; } }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+// stable shuffle of options per question (seeded by question id) so order is consistent across visits
+function seeded(str){ let h = 2166136261; for(const c of str){ h ^= c.charCodeAt(0); h = Math.imul(h,16777619); } return function(){ h ^= h<<13; h ^= h>>>17; h ^= h<<5; return ((h>>>0)%100000)/100000; }; }
+SECTIONS.forEach(sec=>{ (sec.quiz||[]).forEach((q,i)=>{
+  q.id = sec.id + "-" + (i+1);
+  const r = seeded(q.id); const order = q.o.map((_,k)=>k);
+  for(let k=order.length-1;k>0;k--){ const j = Math.floor(r()*(k+1)); [order[k],order[j]]=[order[j],order[k]]; }
+  q.order = order;
+});});
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const quizSections = SECTIONS.filter(s=>s.quiz);
+const totalQ = quizSections.reduce((n,s)=>n+s.quiz.length,0);
+
+function secStats(sec){
+  let done=0, ok=0;
+  (sec.quiz||[]).forEach(q=>{ const a = state.answers[q.id]; if(a&&a.done){ done++; if(a.ok) ok++; } });
+  return {done, ok, total:(sec.quiz||[]).length};
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderNav(current){
+  const nav = document.getElementById("nav");
+  let lastGroup = "";
+  nav.innerHTML = SECTIONS.map(s=>{
+    let head = "";
+    if(s.group && s.group!==lastGroup){ lastGroup = s.group; head = `<li class="navgroup">${esc(s.group)}</li>`; }
+    let chip = "";
+    if(s.quiz){ const st = secStats(s); chip = `<span class="chip ${st.done===st.total?'done':''}">${st.ok}/${st.total}</span>`; }
+    return head + `<li><a href="#${s.id}" ${s.id===current?'aria-current="page"':''}><span class="num">${s.num}</span><span>${esc(s.title)}</span>${chip}</a></li>`;
+  }).join("");
+  let done=0; quizSections.forEach(s=>done+=secStats(s).done);
+  document.getElementById("ovText").textContent = done + " / " + totalQ;
+  document.getElementById("ovBar").style.width = (100*done/totalQ) + "%";
+}
+
+function pager(idx){
+  const prev = SECTIONS[idx-1], next = SECTIONS[idx+1];
+  return `<div class="pager">${prev?`<a class="btn ghost" href="#${prev.id}">← ${esc(prev.title)}</a>`:'<span></span>'}${next?`<a class="btn" href="#${next.id}">${esc(next.title)} →</a>`:''}</div>`;
+}
+
+function card(c, sid, ci){
+  const list = a => `<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  return `<article class="dcard">
+    <div class="dhead">
+      <h3>${esc(c.name)}</h3><div class="cardTools">${sid!==undefined?`<button type="button" class="printbtn" data-print-card="${sid}|${ci}" aria-label="Print ${esc(c.name)}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print</button>`:""}<span class="stemTag">${esc(c.stem)}</span></div>
+      <div class="meta"><span><b>Pharmacologic class:</b> ${esc(c.pharm)}</span><span><b>Therapeutic class:</b> ${esc(c.ther)}</span></div>
+      <div class="ex">${c.ex.map(e=>`<span>${esc(e)}</span>`).join("")}</div>
+    </div>
+    <div class="dbody">
+      <div class="cell wide"><h4>How it works</h4><p>${esc(c.how)}</p></div>
+      <div class="cell"><h4>Monitoring &amp; safe administration</h4>${list(c.mon)}</div>
+      <div class="cell"><h4>Patient education</h4>${list(c.edu)}</div>
+      <div class="cell"><h4>Side effects</h4>${list(c.se)}</div>
+      <div class="cell adv"><h4>Adverse effects</h4>${list(c.ae)}</div>
+    </div>
+    ${c.trap?`<div class="dtrap"><b>Watch for:</b> ${esc(c.trap)}</div>`:""}
+  </article>`;
+}
+
+function diagram(kind){
+  if(kind==="abcd") return `
+  <section aria-labelledby="abcdH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="abcdH">The ABCDs of antihypertensives</h3>
+    <div class="abcd">${[["abcd-a","A","ACE inhibitors &amp; ARBs","-pril, -sartan · block the RAAS"],["abcd-b","B","Beta blockers","-lol · slow the heart"],["abcd-c","C","Calcium channel blockers","-dipine · relax vessels or slow the heart"],["abcd-d","D","Diuretics","-semide, -thiazide · remove sodium and water"]].map(t=>`<a class="abcdTile" href="#${t[0]}" ${t[0]===currentId?'aria-current="page"':''}><span class="letter">${t[1]}</span><b>${t[2]}</b><small>${t[3]}</small></a>`).join("")}
+    </div>
+  </section>`;
+  if(kind==="raas") return `
+  <section class="panel" aria-labelledby="raasH">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h3 id="raasH">Where the RAAS drugs act</h3>
+      <div class="flow">
+        <div class="node"><b>Angiotensinogen</b><small>made by the liver</small></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Renin</b><small>released by the kidney</small><span class="block">-kiren blocks (see Other)</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Angiotensin I</b><small>inactive</small></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>ACE</b><small>mostly in the lungs; also breaks down bradykinin</small><span class="block">-pril blocks</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Angiotensin II</b><small>acts on the AT1 receptor</small><span class="block">-sartan blocks the receptor</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Effects</b><small>vasoconstriction; aldosterone → Na⁺ and water retained, K⁺ excreted</small></div>
+      </div>
+      <p class="diagcap">Block any step and you get the same downstream result: lower BP, and potassium that stays in the body (hyperkalemia). Only the -prils also let bradykinin build up, which is why cough belongs to ACE inhibitors.</p>
+    </div>
+  </section>`;
+  if(kind==="betas") return `
+  <section aria-labelledby="betaH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="betaH">Which receptors does each -lol block?</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Drug</th><th>Beta-1 (heart)</th><th>Beta-2 (lungs)</th><th>Alpha-1 (vessels)</th><th>Key point</th></tr></thead>
+      <tbody>
+        <tr><td>metoprolol</td><td>✓</td><td>–</td><td>–</td><td>Cardioselective; safer choice in lung disease</td></tr>
+        <tr><td>propranolol</td><td>✓</td><td>✓</td><td>–</td><td>Nonselective; can cause bronchospasm</td></tr>
+        <tr><td>carvedilol</td><td>✓</td><td>✓</td><td>✓</td><td>Adds vasodilation; used in heart failure</td></tr>
+        <tr><td>sotalol</td><td>✓</td><td>✓</td><td>–</td><td>Also prolongs QT (class III antiarrhythmic)</td></tr>
+      </tbody></table></div>
+    <p class="diagcap">Memory aid: you have one heart (beta-1) and two lungs (beta-2).</p>
+  </section>`;
+  if(kind==="nephron") return `
+  <section class="panel" aria-labelledby="nephH">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h3 id="nephH">Where each diuretic acts in the nephron</h3>
+      <div class="flow">
+        <div class="node"><b>Proximal tubule</b><small>reabsorbs most filtered water</small></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Loop of Henle</b><small>about 25% of sodium reabsorbed here · strongest effect · K⁺ lost</small><span class="block">-semide</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Distal tubule</b><small>moderate effect · K⁺ lost · Ca²⁺ kept</small><span class="block">-thiazide</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Collecting duct</b><small>aldosterone acts here · mild effect · K⁺ kept</small><span class="block">-renone / -actone</span></div>
+      </div>
+      <p class="diagcap">Loops and thiazides lower potassium; potassium-sparing diuretics raise it. That's why a loop and spironolactone are often paired.</p>
+    </div>
+  </section>`;
+  if(kind==="receptors") return `
+  <section aria-labelledby="recH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="recH">Adrenergic receptors at a glance</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Receptor</th><th>Main location</th><th>When stimulated</th><th>When blocked</th></tr></thead>
+      <tbody>
+        <tr><td>Alpha-1</td><td>Arterioles, veins, prostate</td><td>Vasoconstriction, ↑ BP (epinephrine, high-dose dopamine)</td><td>Vasodilation, orthostatic hypotension (-azosin, carvedilol)</td></tr>
+        <tr><td>Beta-1</td><td>Heart, kidney (renin)</td><td>↑ HR, ↑ contractility (dobutamine, epinephrine, dopamine)</td><td>↓ HR, ↓ contractility, ↓ renin (-lol)</td></tr>
+        <tr><td>Beta-2</td><td>Bronchioles, skeletal muscle vessels</td><td>Bronchodilation (epinephrine)</td><td>Bronchoconstriction (propranolol, carvedilol)</td></tr>
+        <tr><td>Dopamine</td><td>Renal and mesenteric vessels</td><td>Vasodilation of kidney vessels (low-dose dopamine)</td><td>n/a for this unit</td></tr>
+      </tbody></table></div>
+    <p class="diagcap">Memory aid: you have one heart (beta-1) and two lungs (beta-2).</p>
+  </section>`;
+  if(kind==="clot") return `
+  <section aria-labelledby="clotH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="clotH">Three targets: plug, cascade, breakdown</h3>
+    <div class="lanes">
+      <div class="lane"><h4>1 · Platelet plug</h4><ol>
+        <li>Platelets activate. COX makes thromboxane A2 <span class="block">aspirin</span></li>
+        <li>ADP binds the P2Y12 receptor <span class="block">-grel</span></li>
+        <li>GP IIb/IIIa receptors link platelets with fibrinogen <span class="block">eptifibatide, tirofiban</span></li>
+      </ol></div>
+      <div class="lane"><h4>2 · Clotting cascade</h4><ol>
+        <li>Liver makes factors II, VII, IX, X using vitamin K <span class="block">warfarin</span></li>
+        <li>Factor Xa forms <span class="block">-xaban</span> <span class="block">enoxaparin</span></li>
+        <li>Thrombin (IIa) forms <span class="block">-gatr- / -rudin</span> <span class="block">heparin + antithrombin</span></li>
+        <li>Thrombin turns fibrinogen into a fibrin mesh</li>
+      </ol></div>
+      <div class="lane"><h4>3 · Clot breakdown</h4><ol>
+        <li>Plasminogen is converted to plasmin <span class="block">-teplase</span></li>
+        <li>Plasmin dissolves the existing fibrin clot</li>
+      </ol></div>
+    </div>
+    <p class="diagcap">Antiplatelets and anticoagulants prevent new clots and keep existing ones from growing. Only thrombolytics dissolve a clot that has already formed.</p>
+  </section>`;
+  if(kind==="marrow") return `
+  <section class="panel" aria-labelledby="marH">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h3 id="marH">One stem cell, three signals</h3>
+      <div class="lanes">
+        <div class="lane"><b>Red blood cells</b><small>Signal: erythropoietin (kidney)</small><span class="block">-poetin</span><small>Raises Hgb · watch BP and clots</small></div>
+        <div class="lane"><b>Neutrophils</b><small>Signal: G-CSF / GM-CSF</small><span class="block">-stim</span><small>Raises ANC · watch bone pain and spleen</small></div>
+        <div class="lane"><b>Platelets</b><small>Signal: thrombopoietin (liver)</small><span class="block">-plostim / -trombopag</span><small>Raises platelets · watch clots and liver</small></div>
+      </div>
+    </div>
+  </section>`;
+  return "";
+}
+
+function renderQuiz(sec){
+  const st = secStats(sec);
+  return `<section class="quiz" aria-labelledby="qh-${sec.id}">
+    <div class="quizHead"><div><div class="eyebrow">CHECK YOUR UNDERSTANDING</div><h2 id="qh-${sec.id}">${sec.kind==="final"?"Final review":"Section check"}</h2></div>
+      <div style="display:flex;gap:10px;align-items:center"><span class="score">${st.ok} correct · ${st.done}/${st.total} answered</span><button class="btn ghost" type="button" data-reset="${sec.id}" style="font-size:.8rem;padding:6px 10px">Retry section</button></div></div>
+    ${sec.quiz.map((q,i)=>renderQ(q,i)).join("")}
+  </section>`;
+}
+
+function renderQ(q,i){
+  const a = state.answers[q.id] || {sel:[]};
+  const multi = q.t==="sata";
+  const opts = q.order.map(k=>{
+    let cls = "opt";
+    if(a.done){
+      const chosen = a.sel.includes(k), right = q.a.includes(k);
+      if(chosen && right) cls += " correct"; else if(chosen && !right) cls += " wrong"; else if(!chosen && right) cls += " missed";
+    }
+    return `<label class="${cls}"><input type="${multi?'checkbox':'radio'}" name="${q.id}" value="${k}" ${a.sel.includes(k)?'checked':''} ${a.done?'disabled':''} data-q="${q.id}"><span>${esc(q.o[k])}</span></label>`;
+  }).join("");
+  let foot = "";
+  if(a.done){
+    foot = `<div class="verdict ${a.ok?'ok':'no'}">${a.ok?'Correct.':(multi?'Not quite. Dashed outlines show answers you missed.':'Not quite. The correct answer is outlined in green.')}</div><div class="why">${esc(q.w)}</div>`;
+  } else {
+    foot = `<div class="qfoot"><button class="btn" type="button" data-check="${q.id}" ${a.sel.length?'':'disabled'}>Check answer</button></div>`;
+  }
+  return `<div class="q" id="q-${q.id}"><div class="qn">QUESTION ${i+1}${multi?'<span class="tag">SELECT ALL THAT APPLY</span>':''}</div><div class="stemQ">${esc(q.s)}</div><div class="opts" role="${multi?'group':'radiogroup'}" aria-label="Answer choices">${opts}</div>${foot}</div>`;
+}
+
+function stemTable(){
+  return `<div class="tablewrap"><table>
+    <thead><tr><th>Pharmacologic class</th><th>Therapeutic class</th><th>Stem</th><th>Examples on your list</th></tr></thead>
+    <tbody>${STEMS.map(r=> r[1]===null ? `<tr class="groupRow"><td colspan="4">${esc(r[0])}</td></tr>`
+      : `<tr class="${r[4]}"><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td><span class="stem">${esc(r[2])}</span></td><td>${esc(r[3])}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <p class="diagcap">* Does not follow the stem. Learn these by name; each one is flagged on its drug card.</p>`;
+}
+
+function render(){
+  let id = viewId;
+  if(!id){ try{ id = (location.hash||"").replace("#",""); }catch(e){} }
+  id = id || "start";
+  const idx = Math.max(0, SECTIONS.findIndex(s=>s.id===id));
+  const sec = SECTIONS[idx];
+  currentId = sec.id;
+  renderNav(sec.id);
+  const main = document.getElementById("main");
+  let h = "";
+  if(sec.kind==="intro"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">UNIT 4 · CARDIOVASCULAR / HEMATOLOGY</div><h1>Cardio-Heme Drug Decoder</h1>
+      <p class="lede">Every medication on the Unit 4 list, organized by class, with the antihypertensives grouped by their ABCDs. Learn to read a drug name, then work through each class: how it works, what you monitor, what you teach, and what can go wrong. Each section ends with questions that explain the answer as soon as you check it.</p></header>
+      <section class="panel"><h3 style="margin-bottom:10px">By the end, you should be able to</h3><ol class="objectives">
+        <li>Use prefixes, roots and suffixes to identify the class of a cardiovascular or hematologic drug.</li>
+        <li>Tell the pharmacologic class (how it works) from the therapeutic class (what it treats).</li>
+        <li>Explain the mechanism of action of each class in plain language.</li>
+        <li>Identify the assessments, labs and hold parameters for safe administration.</li>
+        <li>Teach patients how to take each drug safely and what to report.</li>
+        <li>Distinguish common side effects from adverse effects that need action.</li>
+      </ol></section>
+      <div class="steps">
+        <div class="panel"><span class="eyebrow">STEP 1</span><b>Read the labels</b><p>Each drug class is a card with the same six parts, so you can compare classes side by side.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 2</span><b>Check yourself</b><p>Answer every question at the end of the section. You'll see the rationale right away.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 3</span><b>Review your results</b><p>The results page shows your score by section and lists the topics to revisit.</p></div>
+      </div>
+      <p class="diagcap">Your answers are saved in this browser only. Use “Retry section” to clear one section, or “Start over” to clear everything.</p>
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="decode"){
+    const g = DRILL_GROUPS.find(x=>x.id===drillGroup) || DRILL_GROUPS[0];
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      <section class="panel" aria-labelledby="readH" style="display:flex;flex-direction:column;gap:14px">
+        <div><span class="eyebrow">HABIT 1</span><h3 id="readH">Learn the class, not the drug</h3></div>
+        <p class="prose" style="max-width:68ch">Drugs in a class share a mechanism, monitoring, teaching and adverse effects. Learn one key drug (the prototype) well, then notice how the others differ. The stem tells you which class you're looking at.</p>
+        <div class="decodeSteps">
+          <div class="dstep"><span class="eyebrow">1 · FIND THE STEM</span><p class="big mono">metopro<mark>lol</mark></p></div>
+          <div class="dstep"><span class="eyebrow">2 · PHARMACOLOGIC CLASS</span><p class="big">Beta blocker</p><small>How it works</small></div>
+          <div class="dstep"><span class="eyebrow">3 · THERAPEUTIC CLASS</span><p class="big">Antihypertensive</p><small>What it treats</small></div>
+        </div>
+        <p class="diagcap">Several pharmacologic classes can share one therapeutic class: the ABCDs are all antihypertensives. Stems don't always hold, so each card flags the exceptions. The full list is on the <a href="#stems">Stem cheat sheet</a>.</p>
+      </section>
+      <section class="panel" aria-labelledby="mechH" style="display:flex;flex-direction:column;gap:14px">
+        <div><span class="eyebrow">HABIT 2</span><h3 id="mechH">Let the mechanism do the work</h3></div>
+        <p class="prose" style="max-width:68ch">Once you know how a drug works, most of the nursing care follows. Ask the same questions in the same order for every class, the way each drug card is laid out.</p>
+        <div class="flow">
+          <div class="node"><b>How it works</b><small><b>Selective</b> (metoprolol): blocks beta-1 receptors in the heart only. <b>Nonselective</b> (propranolol): blocks beta-1 in the heart and beta-2 in the lungs.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>Expected effect</b><small>Beta-1 blocked: slower heart rate, weaker contraction and less renin released, so BP drops. Beta-2 blocked (nonselective only): airways can narrow.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>Too much of it</b><small>Bradycardia, hypotension, heart block; bronchospasm with nonselective drugs (adverse effects)</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>What you check</b><small>Apical pulse for a full minute and BP; hold if HR is below 60 or systolic BP is below 100. Lung sounds with nonselective drugs.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>What you teach</b><small>Check your pulse; rise slowly; never stop suddenly; report dizziness or wheezing</small></div>
+        </div>
+        <p class="diagcap"><b>Side effects</b> are expected and usually mild (fatigue); teach patients to expect them. <b>Adverse effects</b> are harmful (heart block) and need action.</p>
+      </section>
+      <section aria-labelledby="studyH" style="display:flex;flex-direction:column;gap:12px">
+        <div><span class="eyebrow">HABIT 3</span><h3 id="studyH">Study in ways that stick</h3></div>
+        <div class="steps">
+          <div class="panel"><b>Quiz yourself</b><p>Answer the section check before you reread anything. Pulling facts out of memory builds recall far better than rereading or highlighting.</p></div>
+          <div class="panel"><b>Space it out</b><p>Several short sessions over a week beat one long one. Come back to a section a few days later and retry its questions.</p></div>
+          <div class="panel"><b>Mix it up</b><p>Once you know a few classes, practice them together. Telling an ACE inhibitor from an ARB is what exams test.</p></div>
+          <div class="panel"><b>Explain the why</b><p>Say out loud why a finding matters: “Hypokalemia matters with digoxin because…” If you can explain it, you can apply it.</p></div>
+        </div>
+      </section>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="drug"){
+    h = `<div class="view ${sec.theme==='heme'?'heme':''}">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">SECTION ${sec.num}</div><button type="button" class="printbtn" data-print-section="${sec.id}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print this section</button></div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${sec.diagram?sec.diagram.split(" ").map(diagram).join(""):""}
+      <div class="cards">${sec.cards.map((c,i)=>card(c,sec.id,i)).join("")}</div>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="final"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="stems"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">REFERENCE</div><button type="button" class="printbtn" data-print-section="stems"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print cheat sheet</button></div><h2>Stem cheat sheet</h2>
+      <p class="lede">Every class in this activity, with its stem and the examples from your Unit 4 list. Use it to review, not as the place to start.</p></header>
+      ${stemTable()}
+      ${pager(idx)}</div>`;
+  } else {
+    let tot=0, ok=0, done=0;
+    const rows = quizSections.map(s=>{ const st = secStats(s); tot+=st.total; ok+=st.ok; done+=st.done;
+      const pct = st.done? Math.round(100*st.ok/st.total) : null;
+      const pill = st.done<st.total ? `<span class="pill none">${st.done}/${st.total} answered</span>` : pct>=80?`<span class="pill ok">Solid</span>`:pct>=60?`<span class="pill mid">Review</span>`:`<span class="pill low">Revisit</span>`;
+      return `<a class="sumcard" href="#${s.id}" style="text-decoration:none;color:inherit"><span class="eyebrow">${s.num}</span><b>${esc(s.title)}</b><span class="big">${st.ok}/${st.total}</span>${pill}</a>`; }).join("");
+    const misses = [];
+    quizSections.forEach(s=>s.quiz.forEach((q,i)=>{ const a = state.answers[q.id]; if(a&&a.done&&!a.ok) misses.push(`<li><a href="#${s.id}">${esc(s.title)}, question ${i+1}</a>: ${esc(q.s)}</li>`); }));
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">RESULTS</div><h2>Your results</h2>
+      <p class="lede">${done===0?"You haven't answered any questions yet. Start with How to learn pharmacology.":`You've answered ${done} of ${tot} questions and got ${ok} correct (${Math.round(100*ok/Math.max(done,1))}% of those answered).`}</p></header>
+      <div class="sumgrid">${rows}</div>
+      <section class="panel" style="display:flex;flex-direction:column;gap:10px"><h3>Questions to revisit</h3>
+        ${misses.length?`<ol class="misslist">${misses.join("")}</ol>`:`<p class="diagcap">${done?"None. Nice work.":"Missed questions will be listed here."}</p>`}</section>
+      ${pager(idx)}</div>`;
+  }
+  main.innerHTML = h;
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+document.addEventListener("change", e=>{
+  const inp = e.target.closest("input[data-q]"); if(!inp) return;
+  const qid = inp.dataset.q; const a = state.answers[qid] || {sel:[]}; if(a.done) return;
+  const k = +inp.value;
+  if(inp.type==="radio") a.sel = [k];
+  else a.sel = inp.checked ? [...new Set([...a.sel,k])] : a.sel.filter(x=>x!==k);
+  state.answers[qid] = a; save();
+  const btn = document.querySelector(`[data-check="${qid}"]`); if(btn) btn.disabled = !a.sel.length;
+});
+document.addEventListener("click", e=>{
+  const chk = e.target.closest("[data-check]");
+  if(chk){
+    const qid = chk.dataset.check; let q; SECTIONS.forEach(s=>(s.quiz||[]).forEach(x=>{ if(x.id===qid) q=x; }));
+    const a = state.answers[qid]; if(!a||!a.sel.length) return;
+    const sel = [...a.sel].sort(), ans = [...q.a].sort();
+    a.ok = sel.length===ans.length && sel.every((v,i)=>v===ans[i]); a.done = true; save();
+    const sec = SECTIONS.find(s=>(s.quiz||[]).includes(q));
+    document.getElementById("q-"+qid).outerHTML = renderQ(q, sec.quiz.indexOf(q));
+    renderNav(sec.id);
+    const st = secStats(sec); const sc = document.querySelector(".score"); if(sc) sc.textContent = `${st.ok} correct · ${st.done}/${st.total} answered`;
+    return;
+  }
+  const rs = e.target.closest("[data-reset]");
+  if(rs){ const sec = SECTIONS.find(s=>s.id===rs.dataset.reset); sec.quiz.forEach(q=>delete state.answers[q.id]); save(); render(); return; }
+  const tg = e.target.closest("[data-group]");
+  if(tg){ drillGroup = tg.dataset.group; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  const fl = e.target.closest("[data-flip]");
+  if(fl){ const on = fl.getAttribute("aria-pressed")!=="true"; fl.setAttribute("aria-pressed", on); fl.querySelector(".back").hidden = !on; fl.querySelector(".hint").textContent = on?"Tap to hide":"Tap to reveal"; return; }
+});
+document.getElementById("resetAll").addEventListener("click", ()=>{
+  const b = document.getElementById("resetAll");
+  if(b.dataset.confirm){ state = {answers:{}}; save(); delete b.dataset.confirm; b.textContent="Start over"; render(); }
+  else { b.dataset.confirm = "1"; b.textContent = "Click again to clear all answers"; setTimeout(()=>{ delete b.dataset.confirm; b.textContent="Start over"; }, 4000); }
+});
+let viewId = "";
+/* ============================================================
+   PRINTING
+   Standalone file: prints from a hidden frame.
+   Published page (printing is blocked there): saves a print-ready copy
+   that opens its own print dialog.
+   ============================================================ */
+const UNIT_LABEL = "UNIT 4 · CARDIOVASCULAR / HEMATOLOGY", APP_TITLE = "Cardio-Heme Drug Decoder";
+function inViewer(){ try{ return !!(window.claude && typeof window.claude.use === "function"); }catch(e){ return false; } }
+function toast(msg){
+  const t = document.getElementById("toast"); if(!t) return;
+  t.textContent = msg; t.hidden = false; clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ t.hidden = true; }, 6000);
+}
+function fileSafe(x){ return String(x).replace(/[^A-Za-z0-9 &()-]+/g," ").replace(/\s+/g," ").trim().slice(0,80) || "Printout"; }
+function printDoc(title, bodyHtml, heme){
+  const css = document.querySelector("style").textContent;
+  return '<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="utf-8"><title>' + esc(title) + '</title>'
+   + '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">'
+   + '<style>' + css + '\nbody{background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+   + 'main.printdoc{max-width:960px;margin:0 auto;padding:24px}.printbtn,.abcd,#toast{display:none !important}'
+   + '.dcard,.lane,.panel,tr{break-inside:avoid;page-break-inside:avoid}h2,h3{break-after:avoid}'
+   + '.printbar{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:10px}'
+   + '@media print{.printbar button{display:none}main.printdoc{padding:0}@page{margin:0.5in}}</style></head>'
+   + '<body><main class="printdoc"><div class="view' + (heme?' heme':'') + '">'
+   + '<div class="printbar"><span class="eyebrow">' + esc(UNIT_LABEL + " · " + APP_TITLE) + '</span><button class="btn" type="button" onclick="window.print()">Print</button></div>'
+   + bodyHtml + '</div></main>'
+   + '<scr'+'ipt>window.addEventListener("load",function(){setTimeout(function(){try{window.print()}catch(e){}},500)});</scr'+'ipt></body></html>';
+}
+async function doPrint(title, bodyHtml, heme){
+  const html = printDoc(title, bodyHtml, heme);
+  if(inViewer()){
+    let dl = null;
+    try{ dl = await window.claude.use("downloads"); }catch(e){}
+    if(!dl){ toast("Printing isn't available in this view. Open the downloaded HTML file in your browser to print."); return; }
+    try{
+      await dl.save({filename: fileSafe(title) + ".html", data: html});
+      toast("Saved. Open the file and the print window appears; choose Save as PDF if you'd rather keep a PDF.");
+    }catch(err){
+      if(err && err.code === "declined") return;
+      if(err && err.code === "rate_limited"){ toast("A save prompt is already open. Finish that one first."); return; }
+      toast("This view couldn't save the printable copy. Use the downloadable HTML file to print instead.");
+    }
+    return;
+  }
+  try{
+    let f = document.getElementById("printFrame"); if(f) f.remove();
+    f = document.createElement("iframe");
+    f.id = "printFrame"; f.title = "Print preview"; f.setAttribute("aria-hidden","true"); f.tabIndex = -1;
+    f.style.cssText = "position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0;";
+    document.body.appendChild(f);
+    f.srcdoc = html;
+  }catch(e){ toast("Your browser blocked printing. Try Ctrl+P (Cmd+P on a Mac)."); }
+}
+function sectionPrintBody(sec){
+  if(sec.kind==="stems") return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">REFERENCE</div><h2>Stem cheat sheet</h2></header>' + stemTable();
+  return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">SECTION ' + esc(sec.num) + '</div><h2>' + esc(sec.title) + '</h2><p class="lede">' + esc(sec.lede) + '</p></header>'
+    + (sec.diagram ? sec.diagram.split(" ").filter(d=>d!=="abcd").map(diagram).join("") : "")
+    + '<div class="cards">' + sec.cards.map(c=>card(c)).join("") + '</div>';
+}
+document.addEventListener("click", e=>{
+  const pc = e.target.closest("[data-print-card]");
+  if(pc){
+    const [sid, ci] = pc.dataset.printCard.split("|");
+    const sec = SECTIONS.find(x=>x.id===sid); const c = sec && sec.cards[+ci]; if(!c) return;
+    doPrint(c.name, '<div class="eyebrow">' + esc(sec.title.toUpperCase()) + '</div>' + card(c), sec.theme==="heme");
+    return;
+  }
+  const ps = e.target.closest("[data-print-section]");
+  if(ps){
+    const sec = SECTIONS.find(x=>x.id===ps.dataset.printSection); if(!sec) return;
+    doPrint(sec.kind==="stems" ? "Stem cheat sheet" : sec.title, sectionPrintBody(sec), sec.theme==="heme");
+  }
+});
+function go(id){
+  viewId = id; render();
+  try{ history.replaceState(null, "", "#"+id); }catch(e){}
+}
+// Navigate with script instead of relying on hash links, which some viewers block.
+document.addEventListener("click", e=>{
+  const a = e.target.closest('a[href^="#"]'); if(!a) return;
+  const id = a.getAttribute("href").slice(1);
+  if(!SECTIONS.some(s=>s.id===id)) return;
+  e.preventDefault(); go(id);
+}, true);
+window.addEventListener("hashchange", ()=>{ try{ const h = location.hash.replace("#",""); if(h && h!==viewId){ viewId = h; render(); } }catch(e){} });
+render();
+</script>
+</body>
+</html>

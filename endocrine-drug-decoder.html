@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Endocrine Drug Decoder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a pharmacy-label reference — sticky section rail on the left, one section at a time on the right; every drug class is a "label" card, every section ends in a check. */
+:root{
+  --paper:#f6f7f8;
+  --card:#ffffff;
+  --ink:#16202b;
+  --muted:#56616d;
+  --rule:#d9dee3;
+  --accent:#a3172f;      /* cardiac crimson */
+  --accent-soft:#f8e6e9;
+  --heme:#1f4f86;        /* hematology blue */
+  --heme-soft:#e4edf8;
+  --good:#1d6b42; --good-soft:#e2f2e8;
+  --bad:#a12a1b;  --bad-soft:#fbe7e3;
+  --warn:#8a5a00; --warn-soft:#fbf0d9;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+    --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+    --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+  --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+  --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.1rem;font-weight:700}
+h2{font-size:1.65rem;font-weight:700}
+h3{font-size:1.25rem;font-weight:600}
+h4{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+p{margin:0}
+a{color:var(--heme)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--heme);outline-offset:2px}
+.mono{font-family:var(--mono)}
+
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px 16px;border-right:1px solid var(--rule);background:var(--card);display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand .rx{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.08em}
+.brand b{font-family:var(--display);font-size:1.2rem}
+.brand span{font-size:.82rem;color:var(--muted)}
+nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+nav a{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;text-decoration:none;color:var(--ink);font-size:.92rem}
+nav a:hover{background:var(--paper)}
+nav a[aria-current="page"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+nav .num{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+nav .chip{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:10px;background:var(--paper);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+nav .chip.done{background:var(--good-soft);color:var(--good)}
+.overall{font-size:.85rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.bar{height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good);width:0}
+
+main{padding:32px clamp(16px,4vw,48px) 80px;max-width:1080px;width:100%}
+.view{display:flex;flex-direction:column;gap:28px}
+.eyebrow{font-family:var(--mono);font-size:.78rem;color:var(--accent);letter-spacing:.06em}
+.heme .eyebrow{color:var(--heme)}
+.lede{max-width:68ch;color:var(--muted);font-size:1.05rem}
+.prose{max-width:68ch;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:20px}
+.objectives{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.steps .panel{display:flex;flex-direction:column;gap:6px}
+.steps .panel b{font-family:var(--display);font-size:1.05rem}
+
+/* stem table */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--display);font-weight:600;font-size:.85rem;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td .stem{font-family:var(--mono);font-weight:600;color:var(--accent)}
+tr.h td .stem{color:var(--heme)}
+.groupRow td{background:var(--paper);font-family:var(--display);font-weight:600;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+
+/* flip drill */
+.drill{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.flip{border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:14px 12px;min-height:96px;text-align:left;display:flex;flex-direction:column;gap:4px;color:var(--ink)}
+.flip .front{font-family:var(--mono);font-size:1.05rem;font-weight:600;color:var(--accent)}
+.flip.h .front{color:var(--heme)}
+.flip .back{font-size:.82rem;color:var(--muted)}
+.flip .hint{font-size:.75rem;color:var(--muted)}
+.flip[aria-pressed="true"]{background:var(--paper)}
+
+/* grouped nav, decode steps, tabs, ABCD tiles */
+nav .navgroup{font-family:var(--display);font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 10px 2px}
+nav .navgroup:first-child{padding-top:0}
+.decodeSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dstep{border:1px solid var(--rule);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--paper)}
+.dstep .big{font-family:var(--display);font-size:1.35rem;font-weight:600}
+.dstep .big.mono{font-family:var(--mono);font-size:1.25rem}
+.dstep mark{background:var(--accent-soft);color:var(--accent);padding:0 2px;border-radius:3px}
+.dstep small{color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--rule);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:999px;font-size:.88rem}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.flip .ex1{font-size:.8rem;color:var(--muted)}
+.abcd{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.abcdTile{display:flex;flex-direction:column;gap:4px;padding:14px;border:1px solid var(--rule);border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink)}
+.abcdTile .letter{font-family:var(--display);font-size:2rem;font-weight:700;line-height:1;color:var(--accent)}
+.abcdTile small{color:var(--muted);font-size:.82rem}
+.abcdTile:hover{border-color:var(--accent)}
+.abcdTile[aria-current="page"]{border:2px solid var(--accent);background:var(--accent-soft)}
+@media (max-width:700px){ .decodeSteps,.abcd{grid-template-columns:1fr 1fr} }
+/* print controls */
+.secHead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cardTools{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.printbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);background:var(--card);color:var(--muted);font-size:.8rem;font-weight:600;padding:5px 10px;border-radius:6px}
+.printbtn:hover{color:var(--ink);border-color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--card);padding:12px 16px;border-radius:8px;font-size:.9rem;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:10}
+@media print{ .rail,.printbtn,.quiz,.pager,.toast{display:none !important} .shell{display:block} }
+/* traps */
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.trap{border-left:4px solid var(--warn);background:var(--warn-soft);border-radius:0 8px 8px 0;padding:12px 14px;font-size:.92rem}
+.trap b{display:block;font-family:var(--display);margin-bottom:2px}
+
+/* pathway diagrams */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.node{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:.9rem;display:flex;flex-direction:column;gap:4px;min-width:120px;flex:1 1 120px}
+.node b{font-family:var(--display);font-size:1rem}
+.node small{color:var(--muted)}
+.node small b{font-family:inherit;font-size:inherit;font-weight:600;color:var(--ink)}
+.arrow{display:flex;align-items:center;color:var(--muted);font-family:var(--mono);font-size:1.1rem}
+.block{display:inline-block;font-family:var(--mono);font-size:.74rem;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--accent);color:var(--card);align-self:flex-start}
+.heme .block{background:var(--heme)}
+.lanes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.lane{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.lane ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+.diagcap{font-size:.85rem;color:var(--muted);max-width:68ch}
+
+/* drug class cards */
+.cards{display:flex;flex-direction:column;gap:18px}
+.dcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.dhead{display:grid;grid-template-columns:1fr auto;gap:8px 16px;padding:16px 20px;border-bottom:1px solid var(--rule);border-top:5px solid var(--accent)}
+.heme .dhead{border-top-color:var(--heme)}
+.dhead .stemTag{font-family:var(--mono);font-weight:600;font-size:1.05rem;color:var(--accent);align-self:start;padding:2px 10px;border:1.5px solid currentColor;border-radius:6px;white-space:nowrap}
+.heme .dhead .stemTag{color:var(--heme)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;color:var(--muted);grid-column:1/-1}
+.meta b{color:var(--ink);font-weight:600}
+.ex{grid-column:1/-1;font-size:.92rem}
+.ex span{font-family:var(--mono);font-size:.86rem;background:var(--paper);border:1px solid var(--rule);padding:1px 7px;border-radius:4px;margin:2px 4px 2px 0;display:inline-block}
+.dbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+.cell{padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:6px}
+.cell:nth-child(odd){border-right:1px solid var(--rule)}
+.cell.wide{grid-column:1/-1;border-right:0}
+.cell ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:3px;font-size:.92rem}
+.cell p{font-size:.94rem}
+.cell.adv{background:var(--bad-soft)}
+.cell.adv h4{color:var(--bad)}
+.dtrap{padding:10px 20px;background:var(--warn-soft);font-size:.9rem}
+.dtrap b{color:var(--warn)}
+
+/* quiz */
+.quiz{display:flex;flex-direction:column;gap:16px}
+.quizHead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;border-top:2px solid var(--ink);padding-top:16px}
+.score{font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.q .qn{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.q .stemQ{font-weight:500;max-width:72ch}
+.q .tag{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:4px;background:var(--warn-soft);color:var(--warn);margin-left:6px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--card);cursor:pointer;font-size:.95rem}
+.opt:hover{border-color:var(--muted)}
+.opt input{margin:3px 0 0;accent-color:var(--heme);width:16px;height:16px}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border:2px dashed var(--good);background:var(--good-soft)}
+.qfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--card);padding:8px 16px;border-radius:6px;font-weight:600;font-size:.9rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.verdict{font-weight:600;font-size:.92rem}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.why{border-left:3px solid var(--heme);padding:8px 12px;background:var(--heme-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:18px}
+
+/* summary */
+.sumgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.sumcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.sumcard .big{font-family:var(--display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:10px}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.mid{background:var(--warn-soft);color:var(--warn)}
+.pill.low{background:var(--bad-soft);color:var(--bad)}
+.pill.none{background:var(--paper);color:var(--muted)}
+.misslist{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.receptor td:first-child{font-family:var(--mono);font-weight:600}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule)}
+  nav ol{flex-direction:row;flex-wrap:wrap}
+  nav a{grid-template-columns:auto auto;padding:6px 10px}
+  nav a .chip{display:none}
+  nav .navgroup{width:100%;padding:8px 4px 0}
+  .dbody{grid-template-columns:1fr}
+  .cell:nth-child(odd){border-right:0}
+}
+@media (prefers-reduced-motion:no-preference){
+  .opt,.flip{transition:background .15s,border-color .15s}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <span class="rx">UNIT 7 · PHARMACOLOGY</span>
+      <b>Endocrine Drug Decoder</b>
+      <span>Endocrine medications</span>
+    </div>
+    <nav aria-label="Sections"><ol id="nav"></ol></nav>
+    <div class="overall">
+      <div style="display:flex;justify-content:space-between"><span>Questions answered</span><span id="ovText" class="mono">0 / 0</span></div>
+      <div class="bar"><i id="ovBar"></i></div>
+      <button class="btn ghost" id="resetAll" type="button" style="font-size:.8rem;padding:6px 10px">Start over</button>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ============================================================
+   CONTENT
+   Card fields: name, pharm, ther, stem, ex[], how, mon[], edu[], se[], ae[], trap
+   Question fields: t ("mc"|"sata"), s (stem), o[] (options), a[] (correct indexes), w (rationale)
+   ============================================================ */
+const SECTIONS = [
+{
+  id:"start", num:"00", group:"Getting started", title:"Start here", kind:"intro"
+},
+{
+  id:"decode", num:"01", group:"Getting started", title:"How to learn pharmacology", kind:"decode",
+  lede:"There are too many drugs to memorize one at a time. These three habits turn a long list into a few patterns you can reason from, and help those patterns stick.",
+  quiz:[
+    {t:"mc", s:"A drug reference lists sitagliptin with pharmacologic class “DPP-4 inhibitor” and therapeutic class “antidiabetic.” Which statement best explains the two labels?",
+     o:["Pharmacologic class tells how it works; therapeutic class tells what it treats",
+        "Pharmacologic class tells what it treats; therapeutic class tells how it works",
+        "Both labels describe the chemical structure the drug's stem is based on",
+        "Therapeutic class is assigned only to drugs whose names have no stem"],
+     a:[0], w:"The pharmacologic class names the mechanism (blocks the DPP-4 enzyme). The therapeutic class names the clinical use (treats diabetes). Seven different mechanisms on this list are all antidiabetics."},
+    {t:"mc", s:"A student has 40 medications to learn for the next exam. Which approach will help the most?",
+     o:["Learn one key drug per class, then compare the rest to it","Make a separate flashcard for every drug and reread them","Memorize each drug's side effects as one long list","Focus only on the drugs that seem most likely to be tested"],
+     a:[0], w:"Drugs in the same class share a mechanism, monitoring, teaching and adverse effects. Learning one prototype well (glipizide for the sulfonylureas) and then noting how the others differ turns 40 separate facts into a handful of patterns."},
+    {t:"mc", s:"Which study method leads to the best long-term recall of drug information?",
+     o:["Quizzing yourself on the material over several days","Rereading your notes and highlighting the key terms","Reviewing everything in one long session the night before","Copying the textbook's drug tables word for word"],
+     a:[0], w:"Retrieval practice (pulling information out of memory) spread over several days is one of the best-supported learning strategies. Rereading, highlighting and cramming feel productive but fade quickly."},
+    {t:"mc", s:"A nurse knows only that a drug makes the pancreas release insulin no matter what the blood glucose is. What can the nurse predict?",
+     o:["Hypoglycemia if a meal is skipped","Glucose spilling into the urine and causing infections","Lactic acidosis if kidney function declines over time","Fewer carbohydrates absorbed from each meal eaten"],
+     a:[0], w:"If insulin is released even when glucose is already low, glucose keeps falling. That predicts the key adverse effect (hypoglycemia), the monitoring (glucose checks) and the teaching (don't skip meals; carry glucose)."},
+    {t:"mc", s:"Which statement best describes the difference between a side effect and an adverse effect?",
+     o:["A side effect is expected and mild; an adverse effect is harmful","A side effect happens only in overdose; an adverse effect never does","A side effect is an allergy; an adverse effect is a drug interaction","The two terms mean the same thing and can be used interchangeably"],
+     a:[0], w:"Side effects are predictable, usually mild effects the patient can be taught to expect (GI upset with metformin). Adverse effects are harmful or dangerous and need action (lactic acidosis with metformin)."}
+  ]
+},
+{
+  id:"insulin", num:"02", group:"Diabetes", title:"Insulins", kind:"drug", theme:"cardiac",
+  lede:"All insulins do the same thing: move glucose into cells and stop the liver from releasing more. What differs is timing. Knowing each type's onset, peak and duration tells you when to give it, when to feed the patient and when hypoglycemia is most likely.",
+  diagram:"insulintable",
+  cards:[
+    {name:"Rapid-acting insulin", pharm:"Insulin (rapid-acting analog)", ther:"Antidiabetic", stem:"n/a", ex:["insulin lispro","insulin aspart","insulin glulisine"],
+     how:"Starts working in about 15 minutes, peaks in 1–2 hours and lasts 3–5 hours. Covers the rise in glucose from a meal (bolus or correction insulin) and is the insulin used in pumps. Clear solution.",
+     mon:["Glucose before meals and at bedtime","Signs of hypoglycemia 1–2 hours after the dose","Meal tray is present before giving","Potassium (insulin shifts it into cells)"],
+     edu:["Give within 15 minutes before eating (or right after, if ordered)","Never give it unless food is coming","Rotate sites within one area; the abdomen absorbs fastest","Carry fast-acting glucose"],
+     se:["Injection-site redness","Weight gain"],
+     ae:["Hypoglycemia","Hypokalemia","Lipohypertrophy (lumps from repeated injections in one spot)"]},
+    {name:"Short-acting (regular) insulin", pharm:"Insulin (short-acting, human)", ther:"Antidiabetic", stem:"n/a", ex:["regular insulin"],
+     how:"Starts in 30–60 minutes, peaks in 2–4 hours and lasts 5–8 hours. Given before meals, and the only insulin given IV (for DKA, hyperglycemic emergencies and hyperkalemia with dextrose). Clear solution.",
+     mon:["Glucose before meals and at bedtime; hourly glucose with IV infusions","Potassium, especially with IV insulin","Signs of hypoglycemia 2–4 hours after the dose","Independent double check (high-alert drug)"],
+     edu:["Inject about 30 minutes before meals","When mixing with NPH, draw up the clear regular insulin first","Carry fast-acting glucose"],
+     se:["Injection-site redness","Weight gain"],
+     ae:["Hypoglycemia","Hypokalemia (especially IV)"],
+     trap:"Only regular insulin is given IV. Concentrated U-500 regular insulin exists; double-check the strength."},
+    {name:"Intermediate-acting (NPH) insulin", pharm:"Insulin (intermediate-acting, NPH)", ther:"Antidiabetic", stem:"n/a", ex:["NPH insulin"],
+     how:"A cloudy suspension that starts in 1–2 hours, peaks in 4–12 hours and lasts 12–18 hours. Often given twice daily to provide background (basal) insulin. Can be mixed in a syringe with regular insulin.",
+     mon:["Glucose, especially during the long peak (afternoon or overnight hypoglycemia)","Meal and snack timing","Injection sites"],
+     edu:["Roll the vial or pen gently between your palms to mix; don't shake","Draw up clear (regular) before cloudy (NPH)","A bedtime snack may be needed to prevent overnight lows","Never give IV"],
+     se:["Injection-site reactions","Weight gain"],
+     ae:["Hypoglycemia (often delayed, during the peak)","Hypokalemia"]},
+    {name:"Long-acting insulin", pharm:"Insulin (long-acting analog)", ther:"Antidiabetic", stem:"n/a", ex:["insulin glargine","insulin detemir"],
+     how:"Releases slowly with little or no peak, providing steady background (basal) insulin for about 24 hours. Given once daily (detemir sometimes twice). Clear solution.",
+     mon:["Fasting glucose to adjust the dose","Hypoglycemia (less common because there is no peak)","Injection sites"],
+     edu:["Give at the same time every day","Never mix it in a syringe with any other insulin","Don't skip it even if you aren't eating; it isn't mealtime insulin","Clear does not mean rapid: check the label"],
+     se:["Injection-site pain","Weight gain"],
+     ae:["Hypoglycemia","Hypokalemia"],
+     trap:"Insulin detemir (Levemir) was discontinued in the US at the end of 2024."},
+    {name:"Premixed insulins", pharm:"Insulin (premixed intermediate + short or rapid)", ther:"Antidiabetic", stem:"n/a", ex:["70/30 insulin","75/25 insulin"],
+     how:"Combine a basal and a mealtime insulin in one injection, so there are two peaks. 70/30 is 70% NPH with 30% regular insulin. 75/25 is 75% lispro protamine (intermediate) with 25% lispro (rapid). Usually given twice a day, before breakfast and dinner. Cloudy.",
+     mon:["Glucose before meals and at bedtime","Consistent meal timing","Hypoglycemia at either peak"],
+     edu:["Roll gently to mix before every dose","70/30: inject about 30 minutes before the meal; 75/25: within 15 minutes before the meal","Eat meals at consistent times; don't skip them","The ratio can't be adjusted; dose changes affect both parts"],
+     se:["Injection-site reactions","Weight gain"],
+     ae:["Hypoglycemia","Hypokalemia"],
+     trap:"Your list gives each insulin's onset category as its therapeutic class. The therapeutic class of every insulin is antidiabetic."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient receives insulin lispro at 0730. When is the patient most at risk for hypoglycemia?",
+     o:["0830–0930","1130–1330","1500–1900","0100–0300"],
+     a:[0], w:"Rapid-acting insulin peaks 1–2 hours after injection. The meal must be in front of the patient when it is given."},
+    {t:"mc", s:"A patient in diabetic ketoacidosis needs an IV insulin infusion. Which insulin does the nurse expect?",
+     o:["Regular insulin","NPH insulin","Insulin glargine","70/30 insulin"],
+     a:[0], w:"Regular insulin is the only insulin given IV. Monitor glucose hourly and potassium closely, since insulin drives potassium into cells."},
+    {t:"mc", s:"The nurse is mixing regular and NPH insulin in one syringe. Which step is correct?",
+     o:["Draw up the regular insulin first","Draw up the NPH insulin first","Shake the NPH vial hard to mix it","Mix glargine in with both of them"],
+     a:[0], w:"Clear before cloudy: drawing regular insulin first keeps NPH out of the regular vial. NPH is rolled, not shaken, and glargine is never mixed with other insulins."},
+    {t:"mc", s:"A patient with type 1 diabetes has the flu and isn't eating. He asks whether to skip his insulin glargine. The best response is:",
+     o:["Keep taking it and check glucose more often","Skip it until you're eating normally again","Take half the dose only on days you eat","Switch to regular insulin until you recover"],
+     a:[0], w:"Basal insulin covers the body's needs even without food, and illness often raises glucose. Stopping it in type 1 diabetes can lead to DKA. Sick-day rules: keep insulin, check glucose and ketones more often, stay hydrated."},
+    {t:"sata", s:"Which findings suggest hypoglycemia in a patient who received insulin? Select all that apply.",
+     o:["Shakiness and sweating","Confusion or irritability","Rapid heart rate","Fruity, acetone-smelling breath","Warm, flushed skin"],
+     a:[0,1,2], w:"Hypoglycemia causes shakiness, sweating, tachycardia, hunger, confusion and irritability. Fruity breath and warm, flushed skin point toward hyperglycemia and DKA."},
+    {t:"mc", s:"Which statement about insulin glargine is correct?",
+     o:["It has no real peak and lasts about 24 hours","It is cloudy, so roll it gently before each dose","It can be mixed in a syringe with rapid-acting insulin","It is given only right before each meal"],
+     a:[0], w:"Glargine releases slowly with little peak, giving 24-hour basal coverage. It is clear, given once daily, and never mixed with other insulins."}
+  ]
+},
+{
+  id:"oral", num:"03", group:"Diabetes", title:"Oral antidiabetics", kind:"drug", theme:"cardiac",
+  lede:"Type 2 diabetes has several causes: too little insulin release, cells that resist insulin, a liver that releases too much glucose and kidneys that hold on to it. Each oral class fixes one of those problems, and whether it can cause hypoglycemia on its own follows from how it works.",
+  diagram:"oralmap",
+  cards:[
+    {name:"Biguanides", pharm:"Biguanide", ther:"Oral antidiabetic", stem:"n/a", ex:["metformin"],
+     how:"Decreases glucose production by the liver and improves insulin sensitivity. First-line for type 2 diabetes. Doesn't increase insulin release, so it doesn't cause hypoglycemia on its own, and it doesn't cause weight gain.",
+     mon:["Renal function (eGFR) before and during therapy","Signs of lactic acidosis: muscle pain, weakness, rapid breathing, abdominal pain, drowsiness","B12 level with long-term use","A1c and glucose"],
+     edu:["Take with meals; GI upset usually improves over a few weeks (extended-release helps)","Limit alcohol","It will be held before and after iodinated contrast dye and surgery","Report muscle pain, unusual tiredness or trouble breathing"],
+     se:["Diarrhea, nausea","Metallic taste","Abdominal discomfort"],
+     ae:["Lactic acidosis (boxed warning)","B12 deficiency"],
+     trap:"Held at the time of iodinated contrast in at-risk patients and restarted about 48 hours later once kidney function is confirmed."},
+    {name:"Sulfonylureas", pharm:"Sulfonylurea (insulin secretagogue)", ther:"Oral antidiabetic", stem:"gli-", ex:["glipizide","glyburide","glimepiride","chlorpropamide"],
+     how:"Stimulate the pancreas's beta cells to release insulin, whatever the glucose level. Work only in type 2 diabetes, when beta cells still function.",
+     mon:["Glucose; signs of hypoglycemia","Renal and liver function (raise hypoglycemia risk)","Weight","Older adults (glyburide is avoided)"],
+     edu:["Take with breakfast (glipizide 30 minutes before)","Don't skip meals","Carry glucose tablets; learn the signs of low blood sugar","Limit alcohol"],
+     se:["Weight gain","Nausea"],
+     ae:["Hypoglycemia, which can be prolonged","Disulfiram-like reaction with alcohol (mainly chlorpropamide)"],
+     trap:"Your list gives -mide, -zide, -ride and spells it “chlorpropramide.” The true sulfonylurea prefix is gli-; chlorpropamide is an older drug no longer widely available."},
+    {name:"Meglitinides", pharm:"Meglitinide (insulin secretagogue)", ther:"Oral antidiabetic", stem:"-glinide", ex:["repaglinide","nateglinide"],
+     how:"Stimulate a quick, short burst of insulin release, targeting the glucose rise after meals. Shorter-acting than sulfonylureas, so less hypoglycemia between meals.",
+     mon:["Glucose after meals","Signs of hypoglycemia","Drug list (gemfibrozil sharply raises repaglinide levels)"],
+     edu:["Take 0–30 minutes before each meal","Skip the dose if you skip the meal (no meal, no pill)","Carry fast-acting glucose"],
+     se:["Weight gain","Headache"],
+     ae:["Hypoglycemia"]},
+    {name:"Thiazolidinediones (TZDs)", pharm:"Thiazolidinedione", ther:"Oral antidiabetic", stem:"-glitazone", ex:["pioglitazone"],
+     how:"Activate PPAR-gamma receptors in muscle and fat cells, making them more sensitive to insulin. Full effect takes weeks. Doesn't cause hypoglycemia on its own.",
+     mon:["Daily weight, edema, shortness of breath (heart failure)","Liver function","Bone health","Blood in urine"],
+     edu:["Weigh yourself daily; report rapid weight gain, swelling or shortness of breath","Report dark urine, yellow skin or blood in the urine","May restore ovulation; use contraception if pregnancy isn't planned","Full effect takes several weeks"],
+     se:["Weight gain","Edema","Upper respiratory infection"],
+     ae:["Heart failure (boxed warning)","Fractures","Bladder cancer (pioglitazone)","Hepatotoxicity"],
+     trap:"Your list gives the stem as “-glitazones”; the stem is -glitazone."},
+    {name:"Alpha-glucosidase inhibitors", pharm:"Alpha-glucosidase inhibitor", ther:"Oral antidiabetic", stem:"n/a", ex:["acarbose","miglitol"],
+     how:"Block the enzymes in the small intestine that break complex carbohydrates into sugar, slowing absorption and lowering post-meal glucose. Don't cause hypoglycemia on their own.",
+     mon:["Post-meal glucose","GI symptoms","Liver function (acarbose)"],
+     edu:["Take with the first bite of each meal","Gas, bloating and diarrhea are common and often improve","If low blood sugar occurs (with other diabetes drugs), treat with glucose tablets or gel, not table sugar"],
+     se:["Flatulence","Diarrhea","Abdominal pain"],
+     ae:["Hepatotoxicity (acarbose, rare)","Not used with inflammatory bowel disease or bowel obstruction"],
+     trap:"Table sugar (sucrose) needs the blocked enzyme to be absorbed, so hypoglycemia must be treated with glucose."},
+    {name:"DPP-4 inhibitors", pharm:"Dipeptidyl peptidase-4 (DPP-4) inhibitor", ther:"Oral antidiabetic", stem:"-gliptin", ex:["sitagliptin"],
+     how:"Block DPP-4, the enzyme that breaks down the gut's incretin hormones. Incretins then last longer, increasing insulin release and lowering glucagon only when glucose is high, so hypoglycemia is unlikely on their own.",
+     mon:["Glucose, A1c","Renal function (dose reduced)","Severe abdominal pain (pancreatitis)","Joint pain; rash"],
+     edu:["Take once daily with or without food","Report severe stomach pain that spreads to the back, with or without vomiting","Report severe joint pain or blistering rash"],
+     se:["Headache","Nasopharyngitis","Upper respiratory infection"],
+     ae:["Pancreatitis","Severe joint pain","Serious hypersensitivity reactions (angioedema, Stevens-Johnson syndrome)"]},
+    {name:"SGLT2 inhibitors", pharm:"Sodium-glucose cotransporter-2 (SGLT2) inhibitor", ther:"Oral antidiabetic", stem:"-gliflozin", ex:["canagliflozin","dapagliflozin"],
+     how:"Block glucose reabsorption in the kidney's proximal tubule, so extra glucose leaves in the urine. Also protect the heart and kidneys and are used in heart failure and chronic kidney disease. Don't cause hypoglycemia on their own.",
+     mon:["Renal function","BP, volume status, dizziness","Genital and urinary infections","Ketones if the patient feels ill, even with normal glucose"],
+     edu:["Keep the genital area clean and dry; report itching, discharge or burning on urination","Drink enough fluids; rise slowly","Stop during acute illness or poor intake, and about 3 days before surgery, as directed","Report nausea, vomiting, abdominal pain or trouble breathing"],
+     se:["Genital yeast infections","Frequent urination","Thirst"],
+     ae:["Euglycemic diabetic ketoacidosis","Urosepsis","Dehydration and hypotension","Fournier's gangrene (rare)","Lower-limb amputation (canagliflozin)"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient taking metformin is scheduled for a CT scan with iodinated contrast. What does the nurse expect?",
+     o:["Metformin will be held around the time of the scan","The dose will be doubled on the morning of the scan","Metformin will be given IV during the scan","No change; contrast doesn't affect metformin"],
+     a:[0], w:"Contrast can impair kidney function, and metformin builds up when the kidneys can't clear it, raising the risk of lactic acidosis. It is restarted when kidney function is confirmed."},
+    {t:"mc", s:"A patient on glipizide skipped lunch and is now shaky, sweaty and confused. Glucose is 52 mg/dL and she can swallow. What should the nurse do first?",
+     o:["Give 15 g of fast-acting carbohydrate","Give the next dose of glipizide","Give IV regular insulin","Encourage her to rest quietly for about an hour"],
+     a:[0], w:"Treat hypoglycemia right away with 15 g of fast-acting carbohydrate (4 oz juice or glucose tablets), recheck in 15 minutes and repeat if still low. Then give a snack or meal."},
+    {t:"mc", s:"A patient taking repaglinide plans to skip dinner. What should the nurse teach?",
+     o:["Skip the repaglinide dose too","Take the dose at bedtime instead","Take a double dose at breakfast","Take it with a glass of juice"],
+     a:[0], w:"Meglitinides trigger insulin release for a meal. No meal, no pill; taking it without food causes hypoglycemia."},
+    {t:"mc", s:"A patient taking pioglitazone has gained 2.5 kg in a week and has ankle swelling. What should the nurse suspect?",
+     o:["Fluid retention and possible heart failure","Expected weight gain from improved glucose","Hypoglycemia from the drug","An allergic reaction to the drug"],
+     a:[0], w:"Thiazolidinediones cause fluid retention and carry a boxed warning for heart failure. Rapid weight gain, edema or dyspnea must be reported."},
+    {t:"mc", s:"A patient takes acarbose and glipizide and becomes hypoglycemic. Which treatment is correct?",
+     o:["Glucose tablets","Table sugar in water","A regular soda","A slice of cake"],
+     a:[0], w:"Acarbose blocks the breakdown of sucrose and starches, so they raise glucose too slowly. Pure glucose (dextrose) is absorbed directly."},
+    {t:"mc", s:"A patient taking dapagliflozin has nausea, vomiting and rapid breathing. Glucose is 180 mg/dL. What should the nurse suspect?",
+     o:["Euglycemic diabetic ketoacidosis","An expected urinary side effect","Lactic acidosis from the drug's effects","Mild hypoglycemia after a meal"],
+     a:[0], w:"SGLT2 inhibitors can cause ketoacidosis with near-normal glucose. A normal-looking glucose can hide it, so check ketones and an anion gap."},
+    {t:"mc", s:"A patient starting sitagliptin should report which symptom right away?",
+     o:["Severe abdominal pain radiating to the back","Mild headache in the morning","A stuffy or runny nose","Slight fatigue in the hour or so after meals"],
+     a:[0], w:"DPP-4 inhibitors have been linked to pancreatitis. Severe abdominal pain radiating to the back, with or without vomiting, needs prompt evaluation."}
+  ]
+},
+{
+  id:"inject", num:"04", group:"Diabetes", title:"Injectable non-insulin drugs & glucagon", kind:"drug", theme:"cardiac",
+  lede:"Two injectable classes boost the body's own glucose-lowering hormones, and glucagon does the opposite: it raises glucose in an emergency. Your list calls the first two “oral” antidiabetics, but both are injections.",
+  diagram:"hypo",
+  cards:[
+    {name:"Incretin mimetics (GLP-1 receptor agonists)", pharm:"Glucagon-like peptide-1 (GLP-1) receptor agonist", ther:"Antidiabetic (also weight management)", stem:"-glutide", ex:["liraglutide","albiglutide"],
+     how:"Mimic the gut hormone GLP-1: they increase insulin release only when glucose is high, suppress glucagon, slow stomach emptying and increase fullness. Result: lower glucose and weight loss, plus cardiovascular benefit for some. Given by subcutaneous injection (daily or weekly; semaglutide also comes as a tablet).",
+     mon:["Glucose, A1c, weight","Nausea, vomiting, hydration (kidney injury from dehydration)","Severe abdominal pain (pancreatitis, gallbladder disease)","Neck lump, hoarseness, trouble swallowing","Hypoglycemia when combined with insulin or a sulfonylurea"],
+     edu:["Inject subcutaneously in the abdomen, thigh or upper arm","Eat smaller meals and stop when full; nausea usually eases","Report severe abdominal pain, persistent vomiting, or a lump in the neck","Tell your surgeon or anesthesia team: slowed stomach emptying raises aspiration risk"],
+     se:["Nausea, vomiting","Diarrhea or constipation","Decreased appetite"],
+     ae:["Thyroid C-cell tumors (boxed warning; not used with a personal or family history of medullary thyroid cancer or MEN2)","Pancreatitis","Gallbladder disease","Acute kidney injury from dehydration"],
+     trap:"Your list calls these oral drugs; they are injections (except oral semaglutide). Albiglutide was discontinued for commercial reasons."},
+    {name:"Amylin mimetics", pharm:"Amylin analog", ther:"Antidiabetic", stem:"n/a", ex:["pramlintide"],
+     how:"Mimics amylin, a hormone released with insulin. It slows stomach emptying, suppresses glucagon after meals and increases fullness. Injected before meals in type 1 or type 2 diabetes in patients who also use mealtime insulin.",
+     mon:["Glucose, especially in the 3 hours after the dose","Nausea","Mealtime insulin dose"],
+     edu:["Inject right before major meals","Never mix it in the same syringe with insulin","Mealtime insulin is usually cut in half when starting","Skip the dose if you skip the meal"],
+     se:["Nausea","Decreased appetite","Headache"],
+     ae:["Severe hypoglycemia with insulin (boxed warning)"],
+     trap:"Not used with gastroparesis or in patients who can't sense hypoglycemia. Your list calls it an oral antidiabetic; it is an injection."},
+    {name:"Glucagon", pharm:"Hyperglycemic agent (pancreatic hormone)", ther:"Antihypoglycemic", stem:"n/a", ex:["glucagon"],
+     how:"Tells the liver to break down stored glycogen and release glucose, raising blood glucose within about 10–15 minutes. Used for severe hypoglycemia when the person can't safely swallow (unconscious, seizing). Comes as an injection kit, a ready-to-use autoinjector and a nasal powder. Also used for beta-blocker and calcium channel blocker overdose.",
+     mon:["Glucose 15 minutes after the dose","Level of consciousness","Airway; turn on side (vomiting is common)","Give oral carbohydrate once awake and able to swallow"],
+     edu:["Teach family to use it: don't wait for EMS if the person can't swallow","Turn the person on their side after giving it","Give food once awake to restore glycogen","Check expiration dates"],
+     se:["Nausea, vomiting","Headache"],
+     ae:["Rebound hyperglycemia","Hypertension (in pheochromocytoma)","May not work if glycogen is depleted (starvation, alcohol use, adrenal insufficiency)"],
+     trap:"Your list shows n/a for the therapeutic class. Glucagon is an antihypoglycemic."}
+  ],
+  quiz:[
+    {t:"mc", s:"Before starting liraglutide, which history should the nurse ask about?",
+     o:["Medullary thyroid cancer in the family","Allergy to penicillin or sulfa antibiotics","Seasonal allergies and asthma","A history of kidney stones"],
+     a:[0], w:"GLP-1 receptor agonists carry a boxed warning for thyroid C-cell tumors and are not used with a personal or family history of medullary thyroid carcinoma or MEN2."},
+    {t:"mc", s:"A patient taking a GLP-1 receptor agonist reports constant severe abdominal pain spreading to the back with vomiting. What should the nurse suspect?",
+     o:["Pancreatitis","Expected nausea","Hypoglycemia","Constipation"],
+     a:[0], w:"GLP-1 receptor agonists are linked to pancreatitis. Stop the drug and evaluate with lipase and imaging."},
+    {t:"mc", s:"A patient starting pramlintide also uses mealtime insulin. What change does the nurse expect?",
+     o:["A lower mealtime insulin dose","A higher basal insulin dose","Mixing both in one syringe","Taking pramlintide at bedtime"],
+     a:[0], w:"Pramlintide with insulin can cause severe hypoglycemia, usually within 3 hours of a meal. Mealtime insulin is typically reduced by about 50% at the start."},
+    {t:"mc", s:"A patient with diabetes is found unresponsive with a glucose of 38 mg/dL. There is no IV access. What should the nurse give?",
+     o:["Glucagon","Orange juice","Regular insulin","Glucose gel by mouth"],
+     a:[0], w:"Never give anything by mouth to someone who can't swallow safely. Glucagon IM, subcutaneous or nasal raises glucose without IV access."},
+    {t:"mc", s:"After glucagon, the patient wakes up and can swallow. What should the nurse do next?",
+     o:["Give a snack with carbohydrate and protein","Give the next scheduled dose of insulin now","Keep the patient NPO for several hours","Give a second dose of glucagon now"],
+     a:[0], w:"Glucagon's effect is short, and it uses up liver glycogen. A snack restores glycogen and prevents glucose from falling again."},
+    {t:"mc", s:"A patient on semaglutide is scheduled for surgery. Why should the anesthesia team know?",
+     o:["Slowed stomach emptying raises aspiration risk","It prevents anesthesia drugs from working","It lowers the blood pressure during surgery","It makes the patient bleed more easily during surgery"],
+     a:[0], w:"GLP-1 receptor agonists slow gastric emptying, so food may remain in the stomach despite fasting. The anesthesia team may change the plan."}
+  ]
+},
+{
+  id:"thyroid", num:"05", group:"Thyroid", title:"Thyroid drugs", kind:"drug", theme:"heme",
+  lede:"Hypothyroidism is treated by replacing the hormone; hyperthyroidism by blocking its production or destroying thyroid tissue. Too much of either type of drug produces the opposite disease, so the symptoms of overtreatment are easy to predict.",
+  diagram:"thyroidtable",
+  cards:[
+    {name:"Synthetic T4", pharm:"Synthetic thyroxine (T4)", ther:"Thyroid hormone replacement", stem:"-thyroxine", ex:["levothyroxine"],
+     how:"Identical to the body's T4, which tissues convert to active T3. Lifelong replacement for hypothyroidism. Dose is adjusted by TSH, checked about 6–8 weeks after a change. Narrow therapeutic range.",
+     mon:["TSH (and free T4)","Heart rate and rhythm, chest pain (especially older adults and heart disease)","Signs of overtreatment: tachycardia, tremor, insomnia, heat intolerance, weight loss","INR if on warfarin; glucose in diabetes"],
+     edu:["Take on an empty stomach with water, 30–60 minutes before breakfast, at the same time daily","Take 4 hours apart from calcium, iron, antacids and fiber supplements","Stay on the same brand or product when possible","Lifelong; don't stop even when you feel well","Report palpitations, chest pain, nervousness or insomnia"],
+     se:["Usually none at the right dose"],
+     ae:["Overtreatment: tachycardia, atrial fibrillation, angina","Bone loss with long-term overtreatment","Not for weight loss (boxed warning)"],
+     trap:"Start low and go slow in older adults and people with heart disease."},
+    {name:"Synthetic T3", pharm:"Synthetic triiodothyronine (T3)", ther:"Thyroid hormone replacement", stem:"-thyronine", ex:["liothyronine"],
+     how:"The active form of thyroid hormone, so it acts faster and for a shorter time than T4. Used in some cases of hypothyroidism, sometimes combined with T4, and IV for myxedema coma.",
+     mon:["Heart rate and rhythm, BP","Signs of overtreatment","Thyroid labs (T3, TSH)"],
+     edu:["Take at the same time daily","Report palpitations, chest pain, tremor or insomnia","Don't switch between thyroid products without the provider"],
+     se:["Usually none at the right dose"],
+     ae:["Tachycardia, dysrhythmias, angina (more than with T4)","Overtreatment symptoms"]},
+    {name:"Thionamides", pharm:"Thionamide", ther:"Antithyroid", stem:"n/a", ex:["methimazole","propylthiouracil"],
+     how:"Block thyroid peroxidase, stopping the thyroid from making new hormone. Because the gland has stored hormone, improvement takes several weeks. Methimazole is usually first-line. Propylthiouracil (PTU) also blocks T4-to-T3 conversion and is preferred in thyroid storm and the first trimester of pregnancy.",
+     mon:["CBC (agranulocytosis); fever, sore throat","Liver function (PTU especially)","Thyroid labs; signs of hypothyroidism from overtreatment","Rash"],
+     edu:["Report fever, sore throat or mouth sores right away","Report yellow skin, dark urine, nausea or right upper abdominal pain","Take at the same times daily","Improvement takes weeks"],
+     se:["Rash, itching","Nausea","Altered taste"],
+     ae:["Agranulocytosis","Severe liver injury (PTU boxed warning)","Hypothyroidism from overtreatment","Birth defects (methimazole in the first trimester)"],
+     trap:"Your list calls these “thyroid blocking agents.” They block hormone production, not the hormone's action."},
+    {name:"Iodine products", pharm:"Iodine / iodide", ther:"Antithyroid", stem:"iodide", ex:["potassium iodide","sodium iodide"],
+     how:"High doses of iodide temporarily shut down thyroid hormone synthesis and release and shrink the gland. Used for about 10 days before thyroidectomy, in thyroid storm (given at least an hour after a thionamide), and to protect the thyroid in a radiation emergency. Radioactive iodine (sodium iodide I-131) is a different use: it destroys overactive thyroid tissue in Graves' disease and some thyroid cancers.",
+     mon:["Signs of iodism: metallic taste, burning mouth, sore gums and teeth, increased salivation","Thyroid labs","Allergy history","After radioactive iodine: signs of hypothyroidism over the following months"],
+     edu:["Dilute the liquid in juice or milk and drink through a straw to avoid staining teeth","Report metallic taste, mouth sores or rash","Radioactive iodine: follow distance and hygiene precautions for several days (separate sleeping, flush twice, wash utensils)","Radioactive iodine is not given in pregnancy or breastfeeding; avoid pregnancy for at least 6 months"],
+     se:["Metallic taste","GI upset"],
+     ae:["Iodism","Hypersensitivity","Permanent hypothyroidism (radioactive iodine)"],
+     trap:"Your list writes “sodium iodine”; the drug is sodium iodide."}
+  ],
+  quiz:[
+    {t:"mc", s:"Which instruction is correct for levothyroxine?",
+     o:["Take it 30–60 minutes before breakfast with water","Take it with breakfast and your calcium supplement","Take it at bedtime with a glass of milk","Take it only on days you feel tired"],
+     a:[0], w:"Levothyroxine absorbs best on an empty stomach. Food, calcium, iron, antacids and fiber reduce absorption."},
+    {t:"mc", s:"A patient's levothyroxine dose was increased. She now reports palpitations, insomnia and feeling hot. What does this suggest?",
+     o:["Too much thyroid hormone","Too little thyroid hormone","An allergic reaction","Expected adjustment symptoms"],
+     a:[0], w:"Overtreatment with thyroid hormone produces hyperthyroid symptoms. Hold the dose and notify the provider; TSH will be checked."},
+    {t:"mc", s:"A patient taking methimazole reports a sore throat and fever of 101.8°F. What should the nurse do?",
+     o:["Report it right away; a CBC is needed","Suggest throat lozenges and fluids","Tell her to double the next dose","Reassure her that a cold is unrelated"],
+     a:[0], w:"Thionamides can cause agranulocytosis. Fever or sore throat may be the first sign of a dangerously low white count."},
+    {t:"mc", s:"A pregnant patient in her first trimester has hyperthyroidism. Which drug is usually preferred?",
+     o:["Propylthiouracil","Methimazole","Radioactive iodine","Liothyronine"],
+     a:[0], w:"Methimazole can cause birth defects in the first trimester, so PTU is preferred then. Radioactive iodine is contraindicated in pregnancy."},
+    {t:"mc", s:"A patient is taking potassium iodide solution before thyroid surgery. Which teaching is correct?",
+     o:["Dilute it in juice and drink through a straw","Take it undiluted so it starts working faster","Take it with a calcium supplement","Expect your urine to turn orange"],
+     a:[0], w:"Diluting it improves the taste and reduces GI upset; a straw prevents tooth staining. Report a metallic taste or mouth sores (iodism)."},
+    {t:"mc", s:"Several months after radioactive iodine for Graves' disease, a patient reports fatigue, weight gain and feeling cold. What is most likely?",
+     o:["Hypothyroidism from the treatment","A return of hyperthyroidism","A delayed allergic reaction to iodine","Thyroid storm"],
+     a:[0], w:"Radioactive iodine destroys thyroid tissue, and many patients become hypothyroid. They then need lifelong levothyroxine."}
+  ]
+},
+{
+  id:"pituitary", num:"06", group:"Pituitary & adrenal", title:"Pituitary drugs", kind:"drug", theme:"heme",
+  lede:"The pituitary controls growth and water balance among other things. These drugs replace growth hormone or antidiuretic hormone when there's too little, or block growth hormone when there's too much.",
+  diagram:"pituitary",
+  cards:[
+    {name:"Growth hormone", pharm:"Recombinant human growth hormone", ther:"Growth hormone replacement", stem:"n/a", ex:["somatropin"],
+     how:"Lab-made growth hormone that stimulates growth of bone and muscle, mostly through IGF-1 made in the liver. Used for growth hormone deficiency in children (before growth plates close) and adults, and for short stature from Turner syndrome, Prader-Willi syndrome and chronic kidney disease. Given subcutaneously daily or weekly.",
+     mon:["Height and growth rate, bone age","Glucose (it raises insulin resistance)","Thyroid function","Limp, hip or knee pain (slipped capital femoral epiphysis)","Headache, vision changes (intracranial hypertension); scoliosis"],
+     edu:["Rotate injection sites","Refrigerate; don't shake","Report a limp, hip or knee pain, severe headache or vision changes","Keep growth and lab appointments"],
+     se:["Injection-site reactions","Joint and muscle pain","Edema"],
+     ae:["Hyperglycemia","Slipped capital femoral epiphysis","Intracranial hypertension","Scoliosis progression"],
+     trap:"Your list calls it “AP or growth hormone” (AP = anterior pituitary) with n/a for therapeutic class."},
+    {name:"Antidiuretic hormone (ADH)", pharm:"Antidiuretic hormone analog", ther:"Antidiuretic (vasopressin: also vasopressor)", stem:"-pressin", ex:["vasopressin","desmopressin"],
+     how:"Act on kidney collecting ducts to reabsorb water, concentrating the urine. Treat central diabetes insipidus. Desmopressin (DDAVP) is given intranasally, orally or by injection; it also treats bedwetting and raises clotting factor VIII in hemophilia A and von Willebrand disease. Vasopressin also constricts blood vessels and is given IV for vasodilatory (septic) shock.",
+     mon:["Intake and output, urine specific gravity (should rise)","Daily weight","Serum sodium: headache, confusion, drowsiness or seizures suggest water intoxication","Vasopressin: BP, ECG, chest pain, IV site, cold or pale fingers and toes"],
+     edu:["Limit fluids as directed, especially around bedtime doses for bedwetting","Weigh yourself daily","Report headache, confusion, nausea or sudden weight gain","Nasal spray works less well with a stuffy nose"],
+     se:["Headache","Nasal irritation (spray)","Flushing"],
+     ae:["Water intoxication and hyponatremia","Myocardial ischemia (vasopressin)","Tissue ischemia and necrosis with extravasation (vasopressin)"],
+     trap:"Your list names “DDVAP” as a separate drug. DDAVP is a brand name for desmopressin."},
+    {name:"Drugs for hyperpituitarism (acromegaly)", pharm:"Somatostatin analog (octreotide, lanreotide); growth hormone receptor antagonist (pegvisomant)", ther:"Antiacromegaly agent", stem:"-reotide", ex:["octreotide","lanreotide","pegvisomant"],
+     how:"Octreotide and lanreotide mimic somatostatin, which suppresses growth hormone and several GI hormones. They treat acromegaly and diarrhea from carcinoid and other hormone-secreting tumors; octreotide also treats bleeding esophageal varices. Pegvisomant blocks the growth hormone receptor, lowering IGF-1.",
+     mon:["IGF-1 and growth hormone levels","Glucose (can go high or low)","Gallbladder symptoms (gallstones)","Heart rate (bradycardia)","Liver function (pegvisomant)"],
+     edu:["Rotate subcutaneous sites; lanreotide is a deep monthly injection","Octreotide: take between meals to reduce GI effects","Report right upper abdominal pain, signs of high or low blood sugar, or dizziness"],
+     se:["Diarrhea, abdominal cramps, nausea","Injection-site pain"],
+     ae:["Gallstones","Bradycardia","Hypoglycemia or hyperglycemia","Hepatotoxicity (pegvisomant)"],
+     trap:"Pegvisomant doesn't carry the -reotide stem. Your list shows n/a for the therapeutic class."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient with central diabetes insipidus starts desmopressin. Which finding shows the drug is working?",
+     o:["Rising urine specific gravity","Falling serum sodium below normal","Increased thirst and urine output","Weight loss of 1 kg a day"],
+     a:[0], w:"Desmopressin helps the kidneys hold water, so urine becomes more concentrated and output falls. Sodium dropping below normal signals too much effect."},
+    {t:"mc", s:"A child taking desmopressin for bedwetting has a headache, nausea and confusion. What should the nurse suspect?",
+     o:["Water intoxication and low sodium","An expected side effect of the spray","Low blood glucose","A urinary tract infection"],
+     a:[0], w:"Desmopressin causes the body to retain water. With too much fluid, sodium drops and causes headache, confusion and seizures. Fluids are restricted around bedtime doses."},
+    {t:"mc", s:"A patient receiving a vasopressin infusion for septic shock reports chest pain. What is the concern?",
+     o:["Coronary vasoconstriction causing ischemia","An expected effect of rising BP","A sign that sepsis is resolving","Hyponatremia caused by water loss in the urine"],
+     a:[0], w:"Vasopressin constricts blood vessels, including coronary arteries. Chest pain or ECG changes need immediate reporting."},
+    {t:"mc", s:"A 12-year-old on somatropin develops a limp and knee pain. What should the nurse do?",
+     o:["Report it; it may be a hip problem","Reassure the family that growing pains are normal","Apply ice and recheck in one week","Increase the dose to speed growth"],
+     a:[0], w:"Growth hormone therapy can cause slipped capital femoral epiphysis, which often shows up as knee or hip pain and a limp."},
+    {t:"mc", s:"Which lab should be monitored in a patient taking somatropin?",
+     o:["Blood glucose","Serum potassium","Hemoglobin","Serum amylase"],
+     a:[0], w:"Growth hormone increases insulin resistance and can raise glucose, especially in patients at risk for diabetes."},
+    {t:"mc", s:"A patient taking octreotide for acromegaly reports pain in the right upper abdomen after fatty meals. What is the likely cause?",
+     o:["Gallstones","Pancreatitis","Hypoglycemia","Kidney stones"],
+     a:[0], w:"Somatostatin analogs reduce gallbladder contraction, so gallstones are common. Report RUQ pain."}
+  ]
+},
+{
+  id:"adrenal", num:"07", group:"Pituitary & adrenal", title:"Adrenal hormones", kind:"drug", theme:"heme",
+  lede:"Glucocorticoids are used two ways: in small replacement doses for adrenal insufficiency, and in larger doses to suppress inflammation and the immune system. Larger doses and longer courses bring more adverse effects, and either use makes stopping suddenly dangerous.",
+  diagram:"adrenal",
+  cards:[
+    {name:"Glucocorticoids", pharm:"Glucocorticoid (corticosteroid)", ther:"Adrenal hormone replacement / anti-inflammatory / immunosuppressant", stem:"-sone", ex:["hydrocortisone","prednisone","dexamethasone"],
+     how:"Act like cortisol: they raise blood glucose, suppress inflammation and the immune response, and help the body handle stress. Hydrocortisone replaces cortisol in Addison's disease and has some mineralocorticoid (salt-retaining) effect. Prednisone and dexamethasone are stronger and used mainly for inflammation; dexamethasone lasts longest.",
+     mon:["Blood glucose","BP, weight, edema; potassium (low)","Signs of infection (fever and inflammation may be masked)","Mood, sleep","GI bleeding (especially with NSAIDs); bone density; eyes (cataracts, glaucoma); growth in children"],
+     edu:["Take in the morning with food","Never stop suddenly after more than about 2 weeks; taper as directed","Addison's disease: increase the dose during illness or stress as instructed, and wear a medical ID","Avoid sick contacts; no live vaccines on high doses","Report black stools, fever, signs of infection or mood changes"],
+     se:["Increased appetite, weight gain","Insomnia, mood swings","Fluid retention","High blood glucose"],
+     ae:["Adrenal crisis if stopped abruptly","Infection","Cushing-like features (moon face, buffalo hump, thin skin, bruising)","Peptic ulcer, GI bleeding","Osteoporosis, cataracts, glaucoma","Hyperglycemia, hypokalemia","Delayed wound healing, growth suppression"]},
+    {name:"Mineralocorticoid", pharm:"Mineralocorticoid", ther:"Adrenal hormone replacement", stem:"-sone", ex:["fludrocortisone"],
+     how:"Acts like aldosterone: the kidneys keep sodium and water and excrete potassium. Used with hydrocortisone in Addison's disease and for salt-wasting adrenal disorders.",
+     mon:["BP (lying and standing)","Daily weight, edema, lung sounds","Serum sodium and potassium (hypokalemia)","Signs of heart failure"],
+     edu:["Weigh yourself daily; report rapid weight gain or swelling","Report dizziness when standing (dose may be too low)","Report muscle weakness or cramps (low potassium)","Don't stop on your own"],
+     se:["Fluid retention","Headache"],
+     ae:["Hypertension","Edema and heart failure","Hypokalemia"],
+     trap:"Fludrocortisone ends in -sone like the glucocorticoids, but its main effect is on salt and water."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient who has taken prednisone 40 mg daily for 6 weeks wants to stop because he feels better. The best response is:",
+     o:["The dose must be tapered to avoid adrenal crisis","You can stop since your symptoms are gone","Take it every other day for a week, then stop","Stop it today and switch to an over-the-counter NSAID"],
+     a:[0], w:"Long-term glucocorticoids suppress the adrenal glands. Stopping suddenly can cause adrenal crisis: severe hypotension, hypoglycemia and shock. The provider tapers the dose."},
+    {t:"mc", s:"A patient with Addison's disease has the flu with fever and vomiting. What should the nurse teach?",
+     o:["Increase the hydrocortisone dose as instructed","Skip doses until the vomiting stops","Take fludrocortisone instead of hydrocortisone","Stop all medications until the fever is gone"],
+     a:[0], w:"Illness raises the body's need for cortisol. Stress dosing prevents adrenal crisis. If vomiting prevents oral doses, injectable hydrocortisone or emergency care is needed."},
+    {t:"sata", s:"Which assessments are priorities for a patient on long-term high-dose prednisone? Select all that apply.",
+     o:["Blood glucose","Signs of infection","Black, tarry stools","Hearing acuity","Orange discoloration of the urine"],
+     a:[0,1,2], w:"Glucocorticoids raise glucose, suppress immunity (masking infection) and increase the risk of GI bleeding. Hearing and urine color are not typical concerns."},
+    {t:"mc", s:"When should a patient take a once-daily dose of prednisone?",
+     o:["In the morning with food","At bedtime on an empty stomach","With an evening snack","Any time; timing doesn't matter"],
+     a:[0], w:"Morning dosing matches the body's natural cortisol rhythm, causing less adrenal suppression and less insomnia; food reduces GI irritation."},
+    {t:"mc", s:"A patient taking fludrocortisone gains 2 kg in 3 days and has ankle edema. What does this suggest?",
+     o:["Too much sodium and water retention","Too little mineralocorticoid effect","An expected effect of the drug","Hypoglycemia from the drug"],
+     a:[0], w:"Fludrocortisone causes sodium and water retention. Rapid weight gain and edema suggest the dose is too high; check BP and potassium too."},
+    {t:"mc", s:"A patient on long-term dexamethasone has a mild sore throat but no fever. Why should the nurse still take it seriously?",
+     o:["Steroids can mask fever and other infection signs","A sore throat is an early warning sign of adrenal crisis","Dexamethasone causes strep throat","Sore throat means the dose is too low"],
+     a:[0], w:"Glucocorticoids suppress the inflammatory response, so infections can be serious before they cause fever or obvious signs."}
+  ]
+},
+{
+  id:"final", num:"08", group:"Wrap-up", title:"Final review", kind:"final",
+  lede:"Mixed questions across every class. Most are NCLEX-style application items: read the scenario, then decide what matters most.",
+  quiz:[
+    {t:"mc", s:"Which patient should the nurse see first?",
+     o:["On insulin lispro, sweaty and confused before lunch","On levothyroxine, asking about taking it with coffee","On metformin, reporting loose stools this week","On pioglitazone, asking when it will start working"],
+     a:[0], w:"Sweating and confusion after rapid-acting insulin suggest hypoglycemia, which can quickly cause seizures or loss of consciousness. The others are teaching needs or expected effects."},
+    {t:"mc", s:"What is the pharmacologic class of dapagliflozin?",
+     o:["Antidiabetic","SGLT2 inhibitor","DPP-4 inhibitor","Biguanide"],
+     a:[1], w:"SGLT2 inhibitor is the pharmacologic class (mechanism); antidiabetic is its therapeutic class (use)."},
+    {t:"sata", s:"Which drugs can cause hypoglycemia when used alone? Select all that apply.",
+     o:["Insulin glargine","Glipizide","Repaglinide","Metformin extended-release","Sitagliptin"],
+     a:[0,1,2], w:"Insulin and the insulin secretagogues (sulfonylureas, meglitinides) can cause hypoglycemia on their own. Metformin and DPP-4 inhibitors rarely do unless combined with those drugs."},
+    {t:"mc", s:"Which drug and adverse effect are correctly paired?",
+     o:["Methimazole – agranulocytosis","Metformin – heart failure","Pioglitazone – lactic acidosis","Desmopressin – hyperglycemia"],
+     a:[0], w:"Thionamides can cause agranulocytosis. Metformin's risk is lactic acidosis, pioglitazone's is heart failure, and desmopressin's is hyponatremia."},
+    {t:"mc", s:"A patient takes levothyroxine and warfarin. The levothyroxine dose is increased. What should the nurse monitor?",
+     o:["INR, for increased bleeding risk","Blood glucose before each meal and at bedtime","Serum potassium level","Urine specific gravity"],
+     a:[0], w:"Thyroid hormone speeds the breakdown of clotting factors, increasing warfarin's effect. The INR can rise after a levothyroxine increase."},
+    {t:"mc", s:"A patient on long-term prednisone has type 2 diabetes. What change does the nurse anticipate?",
+     o:["Higher blood glucose needing more treatment","Lower blood glucose needing less insulin each day","No change in glucose control","Glucose control only at night"],
+     a:[0], w:"Glucocorticoids raise blood glucose by increasing liver glucose output and insulin resistance. Diabetes medications often need to be increased."},
+    {t:"mc", s:"What is the therapeutic class of glucagon?",
+     o:["Antihypoglycemic","Hyperglycemic agent","Pancreatic hormone","Glucocorticoid"],
+     a:[0], w:"Glucagon's therapeutic class is antihypoglycemic (it treats low blood sugar). “Hyperglycemic agent” describes its effect, which is how your list classifies it pharmacologically."},
+    {t:"mc", s:"A patient with type 2 diabetes who takes propranolol is started on glipizide. What should the nurse teach?",
+     o:["A racing heart may not warn you of low glucose","Propranolol will make glipizide work less well","Take the two drugs at least 4 hours apart","Expect your blood glucose to run higher"],
+     a:[0], w:"Beta blockers mask the tachycardia and tremor of hypoglycemia. Sweating usually remains, and glucose checks matter more."},
+    {t:"mc", s:"Which pair of drugs could both cause the patient's serum sodium to fall?",
+     o:["Desmopressin and vasopressin","Fludrocortisone and hydrocortisone","Levothyroxine and liothyronine","Glipizide and glyburide"],
+     a:[0], w:"Both ADH drugs make the kidneys hold water, which dilutes the blood's sodium. Fludrocortisone and hydrocortisone retain sodium instead."},
+    {t:"mc", s:"A patient taking canagliflozin reports itching and discharge in the genital area. The nurse explains:",
+     o:["Glucose in the urine can cause yeast infections","This is an allergy to the coating on the tablets","This means the dose is far too low","This is unrelated to your diabetes drug"],
+     a:[0], w:"SGLT2 inhibitors cause glucose to spill into the urine, which encourages genital yeast infections and UTIs. Report it; good hygiene helps."}
+  ]
+},
+{ id:"summary", num:"09", group:"Wrap-up", title:"Your results", kind:"summary" },
+{ id:"stems", num:"10", group:"Wrap-up", title:"Stem cheat sheet", kind:"stems" }
+];
+
+/* ============================================================
+   STEM TABLE (from the endocrine medication list, with corrections)
+   ============================================================ */
+const STEMS = [
+  ["Insulins",null],
+  ["Insulin (rapid-acting)","Antidiabetic (list: rapid acting)","n/a","insulin lispro, insulin aspart, insulin glulisine","c"],
+  ["Insulin (short-acting)","Antidiabetic (list: short-acting)","n/a","regular insulin","c"],
+  ["Insulin (intermediate-acting)","Antidiabetic (list: intermediate-acting)","n/a","NPH insulin","c"],
+  ["Insulin (long-acting)","Antidiabetic (list: long-acting)","n/a","insulin glargine, insulin detemir*","c"],
+  ["Insulin (premixed)","Antidiabetic","n/a","70/30 insulin, 75/25 insulin","c"],
+  ["Oral antidiabetics",null],
+  ["Sulfonylurea","Oral antidiabetic","gli- (list: -mide, -zide, -ride)","chlorpropamide*, glipizide, glyburide, glimepiride","c"],
+  ["Meglitinide","Oral antidiabetic","-glinide","repaglinide, nateglinide","c"],
+  ["Thiazolidinedione","Oral antidiabetic","-glitazone","pioglitazone","c"],
+  ["Biguanide","Oral antidiabetic","n/a","metformin","c"],
+  ["Alpha-glucosidase inhibitor","Oral antidiabetic","n/a","acarbose, miglitol","c"],
+  ["DPP-4 inhibitor","Oral antidiabetic","-gliptin","sitagliptin","c"],
+  ["SGLT2 inhibitor","Oral antidiabetic","-gliflozin","canagliflozin, dapagliflozin","c"],
+  ["Injectable non-insulin drugs",null],
+  ["Amylin mimetic","Antidiabetic (list: oral, but injected)","n/a","pramlintide","c"],
+  ["Incretin mimetic (GLP-1 receptor agonist)","Antidiabetic (list: oral, but injected)","-glutide","liraglutide, albiglutide*","c"],
+  ["Hyperglycemic agent","Antihypoglycemic (list: n/a)","n/a","glucagon","c"],
+  ["Thyroid medications",null],
+  ["Synthetic T4","Thyroid hormone replacement","-thyroxine","levothyroxine","h"],
+  ["Synthetic T3","Thyroid hormone replacement","-thyronine","liothyronine","h"],
+  ["Thionamide","Antithyroid","n/a","propylthiouracil, methimazole","h"],
+  ["Iodine / iodide","Antithyroid","iodide","sodium iodide, potassium iodide","h"],
+  ["Other hormonal replacement medications",null],
+  ["Growth hormone","Growth hormone replacement (list: n/a)","n/a","somatropin","h"],
+  ["Antidiuretic hormone","Antidiuretic (list: n/a)","-pressin","vasopressin, desmopressin (DDAVP)","h"],
+  ["Glucocorticoid","Adrenal hormone replacement","-sone","hydrocortisone, prednisone, dexamethasone","h"],
+  ["Mineralocorticoid","Adrenal hormone replacement","-sone","fludrocortisone","h"],
+  ["Hyperpituitarism medication","Antiacromegaly agent (list: n/a)","-reotide","octreotide, lanreotide, pegvisomant*","h"]
+];
+const DRILL_GROUPS = [];
+let drillGroup = "";
+let currentId = "start";
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const KEY = "endo-decoder-v1";
+let state = {answers:{}};   // answers[qid] = {sel:[...], done:true, ok:bool}
+try{ const s = localStorage.getItem(KEY); if(s){ state = JSON.parse(s) || state; if(!state.answers) state.answers = {}; } }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+// stable shuffle of options per question (seeded by question id) so order is consistent across visits
+function seeded(str){ let h = 2166136261; for(const c of str){ h ^= c.charCodeAt(0); h = Math.imul(h,16777619); } return function(){ h ^= h<<13; h ^= h>>>17; h ^= h<<5; return ((h>>>0)%100000)/100000; }; }
+SECTIONS.forEach(sec=>{ (sec.quiz||[]).forEach((q,i)=>{
+  q.id = sec.id + "-" + (i+1);
+  const r = seeded(q.id); const order = q.o.map((_,k)=>k);
+  for(let k=order.length-1;k>0;k--){ const j = Math.floor(r()*(k+1)); [order[k],order[j]]=[order[j],order[k]]; }
+  q.order = order;
+});});
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const quizSections = SECTIONS.filter(s=>s.quiz);
+const totalQ = quizSections.reduce((n,s)=>n+s.quiz.length,0);
+
+function secStats(sec){
+  let done=0, ok=0;
+  (sec.quiz||[]).forEach(q=>{ const a = state.answers[q.id]; if(a&&a.done){ done++; if(a.ok) ok++; } });
+  return {done, ok, total:(sec.quiz||[]).length};
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderNav(current){
+  const nav = document.getElementById("nav");
+  let lastGroup = "";
+  nav.innerHTML = SECTIONS.map(s=>{
+    let head = "";
+    if(s.group && s.group!==lastGroup){ lastGroup = s.group; head = `<li class="navgroup">${esc(s.group)}</li>`; }
+    let chip = "";
+    if(s.quiz){ const st = secStats(s); chip = `<span class="chip ${st.done===st.total?'done':''}">${st.ok}/${st.total}</span>`; }
+    return head + `<li><a href="#${s.id}" ${s.id===current?'aria-current="page"':''}><span class="num">${s.num}</span><span>${esc(s.title)}</span>${chip}</a></li>`;
+  }).join("");
+  let done=0; quizSections.forEach(s=>done+=secStats(s).done);
+  document.getElementById("ovText").textContent = done + " / " + totalQ;
+  document.getElementById("ovBar").style.width = (100*done/totalQ) + "%";
+}
+
+function pager(idx){
+  const prev = SECTIONS[idx-1], next = SECTIONS[idx+1];
+  return `<div class="pager">${prev?`<a class="btn ghost" href="#${prev.id}">← ${esc(prev.title)}</a>`:'<span></span>'}${next?`<a class="btn" href="#${next.id}">${esc(next.title)} →</a>`:''}</div>`;
+}
+
+function card(c, sid, ci){
+  const list = a => `<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  return `<article class="dcard">
+    <div class="dhead">
+      <h3>${esc(c.name)}</h3><div class="cardTools">${sid!==undefined?`<button type="button" class="printbtn" data-print-card="${sid}|${ci}" aria-label="Print ${esc(c.name)}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print</button>`:""}<span class="stemTag">${esc(c.stem)}</span></div>
+      <div class="meta"><span><b>Pharmacologic class:</b> ${esc(c.pharm)}</span><span><b>Therapeutic class:</b> ${esc(c.ther)}</span></div>
+      <div class="ex">${c.ex.map(e=>`<span>${esc(e)}</span>`).join("")}</div>
+    </div>
+    <div class="dbody">
+      <div class="cell wide"><h4>How it works</h4><p>${esc(c.how)}</p></div>
+      <div class="cell"><h4>Monitoring &amp; safe administration</h4>${list(c.mon)}</div>
+      <div class="cell"><h4>Patient education</h4>${list(c.edu)}</div>
+      <div class="cell"><h4>Side effects</h4>${list(c.se)}</div>
+      <div class="cell adv"><h4>Adverse effects</h4>${list(c.ae)}</div>
+    </div>
+    ${c.trap?`<div class="dtrap"><b>Watch for:</b> ${esc(c.trap)}</div>`:""}
+  </article>`;
+}
+
+function diagram(kind){
+  if(kind==="insulintable") return `
+  <section aria-labelledby="insH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="insH">Insulin timing at a glance</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Type</th><th>Examples</th><th>Onset</th><th>Peak</th><th>Duration</th><th>Appearance</th></tr></thead>
+      <tbody>
+        <tr><td>Rapid-acting</td><td>lispro, aspart, glulisine</td><td>~15 min</td><td>1–2 h</td><td>3–5 h</td><td>Clear</td></tr>
+        <tr><td>Short-acting</td><td>regular</td><td>30–60 min</td><td>2–4 h</td><td>5–8 h</td><td>Clear</td></tr>
+        <tr><td>Intermediate</td><td>NPH</td><td>1–2 h</td><td>4–12 h</td><td>12–18 h</td><td>Cloudy</td></tr>
+        <tr><td>Long-acting</td><td>glargine, detemir</td><td>1–2 h</td><td>Little or none</td><td>~24 h</td><td>Clear</td></tr>
+        <tr><td>Premixed</td><td>70/30, 75/25</td><td>15–60 min</td><td>Two peaks</td><td>10–16 h</td><td>Cloudy</td></tr>
+      </tbody></table></div>
+    <p class="diagcap">Times are typical ranges; check your drug reference. Hypoglycemia is most likely at the peak. Clear before cloudy when mixing; never mix glargine; only regular insulin goes IV. Insulin is a high-alert drug: use an independent double check.</p>
+  </section>`;
+  if(kind==="oralmap") return `
+  <section aria-labelledby="omH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="omH">Where each oral drug works, and its hypoglycemia risk</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Site</th><th>Class</th><th>What it does</th><th>Hypoglycemia alone?</th></tr></thead>
+      <tbody>
+        <tr><td>Pancreas</td><td>Sulfonylureas (gli-), meglitinides (-glinide)</td><td>Release more insulin regardless of glucose</td><td>Yes</td></tr>
+        <tr><td>Gut and pancreas</td><td>DPP-4 inhibitors (-gliptin)</td><td>Boost incretins: insulin only when glucose is high</td><td>Rarely</td></tr>
+        <tr><td>Liver</td><td>Metformin</td><td>Less glucose released by the liver</td><td>Rarely</td></tr>
+        <tr><td>Muscle and fat</td><td>TZDs (-glitazone)</td><td>Cells respond better to insulin</td><td>Rarely</td></tr>
+        <tr><td>Small intestine</td><td>Alpha-glucosidase inhibitors</td><td>Slow carbohydrate absorption</td><td>Rarely</td></tr>
+        <tr><td>Kidney</td><td>SGLT2 inhibitors (-gliflozin)</td><td>Excrete glucose in the urine</td><td>Rarely</td></tr>
+      </tbody></table></div>
+    <p class="diagcap">Drugs that act only when glucose is high, or that don't add insulin, rarely cause hypoglycemia unless combined with insulin or a secretagogue.</p>
+  </section>`;
+  if(kind==="hypo") return `
+  <section aria-labelledby="hypoH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="hypoH">Treating hypoglycemia</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Awake and able to swallow</h4><ol>
+        <li>Give 15 g fast-acting carbohydrate: 4 oz juice or regular soda, or glucose tablets</li>
+        <li>Recheck glucose in 15 minutes; repeat if still below 70 mg/dL</li>
+        <li>Then give a snack or meal with protein</li>
+      </ol></div>
+      <div class="lane"><h4>Unable to swallow safely</h4><ol>
+        <li>Nothing by mouth</li>
+        <li>Glucagon: IM, subcutaneous or nasal <span class="block">no IV needed</span></li>
+        <li>In the hospital with IV access: IV dextrose per protocol</li>
+        <li>Turn on the side; feed once awake</li>
+      </ol></div>
+      <div class="lane"><h4>Special cases</h4><ol>
+        <li>On acarbose or miglitol: use glucose, not table sugar</li>
+        <li>On beta blockers: tremor and fast heart rate may be missing; sweating remains</li>
+      </ol></div>
+    </div>
+  </section>`;
+  if(kind==="thyroidtable") return `
+  <section aria-labelledby="thyH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="thyH">Too little or too much thyroid hormone</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th></th><th>Hypothyroid (too little)</th><th>Hyperthyroid (too much)</th></tr></thead>
+      <tbody>
+        <tr><td>Energy, mood</td><td>Fatigue, slowed thinking, depression</td><td>Nervousness, insomnia, irritability</td></tr>
+        <tr><td>Heart</td><td>Bradycardia</td><td>Tachycardia, palpitations, atrial fibrillation</td></tr>
+        <tr><td>Temperature</td><td>Cold intolerance</td><td>Heat intolerance, sweating</td></tr>
+        <tr><td>Weight, bowels</td><td>Weight gain, constipation</td><td>Weight loss, frequent stools</td></tr>
+        <tr><td>Treated with</td><td>levothyroxine, liothyronine</td><td>methimazole, PTU, iodide, radioactive iodine</td></tr>
+        <tr><td>Overtreatment looks like</td><td>the right-hand column</td><td>the left-hand column</td></tr>
+      </tbody></table></div>
+  </section>`;
+  if(kind==="pituitary") return `
+  <section aria-labelledby="pitH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="pitH">Pituitary hormones and the drugs that target them</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Hormone</th><th>Normal job</th><th>Too little</th><th>Too much</th></tr></thead>
+      <tbody>
+        <tr><td>Growth hormone (anterior)</td><td>Growth of bone and muscle via IGF-1</td><td>Short stature: replace with somatropin</td><td>Acromegaly: octreotide, lanreotide (-reotide), pegvisomant</td></tr>
+        <tr><td>ADH (posterior)</td><td>Kidneys reabsorb water</td><td>Diabetes insipidus: dilute urine, thirst; replace with -pressin drugs</td><td>Water retention, low sodium (SIADH or overtreatment)</td></tr>
+      </tbody></table></div>
+  </section>`;
+  if(kind==="adrenal") return `
+  <section aria-labelledby="adH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="adH">Too little or too much cortisol</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Too little: adrenal crisis</h4><ol>
+        <li>From Addison's disease or stopping steroids suddenly</li>
+        <li>Severe weakness, hypotension, shock</li>
+        <li>Low sodium, high potassium, low glucose</li>
+        <li>Treat with IV hydrocortisone and fluids</li>
+      </ol></div>
+      <div class="lane"><h4>Too much: Cushing-like effects</h4><ol>
+        <li>From high doses or long courses</li>
+        <li>Moon face, weight gain, thin skin, bruising</li>
+        <li>High glucose, low potassium, high BP</li>
+        <li>Infection, bone loss, ulcers, mood changes</li>
+      </ol></div>
+      <div class="lane"><h4>Safety rules</h4><ol>
+        <li>Morning dosing with food</li>
+        <li>Taper; never stop suddenly</li>
+        <li>Stress dosing during illness (replacement therapy)</li>
+        <li>Medical ID</li>
+      </ol></div>
+    </div>
+  </section>`;
+  return "";
+}
+
+function renderQuiz(sec){
+  const st = secStats(sec);
+  return `<section class="quiz" aria-labelledby="qh-${sec.id}">
+    <div class="quizHead"><div><div class="eyebrow">CHECK YOUR UNDERSTANDING</div><h2 id="qh-${sec.id}">${sec.kind==="final"?"Final review":"Section check"}</h2></div>
+      <div style="display:flex;gap:10px;align-items:center"><span class="score">${st.ok} correct · ${st.done}/${st.total} answered</span><button class="btn ghost" type="button" data-reset="${sec.id}" style="font-size:.8rem;padding:6px 10px">Retry section</button></div></div>
+    ${sec.quiz.map((q,i)=>renderQ(q,i)).join("")}
+  </section>`;
+}
+
+function renderQ(q,i){
+  const a = state.answers[q.id] || {sel:[]};
+  const multi = q.t==="sata";
+  const opts = q.order.map(k=>{
+    let cls = "opt";
+    if(a.done){
+      const chosen = a.sel.includes(k), right = q.a.includes(k);
+      if(chosen && right) cls += " correct"; else if(chosen && !right) cls += " wrong"; else if(!chosen && right) cls += " missed";
+    }
+    return `<label class="${cls}"><input type="${multi?'checkbox':'radio'}" name="${q.id}" value="${k}" ${a.sel.includes(k)?'checked':''} ${a.done?'disabled':''} data-q="${q.id}"><span>${esc(q.o[k])}</span></label>`;
+  }).join("");
+  let foot = "";
+  if(a.done){
+    foot = `<div class="verdict ${a.ok?'ok':'no'}">${a.ok?'Correct.':(multi?'Not quite. Dashed outlines show answers you missed.':'Not quite. The correct answer is outlined in green.')}</div><div class="why">${esc(q.w)}</div>`;
+  } else {
+    foot = `<div class="qfoot"><button class="btn" type="button" data-check="${q.id}" ${a.sel.length?'':'disabled'}>Check answer</button></div>`;
+  }
+  return `<div class="q" id="q-${q.id}"><div class="qn">QUESTION ${i+1}${multi?'<span class="tag">SELECT ALL THAT APPLY</span>':''}</div><div class="stemQ">${esc(q.s)}</div><div class="opts" role="${multi?'group':'radiogroup'}" aria-label="Answer choices">${opts}</div>${foot}</div>`;
+}
+
+function stemTable(){
+  return `<div class="tablewrap"><table>
+    <thead><tr><th>Pharmacologic class</th><th>Therapeutic class</th><th>Stem</th><th>Examples on your list</th></tr></thead>
+    <tbody>${STEMS.map(r=> r[1]===null ? `<tr class="groupRow"><td colspan="4">${esc(r[0])}</td></tr>`
+      : `<tr class="${r[4]}"><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td><span class="stem">${esc(r[2])}</span></td><td>${esc(r[3])}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <p class="diagcap">* Does not follow the stem. Learn these by name; each one is flagged on its drug card.</p>`;
+}
+
+function render(){
+  let id = viewId;
+  if(!id){ try{ id = (location.hash||"").replace("#",""); }catch(e){} }
+  id = id || "start";
+  const idx = Math.max(0, SECTIONS.findIndex(s=>s.id===id));
+  const sec = SECTIONS[idx];
+  currentId = sec.id;
+  renderNav(sec.id);
+  const main = document.getElementById("main");
+  let h = "";
+  if(sec.kind==="intro"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">UNIT 7 · METABOLISM: ENDOCRINE</div><h1>Endocrine Drug Decoder</h1>
+      <p class="lede">Every medication on the endocrine list, organized by class: insulins, oral and injectable antidiabetics, glucagon, thyroid drugs, pituitary drugs, and adrenal hormones. Learn to read a drug name, then work through each class: how it works, what you monitor, what you teach, and what can go wrong. Each section ends with questions that explain the answer as soon as you check it.</p></header>
+      <section class="panel"><h3 style="margin-bottom:10px">By the end, you should be able to</h3><ol class="objectives">
+        <li>Use prefixes, roots and suffixes to identify the class of an endocrine drug.</li>
+        <li>Tell the pharmacologic class (how it works) from the therapeutic class (what it treats).</li>
+        <li>Explain the mechanism of action of each class in plain language.</li>
+        <li>Identify the assessments, labs and hold parameters for safe administration.</li>
+        <li>Teach patients how to take each drug safely and what to report.</li>
+        <li>Distinguish common side effects from adverse effects that need action.</li>
+      </ol></section>
+      <div class="steps">
+        <div class="panel"><span class="eyebrow">STEP 1</span><b>Read the labels</b><p>Each drug class is a card with the same six parts, so you can compare classes side by side.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 2</span><b>Check yourself</b><p>Answer every question at the end of the section. You'll see the rationale right away.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 3</span><b>Review your results</b><p>The results page shows your score by section and lists the topics to revisit.</p></div>
+      </div>
+      <p class="diagcap">Your answers are saved in this browser only. Use “Retry section” to clear one section, or “Start over” to clear everything.</p>
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="decode"){
+    const g = DRILL_GROUPS.find(x=>x.id===drillGroup) || DRILL_GROUPS[0];
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      <section class="panel" aria-labelledby="readH" style="display:flex;flex-direction:column;gap:14px">
+        <div><span class="eyebrow">HABIT 1</span><h3 id="readH">Learn the class, not the drug</h3></div>
+        <p class="prose" style="max-width:68ch">Drugs in a class share a mechanism, monitoring, teaching and adverse effects. Learn one key drug (the prototype) well, then notice how the others differ. The stem tells you which class you're looking at.</p>
+        <div class="decodeSteps">
+          <div class="dstep"><span class="eyebrow">1 · FIND THE STEM</span><p class="big mono">sita<mark>gliptin</mark></p></div>
+          <div class="dstep"><span class="eyebrow">2 · PHARMACOLOGIC CLASS</span><p class="big">DPP-4 inhibitor</p><small>How it works</small></div>
+          <div class="dstep"><span class="eyebrow">3 · THERAPEUTIC CLASS</span><p class="big">Antidiabetic</p><small>What it treats</small></div>
+        </div>
+        <p class="diagcap">Several pharmacologic classes can share one therapeutic class: seven different mechanisms on this list are all antidiabetics. Stems don't always hold, so each card flags the exceptions. The full list is on the <a href="#stems">Stem cheat sheet</a>.</p>
+      </section>
+      <section class="panel" aria-labelledby="mechH" style="display:flex;flex-direction:column;gap:14px">
+        <div><span class="eyebrow">HABIT 2</span><h3 id="mechH">Let the mechanism do the work</h3></div>
+        <p class="prose" style="max-width:68ch">Once you know how a drug works, most of the nursing care follows. Ask the same questions in the same order for every class, the way each drug card is laid out.</p>
+        <div class="flow">
+          <div class="node"><b>How it works</b><small>Glipizide makes the pancreas release <b>insulin</b>, whatever the blood glucose is.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>Expected effect</b><small>More insulin moves glucose into cells, so blood glucose falls.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>Too much of it</b><small>Hypoglycemia, especially with a skipped meal, older age or kidney disease (adverse effect)</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>What you check</b><small>Glucose before meals; signs of hypoglycemia; that the patient is eating</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>What you teach</b><small>Take it with breakfast; don't skip meals; carry glucose tablets; know the signs of low blood sugar</small></div>
+        </div>
+        <p class="diagcap"><b>Side effects</b> are expected and usually mild (weight gain); teach patients to expect them. <b>Adverse effects</b> are harmful (severe hypoglycemia) and need action.</p>
+      </section>
+      <section aria-labelledby="studyH" style="display:flex;flex-direction:column;gap:12px">
+        <div><span class="eyebrow">HABIT 3</span><h3 id="studyH">Study in ways that stick</h3></div>
+        <div class="steps">
+          <div class="panel"><b>Quiz yourself</b><p>Answer the section check before you reread anything. Pulling facts out of memory builds recall far better than rereading or highlighting.</p></div>
+          <div class="panel"><b>Space it out</b><p>Several short sessions over a week beat one long one. Come back to a section a few days later and retry its questions.</p></div>
+          <div class="panel"><b>Mix it up</b><p>Once you know a few classes, practice them together. Telling a sulfonylurea from a meglitinide is what exams test.</p></div>
+          <div class="panel"><b>Explain the why</b><p>Say out loud why a finding matters: “Metformin is held before contrast dye because…” If you can explain it, you can apply it.</p></div>
+        </div>
+      </section>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="drug"){
+    h = `<div class="view ${sec.theme==='heme'?'heme':''}">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">SECTION ${sec.num}</div><button type="button" class="printbtn" data-print-section="${sec.id}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print this section</button></div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${sec.diagram?sec.diagram.split(" ").map(diagram).join(""):""}
+      <div class="cards">${sec.cards.map((c,i)=>card(c,sec.id,i)).join("")}</div>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="final"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="stems"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">REFERENCE</div><button type="button" class="printbtn" data-print-section="stems"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print cheat sheet</button></div><h2>Stem cheat sheet</h2>
+      <p class="lede">Every class in this activity, with its stem and the examples from your endocrine medication list. Use it to review, not as the place to start.</p></header>
+      ${stemTable()}
+      ${pager(idx)}</div>`;
+  } else {
+    let tot=0, ok=0, done=0;
+    const rows = quizSections.map(s=>{ const st = secStats(s); tot+=st.total; ok+=st.ok; done+=st.done;
+      const pct = st.done? Math.round(100*st.ok/st.total) : null;
+      const pill = st.done<st.total ? `<span class="pill none">${st.done}/${st.total} answered</span>` : pct>=80?`<span class="pill ok">Solid</span>`:pct>=60?`<span class="pill mid">Review</span>`:`<span class="pill low">Revisit</span>`;
+      return `<a class="sumcard" href="#${s.id}" style="text-decoration:none;color:inherit"><span class="eyebrow">${s.num}</span><b>${esc(s.title)}</b><span class="big">${st.ok}/${st.total}</span>${pill}</a>`; }).join("");
+    const misses = [];
+    quizSections.forEach(s=>s.quiz.forEach((q,i)=>{ const a = state.answers[q.id]; if(a&&a.done&&!a.ok) misses.push(`<li><a href="#${s.id}">${esc(s.title)}, question ${i+1}</a>: ${esc(q.s)}</li>`); }));
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">RESULTS</div><h2>Your results</h2>
+      <p class="lede">${done===0?"You haven't answered any questions yet. Start with How to learn pharmacology.":`You've answered ${done} of ${tot} questions and got ${ok} correct (${Math.round(100*ok/Math.max(done,1))}% of those answered).`}</p></header>
+      <div class="sumgrid">${rows}</div>
+      <section class="panel" style="display:flex;flex-direction:column;gap:10px"><h3>Questions to revisit</h3>
+        ${misses.length?`<ol class="misslist">${misses.join("")}</ol>`:`<p class="diagcap">${done?"None. Nice work.":"Missed questions will be listed here."}</p>`}</section>
+      ${pager(idx)}</div>`;
+  }
+  main.innerHTML = h;
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+document.addEventListener("change", e=>{
+  const inp = e.target.closest("input[data-q]"); if(!inp) return;
+  const qid = inp.dataset.q; const a = state.answers[qid] || {sel:[]}; if(a.done) return;
+  const k = +inp.value;
+  if(inp.type==="radio") a.sel = [k];
+  else a.sel = inp.checked ? [...new Set([...a.sel,k])] : a.sel.filter(x=>x!==k);
+  state.answers[qid] = a; save();
+  const btn = document.querySelector(`[data-check="${qid}"]`); if(btn) btn.disabled = !a.sel.length;
+});
+document.addEventListener("click", e=>{
+  const chk = e.target.closest("[data-check]");
+  if(chk){
+    const qid = chk.dataset.check; let q; SECTIONS.forEach(s=>(s.quiz||[]).forEach(x=>{ if(x.id===qid) q=x; }));
+    const a = state.answers[qid]; if(!a||!a.sel.length) return;
+    const sel = [...a.sel].sort(), ans = [...q.a].sort();
+    a.ok = sel.length===ans.length && sel.every((v,i)=>v===ans[i]); a.done = true; save();
+    const sec = SECTIONS.find(s=>(s.quiz||[]).includes(q));
+    document.getElementById("q-"+qid).outerHTML = renderQ(q, sec.quiz.indexOf(q));
+    renderNav(sec.id);
+    const st = secStats(sec); const sc = document.querySelector(".score"); if(sc) sc.textContent = `${st.ok} correct · ${st.done}/${st.total} answered`;
+    return;
+  }
+  const rs = e.target.closest("[data-reset]");
+  if(rs){ const sec = SECTIONS.find(s=>s.id===rs.dataset.reset); sec.quiz.forEach(q=>delete state.answers[q.id]); save(); render(); return; }
+  const tg = e.target.closest("[data-group]");
+  if(tg){ drillGroup = tg.dataset.group; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  const fl = e.target.closest("[data-flip]");
+  if(fl){ const on = fl.getAttribute("aria-pressed")!=="true"; fl.setAttribute("aria-pressed", on); fl.querySelector(".back").hidden = !on; fl.querySelector(".hint").textContent = on?"Tap to hide":"Tap to reveal"; return; }
+});
+document.getElementById("resetAll").addEventListener("click", ()=>{
+  const b = document.getElementById("resetAll");
+  if(b.dataset.confirm){ state = {answers:{}}; save(); delete b.dataset.confirm; b.textContent="Start over"; render(); }
+  else { b.dataset.confirm = "1"; b.textContent = "Click again to clear all answers"; setTimeout(()=>{ delete b.dataset.confirm; b.textContent="Start over"; }, 4000); }
+});
+let viewId = "";
+/* ============================================================
+   PRINTING
+   Standalone file: prints from a hidden frame.
+   Published page (printing is blocked there): saves a print-ready copy
+   that opens its own print dialog.
+   ============================================================ */
+const UNIT_LABEL = "UNIT 7 · ENDOCRINE", APP_TITLE = "Endocrine Drug Decoder";
+function inViewer(){ try{ return !!(window.claude && typeof window.claude.use === "function"); }catch(e){ return false; } }
+function toast(msg){
+  const t = document.getElementById("toast"); if(!t) return;
+  t.textContent = msg; t.hidden = false; clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ t.hidden = true; }, 6000);
+}
+function fileSafe(x){ return String(x).replace(/[^A-Za-z0-9 &()-]+/g," ").replace(/\s+/g," ").trim().slice(0,80) || "Printout"; }
+function printDoc(title, bodyHtml, heme){
+  const css = document.querySelector("style").textContent;
+  return '<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="utf-8"><title>' + esc(title) + '</title>'
+   + '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">'
+   + '<style>' + css + '\nbody{background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+   + 'main.printdoc{max-width:960px;margin:0 auto;padding:24px}.printbtn,.abcd,#toast{display:none !important}'
+   + '.dcard,.lane,.panel,tr{break-inside:avoid;page-break-inside:avoid}h2,h3{break-after:avoid}'
+   + '.printbar{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:10px}'
+   + '@media print{.printbar button{display:none}main.printdoc{padding:0}@page{margin:0.5in}}</style></head>'
+   + '<body><main class="printdoc"><div class="view' + (heme?' heme':'') + '">'
+   + '<div class="printbar"><span class="eyebrow">' + esc(UNIT_LABEL + " · " + APP_TITLE) + '</span><button class="btn" type="button" onclick="window.print()">Print</button></div>'
+   + bodyHtml + '</div></main>'
+   + '<scr'+'ipt>window.addEventListener("load",function(){setTimeout(function(){try{window.print()}catch(e){}},500)});</scr'+'ipt></body></html>';
+}
+async function doPrint(title, bodyHtml, heme){
+  const html = printDoc(title, bodyHtml, heme);
+  if(inViewer()){
+    let dl = null;
+    try{ dl = await window.claude.use("downloads"); }catch(e){}
+    if(!dl){ toast("Printing isn't available in this view. Open the downloaded HTML file in your browser to print."); return; }
+    try{
+      await dl.save({filename: fileSafe(title) + ".html", data: html});
+      toast("Saved. Open the file and the print window appears; choose Save as PDF if you'd rather keep a PDF.");
+    }catch(err){
+      if(err && err.code === "declined") return;
+      if(err && err.code === "rate_limited"){ toast("A save prompt is already open. Finish that one first."); return; }
+      toast("This view couldn't save the printable copy. Use the downloadable HTML file to print instead.");
+    }
+    return;
+  }
+  try{
+    let f = document.getElementById("printFrame"); if(f) f.remove();
+    f = document.createElement("iframe");
+    f.id = "printFrame"; f.title = "Print preview"; f.setAttribute("aria-hidden","true"); f.tabIndex = -1;
+    f.style.cssText = "position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0;";
+    document.body.appendChild(f);
+    f.srcdoc = html;
+  }catch(e){ toast("Your browser blocked printing. Try Ctrl+P (Cmd+P on a Mac)."); }
+}
+function sectionPrintBody(sec){
+  if(sec.kind==="stems") return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">REFERENCE</div><h2>Stem cheat sheet</h2></header>' + stemTable();
+  return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">SECTION ' + esc(sec.num) + '</div><h2>' + esc(sec.title) + '</h2><p class="lede">' + esc(sec.lede) + '</p></header>'
+    + (sec.diagram ? sec.diagram.split(" ").filter(d=>d!=="abcd").map(diagram).join("") : "")
+    + '<div class="cards">' + sec.cards.map(c=>card(c)).join("") + '</div>';
+}
+document.addEventListener("click", e=>{
+  const pc = e.target.closest("[data-print-card]");
+  if(pc){
+    const [sid, ci] = pc.dataset.printCard.split("|");
+    const sec = SECTIONS.find(x=>x.id===sid); const c = sec && sec.cards[+ci]; if(!c) return;
+    doPrint(c.name, '<div class="eyebrow">' + esc(sec.title.toUpperCase()) + '</div>' + card(c), sec.theme==="heme");
+    return;
+  }
+  const ps = e.target.closest("[data-print-section]");
+  if(ps){
+    const sec = SECTIONS.find(x=>x.id===ps.dataset.printSection); if(!sec) return;
+    doPrint(sec.kind==="stems" ? "Stem cheat sheet" : sec.title, sectionPrintBody(sec), sec.theme==="heme");
+  }
+});
+function go(id){
+  viewId = id; render();
+  try{ history.replaceState(null, "", "#"+id); }catch(e){}
+}
+// Navigate with script instead of relying on hash links, which some viewers block.
+document.addEventListener("click", e=>{
+  const a = e.target.closest('a[href^="#"]'); if(!a) return;
+  const id = a.getAttribute("href").slice(1);
+  if(!SECTIONS.some(s=>s.id===id)) return;
+  e.preventDefault(); go(id);
+}, true);
+window.addEventListener("hashchange", ()=>{ try{ const h = location.hash.replace("#",""); if(h && h!==viewId){ viewId = h; render(); } }catch(e){} });
+render();
+</script>
+</body>
+</html>

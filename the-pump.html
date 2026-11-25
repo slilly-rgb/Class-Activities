@@ -1,0 +1,1081 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>The Pump</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: full-height lecture stage; each scene pairs a short text column with a live diagram; control bar pinned below; presenter panel opens at right */
+:root{
+  --bg:#F2F5F7; --surface:#FFFFFF; --sunk:#E5ECF0; --ink:#13212A; --muted:#4F606B; --line:#C9D5DC;
+  --grid:#F0D6DB; --grid-major:#E3B1BB;
+  --oxy:#C3243A; --oxy-soft:#F8DCE0; --deo:#2B58C4; --deo-soft:#D9E4FA;
+  --muscle:#A2445A; --muscle-soft:#F0D5DC; --fluid:#D8EDF4; --peri:#E6DDCB;
+  --on-vessel:#FFFFFF;
+  --good:#16704A; --good-soft:#D6EFE2; --warn:#8F5400; --warn-soft:#FAEACB; --bad:#B3261E; --bad-soft:#F9DEDC;
+  --f-display:"Archivo","Arial Narrow",Arial,system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --fs-body:clamp(16px, .5rem + .9vw, 28px);
+  --fs-small:clamp(13px, .45rem + .55vw, 20px);
+  --fs-h2:clamp(28px, .5rem + 2.7vw, 68px);
+  --fs-h3:clamp(19px, .5rem + 1.2vw, 34px);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1418; --surface:#14212A; --sunk:#0F1A20; --ink:#E6EDF1; --muted:#9DADB7; --line:#2A3B46;
+    --grid:#26181D; --grid-major:#3D222B;
+    --oxy:#FF6175; --oxy-soft:#3B1720; --deo:#7EA4FF; --deo-soft:#16244A;
+    --muscle:#E07D94; --muscle-soft:#3A1A24; --fluid:#11303C; --peri:#2F2A20;
+    --on-vessel:#0C1418;
+    --good:#5AD39A; --good-soft:#123528; --warn:#F0B24E; --warn-soft:#3A2A0E; --bad:#FF8A80; --bad-soft:#3E1714;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1418; --surface:#14212A; --sunk:#0F1A20; --ink:#E6EDF1; --muted:#9DADB7; --line:#2A3B46;
+  --grid:#26181D; --grid-major:#3D222B;
+  --oxy:#FF6175; --oxy-soft:#3B1720; --deo:#7EA4FF; --deo-soft:#16244A;
+  --muscle:#E07D94; --muscle-soft:#3A1A24; --fluid:#11303C; --peri:#2F2A20;
+  --on-vessel:#0C1418;
+  --good:#5AD39A; --good-soft:#123528; --warn:#F0B24E; --warn-soft:#3A2A0E; --bad:#FF8A80; --bad-soft:#3E1714;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:var(--fs-body);line-height:1.42;overflow:hidden}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--deo);outline-offset:2px}
+
+.app{height:100%;display:flex;flex-direction:column;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.main{flex:1;min-height:0;display:flex;gap:clamp(12px,1.6vw,28px)}
+#stage{flex:1;min-width:0;position:relative}
+.scene{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;opacity:0;visibility:hidden;transition:opacity .35s ease,visibility 0s .35s}
+.scene.active{opacity:1;visibility:visible;transition:opacity .35s ease}
+.scene-inner{max-width:1600px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:clamp(10px,2.2vh,30px);padding-block:clamp(14px,3vh,42px)}
+.eyebrow{font-family:var(--f-mono);font-weight:700;font-size:var(--fs-small);letter-spacing:.08em;text-transform:uppercase;color:var(--oxy);margin:0}
+h2{font-family:var(--f-display);font-stretch:115%;font-weight:850;font-size:var(--fs-h2);line-height:1;letter-spacing:-.015em;margin:.18em 0 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-stretch:108%;font-weight:800;font-size:var(--fs-h3);line-height:1.08;margin:0;text-wrap:balance}
+p{margin:0}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.cols{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(16px,3vw,60px);align-items:center}
+.cols.even{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.stack{display:flex;flex-direction:column;gap:clamp(10px,1.8vh,22px);min-width:0}
+.fig{min-width:0;display:flex;justify-content:center}
+.fig svg{width:100%;height:auto;max-height:66vh;display:block}
+.points{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.65em}
+.points li{position:relative;padding-left:1.05em;max-width:36ch}
+.points li::before{content:"";position:absolute;left:0;top:.5em;width:.42em;height:.42em;border-radius:50%;background:var(--oxy)}
+.points b{font-weight:700}
+.callout{border-left:5px solid var(--deo);background:var(--deo-soft);padding:.7em .9em;border-radius:0 10px 10px 0;max-width:40ch}
+.callout.red{border-color:var(--oxy);background:var(--oxy-soft)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:clamp(12px,1.3vw,24px);display:flex;flex-direction:column;gap:.5em}
+.panel .tag{font-family:var(--f-mono);font-size:var(--fs-small);color:var(--muted);letter-spacing:.04em}
+.row{display:flex;flex-wrap:wrap;gap:.5em;align-items:center}
+.btn{font-size:var(--fs-small);font-weight:700;padding:.45em .85em;border-radius:999px;border:2px solid var(--line);background:var(--surface);cursor:pointer;line-height:1.1}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+@media (max-width:860px){
+  .cols,.cols.even{grid-template-columns:1fr;align-items:start}
+  .fig svg{max-height:none}
+}
+
+/* progressive reveal */
+.scene [data-step]{transition:opacity .4s ease,transform .4s ease}
+.scene [data-step]:not(.shown){opacity:0;transform:translateY(6px);pointer-events:none}
+
+/* title scene */
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,2.5vh,30px)}
+.hero h1{font-family:var(--f-display);font-stretch:125%;font-weight:900;font-size:clamp(56px,2rem + 8vw,200px);line-height:.86;letter-spacing:-.03em;margin:0}
+.hero h1 span{color:var(--oxy)}
+.hero .sub{font-size:var(--fs-h3);max-width:32ch;font-weight:700}
+.monitor{position:relative;border-radius:var(--r);border:1px solid var(--line);background-color:var(--surface);
+  background-image:linear-gradient(var(--grid-major) 1px,transparent 1px),linear-gradient(90deg,var(--grid-major) 1px,transparent 1px),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:50px 50px,50px 50px,10px 10px,10px 10px;height:clamp(110px,22vh,240px);overflow:hidden}
+.monitor canvas{position:absolute;inset:0;width:100%;height:100%}
+.monitor .hrv{position:absolute;right:14px;top:10px;font-family:var(--f-mono);font-weight:700;color:var(--oxy);font-size:var(--fs-small);background:var(--surface);padding:.15em .5em;border-radius:6px}
+.keys{display:flex;flex-wrap:wrap;gap:.4em 1.2em;font-size:var(--fs-small);color:var(--muted)}
+.keys kbd{font-family:var(--f-mono);font-size:.9em;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:.05em .4em;background:var(--surface);color:var(--ink)}
+
+/* torso + layers */
+.tl{font-family:var(--f-body);font-weight:700;font-size:16px;fill:var(--ink);paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round}
+.tl.small{font-size:13px;fill:var(--muted)}
+.layers .band{cursor:pointer}
+.layers .band rect{transition:opacity .3s}
+.layers.has-sel .band:not(.sel) rect{opacity:.32}
+.layers .band.sel rect{stroke:var(--ink);stroke-width:3}
+.layers .bl{font-family:var(--f-body);font-weight:700;font-size:15px;fill:var(--ink);pointer-events:none;dominant-baseline:central}
+.layers .bl.inv{fill:var(--on-vessel)}
+.layers .band:focus-visible rect{stroke:var(--deo);stroke-width:4}
+
+/* heart schematic */
+.heart text{pointer-events:none}
+.heart .organ rect{fill:var(--sunk);stroke:var(--line);stroke-width:2}
+.heart .olab{font-family:var(--f-display);font-weight:800;font-size:20px;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.heart .vessel.deo>:is(rect,path){fill:var(--deo)}
+.heart .vessel.oxy>:is(rect,path){fill:var(--oxy)}
+.heart [data-part="aorta"]>path{stroke:var(--bg);stroke-width:5;paint-order:stroke}
+.heart .chamber.deo>:is(rect,path){fill:var(--deo-soft);stroke:var(--deo);stroke-width:5}
+.heart .chamber.oxy>:is(rect,path){fill:var(--oxy-soft);stroke:var(--oxy);stroke-width:5}
+.heart [data-part="lv"]>path{stroke-width:15}
+.heart [data-part="septum"]>rect{fill:var(--muscle)}
+.heart .vlab{font-family:var(--f-body);font-weight:700;font-size:14px;fill:var(--on-vessel);text-anchor:middle;dominant-baseline:central}
+.heart .vlab.sm{font-size:11px}
+.heart .clab{font-family:var(--f-body);font-weight:700;font-size:19px;fill:var(--ink);text-anchor:middle}
+.heart .xlab{font-family:var(--f-body);font-weight:700;font-size:13px;fill:var(--ink)}
+.heart .vl{font-family:var(--f-mono);font-weight:700;font-size:15px;fill:var(--ink);text-anchor:middle}
+.heart .valve .halo{stroke:var(--bg);stroke-width:9;stroke-linecap:round}
+.heart .valve .ln{stroke:var(--ink);stroke-width:4;stroke-linecap:round}
+.heart .hit{fill:transparent}
+.heart:not(.av-open) .valve.av .o,.heart.av-open .valve.av .c{display:none}
+.heart:not(.sl-open) .valve.sl .o,.heart.sl-open .valve.sl .c{display:none}
+.heart.nolabels :is(.clab,.vlab,.xlab,.vl){visibility:hidden}
+.heart .part{transition:opacity .3s}
+.heart.has-sel .part:not(.sel){opacity:.25}
+.heart.explore .part{cursor:pointer}
+.heart.explore .part:focus-visible{outline:none}
+.heart.explore .part:focus-visible>:is(rect,path):first-of-type{stroke:var(--ink);stroke-dasharray:6 4}
+.heart .route{fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:3 7;display:none}
+.heart.flow .route{display:block}
+.heart .cells circle{fill:var(--deo);stroke:var(--bg);stroke-width:3}
+.heart .cells circle.ox{fill:var(--oxy)}
+.heart [data-part="rv"]>path,.heart [data-part="lv"]>path,.heart [data-part="septum"]>rect{transform-box:fill-box;transform-origin:50% 0;transition:transform .35s ease}
+.heart.contract [data-part="rv"]>path,.heart.contract [data-part="lv"]>path{transform:scale(.93,.87)}
+.heart.contract [data-part="septum"]>rect{transform:scaleY(.87)}
+.legend{display:flex;flex-wrap:wrap;gap:.3em 1.2em;font-size:var(--fs-small);color:var(--muted)}
+.legend i{display:inline-block;width:.85em;height:.85em;border-radius:3px;vertical-align:-.1em;margin-right:.35em}
+
+/* cycle */
+.phases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.phases button{font-size:var(--fs-small);font-weight:700;padding:.5em .3em;border:2px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;line-height:1.1}
+.phases button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.vstate{display:grid;grid-template-columns:auto 1fr;gap:.25em .8em;font-size:var(--fs-small)}
+.chip{display:inline-block;font-family:var(--f-mono);font-weight:700;font-size:.85em;padding:.1em .55em;border-radius:999px;background:var(--sunk);color:var(--ink)}
+.chip.open,.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.closed,.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.sound-flash{font-family:var(--f-display);font-stretch:125%;font-weight:900;font-size:clamp(28px,1rem + 2.4vw,64px);color:var(--oxy);min-height:1.1em;line-height:1.1}
+.listen{font-size:var(--fs-small);display:grid;grid-template-columns:auto 1fr;gap:.15em .8em}
+.listen b{font-family:var(--f-mono)}
+
+/* coronary timing bar */
+.cyclebar{display:flex;height:2.4em;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--sunk)}
+.cyclebar div{display:flex;align-items:center;justify-content:center;font-size:var(--fs-small);font-weight:700;white-space:nowrap;overflow:hidden;transition:flex-basis .25s ease}
+.cyclebar .sys{background:var(--muscle);color:var(--on-vessel)}
+.cyclebar .dia{background:var(--deo-soft);color:var(--ink)}
+.cyclebar .rest{background:transparent}
+input[type=range]{width:100%;accent-color:var(--oxy);height:1.6em}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(14px,2vw,36px);align-items:start}
+.slider label{display:flex;justify-content:space-between;gap:1em;font-weight:700;font-size:var(--fs-small)}
+.slider label span:last-child{font-family:var(--f-mono)}
+.outs{display:flex;flex-direction:column;gap:clamp(8px,1.4vh,16px)}
+.out{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:.2em .8em;border-bottom:1px solid var(--line);padding-bottom:.4em}
+.out .k{font-weight:700}
+.out .k small{display:block;font-weight:400;color:var(--muted);font-size:var(--fs-small)}
+.out .v{font-family:var(--f-mono);font-weight:700;font-size:clamp(24px,1rem + 2vw,58px);font-variant-numeric:tabular-nums;line-height:1}
+.out .v small{font-size:.4em;color:var(--muted);margin-left:.2em}
+.out .chip{grid-column:1/-1;justify-self:start}
+.formula{font-family:var(--f-mono);font-size:var(--fs-small);background:var(--sunk);padding:.5em .7em;border-radius:8px}
+@media (max-width:860px){.calc{grid-template-columns:1fr}}
+
+/* preload / afterload / contractility */
+.pac{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,1.4vw,24px)}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:clamp(12px,1.3vw,24px);display:flex;flex-direction:column;gap:.55em}
+.pcard .def{font-weight:700}
+.pcard .an{color:var(--muted);font-style:italic}
+.pcard .more{display:none;flex-direction:column;gap:.45em;font-size:var(--fs-small);border-top:1px solid var(--line);padding-top:.6em}
+.pcard.open .more{display:flex}
+.pcard .more p b{font-family:var(--f-mono);font-size:.85em;letter-spacing:.04em;text-transform:uppercase}
+.pcard .up{color:var(--bad)} .pcard .down{color:var(--deo)}
+.pcard .btn{align-self:flex-start;margin-top:auto}
+@media (max-width:860px){.pac{grid-template-columns:1fr}}
+
+/* questions */
+.qwrap{display:flex;flex-direction:column;gap:clamp(10px,2vh,24px);max-width:1200px}
+.qtext{font-family:var(--f-display);font-stretch:105%;font-weight:750;font-size:clamp(22px,.6rem + 1.9vw,50px);line-height:1.12;text-wrap:balance}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1vw,16px)}
+.opt{display:flex;gap:.7em;align-items:flex-start;text-align:left;padding:.75em .9em;border-radius:12px;border:2px solid var(--line);background:var(--surface);cursor:pointer;font-weight:700}
+.opt .L{font-family:var(--f-mono);flex:none;width:1.6em;height:1.6em;border-radius:50%;display:grid;place-items:center;background:var(--sunk);font-size:.85em}
+.opt.picked{border-color:var(--ink)}
+.opt.ok{border-color:var(--good);background:var(--good-soft)}
+.opt.ok .L{background:var(--good);color:var(--surface)}
+.opt.no{border-color:var(--bad);background:var(--bad-soft)}
+.why{border-left:5px solid var(--good);padding:.5em .9em;background:var(--surface);border-radius:0 10px 10px 0;max-width:62ch}
+@media (max-width:700px){.opts{grid-template-columns:1fr}}
+
+/* vocab */
+.vocab{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,1vw,16px)}
+.flip{min-height:clamp(96px,17vh,190px);border-radius:var(--r);border:2px solid var(--line);background:var(--surface);cursor:pointer;padding:.7em .9em;display:flex;flex-direction:column;justify-content:center;gap:.3em;text-align:left}
+.flip .t{font-family:var(--f-display);font-stretch:110%;font-weight:800;font-size:var(--fs-h3);line-height:1.05}
+.flip .d{display:none;font-size:var(--fs-small)}
+.flip .h{font-size:var(--fs-small);color:var(--muted);font-family:var(--f-mono)}
+.flip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.flip.on .t{font-size:var(--fs-small);font-family:var(--f-mono);font-weight:700;opacity:.8}
+.flip.on .d{display:block;font-size:var(--fs-body)}
+.flip.on .h{display:none}
+@media (max-width:1100px){.vocab{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.vocab{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* bar */
+.bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-block:10px;border-top:1px solid var(--line)}
+.bar .btn{padding:.4em .75em}
+.bar .where{display:flex;flex-direction:column;min-width:0;flex:1 1 180px}
+.bar .where b{font-size:var(--fs-small);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog{height:4px;background:var(--sunk);border-radius:4px;overflow:hidden;margin-top:4px}
+.prog i{display:block;height:100%;background:var(--oxy);width:0;transition:width .3s}
+.bar .count{font-family:var(--f-mono);font-size:var(--fs-small);color:var(--muted)}
+@media (max-width:700px){.bar .opt-hide{display:none}}
+
+/* notes drawer + presenter */
+.drawer{max-height:32vh;overflow:auto;border-top:1px solid var(--line);padding-block:12px;font-size:var(--fs-small)}
+.drawer h4,.pv h4{font-family:var(--f-mono);font-size:var(--fs-small);text-transform:uppercase;letter-spacing:.08em;color:var(--oxy);margin:0 0 .4em}
+.notes-body p+p,.notes-body ul{margin-top:.5em}
+.notes-body ul{padding-left:1.2em;margin-bottom:0}
+.pv{width:clamp(300px,32vw,600px);flex:none;overflow-y:auto;border-left:1px solid var(--line);padding:16px 0 16px clamp(12px,1.4vw,24px);display:flex;flex-direction:column;gap:12px;font-size:var(--fs-small)}
+.pv-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pv-timer{font-family:var(--f-mono);font-weight:700;font-size:clamp(24px,1rem + 1.6vw,44px);background:none;border:0;cursor:pointer;padding:0}
+.pv-link{font-size:.9em;padding:.25em .6em;border-radius:999px;background:var(--warn-soft);color:var(--warn);font-weight:700}
+.pv-link.on{background:var(--good-soft);color:var(--good)}
+.pv-now{font-family:var(--f-display);font-weight:800;font-size:var(--fs-h3);line-height:1.1}
+.pv .notes-body{font-size:var(--fs-body);line-height:1.45}
+.pv-next{border-top:1px solid var(--line);padding-top:10px}
+.pv-blank{background:var(--ink);color:var(--bg);padding:.4em .7em;border-radius:8px;font-weight:700}
+@media (max-width:860px){.app.presenting .main{flex-direction:column}.pv{width:auto;border-left:0;border-top:1px solid var(--line);padding-left:0;max-height:45vh}}
+
+/* overlays */
+.blank{position:fixed;inset:0;background:#000;z-index:50;cursor:pointer}
+.menu{position:fixed;inset:0;z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.menu .panel{width:min(640px,100%);max-height:100%;overflow:auto}
+.menu ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;counter-reset:s}
+.menu li button{width:100%;text-align:left;border:0;background:none;padding:.5em .6em;border-radius:8px;cursor:pointer;font-weight:700;display:flex;gap:.8em}
+.menu li button:hover,.menu li button.cur{background:var(--sunk)}
+.menu li button .n{font-family:var(--f-mono);color:var(--oxy);min-width:2ch}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+</style>
+
+<div class="app" id="app">
+<div class="main">
+<main id="stage">
+
+<!-- 0 TITLE -->
+<section class="scene active" id="s-title" data-title="The Pump">
+  <div class="scene-inner">
+    <div class="hero">
+      <p class="eyebrow">Nursing · Cardiac anatomy &amp; mechanics</p>
+      <h1>The <span>Pump</span></h1>
+      <p class="sub">How the heart is built, how blood moves through it, and the words we use to describe how well it works.</p>
+      <div class="monitor" aria-label="Animated ECG trace"><canvas id="ecg"></canvas><span class="hrv">HR 75 bpm</span></div>
+      <div class="keys">
+        <span><kbd>→</kbd> or <kbd>Space</kbd> next</span><span><kbd>←</kbd> back</span><span><kbd>N</kbd> notes</span><span><kbd>P</kbd> presenter view</span><span><kbd>B</kbd> blank screen</span><span><kbd>F</kbd> full screen</span><span><kbd>M</kbd> jump to a section</span>
+      </div>
+    </div>
+  </div>
+  <div class="notes" hidden>
+    <p><b>Open (2 min).</b> Ask: "How many times has your heart beaten since you sat down?" At about 70 bpm, that's roughly 100,000 beats a day and 2.5 billion in a lifetime.</p>
+    <p>Today's goal is the working picture a nurse needs: where the heart sits, how it's built, the path blood takes, what happens in one beat, and the vocabulary for how well it pumps (CO, SV, EF, preload, afterload, contractility).</p>
+    <p>Not covered today: electrical conduction and ECG interpretation in depth.</p>
+  </div>
+</section>
+
+<!-- 1 WHERE -->
+<section class="scene" id="s-where" data-title="Where it sits">
+  <div class="scene-inner">
+    <header><p class="eyebrow">01 · Location</p><h2>Where the heart sits</h2></header>
+    <div class="cols">
+      <div class="stack">
+        <ul class="points">
+          <li>In the <b>mediastinum</b>, between the lungs, behind the sternum. About two-thirds lies left of midline.</li>
+          <li data-step="1">About the size of the patient's <b>closed fist</b>, roughly 250–350 g.</li>
+          <li data-step="2">The <b>base</b> is the top, where the great vessels attach (about the 2nd intercostal space).</li>
+          <li data-step="3">The <b>apex</b> points down and to the left. It taps the chest wall at the <b>5th ICS, left midclavicular line</b>: the <b>PMI</b> (point of maximal impulse).</li>
+        </ul>
+        <p class="callout red" data-step="4">PMI shifted down and to the left? Think of an enlarged heart, as in heart failure.</p>
+      </div>
+      <div class="fig">
+        <svg viewBox="0 0 420 440" role="img" aria-label="Front view of the chest. The heart sits behind the sternum, base near the 2nd intercostal space, apex at the 5th intercostal space on the left midclavicular line.">
+          <path d="M60 430C50 300 40 160 70 90C110 50 160 45 210 45C260 45 310 50 350 90C380 160 370 300 360 430Z" fill="var(--surface)" stroke="var(--line)" stroke-width="3"/>
+          <g fill="none" stroke="var(--line)" stroke-width="6" stroke-linecap="round" id="ribs"></g>
+          <path d="M166 172C180 140 238 134 255 154C281 186 296 252 289 291C256 297 196 289 172 259C153 234 154 198 166 172Z" fill="var(--muscle)" fill-opacity=".78" stroke="var(--muscle)" stroke-width="3"/>
+          <rect x="198" y="70" width="24" height="238" rx="8" fill="var(--sunk)" stroke="var(--muted)" stroke-width="2"/>
+          <text x="210" y="62" text-anchor="middle" class="tl">Sternum</text>
+          <text x="72" y="420" class="tl small">Patient's right</text>
+          <text x="350" y="420" text-anchor="end" class="tl small">Patient's left</text>
+          <g data-step="2">
+            <line x1="152" y1="160" x2="182" y2="160" stroke="var(--ink)" stroke-width="2"/>
+            <text x="148" y="155" text-anchor="end" class="tl">Base</text>
+            <text x="148" y="174" text-anchor="end" class="tl small">2nd ICS</text>
+          </g>
+          <g data-step="3">
+            <line x1="287" y1="84" x2="287" y2="400" stroke="var(--deo)" stroke-width="2" stroke-dasharray="6 6"/>
+            <text transform="translate(301 150) rotate(90)" class="tl small" style="fill:var(--deo)">Left midclavicular line</text>
+            <circle cx="288" cy="291" r="11" fill="none" stroke="var(--oxy)" stroke-width="4"/>
+            <circle cx="288" cy="291" r="4" fill="var(--oxy)"/>
+            <text x="306" y="322" class="tl">Apex = PMI</text>
+            <text x="306" y="340" class="tl small">5th ICS, left MCL</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="notes" hidden>
+    <p>Click through the four facts. Orientation reminder: the drawing faces the class, so the patient's left is on the screen's right.</p>
+    <p><b>Try it:</b> have students find the 5th ICS on themselves (angle of Louis = 2nd rib, count down) and palpate their own PMI, or listen there.</p>
+    <p>Clinical tie: a PMI that is displaced laterally or feels broad suggests cardiomegaly (HF, long-standing HTN). Harder to feel with obesity or COPD.</p>
+  </div>
+</section>
+
+<!-- 2 WALL -->
+<section class="scene" id="s-wall" data-title="The heart wall">
+  <div class="scene-inner">
+    <header><p class="eyebrow">02 · Layers</p><h2>Outside in: the sac and the wall</h2></header>
+    <div class="cols">
+      <div class="fig">
+        <svg class="layers" id="layers" viewBox="0 0 560 420" role="group" aria-label="Cross-section of the heart wall from outside to inside. Select a layer to describe it.">
+          <g fill="none" stroke="var(--muted)" stroke-width="2">
+            <path d="M58 22H46V114H58"/><path d="M58 118H46V326H58"/>
+          </g>
+          <text class="tl small" transform="translate(32 68) rotate(-90)" text-anchor="middle">Pericardial sac</text>
+          <text class="tl small" transform="translate(32 222) rotate(-90)" text-anchor="middle">Heart wall</text>
+          <g id="bands"></g>
+        </svg>
+      </div>
+      <div class="stack">
+        <div class="panel" aria-live="polite">
+          <span class="tag" id="layer-tag">Layer</span>
+          <h3 id="layer-name"></h3>
+          <p id="layer-text"></p>
+          <p class="callout red" id="layer-clin"></p>
+        </div>
+        <p class="muted" style="font-size:var(--fs-small)">Select a layer to describe it.</p>
+      </div>
+    </div>
+  </div>
+  <div class="notes" hidden>
+    <p>Click each band from the outside in. Mnemonic for the wall: <b>Epi-Myo-Endo</b> (on, muscle, inside).</p>
+    <ul>
+      <li><b>Pericardial cavity</b>: tie to tamponade. Fluid collects faster than the fibrous sac can stretch, so the heart can't fill. Beck's triad: hypotension, JVD, muffled heart sounds.</li>
+      <li><b>Pericarditis</b>: friction rub, sharp chest pain better when leaning forward.</li>
+      <li><b>Myocardium</b>: the pump. MI kills this layer and lowers contractility.</li>
+      <li><b>Endocardium</b>: continuous with the valves; endocarditis threatens the valves (IV drug use, prosthetic valves, dental procedures).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 3 CHAMBERS -->
+<section class="scene" id="s-chambers" data-title="Chambers and valves">
+  <div class="scene-inner">
+    <header><p class="eyebrow">03 · Structure</p><h2>Four chambers, four valves</h2></header>
+    <div class="cols">
+      <div class="stack">
+        <div class="panel" aria-live="polite">
+          <span class="tag" id="part-tag">Explore</span>
+          <h3 id="part-name">Select any chamber, valve or vessel</h3>
+          <p id="part-text">Blue marks deoxygenated blood and red marks oxygenated blood. That's a drawing convention: real blood is always red.</p>
+        </div>
+        <div class="row">
+          <button class="btn" data-act="labels" id="btn-labels" aria-pressed="false">Hide labels (quiz mode)</button>
+          <button class="btn" data-act="part:" >Clear selection</button>
+        </div>
+        <ul class="points" style="font-size:var(--fs-small)">
+          <li><b>AV valves</b> (tricuspid, mitral) sit between atria and ventricles.</li>
+          <li><b>Semilunar valves</b> (pulmonic, aortic) sit at the exits of the ventricles.</li>
+        </ul>
+      </div>
+      <div class="fig" data-heart="explore"></div>
+    </div>
+    <p class="legend"><span><i style="background:var(--deo)"></i>Deoxygenated</span><span><i style="background:var(--oxy)"></i>Oxygenated</span><span>Front view: the patient's right is on your left.</span></p>
+  </div>
+  <div class="notes" hidden>
+    <p>Orient first: we're looking at the patient, so their right side is on our left.</p>
+    <p>Point out the <b>left ventricle wall</b>: it's drawn thickest because it pushes against systemic pressure (about 120 mmHg) while the RV only pushes to the lungs (about 25 mmHg).</p>
+    <p>Then hit <b>Hide labels</b> and point at structures for the class to name. Valve letters: T, M, P, A.</p>
+    <p>Mnemonic for valve order: <b>"Try Pulling My Aorta"</b> (Tricuspid, Pulmonic, Mitral, Aortic).</p>
+  </div>
+</section>
+
+<!-- 4 FLOW -->
+<section class="scene" id="s-flow" data-title="Follow the blood" data-steps="14">
+  <div class="scene-inner">
+    <header><p class="eyebrow">04 · Blood flow</p><h2>Follow one red blood cell</h2></header>
+    <div class="cols">
+      <div class="stack">
+        <div class="panel" aria-live="polite">
+          <span class="tag mono" id="flow-count">Stop 1 of 15</span>
+          <h3 id="flow-name"></h3>
+          <p id="flow-text"></p>
+        </div>
+        <div class="row">
+          <button class="btn" data-act="flowprev">← Back a stop</button>
+          <button class="btn primary" data-act="flownext">Next stop →</button>
+          <button class="btn" data-act="flowplay" id="btn-flowplay" aria-pressed="false">Play continuous loop</button>
+        </div>
+        <p class="muted" style="font-size:var(--fs-small)">Your clicker or → key moves one stop at a time.</p>
+      </div>
+      <div class="fig" data-heart="flow"></div>
+    </div>
+  </div>
+  <div class="notes" hidden>
+    <p>Each click moves the cell one stop (15 stops). Before each click, ask the class to call out the next stop.</p>
+    <p>Pause at the <b>pulmonary artery</b> and <b>pulmonary veins</b>: the exceptions. Arteries carry blood <i>away</i> from the heart and veins carry it <i>toward</i> the heart, regardless of oxygen.</p>
+    <p>At the lungs the cell turns red: gas exchange at the alveolar capillaries.</p>
+    <p>Finish with <b>Play continuous loop</b> to show both circuits running at once: right side pumps to the lungs (pulmonary circuit), left side pumps to the body (systemic circuit).</p>
+  </div>
+</section>
+
+<!-- 5 CYCLE -->
+<section class="scene" id="s-cycle" data-title="One heartbeat" data-steps="3">
+  <div class="scene-inner">
+    <header><p class="eyebrow">05 · Cardiac cycle</p><h2>One heartbeat: lub, dub</h2></header>
+    <div class="cols">
+      <div class="stack">
+        <div class="phases" role="group" aria-label="Phase">
+          <button data-act="phase:0">Diastole</button><button data-act="phase:1">S1</button><button data-act="phase:2">Systole</button><button data-act="phase:3">S2</button>
+        </div>
+        <div class="panel" aria-live="polite">
+          <h3 id="cyc-name"></h3>
+          <p id="cyc-text"></p>
+          <div class="vstate"><span>AV valves</span><span><span class="chip" id="cyc-av"></span></span><span>Semilunar valves</span><span><span class="chip" id="cyc-sl"></span></span></div>
+          <p class="sound-flash" id="cyc-sound" aria-hidden="true"></p>
+        </div>
+        <div class="row">
+          <button class="btn" data-act="cycleplay" id="btn-cycleplay" aria-pressed="false">Play heartbeat (slowed)</button>
+          <button class="btn" data-act="sound" id="btn-sound" aria-pressed="false">Sound off</button>
+        </div>
+        <div class="panel">
+          <span class="tag">Where to listen · "APE To Man"</span>
+          <div class="listen">
+            <b>A</b><span>Aortic: 2nd ICS, right sternal border</span>
+            <b>P</b><span>Pulmonic: 2nd ICS, left sternal border</span>
+            <b>E</b><span>Erb's point: 3rd ICS, left sternal border</span>
+            <b>T</b><span>Tricuspid: 4th ICS, left lower sternal border</span>
+            <b>M</b><span>Mitral: 5th ICS, left MCL (apex)</span>
+          </div>
+        </div>
+      </div>
+      <div class="fig" data-heart="cycle"></div>
+    </div>
+  </div>
+  <div class="notes" hidden>
+    <p>Click through the four phases, then press <b>Play heartbeat</b> (about 2.5× slower than a real beat at 75 bpm). Sound plays only from the computer where you turn it on.</p>
+    <ul>
+      <li><b>Diastole</b> takes about two-thirds of each beat at a normal rate. The atrial kick adds roughly 20–30% of ventricular filling, which is lost in atrial fibrillation.</li>
+      <li><b>S1</b> = AV valves closing = start of systole. Loudest at the apex. Feel the carotid pulse while listening: S1 lines up with it.</li>
+      <li><b>S2</b> = semilunar valves closing = start of diastole. Loudest at the base.</li>
+    </ul>
+    <p>Ask: "When both sets of valves are closed, what is the ventricle doing?" (Building or dropping pressure with no volume change: isovolumetric contraction and relaxation.)</p>
+  </div>
+</section>
+
+<!-- 6 CORONARY -->
+<section class="scene" id="s-coronary" data-title="Feeding the pump">
+  <div class="scene-inner">
+    <header><p class="eyebrow">06 · Coronary circulation</p><h2>The pump feeds itself first</h2></header>
+    <div class="cols even">
+      <div class="stack">
+        <p>The coronary arteries branch off the aorta just above the aortic valve.</p>
+        <ul class="points">
+          <li><b>Right coronary artery (RCA):</b> right atrium and ventricle, inferior wall of the LV. Supplies the SA node in about 60% of people and the AV node in most.</li>
+          <li data-step="1"><b>Left anterior descending (LAD):</b> front of the LV and most of the septum. A blockage here causes a large anterior MI.</li>
+          <li data-step="2"><b>Circumflex:</b> lateral and back walls of the LV. The left main artery splits into the LAD and circumflex.</li>
+        </ul>
+      </div>
+      <div class="stack" data-step="3">
+        <div class="panel">
+          <span class="tag">Key point</span>
+          <h3>Coronary arteries fill during diastole</h3>
+          <p>When the ventricle contracts, it squeezes its own arteries shut. Faster heart rates shorten diastole, so the heart gets less blood flow just as it needs more oxygen.</p>
+          <div class="slider">
+            <label for="in-dia"><span>Heart rate</span><span id="dia-hr">75 bpm</span></label>
+            <input type="range" id="in-dia" min="50" max="160" step="1" value="75">
+          </div>
+          <div class="cyclebar" aria-hidden="true"><div class="sys" id="bar-sys">Systole</div><div class="dia" id="bar-dia">Diastole</div><div class="rest" id="bar-rest"></div></div>
+          <p class="mono" style="font-size:var(--fs-small)" id="dia-read"></p>
+          <p class="muted" style="font-size:var(--fs-small)">Bar length is one heartbeat on a fixed time scale. Timings are approximate.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="notes" hidden>
+    <p>Keep this short; coronary artery disease gets its own lecture.</p>
+    <p>Clinical ties: an inferior MI (RCA) can cause bradycardia and heart blocks because the RCA usually feeds the SA and AV nodes. LAD occlusion is the classic large anterior MI.</p>
+    <p>Drag the heart-rate slider from 60 to 150. Point out that systole barely shrinks while diastole collapses. That's why tachycardia can trigger angina in a patient with CAD, and why rate control (e.g., beta blockers) helps.</p>
+  </div>
+</section>
+
+<!-- 7 CALCULATOR -->
+<section class="scene" id="s-output" data-title="Measuring the pump">
+  <div class="scene-inner">
+    <header><p class="eyebrow">07 · Cardiac output</p><h2>How much does it pump?</h2></header>
+    <div class="calc">
+      <div class="stack">
+        <div class="slider"><label for="in-hr"><span>Heart rate (HR)</span><span id="v-hr"></span></label><input type="range" id="in-hr" min="40" max="180" step="1"></div>
+        <div class="slider"><label for="in-edv"><span>End-diastolic volume (EDV): how full</span><span id="v-edv"></span></label><input type="range" id="in-edv" min="60" max="240" step="5"></div>
+        <div class="slider"><label for="in-esv"><span>End-systolic volume (ESV): left after the squeeze</span><span id="v-esv"></span></label><input type="range" id="in-esv" min="10" max="230" step="5"></div>
+        <div class="row">
+          <button class="btn" data-act="preset:healthy">Healthy adult</button>
+          <button class="btn" data-act="preset:dehyd">Dehydrated</button>
+          <button class="btn" data-act="preset:hf">Weak pump (HFrEF)</button>
+          <button class="btn" data-act="preset:athlete">Athlete at rest</button>
+        </div>
+        <p class="formula">SV = EDV − ESV &nbsp;·&nbsp; EF = SV ÷ EDV &nbsp;·&nbsp; CO = HR × SV</p>
+      </div>
+      <div class="outs" aria-live="polite">
+        <div class="out"><span class="k">Stroke volume<small>Blood ejected per beat · normal 60–100 mL</small></span><span class="v" id="o-sv"></span><span class="chip" id="c-sv"></span></div>
+        <div class="out"><span class="k">Ejection fraction<small>Share of the filled ventricle ejected · normal 55–70%</small></span><span class="v" id="o-ef"></span><span class="chip" id="c-ef"></span></div>
+        <div class="out"><span class="k">Cardiac output<small>Blood pumped per minute · normal 4–8 L/min</small></span><span class="v" id="o-co"></span><span class="chip" id="c-co"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes" hidden>
+    <p>Have students predict before you click each preset.</p>
+    <ul>
+      <li><b>Dehydrated:</b> low filling (EDV) → low SV. HR rises to hold CO near normal. Tachycardia is often the first sign of fluid loss.</li>
+      <li><b>Weak pump (HFrEF):</b> the ventricle is dilated and full, but ejects a small share. EF about 29%. CO can look acceptable at rest because HR and dilation compensate.</li>
+      <li><b>Athlete:</b> large SV lets a slow HR deliver normal CO.</li>
+    </ul>
+    <p>Key formula to memorize: <b>CO = HR × SV</b>. Anything that lowers HR or SV lowers CO unless the other compensates.</p>
+  </div>
+</section>
+
+<!-- 8 PRELOAD AFTERLOAD -->
+<section class="scene" id="s-pac" data-title="Preload, afterload, contractility">
+  <div class="scene-inner">
+    <header><p class="eyebrow">08 · What sets stroke volume</p><h2>Preload, afterload, contractility</h2></header>
+    <div class="pac" id="pac"></div>
+    <p class="callout"><b>Frank–Starling law:</b> the more the muscle is stretched during filling, the harder it contracts, up to a limit. Overstretch it, like an old rubber band, and the contraction weakens. That's part of what happens in heart failure.</p>
+  </div>
+  <div class="notes" hidden>
+    <p>Three things set stroke volume. Use the analogies: balloon (preload), heavy door (afterload), strength of the squeeze (contractility). Reveal each card's details after the class guesses what raises and lowers it.</p>
+    <p>Connect to assessment: preload shows up as JVD, edema and crackles when high; flat neck veins, hypotension and low urine output when low. Afterload tracks with blood pressure and SVR.</p>
+    <p>Drug vocabulary: positive inotropes raise contractility; vasodilators lower afterload; diuretics and nitrates lower preload.</p>
+  </div>
+</section>
+
+<!-- 9 QUESTIONS -->
+<section class="scene" id="s-quiz" data-title="Check yourself" data-steps="11">
+  <div class="scene-inner">
+    <header><p class="eyebrow mono" id="q-num">Question 1</p><h2>Check yourself</h2></header>
+    <div class="qwrap">
+      <p class="qtext" id="q-text"></p>
+      <div class="opts" id="q-opts"></div>
+      <p class="why" id="q-why" hidden></p>
+      <div class="row">
+        <button class="btn" data-act="qprev">← Previous</button>
+        <button class="btn" data-act="qreveal">Reveal answer</button>
+        <button class="btn primary" data-act="qnext">Next question →</button>
+      </div>
+    </div>
+  </div>
+  <div class="notes" hidden>
+    <p>Six questions. Each clicker press alternates: show question → reveal answer → next question.</p>
+    <p>Have students vote by holding up 1–4 fingers before revealing. You can also click a student's choice to mark it right or wrong before the reveal.</p>
+  </div>
+</section>
+
+<!-- 10 VOCAB -->
+<section class="scene" id="s-vocab" data-title="Vocabulary recap">
+  <div class="scene-inner">
+    <header><p class="eyebrow">10 · Recap</p><h2>Say it like a nurse</h2></header>
+    <div class="vocab" id="vocab"></div>
+  </div>
+  <div class="notes" hidden>
+    <p>Point to a card, have a student define it out loud, then click to check.</p>
+    <p>Prefix trick for drug terms: <b>chrono</b> = time (rate), <b>ino</b> = fiber (force), <b>dromo</b> = running (conduction speed). Positive speeds up or strengthens; negative slows or weakens.</p>
+    <p>Close: preview what's next (conduction system and ECG basics).</p>
+  </div>
+</section>
+
+</main>
+<aside class="pv" id="pv" hidden>
+  <div class="pv-top">
+    <button class="pv-timer" id="pv-timer" data-act="timer" title="Click to reset the timer">00:00</button>
+    <span class="pv-link" id="pv-link">No audience window yet</span>
+  </div>
+  <div><h4>Now</h4><p class="pv-now" id="pv-now"></p><p class="muted" id="pv-step"></p></div>
+  <p class="pv-blank" id="pv-blank" hidden>Audience screen is blank. Press B to bring it back.</p>
+  <div class="notes-body" id="pv-notes"></div>
+  <div class="pv-next"><h4>Up next</h4><p id="pv-next"></p></div>
+  <p class="muted">Open this same page in a second window, drag it to the projector and leave it in normal view. Both windows stay on the same step.</p>
+</aside>
+</div>
+<div class="drawer" id="drawer" hidden><h4>Speaker notes</h4><div class="notes-body" id="drawer-notes"></div></div>
+<nav class="bar" aria-label="Lecture controls">
+  <button class="btn" data-act="menu">Sections</button>
+  <button class="btn" data-act="prev" aria-label="Previous">←</button>
+  <div class="where"><b id="bar-title"></b><div class="prog"><i id="bar-prog"></i></div></div>
+  <span class="count" id="bar-count"></span>
+  <button class="btn primary" data-act="next">Next →</button>
+  <button class="btn" data-act="notes" id="btn-notes" aria-pressed="false">Notes</button>
+  <button class="btn opt-hide" data-act="presenter" id="btn-pv" aria-pressed="false">Presenter view</button>
+  <button class="btn opt-hide" data-act="blank">Blank</button>
+  <button class="btn opt-hide" data-act="fs">Full screen</button>
+  <button class="btn opt-hide" data-act="theme">Light / dark</button>
+</nav>
+</div>
+<div class="blank" id="blank" data-act="blank" hidden></div>
+<div class="menu" id="menu" hidden><div class="panel"><div class="row" style="justify-content:space-between"><h3>Jump to a section</h3><button class="btn" data-act="menu">Close</button></div><ol id="menu-list"></ol></div></div>
+
+<script>
+(() => {
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const root = document.documentElement;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- flow route (heart schematic coordinates) ---------- */
+const FP = [[300,525,'body'],[57,525],[57,350,'vc'],[57,202],[177,202,'ra'],[177,278,'tricuspid'],[190,370,'rv'],[272,330],[272,255,'pulmonic'],[272,150,'pa'],[272,47],[354,47,'lungs'],[436,47],[436,100,'pv'],[436,140],[422,200,'la'],[422,278,'mitral'],[410,380,'lv'],[327,330],[327,255,'aortic'],[327,101],[552,101],[552,300,'aorta'],[552,525],[300,525,'end']];
+const cum = [0]; let tot = 0;
+for (let i = 1; i < FP.length; i++) { tot += Math.hypot(FP[i][0]-FP[i-1][0], FP[i][1]-FP[i-1][1]); cum.push(tot); }
+const stops = []; FP.forEach((p, i) => { if (p[2]) stops.push({ tag: p[2], d: cum[i] }); });
+const dLungs = stops.find(s => s.tag === 'lungs').d;
+const routeD = 'M' + FP.map(p => p[0] + ' ' + p[1]).join(' L');
+function ptAt(d) {
+  d = Math.max(0, Math.min(tot, d));
+  for (let i = 1; i < FP.length; i++) if (d <= cum[i]) {
+    const t = (d - cum[i-1]) / ((cum[i] - cum[i-1]) || 1);
+    return [FP[i-1][0] + (FP[i][0]-FP[i-1][0]) * t, FP[i-1][1] + (FP[i][1]-FP[i-1][1]) * t];
+  }
+  const L = FP[FP.length-1]; return [L[0], L[1]];
+}
+
+/* ---------- heart schematic ---------- */
+function heartSVG(mode) {
+  const ex = mode === 'explore';
+  const P = (id, cls, inner, label) => `<g class="part ${cls}" data-part="${id}"${ex ? ` data-act="part:${id}" tabindex="0" role="button" aria-label="${label}"` : ''}>${inner}</g>`;
+  const v = (x1, y1, x2, y2, c) => `<line class="halo ${c}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><line class="ln ${c}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+  return `<svg viewBox="0 0 600 560" class="heart ${mode} av-open" role="img" aria-label="Schematic front view of the heart: four chambers, four valves and the great vessels, with the lungs above and body tissues below.">
+  ${P('lungs','organ',`<rect x="180" y="10" width="280" height="50" rx="14"/><text x="320" y="27" class="olab">Lungs</text>`,'Lungs')}
+  ${P('body','organ',`<rect x="20" y="500" width="560" height="50" rx="14"/><text x="300" y="525" class="olab">Body tissues</text>`,'Body tissues')}
+  ${P('vc','vessel deo',`<path d="M40 500V185H118V220H75V500Z"/><text class="vlab" transform="translate(57.5 360) rotate(-90)">Vena cavae</text>`,'Superior and inferior vena cavae')}
+  ${P('pa','vessel deo',`<rect x="255" y="58" width="35" height="232"/><text class="vlab" transform="translate(272.5 150) rotate(-90)">Pulmonary artery</text>`,'Pulmonary artery')}
+  ${P('pv','vessel oxy',`<rect x="420" y="58" width="32" height="92"/><text class="xlab" x="458" y="76">Pulmonary veins</text>`,'Pulmonary veins')}
+  ${P('aorta','vessel oxy',`<path d="M310 290V85H570V500H535V118H345V290Z"/><text class="vlab" transform="translate(552.5 310) rotate(-90)">Aorta</text>`,'Aorta')}
+  ${P('ra','chamber deo',`<rect x="110" y="140" width="135" height="140" rx="26"/><text class="clab" x="177.5" y="200">Right</text><text class="clab" x="177.5" y="224">atrium</text>`,'Right atrium')}
+  ${P('la','chamber oxy',`<rect x="355" y="140" width="135" height="140" rx="26"/><text class="clab" x="422.5" y="200">Left</text><text class="clab" x="422.5" y="224">atrium</text>`,'Left atrium')}
+  ${P('rv','chamber deo',`<path d="M110 276H290V440Q250 488 190 470Q120 445 110 380Z"/><text class="clab" x="196" y="370">Right</text><text class="clab" x="196" y="394">ventricle</text>`,'Right ventricle')}
+  ${P('lv','chamber oxy',`<path d="M310 276H490V370Q478 440 420 470Q365 492 310 455Z"/><text class="clab" x="408" y="372">Left</text><text class="clab" x="408" y="396">ventricle</text>`,'Left ventricle')}
+  ${P('septum','muscle',`<rect x="290" y="276" width="20" height="176"/><text class="vlab sm" transform="translate(300 380) rotate(-90)">Septum</text>`,'Interventricular septum')}
+  ${P('tricuspid','valve av',`<rect class="hit" x="132" y="260" width="90" height="40"/>${v(140,278,176,278,'c')}${v(214,278,178,278,'c')}${v(140,276,150,302,'o')}${v(214,276,204,302,'o')}<text class="vl" x="177" y="320">T</text>`,'Tricuspid valve')}
+  ${P('mitral','valve av',`<rect class="hit" x="377" y="260" width="90" height="40"/>${v(385,278,421,278,'c')}${v(459,278,423,278,'c')}${v(385,276,395,302,'o')}${v(459,276,449,302,'o')}<text class="vl" x="422" y="320">M</text>`,'Mitral valve')}
+  ${P('pulmonic','valve sl',`<rect class="hit" x="250" y="236" width="45" height="36"/>${v(257,250,272,261,'c')}${v(288,250,273,261,'c')}${v(258,266,259,242,'o')}${v(287,266,286,242,'o')}<text class="vlab" x="272.5" y="226">P</text>`,'Pulmonic valve')}
+  ${P('aortic','valve sl',`<rect class="hit" x="305" y="236" width="45" height="36"/>${v(312,250,327,261,'c')}${v(343,250,328,261,'c')}${v(313,266,314,242,'o')}${v(342,266,341,242,'o')}<text class="vlab" x="327.5" y="226">A</text>`,'Aortic valve')}
+  <path class="route" d="${routeD}"/>
+  ${mode === 'flow' ? `<g class="cells">${'<circle r="11" cx="300" cy="525"/>'.repeat(8)}</g>` : ''}
+  </svg>`;
+}
+$$('[data-heart]').forEach(el => { el.innerHTML = heartSVG(el.dataset.heart); });
+
+/* ribs on torso */
+(() => {
+  let s = '';
+  for (let i = 1; i <= 7; i++) { const y = 70 + i * 38;
+    s += `<path d="M198 ${y}Q130 ${y+6} 78 ${y+34}"/><path d="M222 ${y}Q290 ${y+6} 342 ${y+34}"/>`; }
+  $('#ribs').innerHTML = s;
+})();
+
+/* ---------- content ---------- */
+const PARTS = {
+  ra: ['Right atrium', 'Chamber', 'Receives deoxygenated blood from the body through the superior and inferior vena cavae (and from the heart muscle itself through the coronary sinus). Low-pressure holding chamber.'],
+  rv: ['Right ventricle', 'Chamber', 'Pumps deoxygenated blood through the pulmonic valve to the lungs. The lungs are a low-pressure circuit (about 25 mmHg systolic), so its wall is thinner.'],
+  la: ['Left atrium', 'Chamber', 'Receives oxygenated blood from the lungs through four pulmonary veins.'],
+  lv: ['Left ventricle', 'Chamber', 'Pumps oxygenated blood through the aortic valve to the whole body against about 120 mmHg. That workload gives it the thickest wall. It forms the apex.'],
+  septum: ['Interventricular septum', 'Muscle wall', 'Separates the right and left ventricles so deoxygenated and oxygenated blood don\'t mix.'],
+  tricuspid: ['Tricuspid valve', 'AV valve', 'Between the right atrium and right ventricle. Three leaflets, held by chordae tendineae and papillary muscles so they don\'t flip back into the atrium.'],
+  mitral: ['Mitral (bicuspid) valve', 'AV valve', 'Between the left atrium and left ventricle. Two leaflets, also anchored by chordae tendineae and papillary muscles.'],
+  pulmonic: ['Pulmonic valve', 'Semilunar valve', 'At the exit of the right ventricle into the pulmonary artery. Three half-moon cusps, no chordae.'],
+  aortic: ['Aortic valve', 'Semilunar valve', 'At the exit of the left ventricle into the aorta. The coronary arteries branch off just above it.'],
+  vc: ['Superior & inferior vena cavae', 'Great veins', 'Bring deoxygenated blood from the upper and lower body back into the right atrium.'],
+  pa: ['Pulmonary artery', 'Great artery', 'Carries deoxygenated blood from the right ventricle to the lungs. Arteries carry blood away from the heart, whatever its oxygen level.'],
+  pv: ['Pulmonary veins', 'Great veins', 'Four veins carrying oxygenated blood from the lungs to the left atrium.'],
+  aorta: ['Aorta', 'Great artery', 'The largest artery. Distributes oxygenated blood from the left ventricle to the body.'],
+  lungs: ['Lungs', 'Pulmonary circuit', 'Gas exchange happens at the alveolar capillaries: carbon dioxide out, oxygen in.'],
+  body: ['Body tissues', 'Systemic circuit', 'Capillaries deliver oxygen to the cells and pick up carbon dioxide.']
+};
+const FLOW = {
+  body: ['Body tissues', 'The cells have taken the oxygen they need. Deoxygenated blood heads back to the heart.'],
+  vc: ['Superior & inferior vena cavae', 'Return deoxygenated blood from the upper and lower body.'],
+  ra: ['Right atrium', 'The receiving chamber for blood coming back from the body.'],
+  tricuspid: ['Tricuspid valve', 'Opens during diastole so the right ventricle can fill.'],
+  rv: ['Right ventricle', 'Contracts and pushes blood toward the lungs.'],
+  pulmonic: ['Pulmonic valve', 'Opens during systole and closes to stop backflow into the right ventricle.'],
+  pa: ['Pulmonary artery', 'Carries deoxygenated blood to the lungs. It\'s an artery because it leads away from the heart.'],
+  lungs: ['Lungs', 'Gas exchange at the alveolar capillaries: carbon dioxide off, oxygen on. The cell is now oxygenated.'],
+  pv: ['Pulmonary veins', 'Bring oxygenated blood back to the heart. Veins lead toward the heart.'],
+  la: ['Left atrium', 'The receiving chamber for oxygenated blood.'],
+  mitral: ['Mitral valve', 'Opens during diastole so the left ventricle can fill.'],
+  lv: ['Left ventricle', 'The strongest chamber. Contracts to push blood out to the whole body.'],
+  aortic: ['Aortic valve', 'Opens during systole and closes to stop backflow into the left ventricle.'],
+  aorta: ['Aorta', 'Distributes oxygenated blood to the body. The coronary arteries branch off first.'],
+  end: ['Body tissues', 'Oxygen is delivered to the cells. The loop starts again.']
+};
+const LAYERS = [
+  { id:'fib', y:20, h:46, fill:'var(--peri)', label:'Fibrous pericardium', tag:'Pericardial sac', text:'Tough outer sac. Anchors the heart in the mediastinum and keeps it from overfilling. It doesn\'t stretch quickly.', clin:'Because the sac can\'t stretch fast, rapidly collecting fluid compresses the heart: cardiac tamponade.' },
+  { id:'par', y:66, h:22, fill:'var(--sunk)', label:'Parietal pericardium', tag:'Pericardial sac', text:'Serous layer lining the inside of the fibrous sac.', clin:'Inflamed pericardial layers rub together: pericarditis, heard as a friction rub.' },
+  { id:'cav', y:88, h:28, fill:'var(--fluid)', label:'Pericardial cavity · 15–50 mL fluid', tag:'Space', text:'A thin space with a small amount of serous fluid that lets the heart beat without friction.', clin:'Excess fluid or blood here (effusion) can progress to tamponade: hypotension, JVD and muffled heart sounds (Beck\'s triad).' },
+  { id:'epi', y:116, h:24, fill:'var(--muscle-soft)', label:'Visceral pericardium (epicardium)', tag:'Heart wall · outer', text:'The serous layer stuck to the heart surface. The coronary arteries run across it.', clin:'It is the outer layer of the heart wall and the inner layer of the pericardium at the same time.' },
+  { id:'myo', y:140, h:168, fill:'var(--muscle)', label:'Myocardium', tag:'Heart wall · middle', text:'Cardiac muscle: the layer that actually pumps. Thickest in the left ventricle.', clin:'A myocardial infarction kills this muscle, which lowers contractility and stroke volume.', inv:true },
+  { id:'endo', y:308, h:22, fill:'var(--surface)', label:'Endocardium', tag:'Heart wall · inner', text:'Smooth inner lining of the chambers, continuous with the valves and the blood vessels.', clin:'Infection here is endocarditis, and the valves are especially at risk.' },
+  { id:'blood', y:330, h:80, fill:'var(--oxy-soft)', label:'Blood in the chamber', tag:'Lumen', text:'The blood inside the chamber touches only the endocardium.', clin:'The smooth endocardium helps keep blood from clotting on the chamber walls.' }
+];
+const PHASES = [
+  { id:'diastole', name:'Ventricular diastole: filling', av:true, sl:false, contract:false, sound:'',
+    text:'The ventricles relax. AV valves are open and blood flows in from the atria. At the end, the atria contract (the "atrial kick") to top the ventricles off.' },
+  { id:'s1', name:'S1 "lub": AV valves close', av:false, sl:false, contract:true, sound:'LUB',
+    text:'The ventricles start to contract. Their pressure rises above the atria and snaps the tricuspid and mitral valves shut. This marks the start of systole. Loudest at the apex.' },
+  { id:'systole', name:'Ventricular systole: ejection', av:false, sl:true, contract:true, sound:'',
+    text:'Ventricular pressure rises above the pressure in the pulmonary artery and aorta. The semilunar valves open and blood is ejected.' },
+  { id:'s2', name:'S2 "dub": semilunar valves close', av:false, sl:false, contract:false, sound:'DUB',
+    text:'The ventricles relax and their pressure falls below the arteries. The aortic and pulmonic valves close. This marks the start of diastole. Loudest at the base.' }
+];
+const PH_MS = [1700, 450, 1100, 450];
+const QS = [
+  { q:'Which valves closing produce S1, the "lub"?', o:['Aortic and pulmonic','Mitral and tricuspid','Mitral and aortic','Tricuspid and pulmonic'], a:1,
+    why:'S1 is the AV valves (mitral and tricuspid) closing as the ventricles begin to contract. It\'s loudest at the apex.' },
+  { q:'Which vessel carries deoxygenated blood away from the heart?', o:['Aorta','Pulmonary veins','Pulmonary artery','Coronary arteries'], a:2,
+    why:'Arteries carry blood away from the heart. The pulmonary artery takes deoxygenated blood from the right ventricle to the lungs.' },
+  { q:'Heart rate is 110 and stroke volume is 40 mL. What is the cardiac output?', o:['2.75 L/min','4.4 L/min','5.5 L/min','44 L/min'], a:1,
+    why:'CO = HR × SV = 110 × 40 mL = 4,400 mL/min = 4.4 L/min. It\'s in range, but only because the heart rate is compensating for a low stroke volume.' },
+  { q:'Long-standing severe hypertension most directly increases which one?', o:['Preload','Afterload','Contractility','Ejection fraction'], a:1,
+    why:'Higher arterial pressure is more resistance for the left ventricle to push against. Over time the LV wall thickens (hypertrophy).' },
+  { q:'Why does a very fast heart rate threaten the heart\'s own blood supply?', o:['Diastole shortens, and the coronary arteries fill mostly during diastole','The coronary arteries fill only during systole','The pericardium tightens around the heart','The aortic valve stays closed'], a:0,
+    why:'The contracting ventricle squeezes its own arteries, so coronary filling happens mostly in diastole. Tachycardia shortens diastole while raising oxygen demand.' },
+  { q:'Where do you place your stethoscope to find the PMI?', o:['2nd ICS, right sternal border','2nd ICS, left sternal border','5th ICS, left midclavicular line','4th ICS, right midclavicular line'], a:2,
+    why:'The apex of the heart touches the chest wall at the 5th intercostal space, left midclavicular line.' }
+];
+const PAC = [
+  { id:'preload', t:'Preload', def:'How much the ventricle is stretched by blood at the end of filling (diastole).', an:'Blowing up a balloon: more air in, more stretch.',
+    up:'Fluid overload, IV fluid boluses, heart failure, kidney failure', down:'Hemorrhage, dehydration, vomiting or diarrhea, diuretics, nitrates', rn:'Too much: JVD, edema, crackles. Too little: flat neck veins, hypotension, low urine output.' },
+  { id:'afterload', t:'Afterload', def:'The resistance the ventricle must push against to open its valve and eject blood.', an:'Pushing open a heavy door against the wind.',
+    up:'Hypertension, aortic stenosis, vasoconstriction', down:'Vasodilators (e.g., ACE inhibitors, hydralazine), vasodilation in sepsis', rn:'Watch blood pressure. High afterload makes the heart work harder and raises its oxygen demand.' },
+  { id:'contractility', t:'Contractility', def:'The strength of the squeeze itself, separate from how full the ventricle is.', an:'How hard the hand squeezes the balloon.',
+    up:'Sympathetic stimulation, positive inotropes (e.g., dobutamine, digoxin)', down:'MI damage, hypoxia, acidosis, beta blockers, some calcium channel blockers', rn:'Poor contractility shows as poor perfusion: cool skin, slow capillary refill, confusion, low urine output.' }
+];
+const VOCAB = [
+  ['sys','Systole','The ventricles contract and eject blood.'],
+  ['dia','Diastole','The ventricles relax and fill. The coronary arteries fill now too.'],
+  ['sv','Stroke volume (SV)','Blood ejected with each beat. About 60–100 mL. SV = EDV − ESV.'],
+  ['co','Cardiac output (CO)','HR × SV. Normal is 4–8 L/min.'],
+  ['ef','Ejection fraction (EF)','Percentage of the filled ventricle ejected each beat. Normal is about 55–70%.'],
+  ['pre','Preload','Stretch of the ventricle from filling at the end of diastole.'],
+  ['aft','Afterload','Resistance the ventricle pumps against.'],
+  ['con','Contractility','Force of contraction, independent of preload.'],
+  ['fs','Frank–Starling law','More stretch gives a stronger contraction, up to a limit.'],
+  ['chr','Chronotropic','Affects heart rate. Positive speeds it up; negative slows it.'],
+  ['ino','Inotropic','Affects the force of contraction.'],
+  ['dro','Dromotropic','Affects conduction speed through the AV node.']
+];
+const PRESETS = { healthy:{hr:72,edv:120,esv:50}, dehyd:{hr:118,edv:80,esv:35}, hf:{hr:96,edv:210,esv:150}, athlete:{hr:50,edv:160,esv:55} };
+
+/* build static widgets */
+$('#bands').innerHTML = LAYERS.map(L => {
+  const striae = L.id === 'myo' ? Array.from({length:9}, (_, i) => `<path d="M70 ${L.y+18+i*17}q60 -10 120 0t120 0t120 0t110 0" fill="none" stroke="var(--muscle-soft)" stroke-opacity=".35" stroke-width="2" pointer-events="none"/>`).join('') : '';
+  return `<g class="band" data-layer="${L.id}" data-act="layer:${L.id}" tabindex="0" role="button" aria-label="${L.label}"><rect x="70" y="${L.y}" width="470" height="${L.h}" fill="${L.fill}" stroke="var(--line)" stroke-width="1"/>${striae}<text class="bl${L.inv ? ' inv' : ''}" x="86" y="${L.y + L.h/2}">${L.label}</text></g>`;
+}).join('');
+$('#pac').innerHTML = PAC.map(c => `<article class="pcard" data-card="${c.id}"><h3>${c.t}</h3><p class="def">${c.def}</p><p class="an">${c.an}</p>
+  <div class="more"><p class="up"><b>Raised by</b><br>${c.up}</p><p class="down"><b>Lowered by</b><br>${c.down}</p><p><b>At the bedside</b><br>${c.rn}</p></div>
+  <button class="btn" data-act="card:${c.id}">Show details</button></article>`).join('');
+$('#vocab').innerHTML = VOCAB.map(([id, t, d]) => `<button class="flip" data-flip="${id}" data-act="flip:${id}"><span class="t">${t}</span><span class="d">${d}</span><span class="h">Click to define</span></button>`).join('');
+const scenes = $$('.scene');
+$('#menu-list').innerHTML = scenes.map((s, i) => `<li><button data-act="scene:${i}"><span class="n">${String(i).padStart(2,'0')}</span>${s.dataset.title}</button></li>`).join('');
+
+/* ---------- state + sync ---------- */
+const S = { scene:0, step:0, layer:'myo', part:null, labels:true, dia:75, hr:72, edv:120, esv:50, qa:{}, cards:{}, flips:{}, blank:false, flowPlay:false, cyclePlay:false };
+const local = { presenting:false, notes:false, menu:false, linked:false, gotSnap:false, sound:false, t0:Date.now() };
+const ID = Math.random().toString(36).slice(2); let msgN = 0; const seen = new Set();
+let bc = null;
+try { bc = new BroadcastChannel('the-pump-lecture'); bc.onmessage = e => recv(e.data); } catch (e) {}
+function send(m) {
+  m.from = ID; m.id = ID + ':' + (msgN++);
+  try { bc && bc.postMessage(m); } catch (e) {}
+  try { localStorage.setItem('the-pump-msg', JSON.stringify(m)); } catch (e) {}
+}
+addEventListener('storage', e => { if (e.key === 'the-pump-msg' && e.newValue) { try { recv(JSON.parse(e.newValue)); } catch (_) {} } });
+function recv(m) {
+  if (!m || m.from === ID || seen.has(m.id)) return;
+  seen.add(m.id);
+  if (!local.linked) { local.linked = true; renderPresenter(); }
+  if (m.type === 'hello') { send({ type:'snap', p: JSON.parse(JSON.stringify(S)) }); return; }
+  if (m.type === 'snap') { if (!local.gotSnap) { local.gotSnap = true; Object.assign(S, m.p); renderAll(); show(); cycleChanged(); } return; }
+  act(m.type, m.p, true);
+}
+function act(type, p, remote) {
+  if (type === 'goto') { S.scene = p.scene; S.step = p.step; show(); }
+  else if (type === 'set') {
+    Object.assign(S, p); renderAll();
+    if ('cyclePlay' in p) cycleChanged();
+    if ('blank' in p) renderBlank();
+  }
+  if (!remote) send({ type, p });
+}
+
+/* ---------- navigation ---------- */
+function stepsOf(i) { const sc = scenes[i]; if (sc.dataset.steps) return +sc.dataset.steps; return Math.max(0, ...$$('[data-step]', sc).map(e => +e.dataset.step)); }
+function goto(scene, step) { scene = Math.max(0, Math.min(scenes.length - 1, scene)); step = Math.max(0, Math.min(stepsOf(scene), step)); act('goto', { scene, step }); }
+function next() { if (S.step < stepsOf(S.scene)) goto(S.scene, S.step + 1); else if (S.scene < scenes.length - 1) goto(S.scene + 1, 0); }
+function prev() { if (S.step > 0) goto(S.scene, S.step - 1); else if (S.scene > 0) goto(S.scene - 1, stepsOf(S.scene - 1)); }
+const sid = () => scenes[S.scene].id;
+
+function show() {
+  scenes.forEach((s, i) => { const on = i === S.scene; s.classList.toggle('active', on); s.setAttribute('aria-hidden', on ? 'false' : 'true'); if (on) s.removeAttribute('inert'); else s.setAttribute('inert', ''); });
+  $$('[data-step]', scenes[S.scene]).forEach(e => e.classList.toggle('shown', +e.dataset.step <= S.step));
+  const n = scenes.length;
+  $('#bar-title').textContent = scenes[S.scene].dataset.title;
+  $('#bar-count').textContent = `${S.scene + 1} / ${n}`;
+  const tot = stepsOf(S.scene) + 1;
+  $('#bar-prog').style.width = ((S.scene + (S.step + 1) / tot) / n * 100) + '%';
+  $$('#menu-list button').forEach((b, i) => b.classList.toggle('cur', i === S.scene));
+  renderDynamic(); renderPresenter(); renderDrawer();
+}
+
+/* ---------- renderers ---------- */
+function renderAll() { renderLayer(); renderParts(); renderDia(); renderCalc(); renderCards(); renderFlips(); renderDynamic(); renderBlank(); }
+function renderLayer() {
+  const L = LAYERS.find(l => l.id === S.layer) || LAYERS[4];
+  $('#layers').classList.add('has-sel');
+  $$('#bands .band').forEach(b => b.classList.toggle('sel', b.dataset.layer === L.id));
+  $('#layer-tag').textContent = L.tag; $('#layer-name').textContent = L.label.replace(' · 15–50 mL fluid', '');
+  $('#layer-text').textContent = L.text; $('#layer-clin').textContent = L.clin;
+}
+function renderParts() {
+  const h = $('.heart.explore'); if (!h) return;
+  h.classList.toggle('nolabels', !S.labels);
+  h.classList.toggle('has-sel', !!S.part);
+  $$('.part', h).forEach(p => p.classList.toggle('sel', p.dataset.part === S.part));
+  const b = $('#btn-labels'); b.setAttribute('aria-pressed', String(!S.labels)); b.textContent = S.labels ? 'Hide labels (quiz mode)' : 'Show labels';
+  if (S.part && PARTS[S.part]) { const [n, t, x] = PARTS[S.part]; $('#part-tag').textContent = t; $('#part-name').textContent = n; $('#part-text').textContent = x; }
+  else { $('#part-tag').textContent = 'Explore'; $('#part-name').textContent = 'Select any chamber, valve or vessel'; $('#part-text').textContent = 'Blue marks deoxygenated blood and red marks oxygenated blood. That\'s a drawing convention: real blood is always red.'; }
+}
+function renderDia() {
+  const hr = S.dia, cyc = 60 / hr, sys = Math.max(.2, .35 - .0012 * (hr - 60)), dia = Math.max(0, cyc - sys), scale = 1.25;
+  $('#in-dia').value = hr; $('#dia-hr').textContent = hr + ' bpm';
+  $('#bar-sys').style.flex = `0 0 ${sys / scale * 100}%`; $('#bar-dia').style.flex = `0 0 ${dia / scale * 100}%`; $('#bar-rest').style.flex = '1 1 0';
+  $('#bar-dia').textContent = dia / scale > .14 ? 'Diastole' : '';
+  $('#bar-sys').textContent = sys / scale > .14 ? 'Systole' : '';
+  $('#dia-read').textContent = `One beat ${cyc.toFixed(2)} s · systole ~${sys.toFixed(2)} s · diastole ~${dia.toFixed(2)} s (${Math.round(dia / cyc * 100)}% of the beat)`;
+}
+function chip(el, cls, txt) { el.className = 'chip ' + cls; el.textContent = txt; }
+function renderCalc() {
+  const hr = S.hr, edv = S.edv, esv = Math.min(S.esv, edv - 10);
+  const sv = edv - esv, ef = Math.round(sv / edv * 100), co = hr * sv / 1000;
+  const ie = $('#in-esv'); ie.max = edv - 10;
+  $('#in-hr').value = hr; $('#in-edv').value = edv; ie.value = esv;
+  $('#v-hr').textContent = hr + ' bpm'; $('#v-edv').textContent = edv + ' mL'; $('#v-esv').textContent = esv + ' mL';
+  $('#o-sv').innerHTML = sv + '<small>mL</small>'; $('#o-ef').innerHTML = ef + '<small>%</small>'; $('#o-co').innerHTML = co.toFixed(1) + '<small>L/min</small>';
+  chip($('#c-sv'), sv < 60 ? 'bad' : sv > 100 ? 'warn' : 'good', sv < 60 ? 'Low' : sv > 100 ? 'High' : 'Normal');
+  chip($('#c-ef'), ef < 40 ? 'bad' : ef < 55 ? 'warn' : ef > 70 ? 'warn' : 'good', ef < 40 ? 'Reduced' : ef < 55 ? 'Below normal' : ef > 70 ? 'Above normal' : 'Normal');
+  chip($('#c-co'), co < 4 ? 'bad' : co > 8 ? 'warn' : 'good', co < 4 ? 'Low' : co > 8 ? 'High' : 'Normal');
+}
+function renderCards() { $$('.pcard').forEach(c => { const on = !!S.cards[c.dataset.card]; c.classList.toggle('open', on); $('button', c).textContent = on ? 'Hide details' : 'Show details'; }); }
+function renderFlips() { $$('.flip').forEach(f => { const on = !!S.flips[f.dataset.flip]; f.classList.toggle('on', on); f.setAttribute('aria-pressed', String(on)); }); }
+function renderBlank() { $('#blank').hidden = !(S.blank && !local.presenting); $('#pv-blank').hidden = !S.blank; }
+
+function renderDynamic() {
+  // flow
+  const fh = $('.heart.flow');
+  const fi = sid() === 's-flow' ? Math.min(S.step, stops.length - 1) : flowIdx;
+  if (sid() === 's-flow') flowIdx = fi;
+  const st = stops[fi]; const part = st.tag === 'end' ? 'body' : st.tag;
+  fh.classList.toggle('has-sel', !S.flowPlay);
+  $$('.part', fh).forEach(p => p.classList.toggle('sel', p.dataset.part === part));
+  const [fn, ft] = FLOW[st.tag];
+  $('#flow-count').textContent = S.flowPlay ? 'Continuous loop' : `Stop ${fi + 1} of ${stops.length}`;
+  $('#flow-name').textContent = S.flowPlay ? 'Both circuits at once' : fn;
+  $('#flow-text').textContent = S.flowPlay ? 'Right side pumps to the lungs (pulmonary circuit). Left side pumps to the body (systemic circuit). Both happen with every beat.' : ft;
+  const fb = $('#btn-flowplay'); fb.setAttribute('aria-pressed', String(S.flowPlay)); fb.textContent = S.flowPlay ? 'Stop loop' : 'Play continuous loop';
+  // cycle
+  if (!S.cyclePlay) setPhase(sid() === 's-cycle' ? S.step : cycIdx, false);
+  const cb = $('#btn-cycleplay'); cb.setAttribute('aria-pressed', String(S.cyclePlay)); cb.textContent = S.cyclePlay ? 'Pause heartbeat' : 'Play heartbeat (slowed)';
+  // quiz
+  renderQ();
+}
+let flowIdx = 0, cycIdx = 0;
+
+function renderQ() {
+  const step = sid() === 's-quiz' ? S.step : 0;
+  const qi = Math.min(QS.length - 1, Math.floor(step / 2));
+  const q = QS[qi], picked = S.qa[qi], rev = step % 2 === 1 || picked != null;
+  $('#q-num').textContent = `Question ${qi + 1} of ${QS.length}`;
+  $('#q-text').textContent = q.q;
+  $('#q-opts').innerHTML = q.o.map((o, i) => {
+    let c = 'opt'; if (picked === i) c += ' picked'; if (rev && i === q.a) c += ' ok'; if (rev && picked === i && i !== q.a) c += ' no';
+    return `<button class="${c}" data-act="pick:${i}"><span class="L">${'ABCD'[i]}</span><span>${o}</span></button>`;
+  }).join('');
+  const w = $('#q-why'); w.hidden = !rev; w.textContent = rev ? q.why : '';
+}
+
+/* ---------- cardiac cycle ---------- */
+let cycTimer = null, ac = null, lastSoundPhase = -1;
+function setPhase(i, fromPlay) {
+  cycIdx = i; const ph = PHASES[i]; const h = $('.heart.cycle');
+  h.classList.toggle('av-open', ph.av); h.classList.toggle('sl-open', ph.sl); h.classList.toggle('contract', ph.contract);
+  h.classList.toggle('has-sel', i === 1 || i === 3);
+  $$('.part', h).forEach(p => p.classList.toggle('sel', (i === 1 && ['tricuspid','mitral'].includes(p.dataset.part)) || (i === 3 && ['pulmonic','aortic'].includes(p.dataset.part))));
+  $('#cyc-name').textContent = ph.name; $('#cyc-text').textContent = ph.text;
+  chip($('#cyc-av'), ph.av ? 'open' : 'closed', ph.av ? 'Open' : 'Closed');
+  chip($('#cyc-sl'), ph.sl ? 'open' : 'closed', ph.sl ? 'Open' : 'Closed');
+  $('#cyc-sound').textContent = ph.sound;
+  $$('.phases button').forEach((b, k) => b.classList.toggle('on', k === i));
+  if (fromPlay && local.sound && sid() === 's-cycle') { if (i === 1) thump(95, .2, .7); if (i === 3) thump(150, .13, .5); }
+}
+function cycleChanged() {
+  clearTimeout(cycTimer);
+  if (S.cyclePlay) { let i = 0; const tick = () => { setPhase(i, true); const d = PH_MS[i]; i = (i + 1) % 4; cycTimer = setTimeout(() => { if (S.cyclePlay) tick(); }, d); }; tick(); }
+  renderDynamic();
+}
+function thump(f, dur, vol) {
+  if (!ac) return; const t = ac.currentTime;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = 'triangle'; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * .55, t + dur);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + .03);
+}
+
+/* ---------- presenter + notes ---------- */
+function notesHTML(i) { const n = $('.notes', scenes[i]); return n ? n.innerHTML : ''; }
+function renderPresenter() {
+  const app = $('#app'); app.classList.toggle('presenting', local.presenting); $('#pv').hidden = !local.presenting;
+  $('#btn-pv').setAttribute('aria-pressed', String(local.presenting));
+  if (!local.presenting) return;
+  $('#pv-now').textContent = scenes[S.scene].dataset.title;
+  const st = stepsOf(S.scene); $('#pv-step').textContent = st ? `Click ${S.step + 1} of ${st + 1} in this section` : '';
+  $('#pv-notes').innerHTML = notesHTML(S.scene);
+  $('#pv-next').textContent = S.step < st ? 'Next click stays in this section.' : (S.scene < scenes.length - 1 ? scenes[S.scene + 1].dataset.title : 'End of lecture');
+  const l = $('#pv-link'); l.classList.toggle('on', local.linked); l.textContent = local.linked ? 'Audience window linked' : 'No audience window yet';
+  renderBlank();
+}
+function renderDrawer() { $('#drawer').hidden = !local.notes || local.presenting; $('#btn-notes').setAttribute('aria-pressed', String(local.notes)); if (local.notes) $('#drawer-notes').innerHTML = notesHTML(S.scene); }
+setInterval(() => { if (!local.presenting) return; const s = Math.floor((Date.now() - local.t0) / 1000); $('#pv-timer').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }, 500);
+
+/* ---------- actions ---------- */
+function handle(a) {
+  const [k, v] = a.split(':');
+  switch (k) {
+    case 'next': return next();
+    case 'prev': return prev();
+    case 'scene': local.menu = false; $('#menu').hidden = true; return goto(+v, 0);
+    case 'menu': local.menu = !local.menu; $('#menu').hidden = !local.menu; return;
+    case 'notes': local.notes = !local.notes; return renderDrawer();
+    case 'presenter': local.presenting = !local.presenting; if (local.presenting) local.t0 = Date.now(); renderPresenter(); renderDrawer(); renderBlank(); return;
+    case 'blank': return act('set', { blank: !S.blank });
+    case 'fs': try { if (document.fullscreenElement) document.exitFullscreen(); else { const r = root.requestFullscreen && root.requestFullscreen(); if (r && r.catch) r.catch(() => {}); } } catch (e) {} return;
+    case 'theme': { const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; root.dataset.theme = dark ? 'light' : 'dark'; return; }
+    case 'timer': local.t0 = Date.now(); return;
+    case 'layer': return act('set', { layer: v });
+    case 'part': return act('set', { part: v && v !== S.part ? v : null });
+    case 'labels': return act('set', { labels: !S.labels });
+    case 'flowprev': if (sid() === 's-flow' && S.step > 0) goto(S.scene, S.step - 1); return;
+    case 'flownext': if (sid() === 's-flow') { if (S.flowPlay) act('set', { flowPlay:false }); goto(S.scene, S.step + 1); } return;
+    case 'flowplay': return act('set', { flowPlay: !S.flowPlay });
+    case 'phase': if (S.cyclePlay) act('set', { cyclePlay:false }); return goto(S.scene, +v);
+    case 'cycleplay': return act('set', { cyclePlay: !S.cyclePlay });
+    case 'sound': {
+      local.sound = !local.sound;
+      if (local.sound && !ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { local.sound = false; } }
+      if (ac && ac.state === 'suspended') ac.resume();
+      const b = $('#btn-sound'); b.setAttribute('aria-pressed', String(local.sound)); b.textContent = local.sound ? 'Sound on' : 'Sound off';
+      if (local.sound) thump(95, .2, .7);
+      return;
+    }
+    case 'card': return act('set', { cards: { ...S.cards, [v]: !S.cards[v] } });
+    case 'flip': return act('set', { flips: { ...S.flips, [v]: !S.flips[v] } });
+    case 'preset': return act('set', { ...PRESETS[v] });
+    case 'pick': { const qi = Math.min(QS.length - 1, Math.floor(S.step / 2)); return act('set', { qa: { ...S.qa, [qi]: +v } }); }
+    case 'qreveal': { const qi = Math.floor(S.step / 2); return goto(S.scene, qi * 2 + 1); }
+    case 'qnext': { const qi = Math.floor(S.step / 2); if (qi < QS.length - 1) goto(S.scene, qi * 2 + 2); else goto(S.scene + 1, 0); return; }
+    case 'qprev': { const qi = Math.floor(S.step / 2); if (qi > 0) goto(S.scene, (qi - 1) * 2); return; }
+  }
+}
+document.addEventListener('click', e => { const t = e.target.closest('[data-act]'); if (t) handle(t.dataset.act); });
+[['in-hr','hr'],['in-edv','edv'],['in-esv','esv'],['in-dia','dia']].forEach(([id, key]) => {
+  $('#' + id).addEventListener('input', e => {
+    const p = { [key]: +e.target.value };
+    if (key === 'edv' && S.esv > p.edv - 10) p.esv = p.edv - 10;
+    act('set', p);
+  });
+});
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const t = e.target;
+  if (t.closest && t.closest('input,textarea,select')) return;
+  const k = e.key;
+  if ((k === 'Enter' || k === ' ') && t.closest) {
+    const a = t.closest('[data-act]');
+    if (a && a.tagName === 'BUTTON') return;
+    if (a) { e.preventDefault(); handle(a.dataset.act); return; }
+  }
+  if (local.menu && k === 'Escape') { handle('menu'); return; }
+  if (S.blank && (k === 'Escape' || k === 'b' || k === 'B' || k === '.')) { e.preventDefault(); handle('blank'); return; }
+  switch (k) {
+    case 'ArrowRight': case 'ArrowDown': case 'PageDown': case ' ': case 'Enter': e.preventDefault(); next(); break;
+    case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace': e.preventDefault(); prev(); break;
+    case 'Home': goto(0, 0); break;
+    case 'End': goto(scenes.length - 1, 0); break;
+    case 'n': case 'N': handle('notes'); break;
+    case 'p': case 'P': handle('presenter'); break;
+    case 'b': case 'B': case '.': handle('blank'); break;
+    case 'f': case 'F': handle('fs'); break;
+    case 'm': case 'M': handle('menu'); break;
+  }
+});
+
+/* ---------- animation loop: ECG + flow ---------- */
+const ecgC = $('#ecg'); let ex = 0, ey = null, et = 0, last = performance.now(), flowD = 0, flowT = 0, staticDrawn = false;
+function ecgVal(t) { t = t % 0.8; const g = (m, a, w) => a * Math.exp(-((t - m) ** 2) / (2 * w * w)); return g(.12,.12,.022) + g(.215,-.08,.007) + g(.235,1,.009) + g(.255,-.22,.008) + g(.47,.28,.035); }
+function drawECG(dt) {
+  const c = ecgC, w = c.clientWidth, h = c.clientHeight; if (!w || !h) return;
+  const dpr = devicePixelRatio || 1;
+  if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); ex = 0; ey = null; staticDrawn = false; }
+  const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  x.strokeStyle = getComputedStyle(root).getPropertyValue('--oxy').trim() || '#C3243A'; x.lineWidth = 3; x.lineJoin = 'round'; x.lineCap = 'round';
+  const speed = w / 3.2, yOf = v => h * .66 - v * h * .52;
+  if (reduce) {
+    if (staticDrawn) return; x.clearRect(0, 0, w, h); x.beginPath();
+    for (let px = 0; px <= w; px++) { const y = yOf(ecgVal(px / speed)); px ? x.lineTo(px, y) : x.moveTo(px, y); }
+    x.stroke(); staticDrawn = true; return;
+  }
+  const n = Math.max(1, Math.round(speed * dt));
+  x.beginPath();
+  for (let i = 0; i < n; i++) {
+    et += 1 / speed; ex += 1;
+    if (ex > w) { ex = 0; ey = null; }
+    const y = yOf(ecgVal(et));
+    x.clearRect(ex, 0, 16, h);
+    if (ey !== null) { x.moveTo(ex - 1, ey); x.lineTo(ex, y); }
+    ey = y;
+  }
+  x.stroke();
+}
+function place(c, d) { const [px, py] = ptAt(d); c.setAttribute('cx', px.toFixed(1)); c.setAttribute('cy', py.toFixed(1)); c.classList.toggle('ox', d >= dLungs - .5 && d < tot - .5); }
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (sid() === 's-title') drawECG(dt);
+  if (sid() === 's-flow') {
+    const cells = $$('.heart.flow .cells circle');
+    if (S.flowPlay) { flowT += dt * 150; cells.forEach((c, i) => { c.style.display = ''; place(c, (flowT + i * tot / cells.length) % tot); }); }
+    else {
+      const target = stops[Math.min(S.step, stops.length - 1)].d;
+      flowD = reduce ? target : flowD + (target - flowD) * Math.min(1, dt * 5);
+      if (Math.abs(target - flowD) < .5) flowD = target;
+      cells.forEach((c, i) => { c.style.display = i ? 'none' : ''; }); place(cells[0], flowD);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- boot ---------- */
+if (location.hash === '#presenter') { local.presenting = true; }
+renderAll(); show();
+requestAnimationFrame(frame);
+send({ type:'hello' });
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,715 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>The O₂ Line</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Overpass:wght@400;600;700;800&family=Overpass+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#F2F6F7; --surface:#FFFFFF; --sunk:#E6EEF0; --ink:#122329; --muted:#55686E; --line:#CFDCDF;
+  --o2:#D23A45; --o2-soft:#FBE3E5; --venous:#2E5B88;
+  --cond:#147A7A; --cond-soft:#DDF0EF; --resp:#B85A14; --resp-soft:#FBEBDD;
+  --good:#1E7A46; --good-soft:#E0F2E7; --bad:#A8261D; --bad-soft:#FBE4E1;
+  --focus:#2E5B88;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Overpass","Segoe UI",system-ui,sans-serif;
+  --mono:"Overpass Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0C181C; --surface:#13252B; --sunk:#0F1F24; --ink:#E3EEF0; --muted:#93A9AE; --line:#29434B;
+    --o2:#FF6B74; --o2-soft:#3A1C20; --venous:#7FB0E6;
+    --cond:#45C3C1; --cond-soft:#123236; --resp:#F2A052; --resp-soft:#3A2614;
+    --good:#5CD08D; --good-soft:#123324; --bad:#FF8479; --bad-soft:#3C1A17; --focus:#7FB0E6;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0C181C; --surface:#13252B; --sunk:#0F1F24; --ink:#E3EEF0; --muted:#93A9AE; --line:#29434B;
+  --o2:#FF6B74; --o2-soft:#3A1C20; --venous:#7FB0E6;
+  --cond:#45C3C1; --cond-soft:#123236; --resp:#F2A052; --resp-soft:#3A2614;
+  --good:#5CD08D; --good-soft:#123324; --bad:#FF8479; --bad-soft:#3C1A17; --focus:#7FB0E6;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:780px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:1.02;text-wrap:balance;margin:0;letter-spacing:.01em}
+h1{font-size:clamp(52px,11vw,92px);text-transform:uppercase}
+h2{font-size:clamp(32px,6vw,46px);text-transform:uppercase}
+h3{font-size:26px;text-transform:uppercase}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px}
+.bar-in{max-width:780px;margin:0 auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.brand .o2dot{width:22px;height:22px;border-radius:50%;background:var(--o2);color:#fff;font-family:var(--mono);font-size:10px;display:grid;place-items:center;font-weight:600}
+.bar .stat{font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar .stat b{color:var(--ink);font-weight:600}
+.meter{flex:1;min-width:140px;display:flex;align-items:center;gap:8px}
+.meter .track{flex:1;height:8px;background:var(--sunk);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.meter .fill{height:100%;background:var(--o2);width:0;transition:width .5s ease}
+
+main{padding-top:28px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px}
+.lede{font-size:18px;max-width:62ch}
+.muted{color:var(--muted)}
+
+.btn{border:0;border-radius:8px;padding:12px 20px;font-weight:700;background:var(--ink);color:var(--bg);font-size:16px;letter-spacing:.01em}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.go{background:var(--o2);color:#fff}
+
+/* intro */
+.hero{display:grid;gap:18px;padding-block:8px 8px}
+.hero h1 span{color:var(--o2)}
+.defs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.def{border:1.5px solid var(--line);border-radius:10px;padding:16px;background:var(--surface)}
+.def h3{font-size:24px}
+.def.v h3{color:var(--venous)} .def.ox h3{color:var(--o2)}
+.legs{display:grid;gap:0;counter-reset:leg}
+.leg{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.leg .n{font-family:var(--display);font-size:34px;font-weight:800;color:var(--o2);line-height:1}
+.leg b{display:block}
+label.fld{display:grid;gap:6px;font-weight:600}
+input[type=text]{font:inherit;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);width:100%;max-width:420px}
+
+/* ordering */
+.slots{display:grid;gap:8px;counter-reset:slot}
+.slot{display:grid;grid-template-columns:36px 1fr;align-items:center;gap:10px;min-height:52px;border:1.5px dashed var(--line);border-radius:8px;padding:6px 10px;background:var(--sunk)}
+.slot .num{font-family:var(--mono);color:var(--muted);font-size:14px;text-align:center}
+.slot.filled{border-style:solid;background:var(--surface)}
+.slot.ok{border-color:var(--good);background:var(--good-soft)}
+.slot.no{border-color:var(--bad);background:var(--bad-soft)}
+.slot button.chip{justify-self:start}
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:52px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--surface)}
+.chip{border:1.5px solid var(--ink);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;font-size:15px}
+.chip:hover{background:var(--sunk)}
+.pool:empty::after{content:"All structures placed. Tap a placed structure to send it back.";color:var(--muted);font-size:14px}
+
+/* station strip */
+.strip{overflow-x:auto;margin-inline:-4px;padding:6px 4px 2px}
+.strip-in{display:grid;grid-template-columns:repeat(8,minmax(72px,1fr));min-width:600px;position:relative}
+.stn{display:grid;justify-items:center;gap:6px;position:relative;text-align:center}
+.stn::before{content:"";position:absolute;top:11px;left:-50%;right:50%;height:6px;background:var(--line);z-index:0}
+.stn:first-child::before{display:none}
+.stn.z-cond::before{background:var(--cond)}
+.stn.z-resp::before{background:var(--resp)}
+.stn.z-both::before{background:linear-gradient(90deg,var(--cond),var(--resp))}
+.stn.z-blood::before{background:var(--o2)}
+.stn .dot{width:28px;height:28px;border-radius:50%;background:var(--surface);border:3px solid var(--line);position:relative;z-index:1;display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--muted)}
+.stn.done .dot{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.stn.here .dot{border-color:var(--o2);background:var(--o2);color:#fff;box-shadow:0 0 0 5px var(--o2-soft)}
+.stn .lbl{font-size:12px;font-weight:700;line-height:1.2;color:var(--muted)}
+.stn.done .lbl,.stn.here .lbl{color:var(--ink)}
+
+/* clue */
+.clue{border-left:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px;display:grid;gap:10px}
+.clue .voice{font-size:19px;line-height:1.5;max-width:62ch}
+.clue .voice::before{content:"O₂ log · ";font-family:var(--mono);font-size:13px;color:var(--o2);font-weight:600;letter-spacing:.06em}
+
+.step{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:18px 20px;display:grid;gap:14px}
+.step.locked{opacity:.45;pointer-events:none}
+.step-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.step-h .tag{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--o2);font-weight:600}
+.step-h .q{font-weight:800;font-size:18px}
+.opts{display:grid;gap:8px}
+.opts.grid2{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:11px 14px;font-size:15.5px;line-height:1.45;width:100%}
+.opt:hover{border-color:var(--muted)}
+.opt .box{flex:none;width:20px;height:20px;border:2px solid var(--muted);margin-top:1px;display:grid;place-items:center;font-size:13px;font-weight:800;color:#fff}
+.opt.radio .box{border-radius:50%}
+.opt.checkbox .box{border-radius:4px}
+.opt.sel{border-color:var(--ink);background:var(--sunk)}
+.opt.sel .box{background:var(--ink);border-color:var(--ink)}
+.opt.sel.radio .box::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--bg)}
+.opt.sel.checkbox .box::after{content:"✓";color:var(--bg)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border-color:var(--good);border-style:dashed}
+.opt[disabled]{cursor:default}
+.group{display:grid;gap:8px}
+.group .gl{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.group.gno .gl{color:var(--bad)}
+.hint{font-size:14px;color:var(--muted)}
+.fb{border-radius:8px;padding:12px 14px;font-size:15px;line-height:1.5}
+.fb.bad{background:var(--bad-soft);color:var(--ink);border:1px solid var(--bad)}
+.fb.good{background:var(--good-soft);border:1px solid var(--good)}
+.fb.reveal{background:var(--sunk);border:1px solid var(--line)}
+.fb strong{display:block;margin-bottom:2px}
+
+/* patient card */
+.pt{display:grid;gap:14px}
+.pt-head{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline}
+.pt-head h3{font-size:30px}
+.pt-head .meta{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.story{max-width:64ch}
+.vitals{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.vit{background:var(--surface);padding:8px 12px}
+.vit .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.vit .v{font-family:var(--mono);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.vit .v.flag{color:var(--bad)}
+.vo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vo button{border:2px solid var(--line);border-radius:10px;background:var(--surface);padding:16px 12px;display:grid;gap:4px;text-align:left}
+.vo button b{font-family:var(--display);font-size:26px;text-transform:uppercase;line-height:1}
+.vo button span{font-size:13.5px;color:var(--muted);line-height:1.35}
+.vo button.sel{border-color:var(--ink);background:var(--sunk)}
+.vo button.right{border-color:var(--good);background:var(--good-soft)}
+.vo button.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.vo .vent b{color:var(--venous)} .vo .oxy b{color:var(--o2)}
+@media (max-width:460px){.vo{grid-template-columns:1fr}}
+
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.progress-dots{display:flex;gap:6px}
+.progress-dots i{width:10px;height:10px;border-radius:50%;background:var(--line);display:block}
+.progress-dots i.on{background:var(--o2)}
+
+/* final map */
+.map{display:grid;grid-template-columns:92px 36px 1fr 150px;column-gap:10px;align-items:stretch}
+.map .tract,.map .zone{border-radius:8px;display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:6px;margin-block:3px;line-height:1.3}
+.map .tract{background:var(--sunk);border:1px solid var(--line);color:var(--ink)}
+.map .zone.c{background:var(--cond-soft);color:var(--cond);border:1px solid var(--cond)}
+.map .zone.r{background:var(--resp-soft);color:var(--resp);border:1px solid var(--resp)}
+.map .zone.b{background:linear-gradient(180deg,var(--cond-soft),var(--resp-soft));color:var(--ink);border:1px solid var(--line);text-transform:none;letter-spacing:0;font-size:11px}
+.map .zone.bl{background:var(--o2-soft);color:var(--o2);border:1px solid var(--o2)}
+.map .ln{position:relative;display:grid;place-items:center;min-height:46px}
+.map .ln::before{content:"";position:absolute;top:0;bottom:0;width:6px;left:50%;transform:translateX(-50%);background:var(--c,var(--cond))}
+.map .ln i{width:18px;height:18px;border-radius:50%;background:var(--surface);border:4px solid var(--ink);position:relative;z-index:1}
+.map .nm{display:flex;flex-direction:column;justify-content:center;padding-block:6px}
+.map .nm b{font-size:16px}
+.map .nm span{font-size:13px;color:var(--muted);line-height:1.35}
+@media (max-width:560px){.map{grid-template-columns:64px 28px 1fr 84px;column-gap:6px}.map .nm span{display:none}.map .tract,.map .zone{font-size:10px;letter-spacing:.02em}}
+
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.tally div{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface)}
+.tally .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tally .v{font-family:var(--display);font-size:38px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+.code{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:.12em;color:var(--o2)}
+.fadein{animation:fi .35s ease both}
+@keyframes fi{from{transform:translateY(6px)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.fadein{animation:none}.meter .fill{transition:none}}
+</style>
+
+<div class="bar"><div class="bar-in">
+  <div class="brand"><span class="o2dot">O₂</span>The O₂ Line</div>
+  <div class="meter" title="Journey progress"><span class="stat">Progress</span><div class="track"><div class="fill" id="fill"></div></div><span class="stat" id="pct"><b>0%</b></span></div>
+  <div class="stat" id="team-stat"></div>
+  <div class="stat">Misses <b id="miss">0</b></div>
+</div></div>
+
+<main class="wrap" id="app"></main>
+
+<script>
+/* ============ CONTENT ============ */
+const ORDER = ["Nose / nasal cavity","Pharynx","Larynx","Trachea","Bronchi","Bronchioles","Alveoli"];
+const LOCS = [...ORDER, "Pulmonary capillary (bloodstream)"];
+const SHORT = ["Nose","Pharynx","Larynx","Trachea","Bronchi","Bronchioles","Alveoli","Blood"];
+
+const ZONE_OPTS = {
+  tract:["Upper respiratory tract","Lower respiratory tract"],
+  zone:["Conducting zone","Respiratory zone","Both: the last conducting branches hand off to the first gas-exchange branches"],
+  process:["Ventilation (air moving in and out)","Oxygenation (O₂ moving into the blood)"]
+};
+
+const STATIONS = [
+ { loc:0,
+   clue:"The diaphragm just contracted and dropped. Pressure in the chest fell below the air outside, and I got pulled in through one of two openings. Now I'm tumbling past coarse hairs and around curled bony shelves. It's warm and damp in here.",
+   zone:{tract:0,zone:0,process:0},
+   zoneWhy:"The nose and nasal cavity sit above the larynx, so they're upper tract. No gas exchange happens here, so it's conducting zone, and I'm being moved by bulk airflow, which is ventilation.",
+   q:"What is happening to me here?",
+   opts:[
+    ["Turbinates (nasal conchae) make the airflow turbulent so particles hit the mucus",1],
+    ["I'm diffusing into the capillaries of the nasal mucosa",0],
+    ["I'm being humidified by the moist mucous membrane",1],
+    ["Surfactant is lowering surface tension around me",0],
+    ["I'm being warmed toward body temperature",1],
+    ["Hairs and mucus are trapping dust and microbes riding along with me",1]
+   ],
+   why:"The nose conditions air: it warms, humidifies, and filters it. The conchae create turbulence so particles get thrown against sticky mucus. No oxygen is absorbed here. Surfactant belongs to the alveoli."
+ },
+ { loc:1,
+   clue:"I've dropped into a muscular tube behind the nasal cavity and mouth. Food and drink use this same hallway. Clumps of lymphoid tissue stand guard on the walls.",
+   zone:{tract:0,zone:0,process:0},
+   zoneWhy:"The pharynx is above the larynx, so it's upper tract. It only moves air, so it's conducting zone and ventilation.",
+   q:"What is true about where I am?",
+   opts:[
+    ["C-shaped cartilage rings hold this tube open",0],
+    ["It has three regions: nasopharynx, oropharynx, and laryngopharynx",1],
+    ["Gas exchange begins here",0],
+    ["Air and food share this passage",1],
+    ["Tonsils and adenoids here help defend against pathogens coming in through the nose and mouth",1]
+   ],
+   why:"The pharynx is a shared passage for air and food, divided into the nasopharynx, oropharynx, and laryngopharynx. Its lymphoid tissue (tonsils, adenoids) is part of the airway's defense. Cartilage rings come later, in the trachea."
+ },
+ { loc:2,
+   clue:"A leaf-shaped flap is standing open above me. It will fold down the next time this person swallows. Just ahead, two bands of tissue vibrate when air rushes past, and that's how this person talks.",
+   zone:{tract:0,zone:0,process:0},
+   zoneWhy:"The larynx is the lowest structure of the upper tract (some textbooks draw the line at the vocal cords; ask your instructor which your program uses). It's still conducting zone, moved by ventilation.",
+   q:"What is happening here?",
+   opts:[
+    ["Most of my oxygen gets absorbed through the vocal cords",0],
+    ["Air moving past the vocal cords produces sound",1],
+    ["Irritants touching this area set off a protective cough reflex",1],
+    ["The epiglottis covers the airway during swallowing to help prevent aspiration",1],
+    ["Goblet cells here produce surfactant",0]
+   ],
+   why:"The larynx protects the lower airway (epiglottis, cough reflex) and produces voice. Nothing is absorbed here. Goblet cells make mucus, not surfactant."
+ },
+ { loc:3,
+   clue:"I'm in a wide tube about 10 to 12 cm long, sitting in front of the esophagus. Stiff C-shaped rings wrap around me and keep the walls from collapsing. Tiny hairs are beating a layer of mucus upward, away from the lungs.",
+   zone:{tract:1,zone:0,process:0},
+   zoneWhy:"Below the larynx, we're in the lower tract. The trachea is a pipe with no gas exchange, so it's conducting zone and ventilation.",
+   q:"What is happening here?",
+   opts:[
+    ["I'm crossing the tracheal wall into the blood",0],
+    ["Cilia push mucus and trapped debris up toward the pharynx (the mucociliary escalator)",1],
+    ["The airway ends here in grape-like sacs",0],
+    ["C-shaped cartilage rings keep the airway open as chest pressure changes",1],
+    ["Type I alveolar cells line this tube",0]
+   ],
+   why:"The trachea's cartilage rings keep it open, and its ciliated lining sweeps mucus upward. Smoking paralyzes these cilia, which is one reason smokers cough. Its wall is far too thick for gas exchange."
+ },
+ { loc:4,
+   clue:"The tube just split in two at a ridge called the carina. I went right, because that branch is shorter, wider, and more vertical. On this side it splits again into three branches, one for each lobe.",
+   zone:{tract:1,zone:0,process:0},
+   zoneWhy:"Lower tract, conducting zone, ventilation. The bronchi keep branching and delivering air, but their walls are still too thick for gas exchange.",
+   q:"What is true about where I am?",
+   opts:[
+    ["The left lung has three lobes, so it has three lobar branches",0],
+    ["The right mainstem is where aspirated objects and a too-deep endotracheal tube most often end up",1],
+    ["Gas exchange happens across these walls",0],
+    ["The airways keep dividing, from mainstem to lobar to segmental branches",1],
+    ["Cartilage is still in the walls, though as plates rather than full rings",1]
+   ],
+   why:"The right mainstem's short, wide, vertical angle makes it the usual site for aspiration and right mainstem intubation (watch for diminished left-sided breath sounds). The right lung has three lobes; the left has two."
+ },
+ { loc:5,
+   clue:"The tubes are now less than 1 mm wide. The cartilage is gone, and a ring of smooth muscle wraps around me. At the very last branches, tiny air sacs are starting to bud off the walls.",
+   zone:{tract:1,zone:2,process:0},
+   zoneWhy:"The bronchioles straddle the line. Terminal bronchioles are the last part of the conducting zone. Respiratory bronchioles, with alveoli budding off their walls, are the first part of the respiratory zone. Air still gets here by ventilation.",
+   q:"What is true about where I am?",
+   opts:[
+    ["C-shaped cartilage rings hold these tubes open",0],
+    ["The smooth muscle can tighten (bronchospasm), which is what happens in asthma",1],
+    ["The air here is still cold and dry",0],
+    ["Beta-2 agonists such as albuterol relax this smooth muscle and widen the airway",1]
+   ],
+   why:"With no cartilage, bronchioles depend on smooth muscle tone. That makes them the site of bronchospasm in asthma and the target of bronchodilators like albuterol. By now the air is fully warmed and humidified."
+ },
+ { loc:6,
+   clue:"I've reached a cluster of thin-walled sacs. There are hundreds of millions of them across both lungs. The wall between me and the blood is about 0.5 µm thick. Oxygen pressure in here is about 100 mmHg; in the blood flowing past, it's about 40.",
+   zone:{tract:1,zone:1,process:1},
+   zoneWhy:"Lower tract, respiratory zone. This is where oxygenation happens: I cross the alveolar-capillary membrane by diffusion. Ventilation got me here; oxygenation gets me into the blood.",
+   q:"What is happening here?",
+   opts:[
+    ["Type II alveolar cells secrete surfactant, which keeps the alveoli from collapsing",1],
+    ["I diffuse from high pressure (about 100 mmHg) to low pressure (about 40 mmHg)",1],
+    ["Cilia sweep me back up toward the throat",0],
+    ["Alveolar macrophages clear debris that slipped past the conducting zone",1],
+    ["Type I alveolar cells form the thin wall I cross",1],
+    ["I need a transport protein to pump me into the capillary",0]
+   ],
+   why:"Gas exchange is passive diffusion down a pressure gradient. No pump is needed. Type I cells make the wall thin, type II cells make surfactant, and macrophages are the last line of defense. There are no cilia in the alveoli."
+ },
+ { loc:7,
+   clue:"I made it across the membrane and into the plasma of a pulmonary capillary. A red blood cell is squeezing past in single file.",
+   zone:{process:1},
+   zoneWhy:"Getting oxygen into the blood and onto hemoglobin is oxygenation.",
+   q:"What happens to me now?",
+   opts:[
+    ["I'll ride to the right atrium through the pulmonary artery",0],
+    ["Most oxygen (about 97 to 98%) binds to hemoglobin, which is what SpO₂ and SaO₂ measure",1],
+    ["At the same time, CO₂ moves from the alveoli into the blood",0],
+    ["A small amount (about 2 to 3%) stays dissolved in plasma, which is what PaO₂ measures",1],
+    ["I'll travel through the pulmonary veins to the left atrium, then out to the body",1]
+   ],
+   why:"Oxygenated blood leaves the lungs through the pulmonary veins to the left heart. CO₂ moves the other way, from blood into the alveoli, to be exhaled. SpO₂ tracks hemoglobin saturation; PaO₂ tracks dissolved oxygen."
+ }
+];
+
+const CASES = [
+ { name:"Dorothy Klein", meta:"68 · POD 1, total hip arthroplasty",
+   story:"Mrs. Klein has a morphine PCA and pressed the button often overnight. At 0600 you can barely wake her. She opens her eyes only to a sternal rub, then drifts off. Her breathing is slow and shallow, with snoring sounds.",
+   vit:[["RR","7",1],["HR","64"],["BP","108/62"],["SpO₂","89% RA",1],["Lungs","Clear, diminished bases"],["pH","7.28",1],["PaCO₂","62",1],["PaO₂","60",1],["HCO₃","25"]],
+   ans:0,
+   short:"Opioid-induced respiratory depression",
+   q:"Which findings point most clearly to the root problem?",
+   opts:[
+    ["RR 7 and shallow",1],
+    ["SpO₂ 89% on room air",0],
+    ["PaCO₂ 62 with pH 7.28",1],
+    ["BP 108/62",0],
+    ["Hard to arouse after repeated PCA doses",1]
+   ],
+   why:"This is a ventilation problem. Opioids depress the respiratory center in the medulla, so not enough air moves in and out. CO₂ builds up (PaCO₂ 62, respiratory acidosis), and oxygen falls because fresh air isn't reaching the alveoli. Her alveoli are fine. A low SpO₂ shows up in both problem types, so on its own it can't tell you which one you're facing. Fix the ventilation (stimulate her, stop the PCA, naloxone per order) and her oxygen comes back up."
+ },
+ { name:"Luis Ortega", meta:"54 · community-acquired pneumonia",
+   story:"Mr. Ortega has had a productive cough with rust-colored sputum for three days. He is breathing fast and says he can't get enough air. Chest x-ray shows right lower lobe consolidation. You hear crackles and bronchial breath sounds over the right lower lobe.",
+   vit:[["Temp","39.2 °C",1],["RR","28",1],["HR","112",1],["SpO₂","86% RA",1],["pH","7.47",1],["PaCO₂","32",1],["PaO₂","55",1],["HCO₃","23"]],
+   ans:1,
+   short:"Alveoli filled with exudate",
+   q:"Which findings point most clearly to the root problem?",
+   opts:[
+    ["PaCO₂ 32: he is moving plenty of air, even blowing off extra CO₂",1],
+    ["Temperature 39.2 °C",0],
+    ["Right lower lobe consolidation with crackles",1],
+    ["PaO₂ 55 even though he's breathing 28 times a minute",1],
+    ["SpO₂ 86% on room air",0]
+   ],
+   why:"This is an oxygenation problem. Air is moving in and out just fine; his low PaCO₂ proves it. But the alveoli in his right lower lobe are filled with exudate, so oxygen can't diffuse into the blood there. Breathing faster can't fix that. The fever tells you why this is happening (infection), not which type of problem it is."
+ },
+ { name:"Harold Beck", meta:"79 · 3 weeks post-stroke, dysphagia",
+   story:"Mr. Beck is eating steak in the dining room. He suddenly stands and grabs his throat. He cannot speak or cough. You hear a brief high-pitched sound as he tries to breathe in, then nothing, even though his neck and chest muscles are straining. His face goes from flushed to dusky.",
+   vit:[["Speech","None",1],["Cough","Absent",1],["Sound","Stridor → silent",1],["SpO₂","94% → 81% in 1 min",1],["Effort","Accessory muscles",1]],
+   ans:0,
+   short:"Upper airway obstruction",
+   q:"Which findings point most clearly to the root problem?",
+   opts:[
+    ["He can't speak, so no air is passing his vocal cords",1],
+    ["History of stroke",0],
+    ["Strong breathing effort with no air moving",1],
+    ["SpO₂ dropping from 94% to 81%",0],
+    ["High-pitched inspiratory stridor",1]
+   ],
+   why:"This is a ventilation problem. A food bolus is blocking the conducting zone at the larynx, so no air can reach the alveoli. His alveoli and capillaries are healthy; there's just no air getting to them. The stroke explains why he aspirated, not which type of problem this is. Act now: abdominal thrusts, and call for help."
+ },
+ { name:"Tanya Brooks", meta:"34 · sudden chest pain and dyspnea",
+   story:"Ms. Brooks got off a 14-hour flight two days ago and takes a combined oral contraceptive. She has sudden sharp chest pain that gets worse when she breathes in, and she is short of breath and anxious. Her right calf is swollen and tender. CT angiography shows a clot in the right pulmonary artery.",
+   vit:[["RR","26",1],["HR","118",1],["BP","124/78"],["SpO₂","88% RA",1],["Lungs","Clear bilaterally"],["pH","7.48",1],["PaCO₂","30",1],["PaO₂","58",1]],
+   ans:1,
+   short:"Pulmonary embolism",
+   q:"Which findings point most clearly to the root problem?",
+   opts:[
+    ["Swollen, tender right calf",0],
+    ["Clear lung sounds and PaCO₂ 30: air is moving in and out",1],
+    ["HR 118",0],
+    ["A clot blocking blood flow past well-ventilated alveoli",1],
+    ["PaO₂ 58",1]
+   ],
+   why:"This is an oxygenation problem. Air reaches her alveoli without trouble (clear lungs, low PaCO₂), but the clot blocks blood flow past them. The oxygen is there and the blood isn't, so it can't be picked up. The calf finding points to where the clot came from, a DVT, not to the problem type."
+ }
+];
+
+/* ============ STATE ============ */
+const TOTAL_UNITS = 1 + STATIONS.length + CASES.length;
+let S;
+function fresh(){
+  return { screen:"intro", team:"", t0:null, t1:null, miss:[0,0,0],
+    order:{pool:shuffle(ORDER.map((_,i)=>i)), slots:Array(7).fill(null), tries:0, done:false, marks:null},
+    st:0, stp:{step:0, loc:null, locWrong:[], z:{}, zWrong:[], sel:[], tries:0, revealed:false, fb:null},
+    zonesDone:[], cs:0, cp:{step:0, vo:null, voWrong:[], sel:[], tries:0, revealed:false, fb:null},
+    shuf:{} };
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function perm(key,n){ if(!S.shuf[key]) S.shuf[key]=shuffle([...Array(n).keys()]); return S.shuf[key]; }
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function updateBar(){
+  const u=(S.order.done?1:0)+(S.stationsComplete||0)+(S.casesComplete||0);
+  const p=Math.round(u/TOTAL_UNITS*100);
+  $("#fill").style.width=p+"%";
+  $("#pct").innerHTML="<b>"+p+"%</b>";
+  $("#miss").textContent=S.miss[0]+S.miss[1]+S.miss[2];
+  $("#team-stat").innerHTML=S.team?("Team <b>"+esc(S.team)+"</b>"):"";
+}
+function go(screen){S.screen=screen;render();window.scrollTo({top:0});}
+
+/* ============ RENDER ============ */
+function render(){
+  const app=$("#app");
+  const f={intro,order:orderScreen,journeyIntro,journey,casesIntro,cases,finish}[S.screen];
+  app.innerHTML='<div class="stack fadein">'+f()+'</div>';
+  updateBar();
+}
+
+function intro(){
+  return `
+  <section class="hero">
+    <span class="eyebrow">Respiratory A&amp;P · RN in-class activity</span>
+    <h1>Ride the <span>O₂</span> Line</h1>
+    <p class="lede">You are one oxygen molecule. Your job is to get from the air outside this patient's nose into their bloodstream. Every station along the way checks that you know where you are, which zone you're in, and what's happening to you.</p>
+  </section>
+  <div class="defs">
+    <div class="def v"><h3>Ventilation</h3><p>Moving air into and out of the lungs. It depends on the respiratory drive, the breathing muscles, and an open airway. Poor ventilation shows up first as a rising PaCO₂.</p></div>
+    <div class="def ox"><h3>Oxygenation</h3><p>Getting O₂ across the alveolar-capillary membrane and into the blood. It depends on healthy alveoli, a thin membrane, and blood flow past them. Measured by PaO₂ and SpO₂.</p></div>
+  </div>
+  <div class="panel legs">
+    <div class="leg" style="border-top:0"><span class="n">1</span><div><b>Build the airway</b><span class="muted">Put the 7 structures in the order air travels through them.</span></div></div>
+    <div class="leg"><span class="n">2</span><div><b>Ride the line</b><span class="muted">8 stations from nose to bloodstream. At each one: where am I, what tract and zone, and what's happening to me.</span></div></div>
+    <div class="leg"><span class="n">3</span><div><b>Call the problem</b><span class="muted">4 patients. Decide whether each has a ventilation problem or an oxygenation problem, and back it up with evidence.</span></div></div>
+  </div>
+  <form class="stack" id="start-form">
+    <label class="fld" for="team">Team or student name(s)
+      <input type="text" id="team" autocomplete="off" placeholder="e.g. Table 4: Ana, Marcus, Priya" value="${esc(S.team)}">
+    </label>
+    <div class="row"><button class="btn go" type="submit">Board the O₂ Line</button><span class="hint">Every wrong answer counts as a miss. Your instructor will see your total at the end.</span></div>
+  </form>`;
+}
+
+function orderScreen(){
+  const o=S.order;
+  const slots=o.slots.map((v,i)=>{
+    const cls=["slot"];if(v!==null)cls.push("filled");
+    if(o.marks&&v!==null)cls.push(o.marks[i]?"ok":"no");
+    return `<div class="${cls.join(" ")}"><span class="num">${i+1}</span>${v!==null?`<button class="chip" data-unslot="${i}" ${o.done?"disabled":""}>${ORDER[v]}</button>`:`<span class="hint">${i===0?"Air enters here":i===6?"Gas exchange":""}</span>`}</div>`;
+  }).join("");
+  const pool=o.pool.map(v=>`<button class="chip" data-slot="${v}">${ORDER[v]}</button>`).join("");
+  const full=o.slots.every(v=>v!==null);
+  let fb="";
+  if(o.done) fb=`<div class="fb good"><strong>Airway built.</strong>Nose, pharynx, and larynx are the upper tract. From the trachea down is the lower tract. Now hold on to that order: you're about to ride it.</div>`;
+  else if(o.marks){const n=o.marks.filter(Boolean).length;fb=`<div class="fb bad"><strong>${n} of 7 in the right spot.</strong>Green ones are placed correctly. Tap a red one to send it back to the pool and try again.</div>`;}
+  return `
+  <div class="stack"><span class="eyebrow">Part 1 of 3</span><h2>Build the airway</h2>
+  <p class="lede">Tap each structure in the order an oxygen molecule passes through it, starting outside the body. Tap a placed structure to send it back.</p></div>
+  <div class="slots">${slots}</div>
+  ${o.done?"":`<div class="pool" id="pool">${pool}</div>`}
+  ${fb}
+  <div class="nav"><span></span>${o.done?`<button class="btn go" data-go="journeyIntro">Continue to Part 2</button>`:`<button class="btn" id="check-order" ${full?"":"disabled"}>Check order</button>`}</div>`;
+}
+
+function journeyIntro(){
+  return `
+  <div class="stack"><span class="eyebrow">Part 2 of 3</span><h2>Ride the line</h2>
+  <p class="lede">You're an O₂ molecule floating just outside a patient's nostril. The diaphragm is about to contract. At each of the 8 stations, read your log entry, then prove three things before you can move on.</p></div>
+  <div class="panel legs">
+    <div class="leg" style="border-top:0"><span class="n">A</span><div><b>Where am I?</b><span class="muted">Name the structure from the clues.</span></div></div>
+    <div class="leg"><span class="n">B</span><div><b>What zone am I in?</b><span class="muted">Upper or lower tract, conducting or respiratory zone, and whether ventilation or oxygenation is moving you.</span></div></div>
+    <div class="leg"><span class="n">C</span><div><b>What's happening to me?</b><span class="muted">Select all that apply. The number of correct answers changes at every station.</span></div></div>
+  </div>
+  <div class="nav"><span></span><button class="btn go" data-go="journey">Inhale</button></div>`;
+}
+
+function strip(){
+  return `<div class="strip"><div class="strip-in">`+STATIONS.map((s,i)=>{
+    const cls=["stn"];
+    if(i<S.st||S.screen!=="journey")cls.push("done");
+    if(i===S.st&&S.screen==="journey")cls.push("here");
+    const zd=S.zonesDone.includes(i);
+    if(zd){cls.push(i===7?"z-blood":["z-cond","z-resp","z-both"][s.zone.zone]);}
+    const known=i<S.st||(i===S.st&&S.stp.step>0);
+    return `<div class="${cls.join(" ")}"><span class="dot">${i+1}</span><span class="lbl">${known?SHORT[i]:"?"}</span></div>`;
+  }).join("")+`</div></div>`;
+}
+
+function optBtns(list, sel, kind, state, key, order){
+  // list: [[text,correct]], sel: array of selected idx; state: {graded, reveal}
+  return order.map(i=>{
+    const [t,c]=list[i];const on=sel.includes(i);
+    const cls=["opt",kind];if(on)cls.push("sel");
+    if(state.done){ if(c)cls.push("right"); else if(on)cls.push("wrong"); }
+    else if(state.wrong&&state.wrong.includes(i))cls.push("wrong");
+    return `<button class="${cls.join(" ")}" data-${key}="${i}" ${state.done?"disabled":""}><span class="box"></span><span>${t}</span></button>`;
+  }).join("");
+}
+
+function journey(){
+  const s=STATIONS[S.st], p=S.stp;
+  const locOrder=perm("loc"+S.st,LOCS.length);
+  const locList=LOCS.map((t,i)=>[t,i===s.loc]);
+  // step A
+  const aDone=p.step>0;
+  const A=`<div class="step">
+    <div class="step-h"><span class="tag">A · Location</span><span class="q">Where am I?</span></div>
+    <div class="opts grid2">${optBtns(locList, p.loc===null?[]:[p.loc],"radio",{done:aDone,wrong:p.locWrong},"loc",locOrder)}</div>
+    ${!aDone&&p.locWrong.length?`<div class="fb bad"><strong>Not this stop.</strong>Reread the log for a physical clue: what the walls are made of, what's lining them, or what's nearby.</div>`:""}
+    ${aDone?`<div class="fb good"><strong>${LOCS[s.loc]}.</strong>Confirmed.</div>`:""}
+    ${!aDone?`<div class="row"><button class="btn" id="chk-loc" ${p.loc===null?"disabled":""}>Check location</button></div>`:""}
+  </div>`;
+  // step B
+  const bDone=p.step>1;
+  const groups=Object.keys(s.zone).map(g=>{
+    const lbl={tract:"Tract",zone:"Zone",process:"What's moving me"}[g];
+    const opts=ZONE_OPTS[g].map((t,i)=>{
+      const on=p.z[g]===i;const cls=["opt","radio"];if(on)cls.push("sel");
+      if(bDone&&i===s.zone[g])cls.push("right");
+      else if(!bDone&&p.zWrong.includes(g)&&on)cls.push("wrong");
+      return `<button class="${cls.join(" ")}" data-z="${g}:${i}" ${bDone?"disabled":""}><span class="box"></span><span>${t}</span></button>`;
+    }).join("");
+    return `<div class="group ${!bDone&&p.zWrong.includes(g)?"gno":""}"><span class="gl">${lbl}${!bDone&&p.zWrong.includes(g)?" · recheck":""}</span><div class="opts ${g==="zone"?"":"grid2"}">${opts}</div></div>`;
+  }).join("");
+  const allZ=Object.keys(s.zone).every(g=>p.z[g]!==undefined);
+  const B=`<div class="step ${aDone?"":"locked"}">
+    <div class="step-h"><span class="tag">B · Zone check</span><span class="q">${S.st===7?"Which process got me here?":"Which tract and zone am I in, and what's moving me?"}</span></div>
+    ${groups}
+    ${!bDone&&p.zWrong.length?`<div class="fb bad"><strong>${p.zWrong.length===1?"One part is off.":"Some parts are off."}</strong>The flagged group${p.zWrong.length>1?"s need":" needs"} another look. The upper tract ends at the larynx; the lower tract starts at the trachea. The respiratory zone starts where alveoli appear.</div>`:""}
+    ${bDone?`<div class="fb good"><strong>Zone confirmed.</strong>${s.zoneWhy}</div>`:""}
+    ${aDone&&!bDone?`<div class="row"><button class="btn" id="chk-z" ${allZ?"":"disabled"}>Check zone</button></div>`:""}
+  </div>`;
+  // step C
+  const cDone=p.step>2;
+  const cOrder=perm("c"+S.st,s.opts.length);
+  const C=`<div class="step ${bDone?"":"locked"}">
+    <div class="step-h"><span class="tag">C · Select all that apply</span><span class="q">${s.q}</span></div>
+    <div class="opts">${optBtns(s.opts,p.sel,"checkbox",{done:cDone},"c",cOrder)}</div>
+    ${p.fb&&!cDone?`<div class="fb bad">${p.fb}</div>`:""}
+    ${cDone?`<div class="fb ${p.revealed?"reveal":"good"}"><strong>${p.revealed?"Answer revealed. Green outlines show the correct choices.":"Correct."}</strong>${s.why}</div>`:""}
+    ${bDone&&!cDone?`<div class="row"><button class="btn" id="chk-c" ${p.sel.length?"":"disabled"}>Check answers</button></div>`:""}
+  </div>`;
+  const last=S.st===STATIONS.length-1;
+  return `
+  <div class="row" style="justify-content:space-between"><span class="eyebrow">Part 2 · Station ${S.st+1} of 8</span></div>
+  ${strip()}
+  <div class="clue"><p class="voice">${s.clue}</p></div>
+  ${A}${B}${C}
+  ${cDone?`<div class="nav"><span></span><button class="btn go" id="next-st">${last?"Continue to Part 3":"Ride to the next station"}</button></div>`:""}`;
+}
+
+function casesIntro(){
+  return `
+  <div class="stack"><span class="eyebrow">Part 3 of 3</span><h2>Call the problem</h2>
+  <p class="lede">You made it into the blood. Now look at four patients whose oxygen molecules aren't so lucky. For each one, decide whether the main problem is ventilation or oxygenation, then pick the findings that prove it.</p></div>
+  <div class="defs">
+    <div class="def v"><h3>Ventilation problem</h3><p>Air isn't getting in and out. Look at the drive, the muscles, and the airway. Clue: PaCO₂ climbs.</p></div>
+    <div class="def ox"><h3>Oxygenation problem</h3><p>Air arrives but O₂ can't cross into the blood. Look at the alveoli, the membrane, and blood flow. Clue: PaO₂ is low while PaCO₂ is normal or low.</p></div>
+  </div>
+  <p class="hint">ABG normals: pH 7.35–7.45 · PaCO₂ 35–45 mmHg · PaO₂ 80–100 mmHg · HCO₃ 22–26 mEq/L · SpO₂ 95–100%</p>
+  <div class="nav"><span></span><button class="btn go" data-go="cases">Meet patient 1</button></div>`;
+}
+
+function cases(){
+  const c=CASES[S.cs], p=S.cp;
+  const vit=c.vit.map(([k,v,f])=>`<div class="vit"><div class="k">${k}</div><div class="v ${f?"flag":""}">${v}</div></div>`).join("");
+  const aDone=p.step>0;
+  const voBtn=(i,cls,t,d)=>{
+    const c2=["vo-b",cls];if(p.vo===i)c2.push("sel");
+    if(aDone&&i===c.ans)c2.push("right");else if(p.voWrong.includes(i))c2.push("wrong");
+    return `<button class="${c2.join(" ")}" data-vo="${i}" ${aDone?"disabled":""}><b>${t}</b><span>${d}</span></button>`;
+  };
+  const A=`<div class="step">
+    <div class="step-h"><span class="tag">Call it</span><span class="q">What is the main problem?</span></div>
+    <div class="vo">${voBtn(0,"vent","Ventilation","Air isn't moving in and out")}${voBtn(1,"oxy","Oxygenation","O₂ isn't getting into the blood")}</div>
+    ${!aDone&&p.voWrong.length?`<div class="fb bad"><strong>Look again.</strong>Start with the PaCO₂. Is air moving in and out? If CO₂ is being blown off normally or even extra, the pump is working.</div>`:""}
+    ${aDone?`<div class="fb good"><strong>${c.ans===0?"Ventilation":"Oxygenation"}: ${c.short}.</strong>Now back it up.</div>`:""}
+    ${!aDone?`<div class="row"><button class="btn" id="chk-vo" ${p.vo===null?"disabled":""}>Lock it in</button></div>`:""}
+  </div>`;
+  const bDone=p.step>1;
+  const order=perm("cs"+S.cs,c.opts.length);
+  const B=`<div class="step ${aDone?"":"locked"}">
+    <div class="step-h"><span class="tag">Evidence · Select all that apply</span><span class="q">${c.q}</span></div>
+    <div class="opts">${optBtns(c.opts,p.sel,"checkbox",{done:bDone},"cs",order)}</div>
+    ${p.fb&&!bDone?`<div class="fb bad">${p.fb}</div>`:""}
+    ${bDone?`<div class="fb ${p.revealed?"reveal":"good"}"><strong>${p.revealed?"Answer revealed. Green outlines show the correct choices.":"Correct."}</strong>${c.why}</div>`:""}
+    ${aDone&&!bDone?`<div class="row"><button class="btn" id="chk-cs" ${p.sel.length?"":"disabled"}>Check evidence</button></div>`:""}
+  </div>`;
+  const last=S.cs===CASES.length-1;
+  const dots=CASES.map((_,i)=>`<i class="${i<=S.cs?"on":""}"></i>`).join("");
+  return `
+  <div class="row" style="justify-content:space-between"><span class="eyebrow">Part 3 · Patient ${S.cs+1} of 4</span><span class="progress-dots">${dots}</span></div>
+  <div class="panel pt">
+    <div class="pt-head"><h3>${c.name}</h3><span class="meta">${c.meta}</span></div>
+    <p class="story">${c.story}</p>
+    <div class="vitals">${vit}</div>
+  </div>
+  ${A}${B}
+  ${bDone?`<div class="nav"><span></span><button class="btn go" id="next-cs">${last?"Finish the ride":"Next patient"}</button></div>`:""}`;
+}
+
+function finish(){
+  if(!S.t1)S.t1=Date.now();
+  const mins=Math.max(1,Math.round((S.t1-S.t0)/60000));
+  const tot=S.miss[0]+S.miss[1]+S.miss[2];
+  const code=makeCode();
+  const rows=STATIONS.map((s,i)=>{
+    const c=i===7?"var(--o2)":i===5?"linear-gradient(var(--cond),var(--resp))":i===6?"var(--resp)":"var(--cond)";
+    const sub=["Warms, humidifies, filters","Shared air and food passage","Epiglottis, vocal cords, cough","Cartilage rings, cilia","Right is wider and more vertical","Smooth muscle, no cartilage","Diffusion across a 0.5 µm wall","Hemoglobin carries ~98%"][i];
+    return `<div class="ln" style="grid-row:${i+1};grid-column:2;--c:${c}"><i></i></div><div class="nm" style="grid-row:${i+1};grid-column:3"><b>${LOCS[i].replace(" (bloodstream)","")}</b><span>${sub}</span></div>`;
+  }).join("");
+  return `
+  <div class="stack"><span class="eyebrow">Ride complete</span><h2>Oxygen delivered</h2>
+  <p class="lede">${S.team?esc(S.team)+" made":"You made"} it from the nostril to the left atrium. Show this screen to your instructor.</p></div>
+  <div class="tally">
+    <div><div class="k">Part 1 misses</div><div class="v">${S.miss[0]}</div></div>
+    <div><div class="k">Part 2 misses</div><div class="v">${S.miss[1]}</div></div>
+    <div><div class="k">Part 3 misses</div><div class="v">${S.miss[2]}</div></div>
+    <div><div class="k">Total · time</div><div class="v">${tot} · ${mins}m</div></div>
+  </div>
+  <div class="panel stack"><div class="row" style="justify-content:space-between"><span class="eyebrow">Completion code</span><span class="code">${code}</span></div></div>
+  <div class="panel stack">
+    <h3>The full line</h3>
+    <div style="overflow-x:auto"><div class="map">
+      <div class="tract" style="grid-row:1/4;grid-column:1">Upper tract</div>
+      <div class="tract" style="grid-row:4/8;grid-column:1">Lower tract</div>
+      <div class="zone c" style="grid-row:1/6;grid-column:4">Conducting zone<br>no gas exchange · ~150 mL dead space</div>
+      <div class="zone b" style="grid-row:6;grid-column:4">Terminal → respiratory bronchioles</div>
+      <div class="zone r" style="grid-row:7;grid-column:4">Respiratory zone<br>gas exchange</div>
+      <div class="zone bl" style="grid-row:8;grid-column:4">Bloodstream</div>
+      ${rows}
+    </div></div>
+    <p class="hint">Ventilation carries O₂ through stations 1–6. Oxygenation happens at stations 7–8.</p>
+  </div>
+  <div class="nav"><button class="btn ghost" id="restart">Start over</button></div>`;
+}
+function makeCode(){
+  const s=(S.team||"solo").toUpperCase()+"|"+S.miss.join("-");
+  let h=7;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;
+  const tot=S.miss[0]+S.miss[1]+S.miss[2];
+  return "O2-"+(h%9000+1000)+"-M"+tot;
+}
+
+/* ============ GRADING ============ */
+function gradeSATA(list,sel){
+  const correct=list.map((o,i)=>o[1]?i:-1).filter(i=>i>=0);
+  const right=sel.filter(i=>list[i][1]).length, wrong=sel.length-right;
+  return {ok:right===correct.length&&wrong===0,right,wrong,total:correct.length};
+}
+function sataFeedback(g,tries){
+  if(tries===1)return `<strong>Not quite.</strong>Judge each option on its own. Some stations have two right answers; some have four.`;
+  return `<strong>Still off.</strong>You have ${g.right} correct choice${g.right===1?"":"s"} and ${g.wrong} incorrect choice${g.wrong===1?"":"s"} selected.${g.right<g.total?" At least one correct answer is still unselected.":""} One more miss reveals the answer.`;
+}
+
+/* ============ EVENTS ============ */
+document.addEventListener("submit",e=>{
+  if(e.target.id==="start-form"){e.preventDefault();S.team=$("#team").value.trim();S.t0=Date.now();go("order");}
+});
+document.addEventListener("input",e=>{ if(e.target.id==="team"){S.team=e.target.value;} });
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b||b.disabled)return;
+  const d=b.dataset;
+  if(d.go){go(d.go);return;}
+  if(b.id==="restart"){S=fresh();go("intro");return;}
+  // ordering
+  if(d.slot!==undefined){const v=+d.slot,o=S.order;const i=o.slots.indexOf(null);if(i<0)return;o.slots[i]=v;o.pool=o.pool.filter(x=>x!==v);o.marks=null;render();return;}
+  if(d.unslot!==undefined){const i=+d.unslot,o=S.order;o.pool.push(o.slots[i]);o.slots[i]=null;
+    if(o.marks){o.marks=null;} render();return;}
+  if(b.id==="check-order"){const o=S.order;o.marks=o.slots.map((v,i)=>v===i);o.tries++;
+    if(o.marks.every(Boolean)){o.done=true;}else{S.miss[0]++;}
+    render();return;}
+  // journey
+  const p=S.stp, s=STATIONS[S.st];
+  if(d.loc!==undefined){p.loc=+d.loc;render();return;}
+  if(b.id==="chk-loc"){ if(p.loc===s.loc){p.step=1;} else {if(!p.locWrong.includes(p.loc))p.locWrong.push(p.loc);S.miss[1]++;} render();return;}
+  if(d.z){const [g,i]=d.z.split(":");p.z[g]=+i;p.zWrong=p.zWrong.filter(x=>x!==g);render();return;}
+  if(b.id==="chk-z"){p.zWrong=Object.keys(s.zone).filter(g=>p.z[g]!==s.zone[g]);
+    if(!p.zWrong.length){p.step=2;S.zonesDone.push(S.st);}else S.miss[1]++;render();return;}
+  if(d.c!==undefined){const i=+d.c;p.sel=p.sel.includes(i)?p.sel.filter(x=>x!==i):[...p.sel,i];p.fb=null;render();return;}
+  if(b.id==="chk-c"){const g=gradeSATA(s.opts,p.sel);
+    if(g.ok){p.step=3;}else{p.tries++;S.miss[1]++;
+      if(p.tries>=3){p.step=3;p.revealed=true;}else p.fb=sataFeedback(g,p.tries);}
+    if(p.step===3)S.stationsComplete=(S.stationsComplete||0)+1;
+    render();return;}
+  if(b.id==="next-st"){ if(S.st<STATIONS.length-1){S.st++;S.stp={step:0,loc:null,locWrong:[],z:{},zWrong:[],sel:[],tries:0,revealed:false,fb:null};go("journey");} else go("casesIntro"); return;}
+  // cases
+  const q=S.cp, c=CASES[S.cs];
+  if(d.vo!==undefined){q.vo=+d.vo;render();return;}
+  if(b.id==="chk-vo"){ if(q.vo===c.ans)q.step=1; else {if(!q.voWrong.includes(q.vo))q.voWrong.push(q.vo);S.miss[2]++;} render();return;}
+  if(d.cs!==undefined){const i=+d.cs;q.sel=q.sel.includes(i)?q.sel.filter(x=>x!==i):[...q.sel,i];q.fb=null;render();return;}
+  if(b.id==="chk-cs"){const g=gradeSATA(c.opts,q.sel);
+    if(g.ok)q.step=2;else{q.tries++;S.miss[2]++;
+      if(q.tries>=3){q.step=2;q.revealed=true;}else q.fb=sataFeedback(g,q.tries).replace("Some stations have two right answers; some have four.","Ask of each finding: does it tell you which type of problem this is, or only that something is wrong?");}
+    if(q.step===2)S.casesComplete=(S.casesComplete||0)+1;
+    render();return;}
+  if(b.id==="next-cs"){ if(S.cs<CASES.length-1){S.cs++;S.cp={step:0,vo:null,voWrong:[],sel:[],tries:0,revealed:false,fb:null};go("cases");} else go("finish"); return;}
+});
+
+function start(saved){ S=(saved&&saved.S)?saved.S:fresh(); render(); }
+try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+
+</body></html>

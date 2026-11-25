@@ -1,0 +1,612 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title data-keep="">Pharm Family Feud</title>
+<meta data-keep="" name="claude:viewport-fit-sides" content="cover">
+<link data-keep="" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&amp;family=Oswald:wght@500;600;700&amp;display=swap">
+<style data-keep="">
+/* Layout: one stage-sized screen at a time — title, survey board (question bar, 2×4 answer grid inside an orange-framed oval), strikes and guess bar beneath, results. Single dark studio look. */
+:root{
+  color-scheme:dark;
+  --stage:#040c2c;
+  --stage-2:#0a2a9e;
+  --board:#0b2fc0;
+  --board-deep:#061a78;
+  --frame:#ff8a1e;
+  --frame-hi:#ffc65a;
+  --slot:#071450;
+  --slot-hi:#10237a;
+  --pts:#1d4dff;
+  --ink:#ffffff;
+  --muted:#aab8f0;
+  --gold:#ffc65a;
+  --good:#3ddc84;
+  --bad:#ff3b4e;
+  --f-display:"Bowlby One","Arial Black","Helvetica Neue",Arial,sans-serif;
+  --f-ans:"Oswald","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --f-ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(120% 80% at 50% 0%,#0d2a9a 0%,var(--stage) 60%);color:var(--ink);font-family:var(--f-ui);overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+input,textarea,select{background:#020a30;border:1px solid rgba(255,255,255,.25);color:var(--ink);border-radius:6px;padding:.5em .7em;font:inherit;box-sizing:border-box}
+.app{height:100%;display:flex;flex-direction:column;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px}
+.screen{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
+
+.btn{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);border-radius:999px;padding:.55em 1.2em;font-family:var(--f-ans);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.btn:not(.primary):not(.danger):hover:not(:disabled){background:rgba(255,255,255,.16)}
+.btn.primary{background:linear-gradient(180deg,var(--frame-hi),var(--frame));color:#2a1200;border-color:var(--frame)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.06)}
+.btn.ghost{background:transparent}
+.btn.small{padding:.3em .8em;font-size:13px}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
+
+/* Title */
+.title-screen{align-items:center;justify-content:safe center;text-align:center;overflow:auto}
+.logo{position:relative;display:grid;place-items:center;padding:clamp(18px,3vw,34px) clamp(28px,6vw,80px);border-radius:50%;
+  background:radial-gradient(ellipse at 50% 40%,#2a63ff,var(--board-deep) 70%);border:6px solid var(--frame);box-shadow:0 0 0 4px #7a3300,0 0 50px rgba(255,138,30,.35),inset 0 0 0 3px rgba(255,255,255,.2)}
+.logo .k{font-family:var(--f-ans);text-transform:uppercase;letter-spacing:.35em;color:var(--frame-hi);font-size:clamp(12px,1.6vw,18px)}
+.logo h1{font-family:var(--f-display);font-weight:400;margin:0;line-height:.92;font-size:clamp(40px,8vw,104px);text-transform:uppercase;text-wrap:balance;
+  background:linear-gradient(180deg,#fff6c8 0%,var(--frame-hi) 40%,var(--frame) 62%,#c94f00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 4px 0 #5a1d00) drop-shadow(0 8px 14px rgba(0,0,0,.5))}
+.sub{font-family:var(--f-ans);text-transform:uppercase;letter-spacing:.3em;color:var(--muted);margin:16px 0 18px;font-size:clamp(13px,1.8vw,18px)}
+.panel{background:rgba(2,8,40,.75);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:18px;max-width:560px;width:100%;box-sizing:border-box}
+.seg{display:inline-flex;background:#020a30;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:3px;margin-bottom:14px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:.45em 1.2em;font-family:var(--f-ans);font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.seg button[aria-selected="true"]{background:linear-gradient(180deg,var(--frame-hi),var(--frame));color:#2a1200}
+.rows{display:grid;gap:8px}
+.rows input{width:100%}
+.note{color:var(--muted);font-size:13px;margin:10px 0 0;line-height:1.45;text-wrap:pretty}
+.start-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+
+/* Top bar */
+.topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rlabel{font-family:var(--f-ans);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-right:auto;font-size:18px}
+.rlabel b{color:var(--frame-hi)}
+.mult{background:var(--frame);color:#2a1200;border-radius:999px;padding:.1em .6em;margin-left:6px;font-size:14px}
+
+/* Game area */
+.game{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center}
+.game.solo{grid-template-columns:minmax(0,1fr)}
+.teambox{display:grid;gap:6px;justify-items:center;text-align:center;width:clamp(110px,13vw,170px)}
+.teambox .sc{font-family:var(--f-display);font-size:clamp(28px,3.6vw,48px);background:linear-gradient(180deg,#3a6bff,var(--pts));border:3px solid var(--frame-hi);border-radius:10px;padding:.05em .4em;min-width:2.6ch;font-variant-numeric:tabular-nums;box-shadow:0 4px 0 #000}
+.teambox .nm{font-family:var(--f-ans);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:16px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.teambox .btn{font-size:12px}
+.boardwrap{min-width:0;display:flex;flex-direction:column;gap:10px;align-items:center;min-height:0;height:100%;justify-content:safe center}
+.bank{font-family:var(--f-display);font-size:clamp(30px,4vw,54px);background:linear-gradient(180deg,#3a6bff,var(--pts));border:4px solid var(--frame-hi);border-radius:12px;padding:0 .5em;min-width:2.4ch;text-align:center;font-variant-numeric:tabular-nums;box-shadow:0 5px 0 #000;line-height:1.25}
+.question{font-family:var(--f-ans);font-weight:700;text-transform:uppercase;letter-spacing:.03em;text-align:center;font-size:clamp(18px,2.5vw,32px);line-height:1.2;max-width:40ch;text-wrap:balance;margin:0;text-shadow:2px 2px 0 #000}
+.frame{width:min(100%,980px);border-radius:28px;padding:clamp(10px,1.4vw,16px);box-sizing:border-box;
+  background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.35) 1.2px,transparent 1.6px) 0 0/14px 14px,linear-gradient(180deg,var(--board),var(--board-deep));
+  border:6px solid var(--frame);box-shadow:0 0 0 3px #7a3300,0 10px 30px rgba(0,0,0,.5),inset 0 0 0 2px rgba(255,255,255,.15)}
+.grid{display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:repeat(var(--rows,4),1fr);gap:8px;perspective:900px}
+.grid.one{grid-template-columns:1fr;grid-template-rows:auto;max-width:520px;margin:0 auto}
+.slot{position:relative;height:clamp(48px,8.4vh,78px);border:0;padding:0;background:transparent;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,.7,.3,1)}
+.slot .face{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;border:3px solid #c9d6ff;border-radius:6px;box-shadow:inset 0 0 0 2px #000}
+.slot .front{justify-content:center;background:linear-gradient(180deg,#2c55ff,#0e2db8 60%,#08208f)}
+.slot .front .n{font-family:var(--f-display);font-size:clamp(22px,3vw,36px);width:2em;height:1.5em;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 50% 35%,#3e6cff,#071a7a);border:2px solid #c9d6ff;text-shadow:2px 2px 0 #000}
+.slot .back{transform:rotateX(180deg);background:linear-gradient(180deg,var(--slot-hi),var(--slot));overflow:hidden}
+.slot .back .t{flex:1;min-width:0;padding:0 .6em;font-family:var(--f-ans);font-weight:700;text-transform:uppercase;font-size:clamp(14px,1.9vw,24px);line-height:1.05;text-align:center;letter-spacing:.02em;text-wrap:balance}
+.slot .back .p{align-self:stretch;width:clamp(48px,5.4vw,72px);display:grid;place-items:center;background:var(--pts);font-family:var(--f-display);font-size:clamp(20px,2.8vw,36px);border-left:3px solid #c9d6ff;font-variant-numeric:tabular-nums}
+.slot.open{transform:rotateX(180deg)}
+.slot.missed .back{background:linear-gradient(180deg,#2a2f4d,#171a2e)}
+.slot.missed .back .t{color:#c8cde6}
+.slot.missed .back .p{background:#3a4166}
+.slot.empty .front{background:linear-gradient(180deg,#0a1c74,#06125a)}
+.slot.empty .front .n{visibility:hidden}
+button.slot:not(.open):not(.empty):hover .front{filter:brightness(1.15)}
+
+.strikes{display:flex;gap:8px;justify-content:center;min-height:44px}
+.strikes span{font-family:var(--f-display);color:var(--bad);font-size:34px;line-height:1;width:44px;height:44px;display:grid;place-items:center;border:3px solid var(--bad);border-radius:6px;background:#1a0006}
+.strikes span.off{color:transparent;border-color:rgba(255,59,78,.3);background:transparent}
+
+.guess{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;width:min(100%,720px)}
+.guess-row{display:flex;gap:8px}
+.guess-row input{flex:1;min-width:0;width:0;font-size:clamp(18px,2vw,22px);padding:.55em .8em}
+.clock{display:flex;align-items:center;gap:12px}
+.clock .bar{flex:1;height:10px;background:rgba(255,255,255,.15);border-radius:5px;overflow:hidden}
+.clock .bar i{display:block;height:100%;background:var(--frame-hi);transition:width 1s linear}
+.clock .t{font-family:var(--f-display);color:var(--frame-hi);font-size:24px;min-width:2.4ch;text-align:right;font-variant-numeric:tabular-nums}
+.clock.low .t{color:var(--bad)}.clock.low .bar i{background:var(--bad)}
+.msg{text-align:center;min-height:1.4em;font-family:var(--f-ans);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:16px}
+.msg.good{color:var(--good)}.msg.bad{color:#ff8a96}.msg.info{color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
+.hint{color:var(--muted);font-size:13px;text-align:center}
+.endnote{font-family:var(--f-ans);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:clamp(18px,2.2vw,26px);text-align:center}
+.endnote b{color:var(--frame-hi)}
+
+/* Big X */
+.bigx{position:fixed;inset:0;z-index:40;display:grid;place-items:center;pointer-events:none}
+.bigx div{display:flex;gap:2vw}
+.bigx span{font-family:var(--f-display);color:var(--bad);font-size:min(34vh,30vw);line-height:1;text-shadow:0 0 0 #000,0 0 40px rgba(255,59,78,.6);-webkit-text-stroke:6px #5a0010;animation:xpop .9s ease forwards}
+@keyframes xpop{0%{transform:scale(.3);opacity:0}15%{transform:scale(1.08);opacity:1}70%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
+
+/* Intro / results overlays */
+.overlay{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:14px;text-align:center;overflow:auto;box-sizing:border-box;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));
+  background:radial-gradient(90% 60% at 50% 45%,rgba(255,138,30,.25),transparent 70%),radial-gradient(120% 80% at 50% 0%,#0d2a9a,var(--stage) 65%)}
+.overlay.shame{background:linear-gradient(180deg,#14162a,#0a0b15)}
+.kicker{font-family:var(--f-ans);text-transform:uppercase;letter-spacing:.3em;color:var(--frame-hi);margin:0;font-size:clamp(14px,1.8vw,20px)}
+.big{font-family:var(--f-display);font-weight:400;text-transform:uppercase;font-size:clamp(48px,10vw,140px);line-height:.92;margin:0;text-wrap:balance;
+  background:linear-gradient(180deg,#fff6c8,var(--frame-hi) 40%,var(--frame) 62%,#c94f00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 5px 0 #5a1d00) drop-shadow(0 10px 20px rgba(0,0,0,.5));animation:pop .6s cubic-bezier(.2,.8,.2,1)}
+.shame .big{background:linear-gradient(180deg,#c8ccda,#7c8299);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 5px 0 #000);animation:droop 2.4s ease-in .3s forwards;transform-origin:15% 50%;margin-bottom:30px}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes droop{0%{transform:none}60%{transform:rotate(7deg) translateY(10px)}75%{transform:rotate(5deg) translateY(8px)}100%{transform:rotate(9deg) translateY(16px)}}
+.intro-q{font-family:var(--f-ans);font-weight:700;text-transform:uppercase;font-size:clamp(20px,3vw,38px);max-width:30ch;margin:0;text-wrap:balance}
+.score-big{font-family:var(--f-display);font-size:clamp(56px,10vw,120px);line-height:1;color:var(--frame-hi);font-variant-numeric:tabular-nums;text-shadow:4px 4px 0 #000}
+.shame .score-big{color:var(--bad)}
+.line{font-size:clamp(15px,1.7vw,20px);margin:0;max-width:44ch;color:#dfe5ff;text-wrap:balance}
+.rlist{list-style:none;margin:0;padding:0;display:grid;gap:6px;width:min(100%,560px);text-align:left}
+.rlist li{display:flex;justify-content:space-between;gap:12px;background:rgba(0,0,0,.3);border-radius:8px;padding:8px 12px;font-size:14px}
+.rlist li span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rlist li b{font-variant-numeric:tabular-nums;color:var(--frame-hi);white-space:nowrap}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:1}
+.overlay > :not(canvas){position:relative;z-index:2}
+
+/* Editor */
+.editor{position:fixed;inset:0;z-index:50;background:#020624;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.ed-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid rgba(255,255,255,.15);background:#040a3a}
+.ed-head h2{margin:0 auto 0 0;font-family:var(--f-ans);text-transform:uppercase;letter-spacing:.1em;font-size:18px}
+.ed-status{font-size:13px;color:var(--muted);width:100%}
+.ed-status.dirty{color:var(--gold)}
+.ed-body{flex:1;overflow:auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.ed-inner{max-width:1000px;margin:0 auto;display:grid;gap:18px}
+.ed-set{display:flex;flex-wrap:wrap;gap:12px;align-items:center;color:var(--muted);font-size:14px}
+.ed-set input{width:110px}
+.ed-round{border:1px solid rgba(255,255,255,.15);border-radius:12px;overflow:hidden}
+.ed-rh{background:var(--board-deep);padding:10px 12px;display:grid;gap:8px}
+.ed-rh .top{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ed-rh .top b{font-family:var(--f-ans);text-transform:uppercase;letter-spacing:.1em;margin-right:auto}
+.ed-rh textarea{width:100%;min-height:52px;resize:vertical;font-family:var(--f-ans);font-weight:600;text-transform:uppercase;font-size:16px}
+.ed-rh label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.ed-ans{display:grid;grid-template-columns:28px minmax(0,1.3fr) 80px minmax(0,1.6fr) auto;gap:8px;padding:8px 12px;border-top:1px solid rgba(255,255,255,.08);align-items:center}
+.ed-ans .n{font-family:var(--f-display);color:var(--frame-hi);text-align:center}
+.ed-ans input{width:100%}
+.ed-cols{display:grid;grid-template-columns:28px minmax(0,1.3fr) 80px minmax(0,1.6fr) auto;gap:8px;padding:6px 12px 0;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.ed-foot{display:flex;gap:8px;flex-wrap:wrap;padding:8px 12px 12px}
+@media (max-width:760px){
+  .game{grid-template-columns:1fr 1fr;grid-template-areas:"board board" "t1 t2"}
+  .game .boardwrap{grid-area:board}.game .teambox.t1{grid-area:t1}.game .teambox.t2{grid-area:t2}
+  .game.solo{grid-template-columns:minmax(0,1fr);grid-template-areas:"board"}
+  .slot.empty{display:none}
+  .boardwrap{height:auto}
+  .grid{grid-template-columns:1fr;grid-auto-flow:row;grid-template-rows:none}
+  .slot{height:46px}
+  .ed-ans,.ed-cols{grid-template-columns:24px 1fr 70px}
+  .ed-ans .acc,.ed-cols .acc{grid-column:2 / -1}
+  .ed-cols .acc{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div class="app" data-keep="">
+  <section class="screen title-screen" id="s-title">
+    <div class="logo"><span class="k">Pharm</span><h1 id="t-name">Family Feud</h1></div>
+    <p class="sub" id="t-sub">Cardiovascular</p>
+    <div class="panel">
+      <div class="seg" role="tablist" aria-label="Game mode" id="mode-seg"></div>
+      <div id="setup"></div>
+      <div class="start-row">
+        <button class="btn primary" data-act="start">Start game</button>
+        <button class="btn" data-act="resume" id="resume-btn" hidden="">Resume</button>
+      </div>
+      <div class="start-row">
+        <button class="btn small ghost" data-act="edit" data-edit-only="" hidden="">Edit questions</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="s-game" hidden="">
+    <div class="topbar">
+      <div class="rlabel" id="rlabel"></div>
+      <button class="btn small ghost" data-act="edit" data-edit-only="" hidden="">Edit</button>
+      <button class="btn small ghost" data-act="menu">Menu</button>
+    </div>
+    <div class="game" id="game"></div>
+  </section>
+</div>
+<div class="overlay" id="intro" hidden="" data-keep=""></div>
+<div class="overlay" id="results" hidden="" data-keep=""></div>
+<div class="bigx" id="bigx" hidden="" data-keep=""></div>
+<div class="editor" id="editor" hidden="" data-keep=""></div>
+<script type="application/json" id="game-data" data-keep>{"title":"Pharm Family Feud","subtitle":"Cardiovascular","seconds":20,"rounds":[{"q":"Name a symptom of digoxin toxicity","mult":1,"answers":[{"text":"Anorexia","points":35,"accept":["loss of appetite","no appetite","decreased appetite","poor appetite"]},{"text":"Nausea / Vomiting","points":30,"accept":["nausea","vomiting","n/v","nv","emesis","throwing up","gi upset"]},{"text":"Fatigue / Weakness","points":15,"accept":["fatigue","weakness","tired","tiredness","lethargy","malaise"]},{"text":"Dysrhythmias / Bradycardia","points":10,"accept":["dysrhythmia","arrhythmia","arrhythmias","bradycardia","brady","slow heart rate","low heart rate","heart block","irregular heartbeat"]},{"text":"Vision changes (halos)","points":5,"accept":["halos","visual changes","blurred vision","blurry vision","yellow vision","green vision","yellow green halos","visual disturbances","halo vision"]}]},{"q":"Name a contraindication to taking warfarin that could potentiate bleeding","mult":1,"answers":[{"text":"Thrombocytopenia","points":35,"accept":["low platelets","low platelet count","decreased platelets"]},{"text":"Vitamin K deficiency","points":30,"accept":["low vitamin k","vitamin k","lack of vitamin k"]},{"text":"Liver disorders","points":15,"accept":["liver disease","liver failure","cirrhosis","hepatic disease","hepatic impairment","liver damage","liver dysfunction"]},{"text":"Alcohol abuse","points":10,"accept":["alcohol","alcoholism","etoh","drinking","alcohol use"]},{"text":"Garlic","points":5},{"text":"Ginger","points":3},{"text":"Feverfew","points":1},{"text":"Ginkgo biloba","points":1,"accept":["ginkgo","ginko"]}]},{"q":"Name a common side effect of nitroglycerin medications","mult":1,"answers":[{"text":"Headache","points":35,"accept":["headaches","ha","migraine"]},{"text":"Dizziness / Lightheadedness","points":30,"accept":["dizziness","dizzy","lightheaded","lightheadedness","light headed","vertigo"]},{"text":"Tingling under tongue","points":15,"accept":["tingling","burning under tongue","burning","tongue tingling","stinging"]},{"text":"Orthostatic hypotension","points":10,"accept":["hypotension","low blood pressure","low bp","postural hypotension","orthostasis"]},{"text":"Tolerance","points":5,"accept":["drug tolerance","nitrate tolerance"]},{"text":"Reflex tachycardia","points":3,"accept":["tachycardia","fast heart rate","rapid heart rate","palpitations","increased heart rate"]}]},{"q":"Name a diuretic that can deplete potassium","mult":1,"answers":[{"text":"Furosemide","points":35,"accept":["lasix"]},{"text":"HCTZ","points":30,"accept":["hydrochlorothiazide","microzide"]},{"text":"Torsemide","points":15,"accept":["demadex","soaanz"]},{"text":"Bumetanide","points":10,"accept":["bumex"]},{"text":"Ethacrynic acid","points":5,"accept":["edecrin","ethacrynic"]},{"text":"Chlorothiazide","points":3,"accept":["diuril"]}]},{"q":"Name an adverse effect of ACE inhibitors","mult":1,"answers":[{"text":"Angioedema","points":35,"accept":["swelling of the face","facial swelling","tongue swelling","lip swelling","airway swelling"]},{"text":"Nagging cough","points":30,"accept":["cough","dry cough","persistent cough","hacking cough"]},{"text":"Hypotension","points":15,"accept":["low blood pressure","low bp","first dose hypotension","orthostatic hypotension"]},{"text":"Fatigue","points":5,"accept":["tired","tiredness","weakness"]},{"text":"Taste changes","points":5,"accept":["dysgeusia","altered taste","metallic taste","loss of taste","taste disturbance"]},{"text":"Hyperkalemia","points":5,"accept":["high potassium","elevated potassium","increased potassium"]}]},{"q":"Name a medication or class of medications that can cause myopathy","mult":1,"answers":[{"text":"Statins","points":35,"accept":["statin","hmg coa reductase inhibitors","atorvastatin","simvastatin","rosuvastatin","pravastatin","lovastatin","lipitor","crestor","zocor"]},{"text":"Corticosteroids","points":30,"accept":["steroids","steroid","prednisone","glucocorticoids","methylprednisolone","dexamethasone"]},{"text":"Fibric acid derivatives","points":15,"accept":["fibrates","fibrate","gemfibrozil","fenofibrate","lopid","tricor"]},{"text":"NSAIDs","points":5,"accept":["nsaid","ibuprofen","naproxen","nonsteroidal anti-inflammatory drugs","non steroidal anti inflammatories"]},{"text":"Penicillins","points":5,"accept":["penicillin","pcn","amoxicillin"]},{"text":"Loop diuretics","points":5,"accept":["loop diuretic","loops","furosemide","lasix","bumetanide","torsemide"]}]},{"q":"Name the medication that is known as “the clot buster”","mult":3,"sudden":true,"answers":[{"text":"Alteplase / tPA","points":99,"accept":["alteplase","tpa","t-pa","activase","tissue plasminogen activator","plasminogen activator","tenecteplase","tnk","thrombolytic","thrombolytics","fibrinolytic"]}]}]}</script>
+<script data-keep="">
+(() => {
+const KEEP = [...document.querySelectorAll('[data-keep]')].filter(el => el.parentElement === document.body || el.parentElement === document.head);
+const SOURCE = KEEP.map(el => el.id === 'game-data' ? null : el.outerHTML);
+let DATA = JSON.parse(document.getElementById('game-data').textContent);
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LS = 'pharm-feud-cardio-v1';
+
+// ---------- Answer matching (forgives spelling, plurals, abbreviations) ----------
+const NUMW = {zero:'0',one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',ten:'10'};
+const STOP = new Set('a an the of is are was were what whats who it its to and in for on be this that ie or'.split(' '));
+const GENERIC = new Set(['medication','medications','drug','drugs','class','disorder','disorders','change','changes','abuse','deficiency','derivative','derivatives','effect','side','under']);
+function toks(str){
+  const t = String(str || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[®™]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();
+  if (!t) return [];
+  return t.split(' ').map(w => NUMW[w] || w).map(w => (w.length > 3 && w.endsWith('s') && !/(ss|us|is)$/.test(w)) ? w.slice(0, -1) : w).filter(w => !STOP.has(w));
+}
+function lev(a, b){ const m = a.length, n = b.length; let prev = Array.from({length: n + 1}, (_, j) => j);
+  for (let i = 1; i <= m; i++){ const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1)); prev = cur; } return prev[n]; }
+function close(a, b){ if (a === b) return true;
+  // Never treat opposite prefixes as typos (hypo- vs hyper-, brady- vs tachy-).
+  const OPP = [/h[iy]p[o0](?!e)/, /h[iy]per/, /brad[iy]/, /tach[iy]/]; if (OPP.some(re => re.test(a) !== re.test(b))) return false; if (/^\d+$/.test(a) || /^\d+$/.test(b)) return false; if (Math.min(a.length, b.length) <= 3) return false;
+  const L = Math.max(a.length, b.length); return lev(a, b) <= (L <= 4 ? 1 : Math.floor(L * 0.28)); }
+function variants(ans, extra){ const out = []; const s = String(ans || '');
+  s.replace(/\(([^)]*)\)/g, (_, p) => { out.push(...p.split(/,|\/|\bor\b/i)); return ''; });
+  out.push(s.replace(/\([^)]*\)/g, ' '), ...s.replace(/\([^)]*\)/g, ' ').split(/\/|,|\bor\b/i), ...(extra || []));
+  return out.map(v => v.trim()).filter(Boolean); }
+function matches(input, ans, extra){
+  const it = toks(input); if (!it.length) return false; const ij = it.join('');
+  for (const v of variants(ans, extra)){
+    const vt = toks(v); if (!vt.length) continue;
+    if (close(ij, vt.join(''))) return true;
+    if (vt.length >= 2 && it.length === 1 && it[0] === vt.map(w => w[0]).join('')) return true;
+    const need = vt.filter(w => !GENERIC.has(w)), req = need.length ? need : vt;
+    const hit = req.filter(w => it.some(x => close(x, w)) || (w.length >= 5 && ij.includes(w))).length;
+    if (hit > 0 && hit >= req.length - (req.length >= 3 ? 1 : 0)) return true;
+  }
+  return false;
+}
+
+// ---------- State ----------
+const fresh = () => ({ mode:'solo', solo:'Player', teams:['Team 1','Team 2'], r:0, scores:[0,0], soloScore:0, log:[], round:null, screen:'title' });
+let S = fresh();
+function load(d){ try { const raw = d && d.teams ? d : JSON.parse(localStorage.getItem(LS) || 'null'); if (raw && raw.teams) S = Object.assign(fresh(), raw); } catch(e){} }
+function save(){ try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e){} }
+const R = () => DATA.rounds[S.r];
+const rlen = r => r.sudden ? 1 : r.answers.length;
+const newRound = () => ({ open:[], missed:false, strikes:0, bank:0, done:false, awarded:null, msg:'', msgKind:'' });
+const secs = () => Math.max(5, Number(DATA.seconds) || 20);
+
+// ---------- Sound (made by the page) ----------
+let actx = null;
+function ac(){ try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); return actx; } catch(e){ return null; } }
+function tone(f, start, dur, type, vol, glide){ const a = ac(); if (!a) return; const t = a.currentTime + .03 + start;
+  const o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (glide) o.frequency.linearRampToValueAtTime(glide, t + dur);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .02); g.gain.setValueAtTime(vol, t + dur * .6); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur + .05); }
+const sDing = () => { tone(1320, 0, .5, 'sine', .22); tone(1980, 0, .35, 'sine', .08); };
+const sBuzz = () => { tone(110, 0, .7, 'sawtooth', .18); tone(116, 0, .7, 'square', .1); };
+const sReveal = () => tone(520, 0, .18, 'triangle', .12);
+const sSting = () => [[523,0],[659,.12],[784,.24],[1047,.36]].forEach(([f, s]) => tone(f, s, s > .3 ? 1 : .3, 'triangle', .14));
+
+// ---------- Screens ----------
+function show(which){
+  S.screen = which; save();
+  $('#s-title').hidden = which !== 'title'; $('#s-game').hidden = which !== 'game';
+  if (which === 'title') renderTitle(); else renderGame();
+}
+function renderTitle(){
+  $('#t-sub').textContent = DATA.subtitle || '';
+  const solo = S.mode === 'solo';
+  $('#mode-seg').innerHTML = `<button role="tab" aria-selected="${solo}" data-act="mode" data-m="solo">Solo play</button><button role="tab" aria-selected="${!solo}" data-act="mode" data-m="team">Class play</button>`;
+  $('#setup').innerHTML = solo
+    ? `<div class="rows"><input type="text" id="solo-name" value="${esc(S.solo)}" aria-label="Your name" placeholder="Your name"></div>
+       <p class="note">Type answers to each survey question. You have ${secs()} seconds per guess, and three strikes end the round. Spelling slips and abbreviations are fine.</p>`
+    : `<div class="rows"><input type="text" id="tn-0" value="${esc(S.teams[0])}" aria-label="Team 1 name"><input type="text" id="tn-1" value="${esc(S.teams[1])}" aria-label="Team 2 name"></div>
+       <p class="note">Teams call out answers. Click an answer on the board to reveal it, add strikes for misses, then award the round’s points to a team.</p>`;
+  $('#resume-btn').hidden = !(S.round && S.r < DATA.rounds.length && S.screen !== 'done');
+}
+
+// ---------- Points ----------
+// With random points on, each new game draws fresh values: a round's answers total 90–100, the #1 answer gets the most,
+// and every answer gets fewer points than the one above it. Sudden Death keeps its set value.
+const randomOn = () => DATA.randomPoints !== false;
+function drawPoints(n){
+  const total = 90 + Math.floor(Math.random() * 11);
+  if (n === 1) return [total];
+  let w = Array.from({length: n}, (_, i) => Math.pow(n - i, 1.35) * (0.75 + Math.random() * 0.5)).sort((a, b) => b - a);
+  const sum = w.reduce((a, b) => a + b, 0);
+  let p = w.map(x => Math.max(1, Math.round(x / sum * total)));
+  for (let i = n - 2; i >= 0; i--) if (p[i] <= p[i + 1]) p[i] = p[i + 1] + 1;
+  let diff = total - p.reduce((a, b) => a + b, 0);
+  for (let i = 0; diff !== 0 && i < 400; i++){
+    const j = i % n, nv = p[j] + Math.sign(diff);
+    if (nv >= 1 && (j === 0 || nv < p[j - 1]) && (j === n - 1 || nv > p[j + 1])){ p[j] = nv; diff -= Math.sign(diff); }
+  }
+  return p;
+}
+function dealPoints(){ S.pts = randomOn() ? DATA.rounds.map(r => r.sudden ? null : drawPoints(r.answers.length)) : null; }
+const ptsOf = (ri, ai) => { const d = S.pts && S.pts[ri]; return Number(d && d[ai] != null ? d[ai] : DATA.rounds[ri].answers[ai]?.points) || 0; };
+
+// ---------- Board ----------
+function boardHTML(r, st, clickable){
+  const n = rlen(r), rows = r.sudden ? 1 : Math.max(4, Math.ceil(n / 2));
+  const cells = [];
+  const total = r.sudden ? 1 : rows * 2;
+  for (let i = 0; i < total; i++){
+    const a = r.answers[i];
+    if (!a){ cells.push(`<div class="slot empty"><div class="face front"><span class="n"></span></div></div>`); continue; }
+    const open = st.open.includes(i), missed = !open && st.done;
+    const tag = clickable && !open ? 'button' : 'div';
+    cells.push(`<${tag} class="slot${open || missed ? ' open' : ''}${missed ? ' missed' : ''}" ${tag === 'button' ? `data-act="reveal" data-i="${i}" aria-label="Reveal answer ${i + 1}"` : `aria-label="${open || missed ? esc(a.text) + ', ' + ptsOf(S.r, i) + ' points' : 'Hidden answer ' + (i + 1)}"`}>
+      <div class="face front"><span class="n">${i + 1}</span></div>
+      <div class="face back"><span class="t">${esc(a.text)}</span><span class="p">${ptsOf(S.r, i)}</span></div></${tag}>`);
+  }
+  return `<div class="frame"><div class="grid${r.sudden ? ' one' : ''}" style="--rows:${rows}">${cells.join('')}</div></div>`;
+}
+const strikesHTML = n => `<div class="strikes" aria-label="${n} of 3 strikes">${[0,1,2].map(i => `<span class="${i < n ? '' : 'off'}">X</span>`).join('')}</div>`;
+const clockHTML = (left, total) => `<div class="clock${left <= 5 ? ' low' : ''}" id="clock"><span class="t" id="clock-t">${left}</span><div class="bar"><i id="clock-bar" style="width:${left / total * 100}%"></i></div></div>`;
+
+function renderGame(){
+  const r = R(), st = S.round, solo = S.mode === 'solo';
+  const mult = Number(r.mult) || 1;
+  $('#rlabel').innerHTML = (r.sudden ? '<b>Sudden Death</b>' : `Round <b>${S.r + 1 - DATA.rounds.slice(0, S.r).filter(x => x.sudden).length}</b> of ${DATA.rounds.filter(x => !x.sudden).length}`) + (mult > 1 ? `<span class="mult">×${mult}</span>` : '');
+  const g = $('#game'); g.classList.toggle('solo', solo);
+  let mid = `<div class="bank" aria-label="Points this round">${st.bank * mult}</div>
+    <p class="question">${esc(r.q)}</p>
+    ${boardHTML(r, st, !solo && !st.done)}
+    ${r.sudden ? '' : strikesHTML(st.strikes)}`;
+  if (solo){
+    if (!st.done){
+      mid += `<div class="guess">
+        <div class="guess-row"><input type="text" id="guess" placeholder="Type a survey answer" aria-label="Your guess" autocomplete="off" spellcheck="false" enterkeyhint="send"><button class="btn primary" data-act="guess">Guess</button></div>
+        ${clockHTML(st.left ?? secs(), secs())}
+        <div class="msg ${st.msgKind}" id="msg" role="status">${esc(st.msg)}</div></div>
+        <div class="actions"><button class="btn small ghost" data-act="giveup">${r.sudden ? 'Pass' : 'End round'}</button></div>`;
+    } else {
+      mid += `<div class="msg ${st.msgKind}" role="status">${esc(st.msg)}</div>
+        <div class="endnote">Round points: <b>${st.bank * mult}</b> · Total: <b>${S.soloScore}</b></div>
+        <div class="actions"><button class="btn primary" data-act="next">${S.r + 1 < DATA.rounds.length ? 'Next round' : 'See final score'}</button></div>`;
+    }
+  } else {
+    mid += `<div class="actions">
+      ${st.done ? '' : `<button class="btn danger" data-act="strike" ${st.strikes >= 3 && !r.sudden ? 'disabled' : ''}>Strike X</button>
+      <button class="btn" data-act="reveal-rest">Reveal remaining</button>`}
+      ${st.awarded != null ? `<button class="btn primary" data-act="next">${S.r + 1 < DATA.rounds.length ? 'Next round' : 'See final scores'}</button>` : ''}
+    </div>
+    <div class="hint">${st.awarded != null ? `${esc(S.teams[st.awarded])} got ${st.bank * mult} points.` : 'Click an answer to reveal it. When the round is over, award the points to a team.'}</div>`;
+  }
+  const team = i => `<div class="teambox t${i + 1}"><div class="sc">${S.scores[i]}</div><div class="nm">${esc(S.teams[i])}</div>
+    ${st.awarded == null ? `<button class="btn small primary" data-act="award" data-t="${i}" ${st.bank ? '' : 'disabled'}>Award ${st.bank * mult}</button>` : ''}</div>`;
+  g.innerHTML = solo ? `<div class="boardwrap">${mid}</div>` : `${team(0)}<div class="boardwrap">${mid}</div>${team(1)}`;
+  if (solo && !st.done){ const inp = $('#guess'); inp && inp.focus(); }
+}
+
+// ---------- Round flow ----------
+let tId = null;
+function stopTimer(){ clearInterval(tId); tId = null; }
+function startTimer(){
+  stopTimer(); const st = S.round; st.left = secs();
+  const upd = () => { const t = $('#clock-t'), b = $('#clock-bar'), c = $('#clock'); if (t) t.textContent = st.left; if (b) b.style.width = (st.left / secs() * 100) + '%'; if (c) c.classList.toggle('low', st.left <= 5); };
+  upd();
+  tId = setInterval(() => { st.left = Math.max(0, st.left - 1); upd(); if (st.left === 0){ stopTimer(); miss('Time’s up!'); } }, 1000);
+}
+function beginRound(){
+  S.round = newRound(); save(); show('game');
+  if (S.mode === 'solo') startTimer();
+}
+function showIntro(){
+  const r = R(), ov = $('#intro'), mult = Number(r.mult) || 1;
+  const num = DATA.rounds.slice(0, S.r + 1).filter(x => !x.sudden).length;
+  ov.className = 'overlay';
+  ov.innerHTML = `<p class="kicker">${r.sudden ? 'Final question' : 'Round ' + num}</p>
+    <h2 class="big">${r.sudden ? 'Sudden<br>Death' : mult > 1 ? (mult === 2 ? 'Double<br>Points' : 'Triple<br>Points') : 'Survey<br>Says…'}</h2>
+    <p class="intro-q">${r.sudden ? 'Only the number one answer counts' + (mult > 1 ? `, worth ×${mult}` : '') + '.' : rlen(r) + ' answers on the board' + (mult > 1 ? ` · points ×${mult}` : '')}</p>
+    ${S.mode === 'solo' ? `<p class="line">Score so far: <b>${S.soloScore}</b></p>` : `<p class="line">${esc(S.teams[0])} <b>${S.scores[0]}</b> · ${esc(S.teams[1])} <b>${S.scores[1]}</b></p>`}
+    <div class="actions"><button class="btn primary" data-act="intro-go">${S.mode === 'solo' ? 'Start the clock' : 'Show the board'}</button></div>`;
+  ov.hidden = false; sSting();
+}
+function setMsg(t, k){ const st = S.round; st.msg = t; st.msgKind = k; const m = $('#msg'); if (m){ m.textContent = t; m.className = 'msg ' + k; } }
+function flip(i){ const el = document.querySelectorAll('.slot')[i]; if (el){ el.classList.add('open'); } }
+function guess(){
+  const st = S.round, r = R(); if (!st || st.done) return;
+  const inp = $('#guess'); const g = (inp ? inp.value : '').trim(); if (!g) return;
+  inp.value = '';
+  const pool = r.sudden ? [0] : r.answers.map((_, i) => i);
+  const hit = pool.find(i => !st.open.includes(i) && matches(g, r.answers[i].text, r.answers[i].accept));
+  if (hit != null){
+    st.open.push(hit); st.bank += ptsOf(S.r, hit); sDing();
+    setMsg(`Survey says… ${r.answers[hit].text}!`, 'good');
+    renderGame(); requestAnimationFrame(() => flip(hit));
+    if (r.sudden || st.open.length === rlen(r)) return finishRound(r.sudden ? 'Number one answer! ' : 'You cleared the board! ', 'good');
+    startTimer(); save(); return;
+  }
+  if (!r.sudden && pool.some(i => st.open.includes(i) && matches(g, r.answers[i].text, r.answers[i].accept))){ setMsg('Already on the board. Try another.', 'info'); return; }
+  miss(`“${g}” isn’t on the board.`);
+}
+function miss(text){
+  const st = S.round, r = R(); if (!st || st.done) return;
+  bigX(r.sudden ? 1 : st.strikes + 1); sBuzz();
+  if (r.sudden){ setMsg(text, 'bad'); return finishRound(text + ' ', 'bad'); }
+  st.strikes++;
+  if (st.strikes >= 3){ setMsg(text, 'bad'); return finishRound('Three strikes. ', 'bad'); }
+  setMsg(text + ` Strike ${st.strikes}.`, 'bad'); renderGame(); setMsg(text + ` Strike ${st.strikes}.`, 'bad'); startTimer(); save();
+}
+function finishRound(prefix, kind){
+  stopTimer(); const st = S.round, r = R(), mult = Number(r.mult) || 1;
+  st.done = true;
+  if (S.mode === 'solo'){ S.soloScore += st.bank * mult; S.log.push({ q: r.q, pts: st.bank * mult, found: st.open.length, of: rlen(r) }); }
+  st.msg = prefix + (st.open.length < rlen(r) ? 'Here’s the rest of the board.' : ''); st.msgKind = kind;
+  save(); setTimeout(() => renderGame(), r.sudden || st.open.length === rlen(r) ? 700 : 900);
+}
+function bigX(n){ const b = $('#bigx'); b.innerHTML = `<div>${'<span>X</span>'.repeat(Math.min(3, n))}</div>`; b.hidden = false; clearTimeout(bigX.t); bigX.t = setTimeout(() => { b.hidden = true; }, 950); }
+function nextRound(){
+  S.r++; S.round = null;
+  if (S.r >= DATA.rounds.length){ S.screen = 'done'; save(); return showResults(); }
+  save(); showIntro();
+}
+
+// ---------- Results ----------
+const maxPossible = () => DATA.rounds.reduce((a, r, ri) => a + (r.sudden ? ptsOf(ri, 0) : r.answers.reduce((x, y, ai) => x + ptsOf(ri, ai), 0)) * (Number(r.mult) || 1), 0);
+function showResults(){
+  stopTimer(); $('#s-game').hidden = true;
+  const ov = $('#results'), solo = S.mode === 'solo';
+  let tier, body;
+  if (solo){
+    const max = maxPossible() || 1, pct = S.soloScore / max;
+    tier = pct >= .6 ? 'fanfare' : S.soloScore > 0 ? 'small' : 'shame';
+    const T = { fanfare:['Top answer!','You found most of the board. Strong pharm knowledge.'], small:['Nice work!','You put points on the board. Review the answers you missed and play again.'], shame:['Shame!','Zero points. Hit the drug guide, then come back.'] }[tier];
+    body = `<p class="kicker">Final score</p><h2 class="big">${T[0]}</h2><div class="score-big">${S.soloScore}</div>
+      <p class="line">${esc(S.solo)} · ${Math.round(pct * 100)}% of the ${max} points available</p>
+      <ol class="rlist">${S.log.map(l => `<li><span>${esc(l.q)}</span><b>${l.found}/${l.of} · ${l.pts}</b></li>`).join('')}</ol>
+      <p class="line">${T[1]}</p>`;
+  } else {
+    const [a, b] = S.scores, top = Math.max(a, b);
+    tier = top > 0 ? 'fanfare' : 'shame';
+    const winner = a === b ? 'It’s a tie!' : `${esc(S.teams[a > b ? 0 : 1])} wins!`;
+    body = `<p class="kicker">Final scores</p><h2 class="big">${winner}</h2>
+      <ol class="rlist"><li><span>${esc(S.teams[0])}</span><b>${a}</b></li><li><span>${esc(S.teams[1])}</span><b>${b}</b></li></ol>`;
+  }
+  ov.className = 'overlay' + (tier === 'shame' ? ' shame' : '');
+  ov.innerHTML = `<canvas id="confetti" aria-hidden="true"></canvas>${body}
+    <div class="actions"><button class="btn primary" data-act="again">Play again</button><button class="btn" data-act="main-menu">Return to Main Menu</button></div>`;
+  ov.hidden = false; playTier(tier); confetti(tier);
+}
+let cRAF = null;
+function confetti(tier){
+  cancelAnimationFrame(cRAF); if (tier === 'shame' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = $('#confetti'); if (!cv) return; const ctx = cv.getContext('2d'), dpr = devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cols = ['#ffc65a','#ff8a1e','#ffffff','#3e6cff','#3ddc84'], big = tier === 'fanfare', P = [];
+  const burst = (n, x, y, sp) => { for (let i = 0; i < n; i++){ const a = -Math.PI / 2 + (Math.random() - .5) * sp, v = 6 + Math.random() * (big ? 11 : 6); P.push({x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, w: 6 + Math.random() * 7, h: 3 + Math.random() * 5, r: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cols[i % cols.length]}); } };
+  if (big){ burst(140, W * .15, H, 1.1); burst(140, W * .85, H, 1.1); setTimeout(() => burst(180, W * .5, H, 1.5), 700); } else burst(70, W * .5, H * .9, 1.3);
+  const end = performance.now() + (big ? 8000 : 5000);
+  const step = t => { ctx.clearRect(0, 0, W, H); for (const p of P){ p.vy += .18; p.vx *= .99; p.vy *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore(); }
+    if (t < end) cRAF = requestAnimationFrame(step); else ctx.clearRect(0, 0, W, H); };
+  cRAF = requestAnimationFrame(step);
+}
+function playTier(t){
+  if (t === 'fanfare'){ [[392,0,.13],[392,.15,.13],[392,.3,.13],[523,.45,.45],[466,.95,.2],[523,1.17,.2],[659,1.4,1.3]].forEach(([f, s, d]) => { tone(f, s, d, 'sawtooth', .1); tone(f / 2, s, d, 'square', .04); }); }
+  else if (t === 'small'){ [[784,0],[988,.12],[1175,.24],[1568,.38]].forEach(([f, s]) => tone(f, s, .7, 'sine', .15)); }
+  else { [[311,0],[294,.5],[277,1]].forEach(([f, s]) => tone(f, s, .45, 'sawtooth', .14, f * .97)); tone(262, 1.5, 1.6, 'sawtooth', .14); }
+}
+
+// ---------- Editor ----------
+// Opening the page once with #edit remembers this device, so the Edit button survives reloads and updates.
+const EK = LS + '-editor';
+function editorRemembered(){ try { return localStorage.getItem(EK) === '1'; } catch(e){ return false; } }
+function rememberEditor(on){ try { on ? localStorage.setItem(EK, '1') : localStorage.removeItem(EK); } catch(e){} }
+let mayEdit = false, standalone = false, artifactApi = null, dirty = false, saving = false, saveMsg = '';
+function openEditor(){ if (!mayEdit) return; stopTimer(); $('#editor').hidden = false; renderEditor(); }
+function statusText(){
+  if (saving) return 'Saving…'; if (saveMsg) return saveMsg;
+  if (standalone) return dirty ? 'Unsaved changes. Select Download updated file, then upload it to Netlify to make them permanent.' : 'To keep changes, download the updated file and upload it to your Netlify site.';
+  if (artifactApi) return dirty ? 'Unsaved changes. Select Save to keep them in this page.' : 'Changes apply to the game right away. Save keeps them for next time.';
+  return dirty ? 'Unsaved changes will be lost when the page reloads.' : 'Saving isn’t available in this view, so changes last until reload.';
+}
+function renderEditor(){
+  const ed = $('#editor');
+  ed.innerHTML = `<div class="ed-head"><h2>Edit questions</h2>
+      ${artifactApi ? `<button class="btn primary" data-act="ed-save" ${dirty && !saving ? '' : 'disabled'}>Save</button>` : ''}
+      ${standalone ? `<button class="btn primary" data-act="ed-download">Download updated file</button>` : ''}
+      <button class="btn" data-act="ed-close">Done</button>
+      ${editorRemembered() ? `<button class="btn small ghost" data-act="ed-forget" title="Use this on a shared or classroom computer">Hide Edit on this device</button>` : ''}
+      <div class="ed-status${dirty ? ' dirty' : ''}" id="ed-status">${statusText()}</div></div>
+    <div class="ed-body"><div class="ed-inner">
+      <div class="ed-set"><label>Game subtitle <input type="text" id="e-sub" data-ed="sub" value="${esc(DATA.subtitle || '')}" style="width:220px"></label>
+        <label>Seconds per guess (solo) <input type="number" id="e-secs" data-ed="secs" min="5" max="120" value="${secs()}"></label>
+        <label><input type="checkbox" id="e-rand" data-ed="rand" ${randomOn() ? 'checked' : ''}> Random points each game (rounds total 90–100, top answers worth most)</label></div>
+      ${randomOn() ? '<p class="note" style="margin:0">Random points are on, so the Points boxes below are ignored except for Sudden Death. Untick the box above to use your own values.</p>' : ''}
+      ${DATA.rounds.map((r, ri) => `<div class="ed-round">
+        <div class="ed-rh"><div class="top"><b>${r.sudden ? 'Sudden Death' : 'Round ' + (ri + 1)}</b>
+          <label>Points × <select id="em-${ri}" data-ed="mult" data-r="${ri}">${[1,2,3].map(m => `<option ${Number(r.mult || 1) === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+          <label><input type="checkbox" id="es-${ri}" data-ed="sudden" data-r="${ri}" ${r.sudden ? 'checked' : ''}> Sudden Death (top answer only)</label>
+          <button class="btn small ghost" data-act="ed-del-round" data-r="${ri}">Delete round</button></div>
+          <textarea id="eq-${ri}" data-ed="q" data-r="${ri}" aria-label="Survey question">${esc(r.q)}</textarea></div>
+        <div class="ed-cols"><span></span><span>Answer</span><span>Points</span><span class="acc">Also accept (separate with ;)</span><span></span></div>
+        ${r.answers.map((a, ai) => `<div class="ed-ans"><span class="n">${ai + 1}</span>
+          <input type="text" id="ea-${ri}-${ai}" data-ed="text" data-r="${ri}" data-a="${ai}" value="${esc(a.text)}" aria-label="Answer ${ai + 1}">
+          <input type="number" id="ep-${ri}-${ai}" data-ed="pts" data-r="${ri}" data-a="${ai}" value="${a.points}" min="0" aria-label="Points for answer ${ai + 1}">
+          <input class="acc" type="text" id="ex-${ri}-${ai}" data-ed="acc" data-r="${ri}" data-a="${ai}" value="${esc((a.accept || []).join('; '))}" aria-label="Other accepted wording for answer ${ai + 1}">
+          <button class="btn small ghost" data-act="ed-del-ans" data-r="${ri}" data-a="${ai}" aria-label="Remove answer ${ai + 1}">✕</button></div>`).join('')}
+        <div class="ed-foot">${r.answers.length < 8 ? `<button class="btn small" data-act="ed-add-ans" data-r="${ri}">+ Add answer</button>` : '<span class="hint">8 answers is the most a board holds.</span>'}</div>
+      </div>`).join('')}
+      <div><button class="btn" data-act="ed-add-round">+ Add round</button></div>
+    </div></div>`;
+}
+function markDirty(){ dirty = true; saveMsg = ''; const st = $('#ed-status'); if (st){ st.textContent = statusText(); st.classList.add('dirty'); } const b = $('[data-act="ed-save"]'); if (b) b.disabled = false; }
+function buildDocument(){
+  const json = JSON.stringify(DATA).replace(/</g, '\\u003c');
+  const parts = KEEP.map((el, i) => el.id === 'game-data' ? `<script type="application/json" id="game-data" data-keep>${json}<\/script>` : SOURCE[i]);
+  if (standalone) return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n</head>\n<body>\n' + parts.join('\n') + '\n</body>\n</html>\n';
+  return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>' + parts.join('\n') + '</body></html>';
+}
+async function saveToPage(){
+  if (!artifactApi || saving) return; saving = true; renderEditor();
+  try { await artifactApi.publish(buildDocument()); dirty = false; saveMsg = 'Saved. The page reloads with your changes.'; }
+  catch (e){ const c = String(e && (e.code || e.message) || ''); saveMsg = /not_writer|not_granted/.test(c) ? 'You can’t save this page. Ask its owner for edit access.' : /conflict/.test(c) ? 'A newer version was saved first. Make your change again after the page reloads.' : 'Save didn’t go through. Check your connection and select Save again.'; }
+  saving = false; renderEditor();
+}
+
+// ---------- Events ----------
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act;
+  switch (act){
+    case 'mode': S.mode = b.dataset.m === 'team' ? 'team' : 'solo'; save(); renderTitle(); break;
+    case 'start': ac(); S = Object.assign(fresh(), { mode: S.mode, solo: S.solo, teams: S.teams }); dealPoints(); save(); showIntro(); break;
+    case 'resume': ac(); show('game'); if (S.mode === 'solo' && S.round && !S.round.done) startTimer(); break;
+    case 'intro-go': $('#intro').hidden = true; beginRound(); break;
+    case 'menu': stopTimer(); show('title'); break;
+    case 'guess': guess(); break;
+    case 'giveup': setMsg(R().sudden ? 'Passed.' : 'Round ended.', 'info'); finishRound(R().sudden ? 'Passed. ' : 'Round ended. ', 'info'); break;
+    case 'next': nextRound(); break;
+    case 'reveal': { const i = +b.dataset.i, st = S.round, r = R(); if (st.open.includes(i)) break;
+      st.open.push(i); st.bank += ptsOf(S.r, i); sDing(); save(); renderGame(); requestAnimationFrame(() => flip(i)); break; }
+    case 'strike': { const st = S.round; if (!R().sudden) st.strikes = Math.min(3, st.strikes + 1); bigX(R().sudden ? 1 : st.strikes); sBuzz(); save(); renderGame(); break; }
+    case 'reveal-rest': { const st = S.round; st.done = true; sReveal(); save(); renderGame(); break; }
+    case 'award': { const st = S.round, mult = Number(R().mult) || 1, t = +b.dataset.t; S.scores[t] += st.bank * mult; st.awarded = t; st.done = true; sDing(); save(); renderGame(); break; }
+    case 'again': $('#results').hidden = true; cancelAnimationFrame(cRAF); S = Object.assign(fresh(), { mode: S.mode, solo: S.solo, teams: S.teams }); dealPoints(); save(); showIntro(); break;
+    case 'main-menu': $('#results').hidden = true; cancelAnimationFrame(cRAF); S.round = null; S.screen = 'title'; save(); show('title'); break;
+    case 'edit': openEditor(); break;
+    case 'ed-close': $('#editor').hidden = true; if (!$('#s-game').hidden){ S.round = S.round || newRound(); if (S.r >= DATA.rounds.length) S.r = DATA.rounds.length - 1; renderGame(); if (S.mode === 'solo' && !S.round.done) startTimer(); } else renderTitle(); break;
+    case 'ed-save': saveToPage(); break;
+    case 'ed-forget': rememberEditor(false); $('#editor').hidden = true; mayEdit = false; document.querySelectorAll('[data-edit-only]').forEach(el => { el.hidden = true; }); if (!$('#s-game').hidden) renderGame(); else renderTitle(); break;
+    case 'ed-download': { const url = URL.createObjectURL(new Blob([buildDocument()], {type:'text/html'})); const a = document.createElement('a'); a.href = url; a.download = 'index.html'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+      dirty = false; saveMsg = 'Downloaded index.html. Upload it on your Netlify site’s Deploys page to publish the changes.'; renderEditor(); break; }
+    case 'ed-add-ans': DATA.rounds[+b.dataset.r].answers.push({ text: 'New answer', points: 0 }); markDirty(); renderEditor(); break;
+    case 'ed-del-ans': { const r = DATA.rounds[+b.dataset.r]; if (r.answers.length > 1){ r.answers.splice(+b.dataset.a, 1); markDirty(); renderEditor(); } break; }
+    case 'ed-add-round': { const at = DATA.rounds.findIndex(r => r.sudden); const nr = { q: 'New survey question', mult: 1, answers: [{ text: 'Answer', points: 30 }] }; if (at < 0) DATA.rounds.push(nr); else DATA.rounds.splice(at, 0, nr); markDirty(); renderEditor(); break; }
+    case 'ed-del-round': if (DATA.rounds.length > 1){ DATA.rounds.splice(+b.dataset.r, 1); markDirty(); renderEditor(); } break;
+  }
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.id === 'solo-name'){ S.solo = el.value; save(); return; }
+  if (el.id === 'tn-0' || el.id === 'tn-1'){ S.teams[+el.id.slice(-1)] = el.value; save(); return; }
+  const k = el.dataset.ed; if (!k) return;
+  const r = DATA.rounds[+el.dataset.r], a = r && r.answers[+el.dataset.a];
+  if (k === 'sub') DATA.subtitle = el.value;
+  else if (k === 'rand') DATA.randomPoints = el.checked;
+  else if (k === 'secs') DATA.seconds = Math.max(5, Math.min(120, Number(el.value) || 20));
+  else if (k === 'q') r.q = el.value;
+  else if (k === 'mult') r.mult = Number(el.value) || 1;
+  else if (k === 'sudden') r.sudden = el.checked;
+  else if (k === 'text') a.text = el.value;
+  else if (k === 'pts') a.points = Math.max(0, Number(el.value) || 0);
+  else if (k === 'acc') a.accept = el.value.split(';').map(v => v.trim()).filter(Boolean);
+  markDirty();
+});
+document.addEventListener('change', e => { if (['mult','sudden','rand'].includes(e.target.dataset.ed)) renderEditor(); });
+document.addEventListener('keydown', e => {
+  if (!$('#editor').hidden) return;
+  if (e.target.id === 'guess' && e.key === 'Enter'){ e.preventDefault(); guess(); }
+});
+
+// ---------- Boot ----------
+function start(d){
+  load(d);
+  try { window.claude?.hot?.snapshot?.(() => S); } catch(e){}
+  if (S.screen === 'game' && S.round && S.r < DATA.rounds.length) show('game'); else { if (S.screen !== 'title') S.screen = 'title'; show('title'); }
+  (async () => {
+    if (!window.claude?.use){
+      standalone = true; if (/(^|[?&#])edit\b/i.test(location.search + location.hash)) rememberEditor(true); mayEdit = editorRemembered();
+    } else {
+      // Owner / editor check, with several signals; #edit on the address also reveals the editor (saving still needs edit rights).
+      try { const user = await window.claude.use('user');
+        if (user){ const [ce, own, fw] = await Promise.all([user.canEdit().catch(() => false), user.isOwner().catch(() => false), Promise.resolve(user.can ? user.can('files.write') : null).catch(() => null)]); mayEdit = !!(ce || own || fw === true); }
+      } catch(e){ mayEdit = false; }
+      if (/(^|[?&#])edit\b/i.test(location.hash)) rememberEditor(true);
+      if (!mayEdit && editorRemembered()) mayEdit = true;
+      if (mayEdit){ try { artifactApi = await window.claude.use('artifact'); } catch(e){ artifactApi = null; } }
+    }
+    document.querySelectorAll('[data-edit-only]').forEach(el => { el.hidden = !mayEdit; });
+    if (!mayEdit) $('#editor').hidden = true; else if (!$('#editor').hidden) renderEditor();
+  })();
+}
+window.addEventListener('hashchange', () => { if (/(^|[?&#])edit\b/i.test(location.hash)){ mayEdit = true; rememberEditor(true); document.querySelectorAll('[data-edit-only]').forEach(el => { el.hidden = false; }); if (!standalone && !artifactApi) window.claude?.use?.('artifact').then(a => { artifactApi = a; }).catch(() => {}); } });
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script></body></html>

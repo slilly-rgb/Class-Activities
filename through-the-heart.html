@@ -1,0 +1,407 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Through the Heart</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: anatomical circuit diagram beside a study panel; stacks on phones. Blue = O2-poor, red = O2-rich. */
+:root {
+  --bg: #F1F4F8; --surface: #FFFFFF; --ink: #17202C; --muted: #5C6779; --line: #D5DCE6;
+  --venous: #2D58B4; --venous-soft: #E3EBFA; --arterial: #BF2639; --arterial-soft: #FBE5E8;
+  --lung: #7A4FA3; --lung-soft: #EFE7F7; --good: #1F7A4D; --good-soft: #E1F3EA; --bad: #B4232F; --bad-soft: #FBE4E6;
+  --f-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E131A; --surface: #161D27; --ink: #E6EBF2; --muted: #96A1B2; --line: #2A3443;
+  --venous: #7097EA; --venous-soft: #1B2A47; --arterial: #F0687A; --arterial-soft: #3B1C24;
+  --lung: #B08DD6; --lung-soft: #2C2240; --good: #5BC994; --good-soft: #15332A; --bad: #F2737E; --bad-soft: #3B1C22; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E131A; --surface: #161D27; --ink: #E6EBF2; --muted: #96A1B2; --line: #2A3443;
+  --venous: #7097EA; --venous-soft: #1B2A47; --arterial: #F0687A; --arterial-soft: #3B1C24;
+  --lung: #B08DD6; --lung-soft: #2C2240; --good: #5BC994; --good-soft: #15332A; --bad: #F2737E; --bad-soft: #3B1C22; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 24px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; }
+header { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(36px, 7vw, 56px); line-height: .95; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+h1 .v { color: var(--venous); } h1 .a { color: var(--arterial); }
+.lede { margin: 4px 0 0; color: var(--muted); max-width: 60ch; }
+
+.tabs { display: flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; width: fit-content; max-width: 100%; flex-wrap: wrap; }
+.tabs button { font: 600 15px var(--f-body); border: 0; background: transparent; color: var(--muted); padding: 8px 16px; border-radius: 7px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.tabs button:focus-visible, .btn:focus-visible, .tile:focus-visible, .opt:focus-visible, .node:focus-visible { outline: 3px solid var(--lung); outline-offset: 2px; }
+
+.stage { display: grid; gap: 20px; align-items: start; }
+@media (min-width: 820px) { .stage { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); } .stage.solo { grid-template-columns: minmax(0, 720px); } }
+.diagram { display: grid; justify-items: center; }
+.diagram svg { width: 100%; max-width: 440px; height: auto; display: block; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+
+/* diagram */
+.ring { fill: none; stroke-width: 10; stroke-linecap: round; opacity: .18; }
+.flow { fill: none; stroke-width: 3; stroke-dasharray: 3 11; stroke-linecap: round; animation: flow 1.6s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -28; } }
+.node { cursor: pointer; }
+.node .shape { fill: var(--surface); stroke-width: 2.5; transition: fill .2s; }
+.node .num { font: 500 11px var(--f-mono); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.node .lbl { font: 600 12.5px var(--f-body); fill: var(--ink); dominant-baseline: central; pointer-events: none; }
+.node.ven .shape { stroke: var(--venous); } .node.ven .num { fill: var(--venous); }
+.node.art .shape { stroke: var(--arterial); } .node.art .num { fill: var(--arterial); }
+.node.lun .shape { stroke: var(--lung); } .node.lun .num { fill: var(--lung); }
+.node.on.ven .shape { fill: var(--venous); } .node.on.art .shape { fill: var(--arterial); } .node.on.lun .shape { fill: var(--lung); }
+.node.on .num { fill: var(--surface); }
+.node.hidden .lbl { fill: var(--muted); opacity: .5; } .node.hidden .shape { stroke-dasharray: 3 3; }
+.halo { fill: none; stroke-width: 2; opacity: .55; transform-box: fill-box; transform-origin: center; animation: pulse 1.6s ease-out infinite; }
+@keyframes pulse { from { transform: scale(1); opacity: .6; } to { transform: scale(1.9); opacity: 0; } }
+.region { font: 700 15px var(--f-display); letter-spacing: .06em; text-transform: uppercase; text-anchor: middle; }
+.region-sub { font: 500 10.5px var(--f-mono); fill: var(--muted); text-anchor: middle; }
+.circuit { font: italic 400 12px var(--f-body); fill: var(--muted); text-anchor: middle; }
+.end { font: 600 12.5px var(--f-body); fill: var(--muted); text-anchor: middle; }
+
+/* panel content */
+.stopno { font-family: var(--f-mono); font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.stop h2 { font-family: var(--f-display); font-size: 34px; line-height: 1; margin: 4px 0 10px; text-wrap: balance; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font: 600 12px var(--f-body); padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.chip.ven { background: var(--venous-soft); color: var(--venous); border-color: transparent; }
+.chip.art { background: var(--arterial-soft); color: var(--arterial); border-color: transparent; }
+.chip.lun { background: var(--lung-soft); color: var(--lung); border-color: transparent; }
+.stop p { margin: 0; max-width: 62ch; }
+.rn { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 4px; }
+.rn .k { font: 700 13px var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--lung); }
+.route { font-size: 14px; color: var(--muted); }
+.route b { color: var(--ink); }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: 600 15px var(--f-body); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn:disabled { opacity: .4; cursor: default; }
+
+.prompt { font-family: var(--f-display); font-size: 26px; line-height: 1.1; margin: 0; text-wrap: balance; }
+.meta { display: flex; gap: 16px; flex-wrap: wrap; font: 500 13px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--venous), var(--lung), var(--arterial)); width: 0; transition: width .3s; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.tile { font: 600 15px var(--f-body); text-align: left; padding: 11px 12px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; min-height: 48px; }
+.tile:hover:not(:disabled) { border-color: var(--ink); }
+.tile.done { background: var(--good-soft); color: var(--good); border-color: transparent; cursor: default; }
+.tile.done::before { content: attr(data-n) "  "; font-family: var(--f-mono); font-size: 12px; }
+.tile.wrong { background: var(--bad-soft); border-color: var(--bad); animation: shake .35s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.note { font-size: 15px; padding: 10px 12px; border-radius: 8px; background: var(--bg); color: var(--muted); }
+.note.bad { background: var(--bad-soft); color: var(--bad); }
+.note.good { background: var(--good-soft); color: var(--good); }
+
+.q { font-size: 19px; font-weight: 600; margin: 0; max-width: 62ch; }
+.opts { display: grid; gap: 8px; }
+.opt { font: 400 16px var(--f-body); text-align: left; padding: 12px 14px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; display: flex; gap: 10px; }
+.opt .l { font: 500 13px var(--f-mono); color: var(--muted); padding-top: 2px; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt:disabled { cursor: default; }
+.opt.right { background: var(--good-soft); border-color: var(--good); }
+.opt.miss { background: var(--bad-soft); border-color: var(--bad); }
+.why { font-size: 15px; border-left: 3px solid var(--lung); padding: 2px 0 2px 12px; }
+.score { font-family: var(--f-display); font-size: 64px; line-height: 1; margin: 0; font-variant-numeric: tabular-nums; }
+.review { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.review li { font-size: 15px; padding: 10px 12px; border-radius: 8px; background: var(--bg); }
+.review li b { display: block; }
+
+@media (prefers-reduced-motion: reduce) { .flow, .halo, .tile.wrong { animation: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Cardiac A&amp;P · Nursing</div>
+    <h1>Through the <span class="v">He</span><span class="a">art</span></h1>
+    <p class="lede">Follow one drop of blood through 14 stops, from the vena cavae to the aorta. Learn the path, put it in order from memory, then test yourself with clinical questions.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Activity mode">
+    <button role="tab" id="tab-learn" data-mode="learn" aria-selected="true">1 · Learn</button>
+    <button role="tab" id="tab-sequence" data-mode="sequence" aria-selected="false">2 · Sequence</button>
+    <button role="tab" id="tab-check" data-mode="check" aria-selected="false">3 · Check</button>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="diagram" id="diagramCol"><svg id="svg" viewBox="0 0 420 470" role="img" aria-label="Circuit diagram of blood flow through the heart"></svg></div>
+    <section class="panel" id="panel" aria-live="polite"></section>
+  </div>
+</div>
+
+<script>
+const STOPS = [
+  { name: "Superior & inferior vena cavae", short: "Vena cavae", type: "Vessel", side: "ven",
+    fact: "The two largest veins return O₂-poor blood to the heart. The SVC drains the head, neck, and arms; the IVC drains the trunk and legs. Both empty into the right atrium.",
+    rn: "Central venous pressure (CVP) reflects pressure where the vena cavae meet the right atrium, normally about 2–6 mmHg. A high CVP with jugular vein distention suggests fluid overload or right-sided failure." },
+  { name: "Right atrium", short: "Right atrium", type: "Chamber", side: "ven",
+    fact: "Receives blood from the SVC, IVC, and coronary sinus. Its wall holds the SA node, the heart's natural pacemaker.",
+    rn: "The SA node normally fires 60–100 times per minute. Atrial stretch from volume overload can trigger atrial dysrhythmias." },
+  { name: "Tricuspid valve", short: "Tricuspid valve", type: "AV valve", side: "ven",
+    fact: "Three leaflets separate the right atrium from the right ventricle. It opens when atrial pressure exceeds ventricular pressure and closes at the start of ventricular systole, contributing to S1.",
+    rn: "Auscultate at the 4th intercostal space, left lower sternal border. Tricuspid regurgitation pushes blood back into the right atrium and the systemic veins." },
+  { name: "Right ventricle", short: "Right ventricle", type: "Chamber", side: "ven",
+    fact: "A thinner-walled pump that pushes blood into the low-pressure pulmonary circuit.",
+    rn: "Right-sided heart failure backs blood into the body: JVD, dependent edema, hepatomegaly, ascites, and weight gain." },
+  { name: "Pulmonic valve", short: "Pulmonic valve", type: "Semilunar valve", side: "ven",
+    fact: "Three half-moon cusps guard the exit of the right ventricle. They close at the start of diastole, contributing the P2 part of S2.",
+    rn: "Auscultate at the 2nd intercostal space, left sternal border." },
+  { name: "Pulmonary trunk", short: "Pulm. trunk", type: "Vessel", side: "ven",
+    fact: "One large artery leaves the right ventricle, then splits into the right and left pulmonary arteries.",
+    rn: "It is an artery carrying O₂-poor blood. Arteries are named for carrying blood away from the heart, not for their oxygen content." },
+  { name: "Pulmonary arteries", short: "Pulm. arteries", type: "Vessel", side: "ven",
+    fact: "The right and left pulmonary arteries deliver O₂-poor blood to each lung, branching down to the pulmonary capillaries.",
+    rn: "A pulmonary embolism lodges here and blocks perfusion: sudden dyspnea, tachycardia, pleuritic chest pain, and falling SpO₂ from V/Q mismatch." },
+  { name: "Lungs (pulmonary capillaries)", short: "Lungs", type: "Gas exchange", side: "lun",
+    fact: "At the alveolar-capillary membrane, CO₂ diffuses out of the blood into the alveoli and O₂ diffuses in. Blood leaves the lungs O₂-rich.",
+    rn: "Anything that fills the alveoli or thickens the membrane (pulmonary edema, pneumonia, ARDS) impairs gas exchange and drops SpO₂." },
+  { name: "Pulmonary veins", short: "Pulm. veins", type: "Vessel", side: "art",
+    fact: "Four pulmonary veins return O₂-rich blood to the left atrium. They are the only adult veins that carry oxygenated blood.",
+    rn: "Left-sided failure raises pressure back through these veins into the lungs: crackles, dyspnea, orthopnea, and pink frothy sputum in pulmonary edema." },
+  { name: "Left atrium", short: "Left atrium", type: "Chamber", side: "art",
+    fact: "Receives O₂-rich blood from the four pulmonary veins and passes it to the left ventricle.",
+    rn: "In atrial fibrillation, blood pools in the left atrium (especially its appendage) and can clot. Those clots can travel to the brain, which is why anticoagulation lowers stroke risk." },
+  { name: "Mitral (bicuspid) valve", short: "Mitral valve", type: "AV valve", side: "art",
+    fact: "Two leaflets, anchored by chordae tendineae and papillary muscles, separate the left atrium from the left ventricle. Its closure contributes to S1.",
+    rn: "Auscultate at the apex: 5th intercostal space, left midclavicular line. Mitral stenosis or regurgitation backs pressure into the lungs." },
+  { name: "Left ventricle", short: "Left ventricle", type: "Chamber", side: "art",
+    fact: "The thickest-walled chamber, because it must generate enough pressure to push blood through the entire systemic circulation.",
+    rn: "Ejection fraction (normal about 50–70%) measures how well the left ventricle empties with each beat." },
+  { name: "Aortic valve", short: "Aortic valve", type: "Semilunar valve", side: "art",
+    fact: "Three cusps guard the exit of the left ventricle. They close at the start of diastole, contributing the A2 part of S2. The coronary arteries arise just above this valve.",
+    rn: "Auscultate at the 2nd intercostal space, right sternal border. Aortic stenosis classically causes angina, syncope, and exertional dyspnea." },
+  { name: "Aorta", short: "Aorta", type: "Vessel", side: "art",
+    fact: "The body's largest artery carries O₂-rich blood out to the systemic circulation. Its branches reach every organ, and the blood returns through the vena cavae to start again.",
+    rn: "A mean arterial pressure (MAP) of at least 65 mmHg is the usual target for adequate organ perfusion." }
+];
+const SIDE_LABEL = { ven: "O₂-poor", art: "O₂-rich", lun: "Gas exchange" };
+
+const QUIZ = [
+  { q: "Blood has just passed through the tricuspid valve. Where is it now?", o: ["Right ventricle", "Right atrium", "Pulmonary trunk", "Left ventricle"],
+    why: "The tricuspid valve separates the right atrium from the right ventricle. From the right ventricle, blood leaves through the pulmonic valve." },
+  { q: "Which valve does blood cross as it leaves the right ventricle?", o: ["Pulmonic valve", "Tricuspid valve", "Aortic valve", "Mitral valve"],
+    why: "The pulmonic (semilunar) valve opens into the pulmonary trunk. The tricuspid is the valve blood crosses to enter the right ventricle." },
+  { q: "Which vessels return oxygenated blood from the lungs to the left atrium?", o: ["Pulmonary veins", "Pulmonary arteries", "Vena cavae", "Pulmonary trunk"],
+    why: "The four pulmonary veins carry O₂-rich blood into the left atrium. They are the only adult veins carrying oxygenated blood." },
+  { q: "Which statement about the pulmonary arteries is correct?", o: ["They carry deoxygenated blood away from the heart", "They carry oxygenated blood away from the heart", "They carry oxygenated blood toward the heart", "They carry deoxygenated blood toward the heart"],
+    why: "Arteries carry blood away from the heart. The pulmonary arteries take O₂-poor blood from the right ventricle to the lungs." },
+  { q: "Which valve sits between the left atrium and the left ventricle?", o: ["Mitral (bicuspid) valve", "Tricuspid valve", "Aortic valve", "Pulmonic valve"],
+    why: "The mitral valve is the left-sided AV valve. Its two leaflets are held by chordae tendineae and papillary muscles." },
+  { q: "Why does the left ventricle have the thickest wall in the heart?", o: ["It pumps against the high resistance of the systemic circulation", "It receives blood from both atria", "It holds more blood than any other chamber", "It contains the SA node"],
+    why: "The left ventricle must generate systemic pressure for the whole body. The right ventricle pumps only into the low-pressure pulmonary circuit." },
+  { q: "Closure of which valves produces S1 (\"lub\")?", o: ["Tricuspid and mitral", "Aortic and pulmonic", "Mitral and aortic", "Tricuspid and pulmonic"],
+    why: "S1 is closure of the AV valves (tricuspid and mitral) at the start of ventricular systole. S2 is closure of the semilunar valves (aortic and pulmonic)." },
+  { q: "Where do you place the stethoscope to best hear the aortic valve?", o: ["2nd intercostal space, right sternal border", "2nd intercostal space, left sternal border", "4th intercostal space, left lower sternal border", "5th intercostal space, left midclavicular line"],
+    why: "Aortic: 2nd ICS RSB. Pulmonic: 2nd ICS LSB. Tricuspid: 4th ICS LLSB. Mitral: 5th ICS MCL (apex)." },
+  { q: "A client with right-sided heart failure has JVD and +2 pitting edema in both ankles. Blood is backing up into which structures?", o: ["The vena cavae and systemic veins", "The pulmonary veins and lungs", "The aorta and systemic arteries", "The pulmonary arteries"],
+    why: "When the right ventricle fails, blood backs up into the right atrium, the vena cavae, and the systemic venous system, producing JVD and dependent edema." },
+  { q: "A client with left-sided heart failure has crackles and orthopnea. Where is pressure backing up?", o: ["Into the left atrium, pulmonary veins, and lungs", "Into the right atrium and vena cavae", "Into the aorta", "Into the pulmonary trunk"],
+    why: "When the left ventricle fails, pressure rises backward into the left atrium and pulmonary veins, pushing fluid into the lungs." },
+  { q: "A deep vein thrombosis breaks loose from a client's calf. Which path does the embolus follow until it lodges?", o: ["IVC → right atrium → tricuspid → right ventricle → pulmonic valve → pulmonary arteries", "IVC → right atrium → mitral → left ventricle → aortic valve → aorta", "IVC → left atrium → mitral → left ventricle → pulmonary arteries", "Pulmonary veins → left atrium → mitral → left ventricle → aorta"],
+    why: "Venous clots travel with venous blood through the right heart and lodge in the narrowing pulmonary arteries. That is a pulmonary embolism." },
+  { q: "A client in atrial fibrillation forms a clot in the left atrium. Which route carries it toward the brain?", o: ["Mitral valve → left ventricle → aortic valve → aorta", "Tricuspid → right ventricle → pulmonic valve → pulmonary arteries", "Pulmonary veins → lungs → pulmonary arteries → aorta", "Aortic valve → left ventricle → mitral valve → aorta"],
+    why: "From the left atrium, blood (and any clot) moves through the mitral valve, left ventricle, aortic valve, and aorta, then up the carotids. That is how A-fib causes embolic stroke." }
+];
+
+/* ---------- diagram ---------- */
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const CX = 210, CY = 236, RX = 108, RY = 196;
+const angles = [];
+for (let i = 1; i <= 7; i++) angles.push(90 + 22.5 * i);   // right heart, up the left side
+angles.push(270);                                           // lungs at top
+for (let j = 1; j <= 6; j++) angles.push(270 + (180 / 7) * j); // left heart, down the right side
+const pt = d => { const r = d * Math.PI / 180; return [CX + RX * Math.cos(r), CY + RY * Math.sin(r)]; };
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
+
+function buildDiagram() {
+  const [bx, by] = pt(90), [lx, ly] = pt(270);
+  const left = `M ${bx} ${by} A ${RX} ${RY} 0 0 1 ${lx} ${ly}`;
+  const right = `M ${lx} ${ly} A ${RX} ${RY} 0 0 1 ${bx} ${by}`;
+  el("path", { d: left, class: "ring", stroke: "var(--venous)" });
+  el("path", { d: right, class: "ring", stroke: "var(--arterial)" });
+  el("path", { d: left, class: "flow", stroke: "var(--venous)" });
+  el("path", { d: right, class: "flow", stroke: "var(--arterial)" });
+
+  el("text", { x: CX, y: 108, class: "circuit" }).textContent = "pulmonary circulation";
+  el("text", { x: CX, y: 372, class: "circuit" }).textContent = "systemic circulation";
+  const r1 = el("text", { x: CX - 46, y: 226, class: "region", fill: "var(--venous)" }); r1.textContent = "Right";
+  el("text", { x: CX - 46, y: 244, class: "region-sub" }).textContent = "heart · O₂-poor";
+  const r2 = el("text", { x: CX + 46, y: 226, class: "region", fill: "var(--arterial)" }); r2.textContent = "Left";
+  el("text", { x: CX + 46, y: 244, class: "region-sub" }).textContent = "heart · O₂-rich";
+  el("text", { x: CX, y: by + 28, class: "end" }).textContent = "Body tissues";
+  el("circle", { cx: bx, cy: by, r: 6, fill: "var(--muted)" });
+
+  STOPS.forEach((s, i) => {
+    const [x, y] = pt(angles[i]);
+    const g = el("g", { class: `node ${s.side}`, tabindex: "0", role: "button", "data-i": i, "aria-label": `Stop ${i + 1}` });
+    const color = `var(--${s.side === "ven" ? "venous" : s.side === "art" ? "arterial" : "lung"})`;
+    el("circle", { cx: x, cy: y, r: 16, class: "halo", stroke: color, style: "display:none" }, g);
+    if (s.type.includes("valve")) el("rect", { x: x - 10, y: y - 10, width: 20, height: 20, transform: `rotate(45 ${x} ${y})`, class: "shape" }, g);
+    else if (s.type === "Vessel") el("rect", { x: x - 15, y: y - 10, width: 30, height: 20, rx: 6, class: "shape" }, g);
+    else el("circle", { cx: x, cy: y, r: s.side === "lun" ? 18 : 15, class: "shape" }, g);
+    el("text", { x, y, class: "num" }, g).textContent = i + 1;
+    let lx2, ly2 = y, anchor;
+    if (s.side === "lun") { lx2 = x; ly2 = y - 30; anchor = "middle"; }
+    else if (x < CX) { lx2 = x - 22; anchor = "end"; }
+    else { lx2 = x + 22; anchor = "start"; }
+    el("text", { x: lx2, y: ly2, class: "lbl", "text-anchor": anchor }, g);
+    g.addEventListener("click", () => onNode(i));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onNode(i); } });
+  });
+  svg.setAttribute("viewBox", "0 -6 420 486");
+}
+function paintDiagram({ active = -1, revealed = null }) {
+  svg.querySelectorAll(".node").forEach(g => {
+    const i = +g.dataset.i, show = revealed === null || i < revealed;
+    g.classList.toggle("on", i === active || (revealed !== null && i < revealed));
+    g.classList.toggle("hidden", !show);
+    g.querySelector(".lbl").textContent = show ? STOPS[i].short : "?";
+    g.setAttribute("aria-label", show ? `Stop ${i + 1}: ${STOPS[i].name}` : `Stop ${i + 1}: not placed yet`);
+    g.querySelector(".halo").style.display = i === active ? "" : "none";
+  });
+}
+
+/* ---------- state ---------- */
+let mode = "learn", cur = 0, timer = null;
+const panel = document.getElementById("panel");
+const stage = document.getElementById("stage");
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+function onNode(i) { if (mode === "learn") { stopPlay(); cur = i; renderLearn(); } }
+
+/* ---------- learn ---------- */
+function renderLearn() {
+  const s = STOPS[cur];
+  const prev = cur > 0 ? STOPS[cur - 1].short : "Body tissues";
+  const next = cur < STOPS.length - 1 ? STOPS[cur + 1].short : "Body tissues";
+  panel.innerHTML = `
+    <div class="stop">
+      <div class="stopno">Stop ${cur + 1} of ${STOPS.length}</div>
+      <h2>${s.name}</h2>
+      <div class="chips"><span class="chip">${s.type}</span><span class="chip ${s.side}">${SIDE_LABEL[s.side]}</span></div>
+    </div>
+    <div class="stop"><p>${s.fact}</p></div>
+    <div class="rn"><span class="k">Nursing connection</span><p>${s.rn}</p></div>
+    <div class="route">From <b>${prev}</b> → here → <b>${next}</b></div>
+    <div class="controls">
+      <button class="btn" id="prev" ${cur === 0 ? "disabled" : ""}>← Back</button>
+      <button class="btn primary" id="next">${cur === STOPS.length - 1 ? "Start over" : "Next stop →"}</button>
+      <button class="btn" id="play">${timer ? "Pause flow" : "Play flow"}</button>
+    </div>`;
+  paintDiagram({ active: cur });
+  panel.querySelector("#prev").onclick = () => { stopPlay(); cur--; renderLearn(); };
+  panel.querySelector("#next").onclick = () => { stopPlay(); cur = (cur + 1) % STOPS.length; renderLearn(); };
+  panel.querySelector("#play").onclick = () => { if (timer) stopPlay(); else { timer = setInterval(() => { cur = (cur + 1) % STOPS.length; renderLearn(); }, 3200); } renderLearn(); };
+}
+function stopPlay() { if (timer) { clearInterval(timer); timer = null; } }
+
+/* ---------- sequence ---------- */
+let seq;
+function newSeq() { seq = { order: shuffle(STOPS.map((_, i) => i)), placed: 0, mistakes: 0, start: Date.now(), msg: null, end: null }; }
+function fmt(ms) { const t = Math.round(ms / 1000); return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; }
+function renderSeq() {
+  paintDiagram({ revealed: seq.placed });
+  if (seq.placed === STOPS.length) {
+    const verdict = seq.mistakes === 0 ? "Perfect path. Every stop in order on the first try." : seq.mistakes <= 3 ? "Strong work. Review the stops you missed, then run it again for a clean round." : "Go back to Learn mode for the stops that tripped you up, then try again.";
+    panel.innerHTML = `
+      <div class="stopno">Sequence complete</div>
+      <p class="prompt">All 14 stops placed.</p>
+      <div class="meta"><span>Time ${fmt(seq.end - seq.start)}</span><span>Wrong taps ${seq.mistakes}</span></div>
+      <div class="bar"><i style="width:100%"></i></div>
+      <div class="note ${seq.mistakes === 0 ? "good" : ""}">${verdict}</div>
+      <div class="controls"><button class="btn primary" id="again">Shuffle and try again</button><button class="btn" id="toCheck">Go to Check →</button></div>`;
+    panel.querySelector("#again").onclick = () => { newSeq(); renderSeq(); };
+    panel.querySelector("#toCheck").onclick = () => setMode("check");
+    return;
+  }
+  const ask = seq.placed === 0 ? "Where does O₂-poor blood first return to the heart? Tap the first stop." : `What comes right after the ${STOPS[seq.placed - 1].short.toLowerCase()}?`;
+  panel.innerHTML = `
+    <div class="stopno">Tap the 14 stops in order</div>
+    <p class="prompt">${ask}</p>
+    <div class="meta"><span>Placed ${seq.placed}/14</span><span>Wrong taps ${seq.mistakes}</span></div>
+    <div class="bar"><i style="width:${seq.placed / 14 * 100}%"></i></div>
+    <div class="tiles">${seq.order.map(i => {
+      const done = i < seq.placed;
+      return `<button class="tile${done ? " done" : ""}" data-i="${i}" data-n="${i + 1}" ${done ? "disabled" : ""}>${STOPS[i].short}</button>`;
+    }).join("")}</div>
+    <div class="note ${seq.msg ? seq.msg.cls : ""}">${seq.msg ? seq.msg.text : "Wrong taps are counted. Each wrong tap gives you a hint about the next stop."}</div>
+    <div class="controls"><button class="btn" id="restart">Restart</button></div>`;
+  panel.querySelectorAll(".tile:not(.done)").forEach(b => b.onclick = () => {
+    const i = +b.dataset.i;
+    if (i === seq.placed) {
+      seq.placed++; seq.msg = { cls: "good", text: `Correct: ${STOPS[i].name} is stop ${i + 1}.` };
+      if (seq.placed === STOPS.length) seq.end = Date.now();
+      renderSeq();
+    } else {
+      seq.mistakes++;
+      const n = STOPS[seq.placed];
+      seq.msg = { cls: "bad", text: `${STOPS[i].short} isn't next. Hint: the next stop is ${n.type === "AV valve" || n.type === "Semilunar valve" ? "an" : "a"} ${n.type.toLowerCase()} carrying ${SIDE_LABEL[n.side] === "Gas exchange" ? "blood through gas exchange" : SIDE_LABEL[n.side] + " blood"}.` };
+      renderSeq();
+      const again = panel.querySelector(`.tile[data-i="${i}"]`);
+      if (again) { again.classList.add("wrong"); setTimeout(() => again.classList.remove("wrong"), 450); }
+    }
+  });
+  panel.querySelector("#restart").onclick = () => { newSeq(); renderSeq(); };
+}
+
+/* ---------- check ---------- */
+let quiz;
+function newQuiz() {
+  quiz = { items: shuffle(QUIZ).map(it => ({ ...it, opts: shuffle(it.o.map((t, k) => ({ t, ok: k === 0 }))) })), k: 0, picked: null, score: 0, missed: [] };
+}
+function renderQuiz() {
+  if (quiz.k === quiz.items.length) {
+    const pct = Math.round(quiz.score / quiz.items.length * 100);
+    panel.innerHTML = `
+      <div class="stopno">Knowledge check complete</div>
+      <p class="score">${quiz.score}/${quiz.items.length}</p>
+      <div class="meta"><span>${pct}%</span><span>${quiz.missed.length} to review</span></div>
+      ${quiz.missed.length ? `<ul class="review">${quiz.missed.map(m => `<li><b>${esc(m.q)}</b>Answer: ${esc(m.a)}</li>`).join("")}</ul>` : `<div class="note good">Every question correct.</div>`}
+      <div class="controls"><button class="btn primary" id="retake">Retake with new order</button><button class="btn" id="toLearn">Review in Learn</button></div>`;
+    panel.querySelector("#retake").onclick = () => { newQuiz(); renderQuiz(); };
+    panel.querySelector("#toLearn").onclick = () => setMode("learn");
+    return;
+  }
+  const it = quiz.items[quiz.k], answered = quiz.picked !== null;
+  panel.innerHTML = `
+    <div class="stopno">Question ${quiz.k + 1} of ${quiz.items.length}</div>
+    <div class="meta"><span>Score ${quiz.score}</span></div>
+    <div class="bar"><i style="width:${quiz.k / quiz.items.length * 100}%"></i></div>
+    <p class="q">${esc(it.q)}</p>
+    <div class="opts">${it.opts.map((o, j) => {
+      let cls = ""; if (answered) { if (o.ok) cls = "right"; else if (j === quiz.picked) cls = "miss"; }
+      return `<button class="opt ${cls}" data-j="${j}" ${answered ? "disabled" : ""}><span class="l">${"ABCD"[j]}</span><span>${esc(o.t)}</span></button>`;
+    }).join("")}</div>
+    ${answered ? `<div class="why"><b>${it.opts[quiz.picked].ok ? "Correct." : "Not quite."}</b> ${esc(it.why)}</div>
+      <div class="controls"><button class="btn primary" id="nextQ">${quiz.k === quiz.items.length - 1 ? "See results" : "Next question →"}</button></div>` : ""}`;
+  if (!answered) panel.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    quiz.picked = +b.dataset.j;
+    if (it.opts[quiz.picked].ok) quiz.score++; else quiz.missed.push({ q: it.q, a: it.o[0] });
+    renderQuiz();
+  });
+  else panel.querySelector("#nextQ").onclick = () => { quiz.k++; quiz.picked = null; renderQuiz(); };
+}
+
+/* ---------- modes ---------- */
+function setMode(m) {
+  stopPlay(); mode = m;
+  document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.mode === m)));
+  const solo = m === "check";
+  document.getElementById("diagramCol").hidden = solo;
+  stage.classList.toggle("solo", solo);
+  if (m === "learn") renderLearn();
+  if (m === "sequence") { if (!seq || seq.placed === STOPS.length) newSeq(); renderSeq(); }
+  if (m === "check") { if (!quiz) newQuiz(); renderQuiz(); }
+}
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+
+buildDiagram();
+const h = (location.hash || "").slice(1);
+setMode(["learn", "sequence", "check"].includes(h) ? h : "learn");
+</script>
+
+</body></html>

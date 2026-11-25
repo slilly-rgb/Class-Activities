@@ -1,0 +1,514 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Six Beats Foundations</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;800;900&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: projected game board — team bay | clue board | team bay; stacks to teams-over-board on narrow screens. Single dark look by choice (projector-first). */
+:root{
+  --ink:#0c1a22; --panel:#13252e; --panel2:#183039; --line:#264550;
+  --text:#eef5f2; --muted:#93acb0;
+  --o2:#5fd3c6; --t1:#ff8a5c; --t2:#8fb0ff; --good:#5fd38c; --bad:#ff5f6d;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--ink);color:var(--text)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.4;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 20px}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--o2);outline-offset:2px}
+button:disabled{cursor:not-allowed;opacity:.35}
+
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;max-width:1500px;margin:0 auto 14px}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand h1{font-family:var(--f-display);font-weight:900;font-size:clamp(24px,3vw,34px);letter-spacing:-.01em;margin:0;text-wrap:balance}
+.brand h1 span{color:var(--o2)}
+.brand small{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:7px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--o2);border-color:var(--o2);color:var(--ink);font-weight:700}
+
+.stage{display:grid;grid-template-columns:minmax(190px,1fr) minmax(0,2.7fr) minmax(190px,1fr);grid-template-areas:"a board b";gap:16px;max-width:1500px;margin:0 auto}
+@media (max-width:860px){.stage{grid-template-columns:1fr 1fr;grid-template-areas:"a b" "board board"}}
+
+/* Team bays */
+.team{grid-area:a;--tc:var(--t1);background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;transition:border-color .2s,box-shadow .2s}
+.team.b{grid-area:b;--tc:var(--t2)}
+.team.buzzed{border-color:var(--tc);box-shadow:0 0 0 4px color-mix(in srgb,var(--tc) 30%,transparent)}
+.team.locked{opacity:.6}
+.tname{width:100%;min-width:0;background:transparent;border:0;border-bottom:2px solid var(--tc);color:var(--tc);font-family:var(--f-display);font-weight:800;font-size:clamp(18px,2vw,24px);padding:2px 0 6px;text-align:center}
+.score{font-family:var(--f-mono);font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(56px,8vw,112px);line-height:1;text-align:center;color:var(--text)}
+.score.neg{color:var(--bad)}
+.score.pop{animation:pop .45s ease}
+@keyframes pop{40%{transform:scale(1.15)}}
+.buzz{background:var(--tc);color:var(--ink);font-family:var(--f-display);font-weight:900;font-size:clamp(16px,1.7vw,20px);text-transform:uppercase;letter-spacing:.03em;padding:16px 10px;border-radius:12px}
+.judge{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.judge button{padding:14px 6px;border-radius:10px;font-weight:700;font-size:16px}
+.ok{background:var(--good);color:var(--ink)}
+.no{background:var(--bad);color:var(--ink)}
+.status{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-align:center;color:var(--muted);min-height:1.4em}
+.team.buzzed .status{color:var(--tc)}
+.adj{display:flex;justify-content:center;gap:8px;margin-top:auto}
+.adj button{font-family:var(--f-mono);font-size:13px;border:1px solid var(--line);border-radius:8px;padding:5px 12px;color:var(--muted)}
+
+/* Board */
+.board{grid-area:board;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(16px,2.2vw,28px);display:flex;flex-direction:column;gap:16px;min-width:0}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.cat{font-family:var(--f-mono);font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--o2);border:1px solid var(--o2);border-radius:6px;padding:5px 10px}
+.count{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.wave{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;height:38px}
+.wave svg{width:100%;height:100%;overflow:visible}
+.wave path{fill:none;stroke:var(--line);stroke-width:3;stroke-linejoin:round;stroke-linecap:round;transition:stroke .3s}
+.wave .on path{stroke:var(--o2)}
+
+.clues{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.clue{display:grid;grid-template-columns:2.2em 1fr;gap:12px;align-items:baseline;padding:10px 14px;border-radius:10px;background:var(--panel2);min-width:0}
+.clue .n{font-family:var(--f-mono);font-weight:700;color:var(--o2);font-size:clamp(15px,1.4vw,18px)}
+.clue .t{font-size:clamp(18px,1.9vw,26px);line-height:1.3;min-width:0}
+.clue.hid{background:transparent;border:1px dashed var(--line)}
+.clue.hid .n,.clue.hid .t{color:var(--line)}
+.clue.fresh{animation:in .5s ease}
+@keyframes in{from{transform:translateY(6px);background:color-mix(in srgb,var(--o2) 25%,var(--panel2))}}
+
+.answer{border-radius:12px;padding:16px 18px;background:color-mix(in srgb,var(--o2) 14%,var(--panel2));border:2px solid var(--o2);display:flex;flex-direction:column;gap:6px}
+.answer .lbl{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.answer .w{font-family:var(--f-display);font-weight:900;font-size:clamp(30px,4vw,52px);line-height:1.05;text-wrap:balance}
+.answer .p{color:var(--muted);font-size:clamp(15px,1.4vw,18px);max-width:65ch}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.primary{background:var(--o2);color:var(--ink);font-family:var(--f-display);font-weight:900;font-size:18px;text-transform:uppercase;letter-spacing:.03em;padding:14px 22px;border-radius:12px}
+.ghost{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-weight:700;color:var(--text)}
+.card{font-family:var(--f-mono);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+.win{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:30px 10px;--wc:var(--t1)}
+.win.wb{--wc:var(--t2)}
+.win .wl{font-family:var(--f-mono);font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--wc);font-size:clamp(16px,2vw,24px)}
+.win h2{font-family:var(--f-display);font-weight:900;font-size:clamp(48px,9vw,140px);line-height:1;margin:0;color:var(--wc);text-wrap:balance;overflow-wrap:anywhere;animation:pop .7s ease}
+.win .wf{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin:0;font-size:clamp(18px,2vw,26px);color:var(--muted)}
+.win .wf b{font-family:var(--f-mono);color:var(--text)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50;width:100%;height:100%}
+.keys{max-width:1500px;margin:14px auto 0;font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 16px}
+.keys b{color:var(--text);font-weight:700;border:1px solid var(--line);border-radius:4px;padding:0 5px}
+.tossrow{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.tside{text-align:center;padding:clamp(18px,3vw,34px) 10px;border-radius:14px;border:3px solid var(--line);background:var(--panel2);font-family:var(--f-display);font-weight:900;font-size:clamp(22px,3vw,40px);min-width:0;overflow-wrap:anywhere;color:var(--muted);transition:all .08s}
+.tside.ta.hi{border-color:var(--t1);color:var(--ink);background:var(--t1)}
+.tside.tb.hi{border-color:var(--t2);color:var(--ink);background:var(--t2)}
+.tvs{font-family:var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.tmsg{font-size:clamp(18px,2vw,24px);margin:0;text-align:center}
+.tmsg strong{color:var(--o2)}
+.pickhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pickhead h2{font-family:var(--f-display);font-weight:900;font-size:clamp(26px,3.4vw,44px);margin:0;text-wrap:balance}
+.picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.picks{grid-template-columns:1fr}}
+.pickcat{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:14px;align-items:center;text-align:left;padding:18px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);transition:border-color .15s}
+.pickcat:hover:not(:disabled){border-color:var(--o2)}
+.pickcat .pk{grid-row:1/3;font-family:var(--f-mono);font-weight:700;color:var(--o2);font-size:20px}
+.pickcat .pn{font-family:var(--f-display);font-weight:800;font-size:clamp(20px,2.2vw,28px);min-width:0}
+.pickcat .pc{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.pickcat.any{border-style:dashed}
+@media (min-width:861px){
+  html,body{height:100%}
+  body{display:flex;flex-direction:column}
+  .stage{flex:1;min-height:0;width:100%}
+  .top,.keys{width:100%}
+  .board{min-height:0;overflow-y:auto}
+  .team{min-height:0}
+  .clues{flex:1;justify-content:space-evenly}
+  .clue .t{font-size:clamp(18px,min(1.9vw,3.2vh),34px)}
+  .score{font-size:clamp(56px,min(8vw,16vh),160px)}
+}
+@media (min-width:861px){.top,.stage,.keys{max-width:none}}
+button.ck{outline:4px solid var(--text);outline-offset:3px;box-shadow:0 0 0 9px color-mix(in srgb,var(--o2) 40%,transparent);position:relative;z-index:1}
+.board .controls{position:sticky;bottom:calc(-1 * clamp(16px,2.2vw,28px));background:var(--panel);padding-block:12px;margin-block:-12px;z-index:2}
+@media (min-width:861px){
+  .keys{flex-wrap:nowrap;overflow:hidden;white-space:nowrap}
+  .board{gap:clamp(8px,1.6vh,16px)}
+  .clue{padding-block:clamp(5px,1vh,10px)}
+  .wave{height:clamp(24px,4vh,38px)}
+  .answer{padding-block:clamp(10px,1.6vh,16px)}
+  .answer .w{font-size:clamp(26px,min(4vw,6.5vh),52px)}
+  .answer .p{font-size:clamp(14px,min(1.4vw,2.4vh),18px)}
+  .board>*{flex-shrink:0}
+  .board>.clues{flex:1 1 auto;min-height:0;overflow-y:auto}
+  .clues.compact{gap:6px}
+  .clues.compact .clue .t{font-size:clamp(15px,min(1.5vw,2.6vh),26px)}
+}
+.judge .wide{grid-column:1/-1}
+.worth{font-family:var(--f-display);font-weight:800;font-size:clamp(16px,1.7vw,24px);display:flex;align-items:baseline;gap:6px}
+.worth b{font-family:var(--f-mono);color:var(--o2);font-size:1.6em;line-height:1;font-variant-numeric:tabular-nums}
+.timer{--p:1;width:clamp(110px,11vw,170px);aspect-ratio:1;max-width:100%;border-radius:50%;margin:4px auto 0;display:grid;place-content:center;text-align:center;position:relative;
+  background:conic-gradient(var(--tc) calc(var(--p) * 360deg),var(--line) 0)}
+.timer::before{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--panel)}
+.timer b,.timer span{position:relative}
+.timer b{font-family:var(--f-mono);font-weight:700;font-size:clamp(40px,4.5vw,68px);line-height:1;font-variant-numeric:tabular-nums}
+.timer span{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.timer.low{--tc:var(--bad)}
+.timer.low b{color:var(--bad);animation:pop .5s ease infinite}
+.timer.out{background:var(--bad)}
+.timer.out b,.timer.out span{color:var(--bad)}
+.tgtrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tchip{font-family:var(--f-mono);font-size:14px;font-weight:700;padding:9px 14px;border-radius:999px;border:1px solid var(--line);color:var(--text)}
+.tchip[aria-pressed="true"]{background:var(--o2);border-color:var(--o2);color:var(--ink)}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.mode{display:flex;flex-direction:column;gap:8px;text-align:left;padding:clamp(18px,2.4vw,30px);border-radius:14px;background:var(--panel2);border:2px solid var(--line);transition:border-color .15s}
+.mode:hover{border-color:var(--o2)}
+.mode .mk{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--o2)}
+.mode .mt{font-family:var(--f-display);font-weight:900;font-size:clamp(26px,3vw,40px);line-height:1.05}
+.mode .md{color:var(--muted);font-size:clamp(15px,1.3vw,18px);line-height:1.45;max-width:46ch}
+.guess{display:flex;gap:10px;flex-wrap:wrap}
+.guess input{flex:1 1 240px;min-width:0;font:inherit;font-size:clamp(18px,1.8vw,24px);padding:12px 16px;border-radius:12px;border:2px solid var(--line);background:var(--panel2);color:var(--text)}
+.guess input:focus{outline:none;border-color:var(--o2)}
+.smsg{margin:0;color:var(--bad);font-weight:700;font-size:clamp(15px,1.4vw,19px)}
+.team.solo{--tc:var(--o2)}
+.team.solo .tname.as{display:block;text-align:center;font-family:var(--f-mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--o2);border-bottom:2px solid var(--o2);padding-bottom:8px}
+.score .of{font-size:.4em;color:var(--muted)}
+.meter{height:12px;border-radius:999px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--o2);border-radius:inherit;transition:width .4s}
+.meter.low i{background:var(--bad)}
+.win.ws{--wc:var(--o2)}
+.missed{display:flex;flex-direction:column;gap:8px;align-items:center;max-width:640px}
+.missed>span{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.missed ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.missed li{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-weight:700}
+.picks .pickcat.any:nth-child(odd){grid-column:1/-1}
+.done{text-align:center;padding:30px 10px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.done h2{font-family:var(--f-display);font-weight:900;font-size:clamp(26px,3vw,40px);margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="brand"><h1>Six <span>Beats</span> Foundations</h1><small>Cardiac A&amp;P &amp; electrophysiology · <span id="tgtlbl">first to 30 wins</span></small></div>
+  <div class="chips" id="chips" role="group" aria-label="Category"></div>
+</header>
+
+<main class="stage">
+  <section class="team a" id="teamA"></section>
+  <section class="board" id="board" aria-live="polite"></section>
+  <section class="team b" id="teamB"></section>
+</main>
+
+<div class="keys">
+  <span><b>Clicker</b> ▶ press highlighted · ◀ move highlight</span><span><b>1</b>–<b>7</b> category</span><span><b>Space</b> next clue</span><span><b>Q</b> / <b>P</b> buzz left / right</span><span><b>C</b> correct / steal</span><span><b>X</b> wrong / missed steal</span><span><b>R</b> reveal</span><span><b>A</b> show all clues</span><span><b>N</b> next word</span><span><b>F</b> full screen</span><span><b>M</b> sound</span>
+</div>
+
+<script>
+const DECK=[
+{"c": "Struct", "a": "Left ventricle", "p": "When it fails, blood backs up into the lungs: crackles, dyspnea, and orthopnea.", "k": ["Its wall is about three times thicker than the right side’s.", "Forms the apex of the heart.", "Receives blood through the mitral valve.", "Its ejection fraction is the one usually reported.", "Pumps blood out through the aortic valve.", "The chamber that pumps oxygenated blood to the body."]},
+{"c": "Struct", "a": "Right atrium", "p": "Central venous pressure estimates the pressure here, a measure of preload and fluid status.", "k": ["Home of the SA node.", "Receives blood from the coronary sinus.", "Central venous pressure reflects the pressure here.", "Empties through the tricuspid valve.", "Receives blood from the superior and inferior vena cava.", "The chamber that receives deoxygenated blood from the body."]},
+{"c": "Struct", "a": "Pericardium", "p": "A sudden buildup of fluid, even a small amount, can squeeze the heart. Watch for Beck’s triad.", "k": ["Has a fibrous outer layer and a serous inner layer.", "Normally holds about 15–50 mL of fluid.", "The fluid lets the heart move without friction.", "Inflammation causes a friction rub.", "Fluid buildup here can cause tamponade.", "The sac around the heart."]},
+{"c": "Struct", "a": "Myocardium", "p": "Damage here lowers contractility, and the injury shows up as a rising troponin.", "k": ["Its cells are joined by intercalated discs.", "Contracts as one coordinated unit.", "Thickest in the left ventricle.", "Dies when a coronary artery is blocked.", "The middle layer of the heart wall.", "The heart muscle itself."]},
+{"c": "Struct", "a": "Interventricular septum", "p": "A hole here, called a VSD, causes a loud holosystolic murmur.", "k": ["Its upper part is thin and membranous.", "The bundle of His travels along it.", "Thickened in hypertrophic cardiomyopathy.", "Mostly supplied by the left anterior descending artery.", "A defect here lets blood shunt between the ventricles.", "The wall between the right and left ventricles."]},
+{"c": "Struct", "a": "Coronary arteries", "p": "Fast heart rates shorten diastole and starve the heart muscle of blood. That’s why rate control matters in ischemia.", "k": ["Branch off the aorta just above the aortic valve.", "Fill mainly during diastole.", "The left anterior descending supplies much of the left ventricle.", "Tachycardia shortens the time they have to fill.", "Blockage causes angina and MI.", "The vessels that supply blood to the heart muscle."]},
+{"c": "Valve", "a": "Mitral valve", "p": "Papillary muscle damage after an MI can make this valve leak suddenly.", "k": ["Has two leaflets.", "Anchored by chordae tendineae and papillary muscles.", "Its closing is part of the S1 heart sound.", "Best heard at the apex.", "Also called the bicuspid valve.", "The valve between the left atrium and left ventricle."]},
+{"c": "Valve", "a": "Tricuspid valve", "p": "Endocarditis in IV drug users often hits this valve first, since it’s the first one injected bacteria reach.", "k": ["Best heard at the left lower sternal border.", "Anchored by chordae tendineae.", "Its closing is part of S1.", "IV drug use raises the risk of endocarditis here.", "Has three leaflets.", "The valve between the right atrium and right ventricle."]},
+{"c": "Valve", "a": "Aortic valve", "p": "When it narrows, afterload rises, and the patient can’t tolerate sudden drops in preload.", "k": ["Has three semilunar cusps.", "The coronary arteries branch off just above it.", "Its closing is part of S2.", "Best heard at the right second intercostal space.", "Narrowing causes angina, syncope, and heart failure.", "The valve between the left ventricle and the aorta."]},
+{"c": "Valve", "a": "Chordae tendineae", "p": "Rupture after an MI causes sudden mitral regurgitation and flash pulmonary edema.", "k": ["Made of strong collagen cords.", "Attach to the papillary muscles.", "Found only on the valves between the atria and ventricles.", "Keep the valve leaflets from flipping back into the atria.", "Rupture causes sudden, severe regurgitation.", "The “heart strings.”"]},
+{"c": "Valve", "a": "S1 heart sound", "p": "Time it with the carotid pulse to tell S1 from S2.", "k": ["Marks the start of ventricular systole.", "Heard best at the apex.", "Happens at about the same time as the carotid pulse.", "Made by the mitral and tricuspid valves closing.", "The “lub” of lub-dub.", "The first heart sound."]},
+{"c": "Valve", "a": "S2 heart sound", "p": "A normal split S2 widens with inspiration as more blood returns to the right side.", "k": ["Marks the start of diastole.", "Heard best at the base of the heart.", "Splits slightly during inspiration.", "Made by the aortic and pulmonic valves closing.", "The “dub” of lub-dub.", "The second heart sound."]},
+{"c": "Func", "a": "Cardiac output", "p": "Watch urine output and mental status. They’re early clues that output is falling.", "k": ["Normal is about 4–8 liters per minute at rest.", "Falls when either the rate or the stroke volume drops too far.", "Low output shows up as hypotension, cool skin, low urine output, and confusion.", "Divide it by body surface area to get the cardiac index.", "Heart rate times stroke volume.", "The amount of blood the heart pumps each minute."]},
+{"c": "Func", "a": "Stroke volume", "p": "When it falls, the heart rate rises to make up for it. Tachycardia is often the first sign of blood loss.", "k": ["Normal is about 60–100 mL.", "End-diastolic volume minus end-systolic volume.", "Drops with hemorrhage or dehydration.", "Set by preload, afterload, and contractility.", "Multiply it by heart rate to get cardiac output.", "The amount of blood ejected with each beat."]},
+{"c": "Func", "a": "Preload", "p": "IV fluids raise it; diuretics and nitroglycerin lower it. Watch lung sounds and daily weights.", "k": ["On the right side, it’s reflected by central venous pressure.", "Depends mostly on how much blood returns to the heart.", "Raised by IV fluids and lowered by diuretics and nitrates.", "Too much leads to fluid overload and crackles.", "Think of it as the volume filling the ventricle.", "The stretch on the ventricle at the end of filling."]},
+{"c": "Func", "a": "Afterload", "p": "Lowering blood pressure lowers it, which eases the heart’s workload in heart failure and MI.", "k": ["Mainly set by systemic vascular resistance.", "Raised by hypertension and aortic stenosis.", "Lowered by ACE inhibitors and arterial dilators.", "When it’s high, the heart needs more oxygen.", "Think of it as the pressure on the other side of the aortic valve.", "The resistance the left ventricle pumps against."]},
+{"c": "Func", "a": "Contractility", "p": "Positive inotropes strengthen it but raise oxygen demand. Watch for arrhythmias and chest pain.", "k": ["Also called inotropy.", "Increased by sympathetic stimulation.", "Decreased by hypoxia, acidosis, and MI.", "Digoxin and dobutamine increase it.", "Beta-blockers and some calcium channel blockers decrease it.", "How forcefully the heart muscle squeezes."]},
+{"c": "Func", "a": "Frank-Starling law", "p": "In heart failure, the stretched ventricle is past its best point, so more fluid causes congestion instead of better output.", "k": ["Named after two physiologists.", "Explains how the heart matches its output to venous return.", "Works only up to a point; overstretched muscle loses force.", "Explains why an overfilled failing heart pumps worse.", "The more the muscle fibers stretch, the harder they contract.", "The law that links preload to stroke volume."]},
+{"c": "Cond", "a": "SA node", "p": "When it fails, backup pacemakers take over at slower rates: the AV junction at 40–60 and the ventricles at 20–40.", "k": ["Sits in the upper right atrium near the superior vena cava.", "Its cells fire on their own, a property called automaticity.", "Slowed by the vagus nerve and sped up by sympathetic stimulation.", "Its impulses produce the P wave.", "Fires 60–100 times a minute.", "The heart’s natural pacemaker."]},
+{"c": "Cond", "a": "AV node", "p": "Drugs that slow it, like beta-blockers, calcium channel blockers, and digoxin, can lengthen the PR interval.", "k": ["Sits in the lower right atrium near the septum.", "Its delay lets the atria finish emptying into the ventricles.", "Accounts for most of the PR interval.", "As a backup pacemaker it fires 40–60 times a minute.", "Adenosine and vagal maneuvers slow conduction here.", "The gatekeeper between the atria and the ventricles."]},
+{"c": "Cond", "a": "Bundle of His", "p": "Blocks at or below this point are serious and often need a pacemaker.", "k": ["Named after a Swiss cardiologist.", "The only normal electrical path between the atria and ventricles.", "Runs down into the interventricular septum.", "Receives the impulse right after the AV node.", "Divides into the right and left bundle branches.", "Also called the AV bundle."]},
+{"c": "Cond", "a": "Bundle branches", "p": "A new left bundle branch block with chest pain should be treated as a possible MI.", "k": ["The left one splits into anterior and posterior fascicles.", "Run down each side of the septum.", "Carry the impulse toward the apex.", "A block in one of them widens the QRS.", "Divided into right and left.", "Connect the bundle of His to the Purkinje fibers."]},
+{"c": "Cond", "a": "Purkinje fibers", "p": "A rhythm that starts here is slow and wide, and it may be the only thing keeping the patient alive.", "k": ["Spread through the ventricular walls.", "Conduct impulses faster than any other heart tissue.", "Receive the signal from the bundle branches.", "As a backup pacemaker they fire only 20–40 times a minute.", "Make the ventricles contract from the apex upward.", "The last stop in the heart’s conduction system."]},
+{"c": "EP", "a": "Automaticity", "p": "Backup pacemakers depend on it: the AV junction at 40–60 and the ventricles at 20–40.", "k": ["Caused by a slow, steady leak of sodium into pacemaker cells.", "Pacemaker cells have no true resting potential.", "Increased by sympathetic stimulation and hypokalemia.", "Every part of the conduction system has it, at different rates.", "The SA node’s is fastest, so it sets the heart rate.", "The ability of cardiac cells to fire on their own."]},
+{"c": "EP", "a": "Depolarization", "p": "Electrical activity doesn’t guarantee a pulse. In PEA, the heart depolarizes but doesn’t pump.", "k": ["Sodium rushes into the cell.", "The inside of the cell becomes more positive.", "It’s the electrical event, not the contraction itself.", "In the atria, it shows as the P wave.", "In the ventricles, it shows as the QRS complex.", "The electrical activation that triggers contraction."]},
+{"c": "EP", "a": "Repolarization", "p": "Potassium problems show up here first, like peaked T waves in hyperkalemia.", "k": ["Potassium leaves the cell.", "The cell returns to its negative resting state.", "In the atria, it’s hidden inside the QRS complex.", "In the ventricles, it shows as the T wave.", "Must happen before the cell can fire again.", "The recovery that follows depolarization."]},
+{"c": "EP", "a": "Refractory period", "p": "That’s why cardioversion is synchronized: it avoids shocking on the T wave.", "k": ["Has absolute and relative phases.", "In the absolute phase, no stimulus can fire the cell.", "In the relative phase, a strong enough stimulus can.", "Keeps the heart from cramping into one long contraction.", "A shock on the T wave during this time can trigger VF.", "The recovery time when a cell can’t respond normally."]},
+{"c": "EP", "a": "Action potential", "p": "Calcium entering during the plateau triggers contraction. That’s why calcium channel blockers lower contractility.", "k": ["Has phases numbered 0 through 4.", "Phase 0 is the rapid rush of sodium into the cell.", "Phase 2, the plateau, comes from calcium entering the cell.", "Phase 3 is potassium leaving the cell.", "Antiarrhythmics are grouped by which phase they affect.", "The electrical change across a cell membrane when it fires."]},
+{"c": "Wave", "a": "P wave", "p": "Ask two questions: is there one for every QRS, and do they all look alike?", "k": ["Normally upright in lead II.", "Usually small and rounded.", "Missing in atrial fibrillation.", "There should be one before every QRS.", "Starts with the SA node firing.", "Shows atrial depolarization."]},
+{"c": "Wave", "a": "PR interval", "p": "Normal is 3–5 small boxes, or 0.12–0.20 seconds.", "k": ["Mostly reflects the delay in the AV node.", "Measured from the start of the P wave to the start of the QRS.", "Longer than normal in first-degree AV block.", "Short when the impulse starts in the AV junction.", "Normal is 0.12–0.20 seconds.", "The time from atrial depolarization to ventricular depolarization."]},
+{"c": "Wave", "a": "QRS complex", "p": "A new wide QRS can mean a ventricular rhythm, a bundle branch block, or high potassium. Check the patient and the labs.", "k": ["Normally less than 0.12 seconds wide.", "Atrial repolarization is hidden inside it.", "Wide when the impulse starts in the ventricles.", "Widens with bundle branch blocks and hyperkalemia.", "Shows ventricular depolarization.", "The tall, sharp spike on the ECG."]},
+{"c": "Wave", "a": "ST segment", "p": "Elevation in two contiguous leads means activate the cath lab.", "k": ["Measured starting at the J point.", "Normally flat, at the baseline.", "The ventricles are fully depolarized during it.", "Depressed with ischemia.", "Elevated with injury.", "The flat line between the QRS and the T wave."]},
+{"c": "Wave", "a": "T wave", "p": "Peaked T waves are an early warning of high potassium. Check the lab and watch the monitor.", "k": ["Normally upright in most leads.", "Inverted with ischemia.", "Tall and peaked with hyperkalemia.", "A shock during it can trigger VF.", "Follows the ST segment.", "Shows ventricular repolarization."]},
+{"c": "Wave", "a": "QT interval", "p": "A QTc over about 500 ms is dangerous. Check electrolytes and review the med list.", "k": ["Corrected for heart rate as the QTc.", "Measured from the start of the QRS to the end of the T wave.", "Lengthened by drugs like haloperidol, ondansetron, and some antibiotics.", "Also lengthened by low potassium and low magnesium.", "Too long raises the risk of torsades de pointes.", "Total time for ventricular depolarization and repolarization."]}
+];
+const CARDNO={"Left ventricle": 14, "Right atrium": 18, "Pericardium": 37, "Myocardium": 19, "Interventricular septum": 94, "Coronary arteries": 25, "Mitral valve": 13, "Tricuspid valve": 31, "Aortic valve": 93, "Chordae tendineae": 83, "S1 heart sound": 79, "S2 heart sound": 97, "Cardiac output": 89, "Stroke volume": 75, "Preload": 21, "Afterload": 63, "Contractility": 17, "Frank-Starling law": 23, "SA node": 95, "AV node": 22, "Bundle of His": 90, "Bundle branches": 44, "Purkinje fibers": 98, "Automaticity": 27, "Depolarization": 45, "Repolarization": 88, "Refractory period": 86, "Action potential": 33, "P wave": 91, "PR interval": 32, "QRS complex": 29, "ST segment": 80, "T wave": 61, "QT interval": 92};
+const TARGETS=[20,30,40];
+function tgt(){return S.target||30}
+function val(){return Math.max(1,Math.min(6,7-S.shown))}
+function pts(n){return n+(n===1?" point":" points")}
+const CATS=["Struct", "Valve", "Func", "Cond", "EP", "Wave"];
+const CAT_LABEL={"Struct":"Structures of the heart","Valve":"Valves &amp; heart sounds","Func":"Cardiac function","Cond":"Conduction system","EP":"Electrophysiology","Wave":"Waves, segments &amp; intervals"};
+let S;
+const $=id=>document.getElementById(id);
+function toggleFs(){
+  try{
+    if(document.fullscreenElement){document.exitFullscreen().catch(()=>{})}
+    else{const r=document.documentElement;const q=r.requestFullscreen||r.webkitRequestFullscreen;if(q){const pr=q.call(r);if(pr&&pr.catch)pr.catch(()=>{})}}
+  }catch(e){}
+}
+document.addEventListener("fullscreenchange",()=>render());
+function burst(t){
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  let c=document.getElementById("confetti");if(!c){c=document.createElement("canvas");c.id="confetti";document.body.appendChild(c)}
+  const x=c.getContext("2d"),W=c.width=innerWidth,H=c.height=innerHeight,cs=getComputedStyle(document.documentElement);
+  const cols=[cs.getPropertyValue(t==="A"?"--t1":"--t2"),cs.getPropertyValue("--o2"),cs.getPropertyValue("--text")];
+  const P=Array.from({length:160},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*16,vy:-Math.random()*16-4,r:Math.random()*6+4,c:cols[Math.floor(Math.random()*3)],a:Math.random()*6}));
+  let f=0;(function draw(){x.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.a+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});
+  if(++f<200)requestAnimationFrame(draw);else c.remove()})();
+}
+let spinning=false,spinHi=null;
+function spin(){
+  if(spinning)return;spinning=true;S.tossWin=null;
+  const win=Math.random()<.5?"A":"B";
+  const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let steps=reduce?0:18+Math.floor(Math.random()*4),cur=Math.random()<.5?"A":"B",delay=55;
+  if(steps){const last=steps%2===1?cur:(cur==="A"?"B":"A");if(last!==win)steps++}
+  const tick=()=>{
+    if(steps<=0){spinning=false;spinHi=null;S.tossWin=win;lastPop=null;save();render();return}
+    spinHi=cur;cur=cur==="A"?"B":"A";steps--;render();
+    delay=steps<6?delay*1.35:delay*1.04;setTimeout(tick,delay)};
+  render();tick();
+}
+function fresh(){return{used:[],cur:null,phase:"mode",mode:null,tossWin:null,target:30,picker:"A",shown:0,buzz:null,locked:[],res:null,scores:{A:0,B:0},names:{A:"Team 1",B:"Team 2"}}}
+function left(cat){return DECK.map((_,i)=>i).filter(i=>!S.used.includes(i)&&(!cat||DECK[i].c===cat))}
+function pick(cat){const pool=left(cat);if(!pool.length)return;S.cur=pool[Math.floor(Math.random()*pool.length)];S.used.push(S.cur);S.phase="play";newRound();if(S.mode==="solo"&&S.solo.bank>0){S.shown=1;S.solo.bank--;freshClue=0}save();render()}
+function newRound(){S.shown=0;S.buzz=null;S.steal=null;S.locked=[];S.res=null;S.how=null;S.at=0}
+function cur(){return DECK[S.cur]}
+function save(){S.n=DECK.length;try{localStorage.setItem("sixbeats-foundations1",JSON.stringify(S))}catch(e){}}
+let lastPop=null,freshClue=-1,resetArm=false,peeking=false;
+
+function checkWin(t){if(!t||S.phase==="win")return;if(S.scores[t]>=tgt()){S.prev=S.phase;S.winner=t;S.phase="win";burst(t)}}
+function act(type,team){
+  if(S.mode==="solo"){if(type==="clue"&&!S.res)return soloAct("clue");if(type==="next")return soloAct("next");if(type!=="clue"&&type!=="allclues")return}
+  if(S.phase!=="play")return;
+  if(type==="clue"){if(S.buzz||S.steal||S.shown>=6)return;S.shown++;if(!S.res)S.locked=[];freshClue=S.shown-1}
+  if(type==="allclues"){if(!S.res||S.shown>=6)return;freshClue=S.shown;S.shown=6}
+  if(type==="buzz"){if(S.res||S.buzz||S.steal||S.shown<1||S.locked.includes(team))return;S.buzz=team;timerStart(team);SFX.buzz()}
+  if(type==="right"){if(S.steal)return act("stealRight");if(!S.buzz)return;S.pts=val();S.scores[S.buzz]+=S.pts;lastPop=S.buzz;S.res=S.buzz;S.how="buzz";S.at=S.shown;S.buzz=null;timerStop();SFX.correct()}
+  if(type==="wrong"){if(S.steal)return act("stealMiss");if(!S.buzz)return;const t=S.buzz,o=t==="A"?"B":"A";S.locked.push(t);S.buzz=null;S.steal=o;SFX.wrong();timerStart(o)}
+  if(type==="stealRight"){if(!S.steal)return;S.pts=val();S.scores[S.steal]+=S.pts;timerStop();SFX.correct();lastPop=S.steal;S.res=S.steal;S.how="steal";S.at=S.shown;S.steal=null}
+  if(type==="stealMiss"){if(!S.steal)return;if(!S.locked.includes(S.steal))S.locked.push(S.steal);S.steal=null;timerStop();SFX.wrong()}
+  if(type==="reveal"){if(S.res)return;timerStop();S.buzz=null;S.steal=null;S.res="reveal";S.at=S.shown}
+  if(type==="right"||type==="stealRight")checkWin(lastPop);
+  if(type==="next"){timerStop();S.picker=(S.res==="A"||S.res==="B")?S.res:S.awarded||(S.picker==="A"?"B":"A");S.awarded=null;S.phase="pick";newRound()}
+  save();render()
+}
+
+function wave(){let h="";for(let i=0;i<6;i++){h+=`<svg viewBox="0 0 60 30" class="${i<S.shown?"on":""}" aria-hidden="true"><path d="M2 20 H16 Q19 15 22 20 H26 L29 24 L33 3 L37 28 L40 20 H45 Q49 13 53 20 H58"/></svg>`}return h}
+
+function renderTeam(t){
+  if(S.mode==="solo"){renderSoloBay(t);return}
+  const el=$(t==="A"?"teamA":"teamB"),stealing=S.phase==="play"&&S.steal===t,buzzed=S.buzz===t||stealing,locked=S.locked.includes(t),sc=S.scores[t];
+  el.className="team "+t.toLowerCase()+(buzzed?" buzzed":"")+(locked?" locked":"");
+  let status="";
+  const revealed=S.phase==="play"&&S.res;
+  const won=S.phase==="win"&&S.winner===t;
+  if(S.phase==="win")status=S.winner===t?"Winner":"";
+  else if(S.phase==="toss")status=S.tossWin===t?"Picks first":"";
+  else if(S.phase==="pick")status=S.picker===t?"Choosing the category":"";
+  else if(S.res===t)status="Scored this word";else if(revealed)status="Adjust points if needed";else if(stealing)status=`Steal for ${pts(val())} · no penalty`;else if(buzzed)status="Answering now";else if(locked)status="Locked until next clue";else if(S.buzz)status="Other team answering";else if(S.steal)status="Other team stealing";
+  const canBuzz=S.phase==="play"&&!S.res&&!S.buzz&&!S.steal&&S.shown>0&&!locked;
+  el.className+=won?" buzzed":"";
+  el.className+=(S.phase==="pick"&&S.picker===t)||(S.phase==="toss"&&(spinHi||S.tossWin)===t)?" buzzed":"";
+  el.innerHTML=`<input class="tname" id="name${t}" value="${S.names[t].replace(/"/g,"&quot;")}" aria-label="Team name" maxlength="24">
+  <div class="score${sc<0?" neg":""}${lastPop===t?" pop":""}" aria-label="Score">${sc}</div>
+  ${stealing?`<div class="judge"><button class="ok" data-a="stealRight" data-ck="1">Steal +${val()}</button><button class="no" data-a="stealMiss" data-ck="2">Missed (0)</button></div>${timerHTML()}`
+   :buzzed?`<div class="judge"><button class="ok" data-a="right" data-ck="1">Correct +${val()}</button><button class="no" data-a="wrong" data-ck="2">Wrong (0)</button></div>${timerHTML()}`
+   :revealed?`<div class="judge"><button class="ok wide" data-adj="${Math.max(1,7-(S.at||6))}" data-t="${t}" data-ck="${t==="A"?4:5}">Award +${Math.max(1,7-(S.at||6))}</button></div>`
+   :`<button class="buzz" data-a="buzz" data-t="${t}" data-ck="${t==="A"?2:3}" ${canBuzz?"":"disabled"}>Hand up</button>`}
+  <div class="status">${status}</div>
+  ${`<div class="adj"><button data-adj="-1" data-t="${t}" aria-label="Subtract a point">−1</button><button data-adj="1" data-t="${t}" aria-label="Add a point">+1</button></div>`}`;
+  el.querySelector(".tname").addEventListener("input",e=>{S.names[t]=e.target.value||("Team "+(t==="A"?1:2));save()});
+}
+
+let ckI=0;
+function ckList(){return [...document.querySelectorAll("[data-ck]")].filter(b=>!b.disabled&&b.offsetParent!==null).sort((a,b)=>a.dataset.ck-b.dataset.ck)}
+function ckPaint(){document.querySelectorAll(".ck").forEach(e=>e.classList.remove("ck"));const l=ckList();if(!l.length)return;ckI=((ckI%l.length)+l.length)%l.length;l[ckI].classList.add("ck")}
+function render(){renderInner();if(S.mode==="solo"&&S.phase==="play"&&!S.res){const g=$("guess");if(g)g.focus({preventScroll:true})}const tl=$("tgtlbl");if(tl)tl.textContent=S.mode==="solo"?`solo · ${SOLO_GOAL} words, ${SOLO_BANK}-clue bank`:S.phase==="mode"?"team or solo":`first to ${tgt()} wins`;ckI=0;ckPaint();syncMusic()}
+
+/* ---------- solo practice ---------- */
+const SOLO_GOAL=20,SOLO_BANK=60;
+const ALIASES={"Coronary arteries": ["coronary artery", "coronaries", "coronary vessels"], "Mitral valve": ["bicuspid valve", "bicuspid", "mitral"], "Cardiac output": ["co"], "Stroke volume": ["sv"], "Preload": ["pre load"], "Afterload": ["after load", "systemic vascular resistance", "svr"], "Contractility": ["inotropy"], "Frank-Starling law": ["frank starling", "starling law", "starlings law", "frank starling mechanism", "frank starlings law", "starlings law of the heart"], "SA node": ["sinoatrial node", "sinus node", "sinoatrial"], "AV node": ["atrioventricular node", "av junction", "atrioventricular"], "Purkinje fibers": ["purkinje", "purkinje network", "purkinje system", "purkinje fibres"], "Depolarization": ["depolarisation", "depolarize"], "QRS complex": ["qrs", "qrs wave"], "Left ventricle": ["lv", "left ventricular"], "Right atrium": ["ra"], "Pericardium": ["pericardial sac"], "Myocardium": ["heart muscle", "cardiac muscle"], "Interventricular septum": ["septum", "ventricular septum", "interventricular wall"], "Tricuspid valve": ["tricuspid"], "Aortic valve": ["aortic"], "Chordae tendineae": ["chordae", "heart strings", "chordae tendinae"], "S1 heart sound": ["s1", "first heart sound", "lub"], "S2 heart sound": ["s2", "second heart sound", "dub"], "Bundle of His": ["his bundle", "av bundle", "bundle of hiss"], "Bundle branches": ["bundle branch", "left bundle branch", "right bundle branch", "right and left bundle branches"], "Automaticity": ["automatic"], "Repolarization": ["repolarisation", "repolarize"], "Refractory period": ["refractory", "absolute refractory period", "relative refractory period"], "Action potential": ["action potentials", "cardiac action potential"], "P wave": ["p", "p waves"], "PR interval": ["pr", "pri"], "ST segment": ["st", "s t segment"], "T wave": ["t", "t waves"], "QT interval": ["qt", "qtc", "corrected qt", "qtc interval"]};
+function nrm(x){return String(x||"").toLowerCase().replace(/₂/g,"2").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[’'`]/g,"").replace(/&/g," and ")
+  .replace(/[^a-z0-9]+/g," ").trim().replace(/^(a|an|the) /,"").replace(/ /g,"")}
+function lev(a,b){if(a===b)return 0;const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let prev=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){const cur=[i];for(let j=1;j<=n;j++)cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur}return prev[n]}
+function tol(v){return v.length<=4?0:v.length<=6?1:v.length<=10?2:3}
+function closeness(g,w){let d=Infinity,ok=false;for(const v of [w.a,...(ALIASES[w.a]||[])].map(nrm)){if(!v)continue;
+  for(const gg of [g,g.replace(/s$/,"")])for(const vv of [v,v.replace(/s$/,"")]){const x=lev(gg,vv);if(x<d)d=x;if(x<=tol(vv))ok=true}}return{d,ok}}
+function isMatch(input,w){const g=nrm(input);if(!g)return false;const me=closeness(g,w);if(!me.ok)return false;
+  for(const o of DECK){if(o!==w&&closeness(g,o).d<me.d)return false}return true}
+function soloNew(){S.mode="solo";S.solo={correct:0,bank:SOLO_BANK,attempted:0,missed:[],cluesForCorrect:0};S.picker="solo";S.phase="pick"}
+function soloAct(type,text){
+  if(S.phase!=="play")return;const w=cur(),so=S.solo;
+  if(type==="clue"){if(S.res||S.shown>=6||so.bank<=0)return;S.shown++;so.bank--;freshClue=S.shown-1;S.msg=null}
+  if(type==="giveup"){if(S.res)return;S.res="miss";so.attempted++;so.missed.push(S.cur);S.msg=null;SFX.wrong()}
+  if(type==="guess"){if(S.res)return;const g=String(text||"").trim();if(!g)return;
+    if(isMatch(g,w)){S.res="solo";S.at=S.shown;so.correct++;so.attempted++;so.cluesForCorrect+=S.shown;S.msg=null;SFX.correct();if(so.correct>=SOLO_GOAL)burst("A")}
+    else{SFX.wrong();const shown=g.replace(/</g,"&lt;").slice(0,60);
+      if(S.shown<6&&so.bank>0){S.shown++;so.bank--;freshClue=S.shown-1;S.msg=`“${shown}” isn’t it. Clue ${S.shown} is now showing.`}
+      else{S.res="miss";so.attempted++;so.missed.push(S.cur);S.msg=`“${shown}” isn’t it.`}}}
+  if(type==="next"){if(!S.res)return;if(so.correct>=SOLO_GOAL||so.bank<=0||!left().length){S.phase="soloEnd"}else{S.phase="pick";newRound();S.msg=null}}
+  save();render()}
+function renderSoloBay(t){
+  const el=$(t==="A"?"teamA":"teamB"),so=S.solo||{correct:0,bank:SOLO_BANK};el.className="team "+t.toLowerCase()+" solo";
+  if(t==="A"){const pct=Math.min(100,so.correct/SOLO_GOAL*100);
+    el.innerHTML=`<div class="tname as">Words correct</div><div class="score${lastPop==="A"?" pop":""}">${so.correct}<span class="of">/${SOLO_GOAL}</span></div>
+    <div class="meter"><i style="width:${pct}%"></i></div><div class="status">${so.attempted?`${so.attempted} attempted`:"Goal: 20 words"}</div>`}
+  else{const pct=Math.max(0,so.bank/SOLO_BANK*100),low=so.bank<=10;
+    el.innerHTML=`<div class="tname as">Clue bank</div><div class="score${low?" neg":""}">${so.bank}</div>
+    <div class="meter${low?" low":""}"><i style="width:${pct}%"></i></div><div class="status">Each clue costs 1. A wrong guess shows the next clue.</div>`}}
+/* ---------- sound: Web Audio only, nothing downloaded ---------- */
+const AU={ctx:null,on:true,out:null,sfx:null};
+try{if(localStorage.getItem("sixbreaths-sound")==="off")AU.on=false}catch(e){}
+function actx(){if(!AU.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AU.ctx=new C();AU.out=AU.ctx.createDynamicsCompressor();AU.out.connect(AU.ctx.destination);AU.sfx=AU.ctx.createGain();AU.sfx.gain.value=.5;AU.sfx.connect(AU.out)}
+  if(AU.ctx.state==="suspended")AU.ctx.resume();return AU.ctx}
+["pointerdown","keydown"].forEach(ev=>document.addEventListener(ev,()=>{if(AU.on)actx()},true));
+function setSound(on){AU.on=on;try{localStorage.setItem("sixbreaths-sound",on?"on":"off")}catch(e){}if(on)actx();else musicStop();render()}
+function tone(f,d,type,vol,t0,f2){const c=AU.ctx;if(!c||!AU.on)return;const t=c.currentTime+(t0||0);const o=c.createOscillator(),g=c.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol||.3,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(AU.sfx);o.start(t);o.stop(t+d+.05)}
+const SFX={buzz(){tone(660,.12,"square",.18);tone(990,.2,"square",.18,.12)},
+  correct(){[523,659,784,1047].forEach((f,i)=>tone(f,.28,"triangle",.3,i*.09))},
+  wrong(){tone(150,.5,"sawtooth",.22,0,90)},
+  tick(hi){tone(hi?1500:1000,.05,"square",hi?.16:.1)},
+  timeup(){[0,.24,.48].forEach(t=>tone(196,.2,"sawtooth",.3,t))}};
+const MUS={playing:false,nodes:null,next:0,beat:0,iv:null,level:1};
+function musicStart(){const c=AU.ctx;if(!c||!AU.on||MUS.playing)return;MUS.playing=true;const now=c.currentTime;
+  const g=c.createGain();g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.45,now+1.5);g.connect(AU.out);
+  const lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=300;lp.Q.value=5;lp.connect(g);
+  const lfo=c.createOscillator(),lfoG=c.createGain();lfo.frequency.value=.12;lfoG.gain.value=120;lfo.connect(lfoG);lfoG.connect(lp.frequency);
+  const d1=c.createOscillator(),d2=c.createOscillator(),dg=c.createGain();d1.type=d2.type="sawtooth";d1.frequency.value=55;d2.frequency.value=55.35;dg.gain.value=.12;d1.connect(dg);d2.connect(dg);dg.connect(lp);
+  const pad=c.createOscillator(),pg=c.createGain();pad.type="triangle";pad.frequency.value=220;pg.gain.value=.03;pad.connect(pg);pg.connect(g);
+  const vib=c.createOscillator(),vg=c.createGain();vib.frequency.value=5;vg.gain.value=2;vib.connect(vg);vg.connect(pad.frequency);
+  const oscs=[lfo,d1,d2,pad,vib];oscs.forEach(o=>o.start(now));
+  MUS.nodes={g,pad,oscs};MUS.next=now+.15;MUS.beat=0;MUS.iv=setInterval(musicTick,25);musicLevel(MUS.level)}
+function musicLevel(n){MUS.level=n;if(!MUS.nodes||!AU.ctx)return;MUS.nodes.pad.frequency.setTargetAtTime(220*Math.pow(2,(n-1)/12),AU.ctx.currentTime,.4)}
+function beatNote(t,f0,f1,v,d,type){const c=AU.ctx,n=MUS.nodes;if(!n)return;const o=c.createOscillator(),g=c.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+d*.6);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(n.g);o.start(t);o.stop(t+d+.02)}
+function musicTick(){const c=AU.ctx;if(!c||!MUS.playing)return;const spb=60/(64+MUS.level*9);
+  while(MUS.next<c.currentTime+.15){const t=MUS.next,b=MUS.beat%4;
+    if(b===0||b===2){beatNote(t,95,42,.55,.26);beatNote(t+spb*.28,85,40,.35,.22)}
+    beatNote(t,2600,0,b===0?.05:.03,.03,"square");beatNote(t+spb/2,2600,0,.02,.03,"square");
+    MUS.next+=spb;MUS.beat++}}
+function musicStop(){if(!MUS.playing)return;MUS.playing=false;clearInterval(MUS.iv);const c=AU.ctx,n=MUS.nodes;MUS.nodes=null;if(!c||!n)return;
+  n.g.gain.cancelScheduledValues(c.currentTime);n.g.gain.setTargetAtTime(.0001,c.currentTime,.15);setTimeout(()=>{n.oscs.forEach(o=>{try{o.stop()}catch(e){}});n.g.disconnect()},900)}
+function syncMusic(){const want=AU.on&&S&&S.phase==="play"&&!S.res&&!S.buzz&&!S.steal&&S.shown>0;if(want){if(!actx())return;musicStart();musicLevel(S.shown)}else musicStop()}
+/* ---------- 10-second answer timer ---------- */
+const TM={end:0,iv:null,state:null,last:-1};
+function timerLeft(){return Math.max(0,(TM.end-performance.now())/1000)}
+function timerStart(t){timerStop();TM.end=performance.now()+10000;TM.state="run";TM.last=11;TM.iv=setInterval(timerTick,100)}
+function timerStop(){clearInterval(TM.iv);TM.iv=null;TM.state=null}
+function timerHTML(){if(!TM.state)return"";const l=timerLeft(),s=Math.ceil(l),out=TM.state==="done";
+  return `<div class="timer${out?" out":s<=3?" low":""}" data-timer style="--p:${(l/10).toFixed(3)}"><b>${out?"0":s}</b><span>${out?"Time\u2019s up":"seconds"}</span></div>`}
+function timerTick(){const l=timerLeft(),s=Math.ceil(l),el=document.querySelector("[data-timer]");
+  if(s!==TM.last){TM.last=s;if(s>0&&s<10)SFX.tick(s<=3)}
+  if(el){el.style.setProperty("--p",(l/10).toFixed(3));el.querySelector("b").textContent=s;el.classList.toggle("low",s<=3)}
+  if(l<=0){clearInterval(TM.iv);TM.iv=null;TM.state="done";SFX.timeup();if(el){el.classList.add("out");el.querySelector("span").textContent="Time\u2019s up"}}}
+function renderInner(){
+  $("chips").innerHTML=`<button class="chip" id="newgame" aria-pressed="${resetArm}">${resetArm?"Tap again to reset":"New game"}</button><button class="chip" id="snd" aria-pressed="${AU.on}">${AU.on?"Sound on":"Sound off"}</button><button class="chip" id="fs" aria-pressed="${!!document.fullscreenElement}">${document.fullscreenElement?"Exit full screen":"Full screen"}</button>`;
+  renderTeam("A");renderTeam("B");
+  const b=$("board");
+  if(S.phase==="mode"){
+    b.innerHTML=`<div class="meta"><span class="cat">How do you want to play?</span></div>
+    <div class="modes">
+      <button class="mode" data-mode="team" data-ck="1"><span class="mk">Two teams</span><span class="mt">Team game</span><span class="md">Spin for first pick, raise hands to buzz in, steal points. Each word is worth 6 points, minus 1 for every clue shown.</span></button>
+      <button class="mode" data-mode="solo" data-ck="2"><span class="mk">One player</span><span class="mt">Solo practice</span><span class="md">Type your answers. Get ${SOLO_GOAL} words right before your bank of ${SOLO_BANK} clues runs out. That’s about 3 clues per word.</span></button>
+    </div>`;
+    lastPop=null;return}
+  if(S.phase==="soloEnd"){
+    const so=S.solo,won=so.correct>=SOLO_GOAL,avg=so.correct?(so.cluesForCorrect/so.correct).toFixed(1):"0";
+    b.innerHTML=`<div class="win ws"><span class="wl">Solo practice</span><h2>${won?"You did it!":so.bank<=0?"Out of clues":"Out of words"}</h2>
+    <p class="wf"><span><b>${so.correct}</b> of ${SOLO_GOAL} correct</span><span><b>${so.bank}</b> clues left</span><span><b>${avg}</b> clues per correct word</span></p>
+    ${so.missed.length?`<div class="missed"><span>Review these</span><ul>${so.missed.map(i=>`<li>${DECK[i].a}</li>`).join("")}</ul></div>`:""}
+    <div class="controls" style="justify-content:center"><button class="primary" data-mode="solo" data-ck="1">Play solo again</button><button class="ghost" data-mode="team" data-ck="2">Switch to team game</button></div></div>`;
+    lastPop=null;return}
+  if(S.phase==="win"){
+    const w=S.winner,o=w==="A"?"B":"A",nm=t=>S.names[t].replace(/</g,"&lt;");
+    b.innerHTML=`<div class="win ${w==="A"?"wa":"wb"}"><span class="wl">Winner</span><h2>${nm(w)}</h2>
+    <p class="wf"><span>${nm(w)} <b>${S.scores[w]}</b></span><span>${nm(o)} <b>${S.scores[o]}</b></span></p>
+    <div class="controls" style="justify-content:center"><button class="primary" data-win="new" data-ck="1">New game</button><button class="ghost" data-win="back" data-ck="2">Back to the game</button></div></div>`;
+    lastPop=null;return}
+  if(S.phase==="toss"){
+    const hi=spinHi||S.tossWin,nm=t=>S.names[t].replace(/</g,"&lt;");
+    b.innerHTML=`<div class="meta"><span class="cat">Who goes first?</span><span class="count">Before the first word</span></div>
+    <div class="tossrow"><div class="tside ta${hi==="A"?" hi":""}">${nm("A")}</div><div class="tvs">vs</div><div class="tside tb${hi==="B"?" hi":""}">${nm("B")}</div></div>
+    <p class="tmsg">${S.tossWin?`<strong>${nm(S.tossWin)}</strong> picks the first category.`:spinning?"Spinning\u2026":"Spin to choose which team picks the first category."}</p>
+    <div class="tgtrow"><span>Play to</span>${TARGETS.map((n,i)=>`<button class="tchip" data-target="${n}" data-ck="${i+3}" aria-pressed="${tgt()===n}">${n} points</button>`).join("")}</div>
+    <div class="controls">${S.tossWin?`<button class="primary" data-toss="go" data-ck="1">Start the game</button><button class="ghost" data-toss="spin" data-ck="2">Spin again</button>`
+      :`<button class="primary" data-toss="spin" data-ck="1" ${spinning?"disabled":""}>Spin</button>`}</div>`;
+    lastPop=null;return}
+  if(S.phase==="pick"){
+    if(!left().length){
+      b.innerHTML=`<div class="done"><h2>Deck finished</h2><p>${S.names.A} ${S.scores.A} · ${S.names.B} ${S.scores.B}</p><button class="primary" data-a="redeal" data-ck="1">Play the deck again</button></div>`;
+      lastPop=null;return}
+    b.innerHTML=`<div class="meta"><span class="cat">Pick a category</span><span class="count">${left().length} Words Remaining</span></div>
+    <div class="pickhead">${S.mode==="solo"?`<h2>Choose a category</h2>`:`<h2>${S.names[S.picker].replace(/</g,"&lt;")} chooses</h2><button class="ghost" data-swap="1" data-ck="${CATS.length+2}">Switch team</button>`}</div>
+    <div class="picks">${CATS.map((c,i)=>{const n=left(c).length;return `<button class="pickcat" data-pick="${c}" data-ck="${i+1}" ${n?"":"disabled"}><span class="pk">${i+1}</span><span class="pn">${CAT_LABEL[c]||c}</span><span class="pc">${n} remaining</span></button>`}).join("")}
+    <button class="pickcat any" data-pick="*" data-ck="${CATS.length+1}"><span class="pk">${CATS.length+1}</span><span class="pn">Surprise us</span><span class="pc">any category</span></button></div>`;
+    lastPop=null;return}
+  const w=cur();
+  let clues="";for(let i=0;i<6;i++){clues+=i<S.shown?`<li class="clue${i===freshClue?" fresh":""}"><span class="n">${i+1}</span><span class="t">${w.k[i]}</span></li>`:`<li class="clue hid"><span class="n">${i+1}</span><span class="t">—</span></li>`}
+  const who=S.mode==="solo"?(S.res==="solo"?`Correct on clue ${S.at}`:"The answer"):S.res==="A"||S.res==="B"?`${S.names[S.res]} ${S.how==="steal"?"stole it":"got it"} on clue ${S.at} for ${pts(S.pts||1)}`:"The answer";
+  b.innerHTML=`<div class="meta"><span class="cat">${CAT_LABEL[w.c]||w.c}</span>${S.res?`<span class="count">Word ${S.used.length} of ${DECK.length}</span>`:(S.mode==="solo"?`<span class="worth">Clue <b>${S.shown}</b> of 6</span>`:`<span class="worth">Worth <b>${val()}</b> ${val()===1?"point":"points"}</span>`)}<span class="card">Card ${CARDNO[w.a]}</span></div>
+  ${S.res?`<div class="answer"><span class="lbl">${who}</span><span class="w">${w.a}</span><span class="p">${w.p}</span></div>`:`<div class="wave">${wave()}</div>`}
+  <ol class="clues${S.res?" compact":""}">${clues}</ol>
+  ${S.mode==="solo"&&!S.res?`${S.msg?`<p class="smsg">${S.msg}</p>`:""}<form id="gform" class="guess" autocomplete="off"><input id="guess" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer" aria-label="Your answer"><button class="primary" type="submit" data-ck="1">Guess</button></form>
+  <div class="controls"><button class="ghost" data-solo="clue" data-ck="2" ${S.shown>=6||S.solo.bank<=0?"disabled":""}>Next clue (costs 1)</button><button class="ghost" data-solo="giveup" data-ck="3">Give up</button></div>`:`
+  ${S.mode==="solo"&&S.msg?`<p class="smsg">${S.msg}</p>`:""}
+  <div class="controls">
+    ${S.res?`<button class="primary" data-a="next" data-ck="1">${S.mode==="solo"&&(S.solo.correct>=SOLO_GOAL||S.solo.bank<=0||!left().length)?"See results":"Next word"} →</button>${S.shown<6?`<button class="ghost" data-a="clue" data-ck="2">Show next clue</button><button class="ghost" data-a="allclues" data-ck="3">Show all clues</button>`:""}`
+      :`<button class="primary" data-a="clue" data-ck="1" ${S.buzz||S.steal||S.shown>=6?"disabled":""}>${S.shown===0?"First clue":"Next clue"}</button>
+        <button class="ghost" data-a="reveal" data-ck="4">Reveal answer</button>`}
+  </div>`}`;
+  freshClue=-1;lastPop=null;
+}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;
+  if(t.dataset.mode){const n=S.names;S=fresh();S.names=n;if(t.dataset.mode==="solo")soloNew();else{S.mode="team";S.phase="toss"}save();render();return}
+  if(t.dataset.solo){soloAct(t.dataset.solo);return}
+  if(t.dataset.toss==="spin"){spin();return}
+  if(t.dataset.toss==="go"&&S.tossWin){S.picker=S.tossWin;S.phase="pick";save();render();return}
+  if(t.dataset.win==="new"){const n=S.names;S=fresh();S.names=n;save();render();return}
+  if(t.dataset.win==="back"){S.phase=S.prev||"play";S.winner=null;save();render();return}
+  if(t.id==="fs"){toggleFs();return}
+  if(t.id==="snd"){setSound(!AU.on);return}
+  if(t.dataset.target){S.target=+t.dataset.target;save();render();return}
+  if(t.id==="newgame"){if(resetArm){const n=S.names;S=fresh();S.names=n;resetArm=false;save()}else{resetArm=true;setTimeout(()=>{resetArm=false;render()},4000)}render();return}
+  if(t.dataset.pick){pick(t.dataset.pick==="*"?null:t.dataset.pick);return}
+  if(t.dataset.swap){S.picker=S.picker==="A"?"B":"A";save();render();return}
+  if(t.dataset.adj){const tm=t.dataset.t;S.scores[tm]+=+t.dataset.adj;lastPop=tm;if(S.res==="reveal"&&+t.dataset.adj>0)S.awarded=tm;if(+t.dataset.adj>0)checkWin(tm);save();render();return}
+  if(t.dataset.a==="redeal"){S.used=[];S.phase="pick";save();render();return}
+  if(t.dataset.a)act(t.dataset.a,t.dataset.t);
+});
+document.addEventListener("submit",e=>{if(e.target.id==="gform"){e.preventDefault();const g=$("guess");soloAct("guess",g?g.value:"")}});
+const CK_FWD=["PageDown","ArrowRight","ArrowDown"],CK_BACK=["PageUp","ArrowLeft","ArrowUp"];
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT"&&!["PageDown","PageUp"].includes(e.key))return;
+  if(e.key==="F5"){e.preventDefault();return}
+  if(CK_FWD.includes(e.key)){e.preventDefault();if(e.target.tagName==="INPUT")e.target.blur();const l=ckList();if(l[ckI])l[ckI].click();return}
+  if(CK_BACK.includes(e.key)){e.preventDefault();if(e.target.tagName==="INPUT")e.target.blur();ckI++;ckPaint();return}const k=e.key.toLowerCase();
+  if(k==="m"){setSound(!AU.on);return}
+  if(S.phase==="toss"){if(k===" "||k==="enter"){e.preventDefault();if(S.tossWin&&k==="enter"){S.picker=S.tossWin;S.phase="pick";save();render()}else if(!S.tossWin)spin()}return}
+  if(S.phase==="pick"){const i="123456789".slice(0,CATS.length+1).indexOf(k);if(i>=0&&left().length){const c=i===CATS.length?null:CATS[i];if(left(c).length)pick(c)}return}
+  if(k===" "){e.preventDefault();act("clue")}
+  else if(k==="q"||k==="1")act("buzz","A");
+  else if(k==="p"||k==="2")act("buzz","B");
+  else if(k==="c")act("right");
+  else if(k==="x")act("wrong");
+  else if(k==="r")act("reveal");
+  else if(k==="a")act("allclues");
+  else if(k==="f")toggleFs();
+  else if(k==="n"&&S.res)act("next");
+});
+
+function start(data){
+  S=data&&data.used&&data.n===DECK.length?data:null;
+  if(!S){try{const s=JSON.parse(localStorage.getItem("sixbeats-foundations1"));if(s&&s.used&&s.n===DECK.length)S=s}catch(e){}}
+  if(!S)S=fresh();
+  render();
+}
+window.claude?.hot?.snapshot?.(()=>S);
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+</script>
+
+</body></html>

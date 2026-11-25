@@ -1,0 +1,1053 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Break the Machine: Respiratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: lab-manual workbench. Sticky top bar with station tabs; one centered column (~760px) per station; "normal" sections in oxygen blue, "broken" sections in deoxygenated raspberry. */
+:root {
+  --paper: #f3f6f7;
+  --surface: #ffffff;
+  --sunk: #e8eef0;
+  --ink: #142630;
+  --muted: #536772;
+  --line: #cfdbe0;
+  --o2: #0b6e8a;
+  --o2-soft: #dcedf2;
+  --broken: #a2335a;
+  --broken-soft: #f6e4ea;
+  --ok: #217a4b;
+  --ok-soft: #dff1e6;
+  --bad: #b3361f;
+  --bad-soft: #fae3dd;
+  --focus: #e0a100;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1a20; --surface: #16242c; --sunk: #1d2e37; --ink: #e4eef1; --muted: #93a9b3; --line: #2c4250;
+    --o2: #5cc3dd; --o2-soft: #173847; --broken: #f08aac; --broken-soft: #3d1f2b;
+    --ok: #6fd39c; --ok-soft: #173826; --bad: #ff8f78; --bad-soft: #43201a; --focus: #ffc94a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1a20; --surface: #16242c; --sunk: #1d2e37; --ink: #e4eef1; --muted: #93a9b3; --line: #2c4250;
+  --o2: #5cc3dd; --o2-soft: #173847; --broken: #f08aac; --broken-soft: #3d1f2b;
+  --ok: #6fd39c; --ok-soft: #173826; --bad: #ff8f78; --bad-soft: #43201a; --focus: #ffc94a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55; margin: 0; }
+h1, h2, h3, h4 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* top bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar-in { max-width: 1100px; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.brand { font-family: var(--display); font-weight: 800; font-size: 1.05rem; letter-spacing: -0.01em; }
+.brand span { color: var(--broken); }
+.team { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.team input { font: inherit; font-size: 0.9rem; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); width: 11rem; max-width: 40vw; }
+.score { font-family: var(--mono); font-size: 0.85rem; padding: 5px 10px; border-radius: 6px; background: var(--o2-soft); color: var(--o2); font-weight: 600; white-space: nowrap; }
+.tabs { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: thin; }
+.tab { border: 0; background: none; padding: 8px 12px 10px; font-size: 0.9rem; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+.tab[aria-current="page"] { color: var(--ink); border-bottom-color: var(--o2); font-weight: 700; }
+.tab .n { font-family: var(--mono); font-size: 0.75rem; margin-right: 4px; }
+.tab .done { color: var(--ok); margin-left: 4px; }
+
+main { max-width: 780px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 80px; display: grid; gap: 28px; }
+section { display: grid; gap: 14px; min-width: 0; }
+p { margin: 0; }
+.lede { font-size: 1.12rem; color: var(--muted); max-width: 62ch; }
+.hero h1 { font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; }
+.hero h1 em { font-style: normal; color: var(--broken); }
+
+/* machine chain */
+.chain { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 0; align-items: stretch; }
+.node { position: relative; background: var(--surface); border: 1px solid var(--line); padding: 12px; display: grid; gap: 4px; text-align: left; border-radius: 0; }
+.node:first-child { border-radius: 10px 0 0 10px; }
+.node:last-child { border-radius: 0 10px 10px 0; }
+.node + .node { border-left: 0; }
+.node:hover { background: var(--o2-soft); }
+.node .k { font-family: var(--mono); font-size: 0.72rem; color: var(--o2); }
+.node b { font-family: var(--display); font-size: 1.1rem; }
+.node small { color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
+.node .via { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 4px; margin-top: 4px; }
+@media (max-width: 640px) {
+  .chain { grid-template-columns: 1fr; }
+  .node, .node:first-child, .node:last-child { border-radius: 0; }
+  .node:first-child { border-radius: 10px 10px 0 0; }
+  .node:last-child { border-radius: 0 0 10px 10px; }
+  .node + .node { border-left: 1px solid var(--line); border-top: 0; }
+}
+
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.step .num { font-family: var(--mono); color: var(--o2); font-size: 0.8rem; }
+.step b { display: block; font-family: var(--display); font-size: 1.05rem; }
+.step p { font-size: 0.9rem; color: var(--muted); }
+
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--sunk); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td.v { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* station */
+.st-head { display: grid; gap: 6px; }
+.st-head h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; }
+.st-head .tag { color: var(--muted); font-size: 1.05rem; }
+.phase { display: flex; align-items: baseline; gap: 10px; border-top: 2px solid var(--o2); padding-top: 10px; }
+.phase.broken { border-top-color: var(--broken); }
+.phase h2 { font-size: 1.35rem; }
+.phase .eyebrow { color: var(--o2); }
+.phase.broken .eyebrow { color: var(--broken); }
+.how p + p { margin-top: 10px; }
+.how { display: grid; gap: 10px; max-width: 66ch; }
+.rule { background: var(--o2-soft); border-radius: 10px; padding: 14px 16px; }
+.rule .eyebrow { color: var(--o2); font-weight: 600; }
+.rule p { font-weight: 700; margin-top: 4px; }
+
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; }
+.q > p { font-weight: 700; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { border: 1px solid var(--line); background: var(--paper); border-radius: 8px; padding: 7px 12px; font-size: 0.93rem; text-align: left; line-height: 1.35; }
+.opt:hover:not(:disabled) { border-color: var(--o2); }
+.opt[aria-pressed="true"] { border-color: var(--o2); background: var(--o2-soft); font-weight: 700; }
+.opt:disabled { cursor: default; }
+.opt.right { background: var(--ok-soft); border-color: var(--ok); color: var(--ink); font-weight: 700; }
+.opt.wrong { background: var(--bad-soft); border-color: var(--bad); text-decoration: line-through; }
+.fb { font-size: 0.92rem; border-left: 3px solid var(--ok); padding: 4px 0 4px 10px; }
+.fb.no { border-left-color: var(--bad); }
+.fb b { color: var(--ok); }
+.fb.no b { color: var(--bad); }
+
+.break { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.break-top { padding: 14px 16px; display: grid; gap: 8px; background: var(--broken-soft); }
+.break-top .eyebrow { color: var(--broken); font-weight: 600; }
+.break-top h3 { font-size: 1.3rem; }
+.break-body { padding: 14px 16px 16px; display: grid; gap: 12px; }
+.pred { display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr); gap: 8px 14px; align-items: start; padding-bottom: 12px; border-bottom: 1px dashed var(--line); }
+.pred:last-of-type { border-bottom: 0; }
+.pred .lbl { font-weight: 700; font-size: 0.95rem; padding-top: 6px; }
+.pred .fb { grid-column: 2; }
+@media (max-width: 600px) { .pred { grid-template-columns: 1fr; } .pred .fb { grid-column: 1; } .pred .lbl { padding-top: 0; } }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 700; background: var(--o2); color: var(--surface); }
+.btn.broken { background: var(--broken); }
+.btn.ghost { background: transparent; color: var(--o2); border: 1px solid var(--line); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.hint { font-size: 0.85rem; color: var(--muted); }
+
+.reveal { border-top: 1px solid var(--line); padding: 16px; display: grid; gap: 12px; background: var(--surface); }
+.reveal .eyebrow { color: var(--broken); font-weight: 600; }
+.reveal h4 { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.01em; }
+.reveal .sub { color: var(--muted); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.fact { background: var(--sunk); border-radius: 8px; padding: 10px 12px; font-size: 0.92rem; }
+.fact .eyebrow { color: var(--muted); }
+.reveal ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: 0.95rem; }
+.also { font-size: 0.92rem; font-style: italic; color: var(--muted); }
+
+.cmp td:first-child { font-weight: 700; }
+.unk { color: var(--muted); font-family: var(--mono); }
+.next { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+/* triage */
+.dots { display: flex; flex-wrap: wrap; gap: 6px; }
+.dot { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-family: var(--mono); font-size: 0.8rem; }
+.dot[aria-current="true"] { border: 2px solid var(--o2); font-weight: 700; }
+.dot.full { background: var(--ok-soft); border-color: var(--ok); }
+.dot.part { background: var(--broken-soft); border-color: var(--broken); }
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 14px; }
+.chart .vig { font-size: 1.02rem; border-left: 4px solid var(--broken); padding-left: 12px; }
+.tstep { display: grid; gap: 8px; }
+.tstep .eyebrow { color: var(--o2); font-weight: 600; }
+.tstep.locked-out { opacity: 0.45; }
+
+/* map */
+.pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 48px; padding: 10px; border: 1px dashed var(--line); border-radius: 10px; background: var(--surface); }
+.chip { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 5px 12px; font-size: 0.88rem; }
+.chip[aria-pressed="true"] { border-color: var(--broken); background: var(--broken-soft); font-weight: 700; }
+.chip.right { border-color: var(--ok); background: var(--ok-soft); }
+.chip.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.bins { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.bin { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 10px; display: grid; gap: 8px; align-content: start; min-height: 120px; text-align: left; }
+.bin.target { border: 2px dashed var(--broken); }
+.bin h3 { font-size: 1.05rem; }
+.bin .k { font-family: var(--mono); font-size: 0.72rem; color: var(--o2); }
+.bin .in { display: flex; flex-wrap: wrap; gap: 6px; }
+.debrief { display: grid; gap: 10px; counter-reset: d; padding: 0; margin: 0; list-style: none; }
+.debrief li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 12px 46px; position: relative; }
+.debrief li::before { counter-increment: d; content: counter(d); position: absolute; left: 14px; top: 12px; font-family: var(--mono); color: var(--broken); font-weight: 600; }
+.tally { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.tally div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.tally b { font-family: var(--mono); font-size: 1.3rem; display: block; }
+.tally span { font-size: 0.85rem; color: var(--muted); }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.9rem; }
+@media (prefers-reduced-motion: no-preference) { .reveal, .fb { animation: rise .25s ease-out; } @keyframes rise { from { transform: translateY(4px); opacity: .6; } to { transform: none; opacity: 1; } } }
+</style>
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand">Break the <span>Machine</span> · Respiratory</div>
+    <div class="team">
+      <label for="team" class="hint">Team</label>
+      <input id="team" type="text" placeholder="Team or student name" autocomplete="off">
+      <div class="score" id="score" aria-live="polite">0 / 0</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Activity sections"></nav>
+</header>
+<main id="main"></main>
+
+<script>
+// Shared content for "Break the Machine: Respiratory" (HTML activity + instructor guide)
+const UP = ["↑ Increases", "↔ No change", "↓ Decreases"];
+const DATA = {
+  title: "Break the Machine: Respiratory",
+  normals: [
+    ["Respiratory rate", "12–20 /min"],
+    ["SpO₂", "95–100%"],
+    ["PaO₂", "80–100 mm Hg"],
+    ["PaCO₂", "35–45 mm Hg"],
+    ["pH", "7.35–7.45"],
+    ["HCO₃⁻", "22–26 mEq/L"]
+  ],
+  stations: [
+    {
+      id: "drive", name: "Drive", part: "Brainstem control",
+      tagline: "The boss that decides when and how hard to breathe.",
+      how: [
+        "Breathing is automatic because respiratory centers in the medulla and pons fire on a rhythm, sending signals down the phrenic and intercostal nerves to the breathing muscles.",
+        "Sensors adjust that rhythm. Central chemoreceptors in the medulla respond to CO₂ (through the pH of the cerebrospinal fluid). This is the main, minute-to-minute stimulus to breathe. Peripheral chemoreceptors in the carotid and aortic bodies respond mostly to a low PaO₂ (below about 60 mm Hg).",
+        "The cerebral cortex can override the brainstem for a while: you can hold your breath, talk, or breathe fast when you are scared or in pain."
+      ],
+      principle: { label: "The rule", text: "Ventilation is how the body gets rid of CO₂. PaCO₂ moves opposite to ventilation: breathe less and CO₂ rises (acidosis); breathe more and CO₂ falls (alkalosis)." },
+      check: [
+        { q: "What is the main chemical signal that drives your next breath in a healthy person?", o: ["A low oxygen level", "A rising CO₂ level", "A low bicarbonate level", "A high potassium level"], a: 1, why: "Central chemoreceptors respond to CO₂ through CSF pH. Low O₂ only becomes a strong drive below a PaO₂ of about 60 mm Hg." },
+        { q: "If a person doubles their ventilation for a few minutes, their PaCO₂ will:", o: ["Rise", "Stay the same", "Fall"], a: 2, why: "More air moved out means more CO₂ blown off. PaCO₂ falls." }
+      ],
+      breaks: [
+        {
+          id: "drive-down", action: "Turn the signal down",
+          scenario: "Post-op day 1. The patient pushed the opioid PCA button many times overnight. The opioid is suppressing the respiratory centers in the brainstem. The lungs, airways and alveoli are healthy.",
+          predict: [
+            { p: "Respiratory rate", o: UP, a: 2, why: "The brainstem fires less often, so fewer breaths are triggered. Breaths also get shallower." },
+            { p: "PaCO₂", o: UP, a: 0, why: "The body keeps making CO₂ at the same rate, but less is exhaled. It builds up." },
+            { p: "pH", o: UP, a: 2, why: "CO₂ + H₂O forms carbonic acid. More CO₂ means more acid, so pH drops: respiratory acidosis." },
+            { p: "Breath sounds", o: ["Crackles in the bases", "Clear but diminished", "Wheezing", "Absent on one side"], a: 1, why: "Nothing is wrong inside the lungs. Sounds are clear, just quiet because the breaths are small." },
+            { p: "Level of consciousness", o: ["More alert", "No change", "Increasingly sedated"], a: 2, why: "The opioid sedates, and rising CO₂ adds to it (CO₂ narcosis). Sedation usually shows up before the respiratory rate drops." }
+          ],
+          reveal: {
+            name: "Hypoventilation → acute respiratory acidosis",
+            sub: "Opioid-induced respiratory depression",
+            affects: "The control center. The lungs themselves are normal, which is why the breath sounds are clear.",
+            clue: "Sedated, slow shallow breathing, clear lungs, rising CO₂.",
+            nursing: [
+              "Assess sedation level (e.g., POSS) before every opioid dose. Increasing sedation is the early warning.",
+              "Stop the opioid, stimulate the patient, give naloxone per order, and support ventilation with a bag-valve mask if needed.",
+              "Pulse oximetry can look fine on supplemental O₂ while CO₂ climbs. Capnography (EtCO₂) catches hypoventilation earlier."
+            ],
+            also: "Same break, other causes: benzodiazepines, alcohol, general anesthesia, brainstem stroke, head injury, increased ICP."
+          }
+        },
+        {
+          id: "drive-up", action: "Turn the signal up",
+          scenario: "A patient is having a panic attack. The cortex overrides the brainstem and drives breathing fast and deep. The lungs are healthy.",
+          predict: [
+            { p: "Respiratory rate", o: UP, a: 0, why: "The cortex is driving extra breaths." },
+            { p: "PaCO₂", o: UP, a: 2, why: "CO₂ is blown off faster than it is made." },
+            { p: "pH", o: UP, a: 0, why: "Losing CO₂ removes acid, so pH rises: respiratory alkalosis." },
+            { p: "Likely symptoms", o: ["Barrel chest and clubbing", "Tingling lips and fingers, lightheadedness", "Pink frothy sputum", "Tracheal deviation"], a: 1, why: "Alkalosis makes more calcium bind to albumin, lowering ionized calcium and making nerves irritable (tingling, cramps). Low CO₂ also constricts brain blood vessels (lightheaded)." }
+          ],
+          reveal: {
+            name: "Hyperventilation → respiratory alkalosis",
+            sub: "Anxiety, pain, fever, early hypoxemia",
+            affects: "The control center is over-firing. Lungs are normal.",
+            clue: "Fast deep breathing, low CO₂, tingling, lightheaded.",
+            nursing: [
+              "Rule out hypoxemia first. Early asthma, PE and pneumonia also cause fast breathing and a low CO₂. Never assume it is \"just anxiety.\"",
+              "Coach slow breathing, stay with the patient, and treat the cause (pain, fear, fever)."
+            ],
+            also: "Breathing fast is often the body's correct response to a problem somewhere else in the machine."
+          }
+        }
+      ]
+    },
+    {
+      id: "bellows", name: "Bellows", part: "Diaphragm, chest wall & pleura",
+      tagline: "The pump that pulls air in.",
+      how: [
+        "Lungs cannot inflate themselves. They are elastic and always want to recoil inward, while the chest wall wants to spring outward.",
+        "The pleural space sits between them: visceral pleura on the lung, parietal pleura on the chest wall, and a thin film of fluid in between. Its pressure is negative (below atmospheric), and that suction keeps the lung stuck to the chest wall.",
+        "To inhale, the diaphragm (phrenic nerve, C3–C5) contracts and moves down while the external intercostals lift the ribs. The chest gets bigger, pressure in the lungs drops below the air outside, and air flows in. Quiet exhalation is passive recoil."
+      ],
+      principle: { label: "The rule", text: "Boyle's law: bigger volume → lower pressure → air flows in. Air always moves from high to low pressure. Break the seal, weaken the muscles, or damage the frame and the pump fails." },
+      check: [
+        { q: "What keeps the lung stretched open against the chest wall?", o: ["Positive pressure in the alveoli", "Cartilage rings", "Negative pressure in the pleural space", "Surfactant"], a: 2, why: "The negative intrapleural pressure is the seal. Lose it and the lung recoils (collapses)." },
+        { q: "Which nerve roots supply the diaphragm?", o: ["C3–C5", "T1–T4", "C7–T1", "L1–L2"], a: 0, why: "\"C3, 4, 5 keeps the diaphragm alive\" (phrenic nerve)." }
+      ],
+      breaks: [
+        {
+          id: "bellows-air", action: "Break the seal with air",
+          scenario: "A tall, thin 20-year-old feels a sudden \"pop\" and sharp right chest pain while sitting at his desk. A small bleb on the lung surface ruptured and air is leaking into the right pleural space.",
+          predict: [
+            { p: "Right-side breath sounds", o: ["Louder than normal", "Diminished or absent", "Coarse crackles"], a: 1, why: "The lung has pulled away from the chest wall, so little air moves on that side and air in the pleural space blocks sound." },
+            { p: "Chest rise", o: ["Equal on both sides", "Less on the right", "Less on the left"], a: 1, why: "The collapsed side cannot expand." },
+            { p: "Percussion over the right chest", o: ["Dull", "Hyperresonant", "Flat"], a: 1, why: "A pocket of air sounds hollow (hyperresonant)." },
+            { p: "SpO₂", o: UP, a: 2, why: "Less lung is ventilated, so less oxygen gets into the blood." }
+          ],
+          reveal: {
+            name: "Pneumothorax",
+            sub: "Spontaneous, traumatic, or iatrogenic (central line, thoracentesis)",
+            affects: "The pleural seal. The lung tissue itself may be normal; it collapses because nothing holds it open.",
+            clue: "Sudden sharp pain, absent sounds and hyperresonance on one side.",
+            nursing: [
+              "Position upright, give O₂, and prepare for chest tube insertion.",
+              "A chest tube with a water seal lets air out but not back in, restoring the negative pressure so the lung re-expands.",
+              "Continuous bubbling in the air-leak chamber means air is still leaking (from the patient or the system)."
+            ],
+            also: "Traumatic version: rib fracture or stab wound punctures the pleura."
+          }
+        },
+        {
+          id: "bellows-tension", action: "Keep pumping air in with no way out",
+          scenario: "Same patient, but the tear acts like a one-way valve. Each breath pushes more air into the right pleural space and none escapes. Pressure keeps building.",
+          predict: [
+            { p: "Trachea position", o: ["Midline", "Shifted toward the right", "Shifted toward the left (away)"], a: 2, why: "Rising pressure on the right shoves the mediastinum and trachea toward the opposite side." },
+            { p: "Neck veins", o: ["Flat", "Distended", "No change"], a: 1, why: "The pressure squeezes the vena cava and heart, so blood backs up into the neck veins." },
+            { p: "Blood pressure", o: UP, a: 2, why: "Less blood returns to the heart (preload falls), so cardiac output and BP drop. This is obstructive shock." },
+            { p: "Heart rate", o: UP, a: 0, why: "The heart speeds up to compensate for falling output." }
+          ],
+          reveal: {
+            name: "Tension pneumothorax",
+            sub: "Medical emergency",
+            affects: "The pleural seal, and now the heart and great vessels too.",
+            clue: "Tracheal shift away, JVD, hypotension, absent sounds on one side.",
+            nursing: [
+              "Call for help immediately. Treatment is needle decompression, then a chest tube.",
+              "Watch for it in ventilated patients and after chest trauma. Never clamp a chest tube without an order."
+            ],
+            also: "This is why the mechanism matters: a breathing problem has turned into a circulation problem."
+          }
+        },
+        {
+          id: "bellows-fluid", action: "Fill the space with fluid",
+          scenario: "A patient with heart failure (or cancer) is accumulating fluid in the left pleural space. The fluid settles to the bottom.",
+          predict: [
+            { p: "Percussion over the fluid", o: ["Hyperresonant", "Resonant", "Dull"], a: 2, why: "Fluid is dense, so it sounds dull, like tapping a full container." },
+            { p: "Breath sounds over the fluid", o: ["Diminished or absent", "Louder", "Wheezing"], a: 0, why: "Fluid separates the lung from the stethoscope and compresses the lung underneath." },
+            { p: "Where is it found first?", o: ["Apex", "Base", "Evenly throughout"], a: 1, why: "Gravity. Fluid settles low when the patient sits up." },
+            { p: "Patient position for easier breathing", o: ["Flat", "Upright", "Trendelenburg"], a: 1, why: "Upright lets the diaphragm drop and keeps fluid low." }
+          ],
+          reveal: {
+            name: "Pleural effusion",
+            sub: "Blood = hemothorax · Pus = empyema",
+            affects: "The pleural space. Fluid takes up room the lung needs to expand.",
+            clue: "Dull percussion and diminished sounds at one base.",
+            nursing: [
+              "Assist with thoracentesis: patient sits upright leaning over a bedside table.",
+              "After the procedure, watch for pneumothorax (sudden dyspnea, falling SpO₂).",
+              "Usually no more than about 1–1.5 L is removed at once to avoid re-expansion pulmonary edema."
+            ],
+            also: "Compare with pneumothorax: both silence one side, but air is hyperresonant and fluid is dull."
+          }
+        },
+        {
+          id: "bellows-power", action: "Cut the power to the pump",
+          scenario: "Guillain-Barré syndrome is causing ascending muscle weakness that has reached the chest muscles and diaphragm. The lungs are healthy.",
+          predict: [
+            { p: "Tidal volume", o: UP, a: 2, why: "Weak muscles cannot expand the chest as far, so each breath is smaller." },
+            { p: "PaCO₂", o: UP, a: 0, why: "Less air moved out means CO₂ builds up, just like a drive problem." },
+            { p: "Cough strength", o: UP, a: 2, why: "Coughing needs strong muscles. Secretions start to pool." },
+            { p: "Best bedside trend to watch", o: ["Temperature", "Vital capacity / negative inspiratory force", "Blood glucose", "Urine output"], a: 1, why: "These measure muscle strength directly. A falling vital capacity means respiratory failure is coming." }
+          ],
+          reveal: {
+            name: "Neuromuscular respiratory failure",
+            sub: "Guillain-Barré, myasthenia gravis crisis, ALS, high cervical spinal cord injury",
+            affects: "The pump's muscles or nerves. Lungs and drive are normal.",
+            clue: "Weak cough, shrinking vital capacity, rising CO₂, clear lungs.",
+            nursing: [
+              "Trend vital capacity and NIF. Prepare for intubation before the patient crashes.",
+              "Spinal cord injury at or above C3–C5 can stop the diaphragm completely.",
+              "A weak cough leads to atelectasis and pneumonia, so suction and position for secretion clearance."
+            ],
+            also: "Compare with Drive: both raise CO₂ with clear lungs. The difference is whether the patient is trying to breathe."
+          }
+        },
+        {
+          id: "bellows-frame", action: "Break the frame",
+          scenario: "A driver hit the steering wheel. Three adjacent ribs are each broken in two places, so a segment of chest wall is no longer attached to the rest.",
+          predict: [
+            { p: "Movement of the loose segment during inhalation", o: ["Moves out with the chest", "Moves in (paradoxical)", "Does not move"], a: 1, why: "When pressure in the chest drops on inhalation, the free segment gets sucked inward instead of rising." },
+            { p: "Breathing pattern", o: ["Slow and deep", "Rapid and shallow", "Normal"], a: 1, why: "Pain and the unstable wall limit deep breaths." },
+            { p: "Complication to expect over the next 48 hours", o: ["Asthma", "Atelectasis or pneumonia", "Pulmonary fibrosis"], a: 1, why: "Patients avoid deep breaths and coughing because it hurts, so alveoli collapse and secretions pool. The lung underneath is also often bruised." }
+          ],
+          reveal: {
+            name: "Flail chest",
+            sub: "Often with pulmonary contusion",
+            affects: "The rigid frame the pump needs to create negative pressure.",
+            clue: "Paradoxical chest movement after trauma.",
+            nursing: [
+              "Pain control is respiratory care. A patient who can't breathe deeply will develop atelectasis.",
+              "Incentive spirometry, splinted coughing, O₂, and watch for respiratory failure (may need ventilation)."
+            ],
+            also: "Even a single rib fracture causes the same chain: pain → shallow breathing → collapse."
+          }
+        }
+      ]
+    },
+    {
+      id: "pipes", name: "Pipes", part: "Conducting airways",
+      tagline: "The tubes that carry air in and out.",
+      how: [
+        "The conducting zone (nose to terminal bronchioles) moves, warms, humidifies and filters air but does no gas exchange.",
+        "The trachea and bronchi are held open by cartilage. Smaller bronchioles have no cartilage. Smooth muscle tone and the pull of surrounding lung tissue keep them open.",
+        "Goblet cells make mucus and cilia sweep it upward (the mucociliary escalator). Airways widen a little on inhalation and narrow a little on exhalation."
+      ],
+      principle: { label: "The rule", text: "Resistance rises sharply as airway radius shrinks (resistance ∝ 1/r⁴). Cut the radius in half and resistance goes up 16 times. Lower airways narrow on exhalation, so narrowing there traps air on the way OUT." },
+      sounds: [
+        ["Stridor", "High-pitched, mostly on inspiration", "Upper airway (larynx, trachea) is narrowed"],
+        ["Wheeze", "Musical, mostly on expiration", "Lower airways (bronchioles) are narrowed"],
+        ["Rhonchi", "Low-pitched, coarse, may clear with a cough", "Secretions in larger airways"]
+      ],
+      check: [
+        { q: "Why is it usually harder to exhale than inhale when the small airways are narrowed?", o: ["The diaphragm is weaker on exhalation", "Small airways naturally narrow during exhalation", "Exhaled air is thicker", "Cilia beat against exhaled air"], a: 1, why: "Inhalation pulls airways open; exhalation squeezes them. Already-narrow bronchioles close early and trap air." },
+        { q: "Halving an airway's radius increases its resistance about:", o: ["2 times", "4 times", "16 times"], a: 2, why: "Resistance ∝ 1/r⁴, so (½)⁴ = 1/16. Small changes in diameter make big changes in work of breathing." }
+      ],
+      breaks: [
+        {
+          id: "pipes-squeeze", action: "Squeeze the smooth muscle",
+          scenario: "A trigger (allergen, cold air, exercise, smoke) makes the bronchiolar smooth muscle spasm, the lining swell with inflammation, and mucus increase. Between attacks the airways return to normal.",
+          predict: [
+            { p: "Which phase is harder?", o: ["Inhalation", "Exhalation", "Both equally"], a: 1, why: "Narrow bronchioles close early on exhalation. Air gets in but struggles to get out." },
+            { p: "Expected sound", o: ["Inspiratory stridor", "Expiratory wheeze", "Fine crackles"], a: 1, why: "Air forced through narrowed lower airways vibrates them." },
+            { p: "PaCO₂ early in the attack", o: UP, a: 2, why: "The patient breathes fast and anxious, blowing off CO₂." },
+            { p: "Later the wheezing STOPS and PaCO₂ is 48. This means:", o: ["The attack is resolving", "The patient is tiring and moving very little air", "The inhaler finally worked"], a: 1, why: "A \"silent chest\" means almost no airflow. Rising CO₂ in an asthma attack signals impending respiratory failure." }
+          ],
+          reveal: {
+            name: "Asthma exacerbation",
+            sub: "Reversible, inflammatory airway narrowing",
+            affects: "The lower airways: smooth muscle, lining and mucus. Alveoli are normal.",
+            clue: "Expiratory wheeze, prolonged exhalation, accessory muscle use, comes and goes.",
+            nursing: [
+              "Short-acting beta-2 agonist (albuterol) relaxes smooth muscle. Corticosteroids treat the inflammation.",
+              "Sit upright, give O₂, check peak flow, and count words per breath.",
+              "Normal or rising CO₂ in an asthma attack is a red flag, not reassurance."
+            ],
+            also: "The key word is reversible. That separates asthma from COPD."
+          }
+        },
+        {
+          id: "pipes-clog", action: "Clog the pipes with mucus",
+          scenario: "Years of cigarette smoke irritate the airway lining. Goblet cells multiply, mucus gets thick, and the cilia are paralyzed and destroyed. The narrowing does not fully reverse.",
+          predict: [
+            { p: "Cough", o: ["Dry and occasional", "Chronic and productive", "None"], a: 1, why: "Extra mucus with no working escalator: coughing is the only way to clear it." },
+            { p: "Expected sound", o: ["Rhonchi that may clear with coughing", "Stridor", "Absent sounds on one side"], a: 0, why: "Secretions rattle in the larger airways." },
+            { p: "Chronic SpO₂", o: UP, a: 2, why: "Mucus-plugged airways leave some alveoli poorly ventilated, so blood leaves the lungs under-oxygenated." },
+            { p: "Long-term effect on the heart", o: ["Left ventricle enlarges first", "Right ventricle strains and fails", "No effect"], a: 1, why: "Chronic low O₂ constricts pulmonary vessels. The right ventricle pumps against high pressure and eventually fails (cor pulmonale). See Blood Flow." }
+          ],
+          reveal: {
+            name: "Chronic bronchitis (COPD)",
+            sub: "Productive cough ≥3 months in each of 2 consecutive years",
+            affects: "The airway lining, mucus glands and cilia.",
+            clue: "Chronic productive cough, rhonchi, low SpO₂, signs of right heart failure.",
+            nursing: [
+              "Airway clearance: hydration, huff coughing, chest physiotherapy.",
+              "Smoking cessation is the most important intervention.",
+              "For patients who retain CO₂, give O₂ to a target SpO₂ of 88–92%, as ordered."
+            ],
+            also: "COPD often breaks more than one part: pipes (bronchitis) and membrane (emphysema) together."
+          }
+        },
+        {
+          id: "pipes-top", action: "Block the top of the tube",
+          scenario: "A patient is stung by a bee and has a severe allergic reaction. The tongue, lips and larynx are swelling.",
+          predict: [
+            { p: "Expected sound", o: ["Expiratory wheeze", "Inspiratory stridor", "Crackles"], a: 1, why: "The narrowing is in the upper airway. A harsh, high-pitched sound on inhalation." },
+            { p: "When is the obstruction worse?", o: ["Inhalation", "Exhalation"], a: 0, why: "Upper airway is outside the chest. Negative pressure on inhalation pulls the soft, swollen tissues inward." },
+            { p: "Voice", o: ["Normal", "Hoarse or muffled", "Louder"], a: 1, why: "The larynx (voice box) is swollen." },
+            { p: "Priority treatment", o: ["Albuterol nebulizer", "IM epinephrine", "Oral antihistamine", "Incentive spirometer"], a: 1, why: "Epinephrine constricts leaky vessels (reduces swelling) and dilates bronchioles. It is first-line for anaphylaxis." }
+          ],
+          reveal: {
+            name: "Upper airway obstruction",
+            sub: "Anaphylaxis / angioedema, foreign body, epiglottitis, post-extubation laryngeal edema",
+            affects: "The upper conducting airway. Everything below it is normal, but no air can reach it.",
+            clue: "Stridor, hoarse voice, drooling, swelling.",
+            nursing: [
+              "Stridor is an emergency. Airway comes first: call for help and prepare for an advanced airway.",
+              "Anaphylaxis: IM epinephrine, O₂, IV fluids for hypotension."
+            ],
+            also: "Sound tells location: stridor = high and inspiratory; wheeze = low and expiratory."
+          }
+        }
+      ]
+    },
+    {
+      id: "membrane", name: "Membrane", part: "Alveolar–capillary membrane",
+      tagline: "The surface where gas actually crosses.",
+      how: [
+        "Gas exchange happens across the alveolar–capillary membrane: alveolar wall, a thin interstitial space, and the capillary wall. It is about 0.5 micrometers thick.",
+        "Hundreds of millions of alveoli give a surface area about the size of a tennis court.",
+        "Type II alveolar cells make surfactant, which lowers surface tension so alveoli don't collapse. Elastic fibers in the walls provide the recoil that pushes air out on exhalation."
+      ],
+      principle: { label: "The rule", text: "Fick's law: diffusion = surface area × pressure gradient ÷ thickness. The membrane must stay BIG, THIN, DRY and OPEN. CO₂ diffuses about 20 times more easily than O₂, so membrane problems drop the O₂ first." },
+      check: [
+        { q: "Which change would SLOW diffusion across the membrane?", o: ["Larger surface area", "Thinner membrane", "Fluid filling the interstitium", "Higher alveolar O₂"], a: 2, why: "Fluid makes the barrier thicker, so diffusion slows." },
+        { q: "What does surfactant do?", o: ["Kills bacteria", "Lowers surface tension so alveoli stay open", "Carries O₂ to hemoglobin", "Makes mucus"], a: 1, why: "Without surfactant, small alveoli collapse (atelectasis), as in ARDS and premature infants." }
+      ],
+      breaks: [
+        {
+          id: "membrane-destroy", action: "Make it smaller: destroy the walls",
+          scenario: "Enzymes released by smoke-triggered inflammation (or a genetic alpha-1 antitrypsin deficiency) destroy alveolar walls. Many small alveoli merge into large floppy sacs with little elastic recoil.",
+          predict: [
+            { p: "Surface area for gas exchange", o: UP, a: 2, why: "Fewer walls = less membrane." },
+            { p: "What happens to air on exhalation?", o: ["It leaves faster", "It gets trapped", "No change"], a: 1, why: "No recoil to push air out, and the small airways lose the tissue that held them open, so they collapse early." },
+            { p: "Chest shape over time", o: ["Barrel chest (increased AP diameter)", "Sunken chest", "Normal"], a: 0, why: "Trapped air keeps the lungs over-inflated." },
+            { p: "Percussion", o: ["Dull", "Hyperresonant", "Flat"], a: 1, why: "Lots of trapped air." },
+            { p: "Breathing technique the patient discovers", o: ["Pursed-lip breathing", "Breath holding", "Rapid panting"], a: 0, why: "Exhaling against pursed lips creates back-pressure that splints the airways open so more air gets out." }
+          ],
+          reveal: {
+            name: "Emphysema (COPD)",
+            sub: "Permanent destruction of alveolar walls",
+            affects: "The membrane's surface area and the lung's elastic recoil.",
+            clue: "Barrel chest, pursed lips, hyperresonance, diminished sounds, thin and working hard to breathe.",
+            nursing: [
+              "Teach pursed-lip and diaphragmatic breathing; tripod positioning.",
+              "O₂ to a target SpO₂ of 88–92% for CO₂ retainers; small frequent high-calorie meals (breathing burns calories).",
+              "Smoking cessation slows the decline."
+            ],
+            also: "Same break pattern for asthma vs. emphysema (air trapping) but different cause: squeezed pipes vs. destroyed walls."
+          }
+        },
+        {
+          id: "membrane-pressure", action: "Make it wet: fluid from the blood side",
+          scenario: "The left ventricle is failing. Blood backs up into the pulmonary veins and capillaries. The high pressure pushes fluid out into the interstitium and then the alveoli.",
+          predict: [
+            { p: "Breath sounds", o: ["Crackles", "Stridor", "Absent on one side"], a: 0, why: "Air bubbling through fluid in small airways and alveoli pops open." },
+            { p: "Where do crackles start?", o: ["Apices", "Bases", "One lobe only"], a: 1, why: "Gravity pulls the fluid down." },
+            { p: "Lying flat makes breathing:", o: ["Easier", "Harder", "No change"], a: 1, why: "Lying down returns more blood to the heart and spreads fluid over more lung. That is orthopnea." },
+            { p: "Sputum in severe cases", o: ["Thick green", "Pink and frothy", "None"], a: 1, why: "Fluid mixed with air and a little blood from high-pressure capillaries." }
+          ],
+          reveal: {
+            name: "Cardiogenic pulmonary edema",
+            sub: "From left-sided heart failure",
+            affects: "The membrane (thick and wet), but the root cause is the heart, not the lung.",
+            clue: "Bilateral crackles from the bases up, orthopnea, pink frothy sputum, history of HF.",
+            nursing: [
+              "High Fowler's with legs dependent, O₂, loop diuretic per order.",
+              "Monitor potassium, intake & output, and daily weights."
+            ],
+            also: "Treat the cause: removing fluid (diuretic) and reducing the heart's workload dries the membrane."
+          }
+        },
+        {
+          id: "membrane-infect", action: "Make it wet: fill it with infection",
+          scenario: "Bacteria reach the alveoli of the right lower lobe. White blood cells, fluid and debris flood the alveoli until that area becomes solid (consolidated).",
+          predict: [
+            { p: "Percussion over the area", o: ["Hyperresonant", "Dull", "Normal"], a: 1, why: "Solid tissue instead of air." },
+            { p: "Tactile fremitus over the area", o: UP, a: 0, why: "Vibration travels better through solid than through air." },
+            { p: "Breath sounds over the area", o: ["Crackles or bronchial sounds", "Expiratory wheeze only", "Stridor"], a: 0, why: "Fluid in alveoli crackles; solid lung conducts loud bronchial sounds to places they don't belong." },
+            { p: "Sputum", o: ["Pink and frothy", "Purulent, rust-colored or green", "None ever"], a: 1, why: "Infection produces pus; rust color comes from blood cells." }
+          ],
+          reveal: {
+            name: "Pneumonia",
+            sub: "Community-acquired, hospital-acquired, aspiration",
+            affects: "The alveoli: filled with inflammatory exudate instead of air.",
+            clue: "Fever, productive cough, crackles, dullness and increased fremitus over one area.",
+            nursing: [
+              "Obtain sputum and blood cultures before the first antibiotic dose.",
+              "O₂, fluids, cough and deep breathing. For one-sided pneumonia, position \"good lung down\" to match blood flow to the working lung.",
+              "Prevent aspiration: HOB elevated, swallow screen."
+            ],
+            also: "Blood still flows past those filled alveoli and leaves unoxygenated. That is a shunt (see Blood Flow)."
+          }
+        },
+        {
+          id: "membrane-leak", action: "Make it leaky: injure the membrane",
+          scenario: "Septic shock triggers massive body-wide inflammation. The alveolar-capillary membrane itself is injured and leaks protein-rich fluid into the alveoli. Surfactant is destroyed and alveoli collapse. The heart is working normally.",
+          predict: [
+            { p: "Response to 100% O₂ by non-rebreather", o: ["SpO₂ normalizes quickly", "SpO₂ barely improves", "SpO₂ drops"], a: 1, why: "Blood passes alveoli that are flooded or collapsed. Extra O₂ never reaches it (refractory hypoxemia)." },
+            { p: "Lung stiffness (compliance)", o: ["Stiffer, harder to inflate", "More floppy", "No change"], a: 0, why: "Fluid and lost surfactant make the lungs stiff." },
+            { p: "Chest x-ray", o: ["One lobe consolidated", "Bilateral diffuse infiltrates (white-out)", "Clear"], a: 1, why: "The injury is everywhere, not one spot." },
+            { p: "Pressure in the pulmonary capillaries", o: ["Very high, like heart failure", "Normal, the leak is from damage", "Very low"], a: 1, why: "This is noncardiogenic edema. The fluid leaks because the membrane is damaged, not pushed out by pressure." }
+          ],
+          reveal: {
+            name: "Acute respiratory distress syndrome (ARDS)",
+            sub: "Triggers: sepsis, aspiration, trauma, pancreatitis, massive transfusion",
+            affects: "The membrane itself: leaky, wet, stiff, collapsed.",
+            clue: "Hypoxemia that does not respond to high O₂, bilateral infiltrates, normal heart.",
+            nursing: [
+              "Mechanical ventilation with PEEP holds alveoli open; low tidal volumes protect the lung.",
+              "Prone positioning improves oxygenation.",
+              "Treat the trigger (e.g., sepsis bundle)."
+            ],
+            also: "Compare with cardiogenic edema: same wet lungs, different reason (leak vs. pressure)."
+          }
+        },
+        {
+          id: "membrane-collapse", action: "Let it close: collapse",
+          scenario: "Day 1 after abdominal surgery. Pain and anesthesia leave the patient taking only small, shallow breaths. Alveoli in the bases slowly deflate and stay closed.",
+          predict: [
+            { p: "Breath sounds in the bases", o: ["Diminished, maybe fine crackles", "Louder than normal", "Stridor"], a: 0, why: "Closed alveoli move no air. Some pop open with a deep breath (fine crackles)." },
+            { p: "SpO₂", o: UP, a: 2, why: "Blood passes closed alveoli without picking up O₂." },
+            { p: "Best prevention", o: ["Bed rest", "Incentive spirometry and early ambulation", "Lying flat", "Holding opioids entirely"], a: 1, why: "Deep breaths reopen alveoli. Adequate pain control helps patients do it." }
+          ],
+          reveal: {
+            name: "Atelectasis",
+            sub: "Post-op, immobility, mucus plug, compression",
+            affects: "The membrane's openness: alveoli collapsed.",
+            clue: "Post-op, diminished bases, falling SpO₂, often low-grade temperature.",
+            nursing: [
+              "Incentive spirometer about 10 times per hour while awake, cough and deep breathe, splint incisions.",
+              "Ambulate early; treat pain so the patient can breathe deeply."
+            ],
+            also: "Quick hit, another membrane break: thicken it with scar tissue → pulmonary fibrosis (dry \"Velcro\" crackles, clubbing)."
+          }
+        }
+      ]
+    },
+    {
+      id: "flow", name: "Blood Flow", part: "Pulmonary perfusion",
+      tagline: "The delivery service that picks up the oxygen.",
+      how: [
+        "Air in the alveoli is useless unless blood arrives to pick up the oxygen. The right ventricle pumps deoxygenated blood through the pulmonary arteries into capillaries that wrap every alveolus.",
+        "Ventilation (V̇) and perfusion (Q̇) need to match. Overall the ratio is about 0.8.",
+        "The lungs protect the match on their own: when a region has low O₂, its arterioles constrict (hypoxic pulmonary vasoconstriction) and blood is redirected to better-ventilated areas."
+      ],
+      principle: { label: "The rule", text: "Two ways to mismatch. Dead space = air but no blood (high V̇/Q̇). Shunt = blood but no air (low V̇/Q̇). Both lower PaO₂." },
+      check: [
+        { q: "Which ventricle pumps blood to the lungs?", o: ["Left", "Right"], a: 1, why: "Right ventricle → pulmonary artery → lungs. Lung problems that raise vessel pressure strain the RIGHT heart." },
+        { q: "An area of lung with a low O₂ level responds by:", o: ["Dilating its vessels", "Constricting its vessels", "Making more surfactant"], a: 1, why: "Hypoxic vasoconstriction sends blood to where the air is. Helpful in one spot, harmful when it happens everywhere." }
+      ],
+      breaks: [
+        {
+          id: "flow-block", action: "Block the blood",
+          scenario: "Day 3 after hip replacement. A clot from a leg vein breaks loose, travels through the right heart and lodges in a pulmonary artery. Alveoli beyond it are still full of air, but no blood reaches them.",
+          predict: [
+            { p: "Breath sounds", o: ["Often clear", "Wheezing everywhere", "Absent on one side"], a: 0, why: "The airways and alveoli are fine. The problem is in the blood vessels, which you cannot hear." },
+            { p: "Onset", o: ["Gradual over weeks", "Sudden"], a: 1, why: "A clot lodges in an instant." },
+            { p: "Heart rate", o: UP, a: 0, why: "Hypoxemia and strain on the right heart trigger tachycardia." },
+            { p: "Why does SpO₂ fall if those alveoli still have air?", o: ["The clot absorbs oxygen", "Blood is rerouted and rushes too fast through the rest of the lung, causing mismatch", "The alveoli stop making surfactant immediately"], a: 1, why: "The blocked area is dead space. All the blood is forced through the remaining lung, which can't keep up." }
+          ],
+          reveal: {
+            name: "Pulmonary embolism",
+            sub: "Dead space: air with no blood",
+            affects: "Pulmonary blood flow. Lungs and airways are normal.",
+            clue: "Sudden dyspnea, tachycardia, pleuritic chest pain, anxiety, low SpO₂ with clear lungs, DVT risk factors.",
+            nursing: [
+              "Know Virchow's triad: stasis, vessel injury, hypercoagulability.",
+              "Prevent: early ambulation, SCDs, anticoagulant prophylaxis as ordered.",
+              "Suspected PE: call the rapid response team, raise HOB, O₂, prepare for anticoagulation (or thrombolytics if massive)."
+            ],
+            also: "A large PE blocks the right ventricle's outflow: JVD, hypotension, obstructive shock."
+          }
+        },
+        {
+          id: "flow-shunt", action: "Air can't reach the blood",
+          scenario: "Blood keeps flowing normally past alveoli that are full of fluid or pus (pneumonia, ARDS) or collapsed (atelectasis). That blood leaves the lung without picking up oxygen and mixes with oxygenated blood.",
+          predict: [
+            { p: "Will turning up the O₂ fix a large shunt?", o: ["Yes, completely", "Only partly; the O₂ never reaches those alveoli", "It makes it worse"], a: 1, why: "Extra O₂ only helps alveoli that are open. Blood past flooded or closed alveoli stays unoxygenated." },
+            { p: "What actually fixes a shunt?", o: ["Reopening or clearing the alveoli", "A faster heart rate", "Diuretics in every case"], a: 0, why: "PEEP, deep breathing, treating the infection: anything that gets air back into those alveoli." }
+          ],
+          reveal: {
+            name: "Intrapulmonary shunt",
+            sub: "The mechanism behind hypoxemia in pneumonia, ARDS and atelectasis",
+            affects: "The match between air and blood (caused by a membrane problem).",
+            clue: "Low PaO₂ that responds poorly to more O₂.",
+            nursing: [
+              "Interventions that open alveoli (incentive spirometry, PEEP, prone positioning, mobilizing) treat the cause.",
+              "\"Good lung down\" positioning sends more blood to the lung that has air."
+            ],
+            also: "Dead space vs. shunt: PE wastes air; pneumonia wastes blood."
+          }
+        },
+        {
+          id: "flow-squeeze", action: "Squeeze the vessels for years",
+          scenario: "A patient has had severe COPD for 15 years. Chronic low O₂ throughout the lungs causes widespread hypoxic vasoconstriction. Pressure in the pulmonary arteries rises.",
+          predict: [
+            { p: "Effect on the right ventricle", o: ["Shrinks", "Hypertrophies, then fails", "No change"], a: 1, why: "It pumps against high pressure every beat, thickens, and eventually fails." },
+            { p: "Signs you would see", o: ["JVD, peripheral edema, enlarged liver", "Pink frothy sputum and bibasilar crackles", "Stridor"], a: 0, why: "Right-sided failure backs blood up into the body's veins, not the lungs." },
+            { p: "Which treatment eases the vasoconstriction?", o: ["Long-term oxygen therapy", "Hyperventilating the patient", "Fluid bolus"], a: 0, why: "Raising alveolar O₂ relaxes the pulmonary arterioles. Long-term O₂ improves survival in severe COPD." }
+          ],
+          reveal: {
+            name: "Pulmonary hypertension → cor pulmonale",
+            sub: "Right-sided heart failure caused by lung disease",
+            affects: "The pulmonary vessels and the right heart.",
+            clue: "Chronic lung disease plus JVD, ankle edema, hepatomegaly.",
+            nursing: [
+              "Long-term O₂ as ordered, diuretics for edema, daily weights, energy conservation."
+            ],
+            also: "One break leads to another: pipes or membrane → chronic hypoxemia → blood flow → heart."
+          }
+        }
+      ]
+    }
+  ],
+  decoder: [
+    ["Rising CO₂ with clear lungs", "Drive or Bellows (not moving enough air)"],
+    ["Absent sounds on one side", "Bellows: air or fluid in the pleural space"],
+    ["Hyperresonance", "Too much air: pneumothorax or emphysema"],
+    ["Dullness", "Fluid or solid: effusion or consolidation"],
+    ["Stridor", "Pipes, upper airway"],
+    ["Expiratory wheeze", "Pipes, lower airways"],
+    ["Crackles", "Membrane: fluid or collapsed alveoli opening"],
+    ["Low SpO₂, clear lungs, sudden onset", "Blood Flow: think PE"],
+    ["Low SpO₂ that won't improve with high O₂", "Shunt: ARDS, large pneumonia"],
+    ["JVD + peripheral edema in a lung patient", "Blood Flow → right heart (cor pulmonale)"]
+  ],
+  triage: [
+    { v: "68 y/o, post-op day 1 after colectomy, on hydromorphone PCA. Difficult to arouse. RR 7, shallow. SpO₂ 94% on 2 L. Lungs clear but diminished. EtCO₂ 62 mm Hg.", part: "drive",
+      cond: ["Atelectasis", "Opioid-induced respiratory depression", "Pulmonary embolism", "Pneumonia"], ca: 1,
+      act: ["Increase O₂ to 6 L and recheck in an hour", "Stop the PCA, stimulate, give naloxone per order and support ventilation", "Encourage incentive spirometer", "Obtain sputum culture"], aa: 1,
+      why: "Slow shallow breathing, sedation and high CO₂ with clear lungs = the driver is suppressed. SpO₂ looks okay only because of the O₂." },
+    { v: "21 y/o, tall and thin, sudden sharp right chest pain at rest. RR 28, SpO₂ 90%. Right breath sounds absent, hyperresonant on percussion. Trachea midline, BP 124/78.", part: "bellows",
+      cond: ["Spontaneous pneumothorax", "Tension pneumothorax", "Pleural effusion", "Asthma"], ca: 0,
+      act: ["Give albuterol", "Position upright, give O₂ and prepare for chest tube", "Place flat and elevate legs", "Encourage fluids"], aa: 1,
+      why: "Air in the pleural space: absent sounds + hyperresonance. Midline trachea and normal BP mean it is not (yet) tension." },
+    { v: "19 y/o at the student health office after mowing grass. Tripod position, speaking 3-word sentences. Prolonged expiration with diffuse expiratory wheezes. RR 30, SpO₂ 91%.", part: "pipes",
+      cond: ["Upper airway obstruction", "Asthma exacerbation", "Pneumonia", "Pulmonary edema"], ca: 1,
+      act: ["Short-acting bronchodilator (albuterol) and O₂", "IM epinephrine only", "Incentive spirometer", "Loop diuretic"], aa: 0,
+      why: "Expiratory wheeze and prolonged exhalation after a trigger = squeezed lower airways." },
+    { v: "74 y/o, 3 days of fever 102.4°F and cough with rust-colored sputum. Crackles and dullness over the right lower lobe with increased tactile fremitus. SpO₂ 89%.", part: "membrane",
+      cond: ["Pleural effusion", "Pneumonia", "Emphysema", "Pulmonary embolism"], ca: 1,
+      act: ["Start antibiotics, then get cultures", "Obtain cultures, then start antibiotics; O₂", "Restrict fluids", "Withhold O₂ until the chest x-ray is read"], aa: 1,
+      why: "Consolidation (dull + increased fremitus + crackles) with fever = alveoli filled with infection. Cultures before antibiotics." },
+    { v: "66 y/o with history of MI wakes up gasping and has to sit on the edge of the bed. Bilateral crackles halfway up both lungs, pink frothy sputum, SpO₂ 88%, BP 168/96.", part: "membrane",
+      cond: ["ARDS", "Cardiogenic pulmonary edema", "Pneumonia", "Chronic bronchitis"], ca: 1,
+      act: ["Lay flat to rest", "High Fowler's, O₂ and IV loop diuretic per order", "Give a 1 L fluid bolus", "Albuterol nebulizer"], aa: 1,
+      why: "A failing left ventricle backs pressure into pulmonary capillaries and floods the membrane." },
+    { v: "58 y/o, post-op day 3 after total hip replacement. Sudden dyspnea and sharp chest pain with breathing. HR 124, RR 30, SpO₂ 86%. Lungs clear. Very anxious.", part: "flow",
+      cond: ["Panic attack", "Atelectasis", "Pulmonary embolism", "Pneumothorax"], ca: 2,
+      act: ["Coach slow breathing; it's anxiety", "Call rapid response, raise HOB, O₂, prepare for anticoagulation", "Ambulate in the hall", "Massage the calf to check for pain"], aa: 1,
+      why: "Sudden hypoxemia with clear lungs after orthopedic surgery: blood flow is blocked. Never massage a suspected DVT." },
+    { v: "70 y/o, 50 pack-year smoking history. Thin, barrel chest, pursed-lip breathing, tripod position. Diminished breath sounds, hyperresonant throughout. SpO₂ 87% on room air. Baseline PaCO₂ 52.", part: "membrane",
+      cond: ["Emphysema (COPD)", "Asthma", "Pneumothorax", "ARDS"], ca: 0,
+      act: ["100% O₂ by non-rebreather and leave it", "Titrate O₂ to SpO₂ 88–92% and monitor CO₂", "Withhold all O₂", "Lay flat"], aa: 1,
+      why: "Destroyed walls: lost surface area and recoil, so air is trapped. A chronic CO₂ retainer gets controlled O₂." },
+    { v: "36 y/o in septic shock, day 2. On 100% non-rebreather, SpO₂ still 84%. Chest x-ray: bilateral diffuse infiltrates. Echo shows normal heart function.", part: "membrane",
+      cond: ["Cardiogenic pulmonary edema", "ARDS", "Pneumothorax", "Pulmonary embolism"], ca: 1,
+      act: ["Add a nasal cannula on top of the non-rebreather", "Prepare for intubation, mechanical ventilation with PEEP, consider prone", "Give furosemide and wait", "Incentive spirometer every hour"], aa: 1,
+      why: "Refractory hypoxemia, bilateral infiltrates, normal heart: a leaky, injured membrane (shunt). PEEP reopens alveoli." },
+    { v: "45 y/o with Guillain-Barré, weakness started in the feet 4 days ago and now involves the arms. Weak cough. Vital capacity has fallen from 40 to 14 mL/kg. Lungs clear. RR 26, shallow.", part: "bellows",
+      cond: ["Opioid overdose", "Neuromuscular respiratory failure", "Asthma", "Pulmonary edema"], ca: 1,
+      act: ["Recheck vital capacity tomorrow", "Notify provider and prepare for elective intubation", "Give albuterol", "Encourage deep coughing on his own"], aa: 1,
+      why: "The pump's muscles are failing. A falling vital capacity predicts respiratory failure before the ABG does." },
+    { v: "28 y/o ate a cookie containing peanuts. Lips and tongue swelling, hoarse voice, high-pitched noise on inhalation, hives. BP 86/50.", part: "pipes",
+      cond: ["Asthma", "Upper airway obstruction from anaphylaxis", "Panic attack", "Pneumonia"], ca: 1,
+      act: ["IM epinephrine, airway support, O₂, IV fluids", "Oral antihistamine and observe", "Albuterol only", "Paper bag breathing"], aa: 0,
+      why: "Inspiratory stridor + hoarse voice = upper airway closing. Epinephrine is first-line." }
+  ]
+};
+
+
+(function () {
+  const D = DATA;
+  const S = D.stations;
+  const KEY = "btm-resp-v1";
+  let st = { team: "", checks: {}, preds: {}, locked: {}, tri: {}, map: {}, mapChecked: false, view: "home", tIdx: 0 };
+  try { const raw = localStorage.getItem(KEY); if (raw) st = Object.assign(st, JSON.parse(raw)); } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const partName = id => S.find(s => s.id === id).name;
+
+  // Stable shuffles (seeded by id) so answer positions vary but stay put between reloads
+  function seeded(str) { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 10000) / 10000; }; }
+  function order(n, seed) { const r = seeded(seed); const a = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  const SHORT = { "drive-down": "Opioid respiratory depression", "drive-up": "Hyperventilation (anxiety)", "bellows-air": "Pneumothorax", "bellows-tension": "Tension pneumothorax", "bellows-fluid": "Pleural effusion", "bellows-power": "Guillain-Barré respiratory failure", "bellows-frame": "Flail chest", "pipes-squeeze": "Asthma", "pipes-clog": "Chronic bronchitis", "pipes-top": "Anaphylaxis airway swelling", "membrane-destroy": "Emphysema", "membrane-pressure": "Cardiogenic pulmonary edema", "membrane-infect": "Pneumonia", "membrane-leak": "ARDS", "membrane-collapse": "Atelectasis", "flow-block": "Pulmonary embolism", "flow-shunt": "Intrapulmonary shunt", "flow-squeeze": "Cor pulmonale" };
+  const allBreaks = S.flatMap(s => s.breaks.map(b => ({ ...b, part: s.id })));
+
+  // ---------- scoring ----------
+  function tally() {
+    let checks = 0, checksMax = 0, preds = 0, predsMax = 0, tri = 0, triMax = D.triage.length * 3, map = 0, mapMax = allBreaks.length;
+    S.forEach(s => s.check.forEach((q, i) => { checksMax++; if (st.checks[s.id + i] === q.a) checks++; }));
+    allBreaks.forEach(b => b.predict.forEach((p, i) => { predsMax++; if (st.locked[b.id] && st.preds[b.id + i] === p.a) preds++; }));
+    D.triage.forEach((t, i) => { const r = st.tri[i] || {}; if (r.part === t.part) tri++; if (r.cond === t.ca) tri++; if (r.act === t.aa) tri++; });
+    if (st.mapChecked) allBreaks.forEach(b => { if (st.map[b.id] === b.part) map++; });
+    return { checks, checksMax, preds, predsMax, tri, triMax, map, mapMax, total: checks + preds + tri + map, max: checksMax + predsMax + triMax + mapMax };
+  }
+  function stationDone(s) { return s.breaks.every(b => st.locked[b.id]); }
+
+  // ---------- nav ----------
+  const views = [{ id: "home", label: "Start" }, ...S.map((s, i) => ({ id: s.id, label: s.name, n: i + 1 })), { id: "triage", label: "Triage" }, { id: "map", label: "Machine Map" }, { id: "decoder", label: "Clue Decoder" }];
+  function renderTabs() {
+    $("#tabs").innerHTML = views.map(v => {
+      const s = S.find(x => x.id === v.id);
+      const done = s && stationDone(s) ? '<span class="done" aria-label="complete">✓</span>' : "";
+      return `<button class="tab" data-go="${v.id}" ${st.view === v.id ? 'aria-current="page"' : ""}>${v.n ? `<span class="n">${v.n}</span>` : ""}${esc(v.label)}${done}</button>`;
+    }).join("");
+    const t = tally();
+    $("#score").textContent = `${t.total} / ${t.max}`;
+  }
+  function go(v) { st.view = v; save(); render(); window.scrollTo({ top: 0 }); }
+
+  // ---------- views ----------
+  function home() {
+    const nodes = S.map((s, i) => `<button class="node" data-go="${s.id}"><span class="k">PART ${i + 1}</span><b>${esc(s.name)}</b><small>${esc(s.part)}</small><span class="via">${["signal", "pressure", "airflow", "diffusion", "perfusion"][i]}</span></button>`).join("");
+    return `
+    <section class="hero">
+      <div class="eyebrow">RN · Respiratory · ~3 hours</div>
+      <h1>Learn the machine. <em>Break it.</em> Then name it.</h1>
+      <p class="lede">Every respiratory disease is one part of a five-part machine failing. If you know what each part does, you can predict what a patient will look like before anyone tells you the diagnosis.</p>
+    </section>
+    <section>
+      <div class="eyebrow">The machine</div>
+      <div class="chain">${nodes}</div>
+      <p class="hint">Oxygen gets into the blood only if all five work: the brain sends the signal, the pump creates pressure, the pipes carry air, the membrane lets gas cross, and blood arrives to carry it away.</p>
+    </section>
+    <section>
+      <div class="eyebrow">How each station works</div>
+      <div class="steps">
+        <div class="step"><span class="num">1</span><b>Learn the part</b><p>Read how it works and the one rule that governs it.</p></div>
+        <div class="step"><span class="num">2</span><b>Check the normal</b><p>Quick questions on the healthy part.</p></div>
+        <div class="step"><span class="num">3</span><b>Break it</b><p>Predict every change before you see the answer. Then lock in.</p></div>
+        <div class="step"><span class="num">4</span><b>Name it</b><p>The disease is revealed only after you reason your way there.</p></div>
+      </div>
+    </section>
+    <section>
+      <div class="eyebrow">Normal values you will need</div>
+      <div class="tbl-wrap"><table><thead><tr><th>Measure</th><th>Normal</th></tr></thead><tbody>${D.normals.map(n => `<tr><td>${n[0]}</td><td class="v">${n[1]}</td></tr>`).join("")}</tbody></table></div>
+    </section>
+    <section class="next"><span></span><button class="btn" data-go="drive">Start with Part 1: Drive →</button></section>
+    <section><div class="confirm" id="resetBox"><button class="btn ghost" id="resetAsk">Reset all answers</button></div></section>`;
+  }
+
+  function mcq(id, q, picked) {
+    const answered = picked !== undefined;
+    const opts = q.o.map((o, i) => {
+      let cls = "opt";
+      if (answered && i === q.a) cls += " right";
+      else if (answered && i === picked) cls += " wrong";
+      return `<button class="${cls}" data-chk="${id}" data-i="${i}" ${answered ? "disabled" : ""}>${esc(o)}</button>`;
+    }).join("");
+    const fb = answered ? `<p class="fb ${picked === q.a ? "" : "no"}"><b>${picked === q.a ? "Correct." : "Not quite."}</b> ${esc(q.why)}</p>` : "";
+    return `<div class="q"><p>${esc(q.q)}</p><div class="opts">${opts}</div>${fb}</div>`;
+  }
+
+  function breakCard(b, idx) {
+    const locked = !!st.locked[b.id];
+    const rows = b.predict.map((p, i) => {
+      const pick = st.preds[b.id + i];
+      const opts = p.o.map((o, j) => {
+        let cls = "opt"; let pressed = "";
+        if (locked) { if (j === p.a) cls += " right"; else if (j === pick) cls += " wrong"; }
+        else if (pick === j) pressed = 'aria-pressed="true"';
+        return `<button class="${cls}" data-pred="${b.id}" data-i="${i}" data-j="${j}" ${pressed} ${locked ? "disabled" : ""}>${esc(o)}</button>`;
+      }).join("");
+      const fb = locked ? `<p class="fb ${pick === p.a ? "" : "no"}"><b>${pick === p.a ? "Predicted." : "Missed."}</b> ${esc(p.why)}</p>` : "";
+      return `<div class="pred"><div class="lbl">${esc(p.p)}</div><div class="opts">${opts}</div>${fb}</div>`;
+    }).join("");
+    const answered = b.predict.filter((p, i) => st.preds[b.id + i] !== undefined).length;
+    const r = b.reveal;
+    const reveal = locked ? `
+      <div class="reveal">
+        <div class="eyebrow">You just reasoned your way to</div>
+        <h4>${esc(r.name)}</h4>
+        <p class="sub">${esc(r.sub)}</p>
+        <div class="facts">
+          <div class="fact"><div class="eyebrow">What's broken</div>${esc(r.affects)}</div>
+          <div class="fact"><div class="eyebrow">Signature clue</div>${esc(r.clue)}</div>
+        </div>
+        <div><div class="eyebrow">Nursing logic: fix the broken part</div><ul>${r.nursing.map(n => `<li>${esc(n)}</li>`).join("")}</ul></div>
+        <p class="also">${esc(r.also)}</p>
+      </div>` : "";
+    return `
+    <article class="break" id="b-${b.id}">
+      <div class="break-top">
+        <div class="eyebrow">Break ${idx + 1}</div>
+        <h3>${esc(b.action)}</h3>
+        <p>${esc(b.scenario)}</p>
+      </div>
+      <div class="break-body">
+        <p class="hint">${locked ? "Predictions locked." : "Predict what happens. Talk it through as a team, then lock in."}</p>
+        ${rows}
+        ${locked ? "" : `<div class="actions"><button class="btn broken" data-lock="${b.id}" ${answered < b.predict.length ? "disabled" : ""}>Lock in predictions</button><span class="hint">${answered} of ${b.predict.length} predicted</span></div>`}
+      </div>
+      ${reveal}
+    </article>`;
+  }
+
+  function station(s) {
+    const i = S.indexOf(s);
+    const sounds = s.sounds ? `<div class="tbl-wrap"><table><thead><tr><th>Sound</th><th>What you hear</th><th>What it tells you</th></tr></thead><tbody>${s.sounds.map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</tbody></table></div>` : "";
+    const cmp = s.breaks.map(b => st.locked[b.id]
+      ? `<tr><td>${esc(b.action)}</td><td><b>${esc(b.reveal.name)}</b></td><td>${esc(b.reveal.clue)}</td></tr>`
+      : `<tr><td>${esc(b.action)}</td><td class="unk">? locked</td><td class="unk">—</td></tr>`).join("");
+    const prev = i === 0 ? "home" : S[i - 1].id, nextId = i === S.length - 1 ? "triage" : S[i + 1].id;
+    const nextLabel = i === S.length - 1 ? "Triage round" : `Part ${i + 2}: ${S[i + 1].name}`;
+    return `
+    <section class="st-head">
+      <div class="eyebrow">Part ${i + 1} of 5 · ${esc(s.part)}</div>
+      <h1>${esc(s.name)}</h1>
+      <p class="tag">${esc(s.tagline)}</p>
+    </section>
+    <section>
+      <div class="phase"><span class="eyebrow">Step 1</span><h2>How it works</h2></div>
+      <div class="how">${s.how.map(p => `<p>${esc(p)}</p>`).join("")}</div>
+      <div class="rule"><div class="eyebrow">${esc(s.principle.label)}</div><p>${esc(s.principle.text)}</p></div>
+      ${sounds}
+    </section>
+    <section>
+      <div class="phase"><span class="eyebrow">Step 2</span><h2>Check the normal machine</h2></div>
+      ${s.check.map((q, k) => mcq(s.id + k, q, st.checks[s.id + k])).join("")}
+    </section>
+    <section>
+      <div class="phase broken"><span class="eyebrow">Steps 3–4</span><h2>Break it, then name it</h2></div>
+      ${s.breaks.map(breakCard).join("")}
+    </section>
+    <section>
+      <div class="phase broken"><span class="eyebrow">Wrap-up</span><h2>Same part, different breaks</h2></div>
+      <div class="tbl-wrap"><table class="cmp"><thead><tr><th>How it broke</th><th>Name</th><th>Signature clue</th></tr></thead><tbody>${cmp}</tbody></table></div>
+    </section>
+    <section class="next"><button class="btn ghost" data-go="${prev}">← Back</button><button class="btn" data-go="${nextId}">${esc(nextLabel)} →</button></section>`;
+  }
+
+  function triage() {
+    const i = Math.min(st.tIdx, D.triage.length - 1);
+    const t = D.triage[i];
+    const r = st.tri[i] || {};
+    const dots = D.triage.map((x, k) => {
+      const rr = st.tri[k] || {};
+      const cls = rr.act !== undefined ? (rr.part === x.part && rr.cond === x.ca && rr.act === x.aa ? "full" : "part") : "";
+      return `<button class="dot ${cls}" data-tri-go="${k}" ${k === i ? 'aria-current="true"' : ""} aria-label="Patient ${k + 1}">${k + 1}</button>`;
+    }).join("");
+    const btns = (kind, labels, correct, picked, enabled, ord) => ord.map(j => {
+      let cls = "opt";
+      if (picked !== undefined) { if (j === correct) cls += " right"; else if (j === picked) cls += " wrong"; }
+      return `<button class="${cls}" data-tri="${kind}" data-i="${i}" data-j="${j}" ${picked !== undefined || !enabled ? "disabled" : ""}>${esc(labels[j])}</button>`;
+    }).join("");
+    const partIdx = S.findIndex(s => s.id === t.part);
+    const partPick = r.part === undefined ? undefined : S.findIndex(s => s.id === r.part);
+    const step = (n, title, html, on) => `<div class="tstep ${on ? "" : "locked-out"}"><div class="eyebrow">Step ${n} · ${title}</div><div class="opts">${html}</div></div>`;
+    const done = r.act !== undefined;
+    return `
+    <section class="st-head">
+      <div class="eyebrow">Final round · 10 patients</div>
+      <h1>Find the broken part</h1>
+      <p class="tag">Locate the part first. Then name the condition. Then pick the action that fixes that part. Each step locks when you choose.</p>
+    </section>
+    <section><div class="dots">${dots}</div></section>
+    <section class="chart">
+      <div class="eyebrow">Patient ${i + 1}</div>
+      <p class="vig">${esc(t.v)}</p>
+      ${step(1, "Which part is broken?", btns("part", S.map(s => s.name), partIdx, partPick, true, [0, 1, 2, 3, 4]), true)}
+      ${step(2, "Name it", btns("cond", t.cond, t.ca, r.cond, r.part !== undefined, order(t.cond.length, "c" + i)), r.part !== undefined)}
+      ${step(3, "Priority action", btns("act", t.act, t.aa, r.act, r.cond !== undefined, order(t.act.length, "a" + i)), r.cond !== undefined)}
+      ${done ? `<p class="fb"><b>Reasoning.</b> ${esc(t.why)} <span class="hint">(Broken part: ${esc(partName(t.part))})</span></p>` : ""}
+    </section>
+    <section class="next">
+      <button class="btn ghost" data-tri-go="${Math.max(0, i - 1)}" ${i === 0 ? "disabled" : ""}>← Previous</button>
+      ${i < D.triage.length - 1 ? `<button class="btn" data-tri-go="${i + 1}">Next patient →</button>` : `<button class="btn" data-go="map">Build the Machine Map →</button>`}
+    </section>`;
+  }
+
+  let picked = null;
+  function mapView() {
+    const ord = order(allBreaks.length, "map").map(k => allBreaks[k]);
+    const chip = b => {
+      let cls = "chip";
+      if (st.mapChecked) cls += st.map[b.id] === b.part ? " right" : " wrong";
+      return `<button class="${cls}" data-chip="${b.id}" ${picked === b.id ? 'aria-pressed="true"' : ""} ${st.mapChecked ? "disabled" : ""}>${esc(SHORT[b.id] || b.reveal.name)}</button>`;
+    };
+    const pool = ord.filter(b => !st.map[b.id]);
+    const bins = S.map((s, i) => `<div class="bin ${picked ? "target" : ""}" data-bin="${s.id}" role="button" tabindex="0" aria-label="Place in ${esc(s.name)}"><span class="k">PART ${i + 1}</span><h3>${esc(s.name)}</h3><div class="in">${ord.filter(b => st.map[b.id] === s.id).map(chip).join("")}</div></div>`).join("");
+    const t = tally();
+    const placedAll = pool.length === 0;
+    const wrongs = st.mapChecked ? allBreaks.filter(b => st.map[b.id] !== b.part) : [];
+    return `
+    <section class="st-head">
+      <div class="eyebrow">Synthesis</div>
+      <h1>The Machine Map</h1>
+      <p class="tag">Sort every condition from today into the part it breaks first. Tap a condition, then tap a part. Tap a placed condition to move it again.</p>
+    </section>
+    <section>
+      <div class="eyebrow">Conditions to place (${pool.length})</div>
+      <div class="pool" data-bin="">${pool.length ? pool.map(chip).join("") : '<span class="hint">All placed.</span>'}</div>
+    </section>
+    <section><div class="bins">${bins}</div></section>
+    <section>
+      <div class="actions">
+        ${st.mapChecked ? `<p class="fb ${wrongs.length ? "no" : ""}"><b>${allBreaks.length - wrongs.length} of ${allBreaks.length} placed correctly.</b> ${wrongs.length ? "Misplaced: " + wrongs.map(b => `${esc(SHORT[b.id])} → ${esc(partName(b.part))}`).join("; ") + "." : "Every condition is where it belongs."}</p>` : `<button class="btn" id="checkMap" ${placedAll ? "" : "disabled"}>Check my map</button><span class="hint">${placedAll ? "Ready to check." : "Place every condition first."}</span>`}
+      </div>
+    </section>
+    <section>
+      <div class="phase broken"><span class="eyebrow">Debrief</span><h2>Talk it through</h2></div>
+      <ol class="debrief">
+        <li>COPD shows up in more than one part. Which parts does it break, and how does one break lead to the next?</li>
+        <li>Opioid overdose and Guillain-Barré both raise CO₂ with clear lungs. How would you tell them apart at the bedside?</li>
+        <li>Pulmonary edema and ARDS both flood the membrane. Why does one respond to a diuretic and the other doesn't?</li>
+        <li>Why does extra oxygen help a PE patient somewhat but barely help a patient with a large shunt?</li>
+        <li>Pick one condition you used to memorize as a list. Explain each sign and symptom using only how the machine works.</li>
+      </ol>
+    </section>
+    <section>
+      <div class="eyebrow">${st.team ? esc(st.team) + " · " : ""}Score summary</div>
+      <div class="tally">
+        <div><b>${t.checks}/${t.checksMax}</b><span>Normal-function checks</span></div>
+        <div><b>${t.preds}/${t.predsMax}</b><span>Predictions</span></div>
+        <div><b>${t.tri}/${t.triMax}</b><span>Triage steps</span></div>
+        <div><b>${t.map}/${t.mapMax}</b><span>Machine Map</span></div>
+        <div><b>${t.total}/${t.max}</b><span>Total</span></div>
+      </div>
+    </section>`;
+  }
+
+  function decoder() {
+    return `
+    <section class="st-head">
+      <div class="eyebrow">Reference</div>
+      <h1>Clue Decoder</h1>
+      <p class="tag">An assessment finding points to a part of the machine. Use this during the triage round.</p>
+    </section>
+    <section><div class="tbl-wrap"><table><thead><tr><th>If you find</th><th>Look at</th></tr></thead><tbody>${D.decoder.map(r => `<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td></tr>`).join("")}</tbody></table></div></section>
+    <section>
+      <div class="eyebrow">Normal values</div>
+      <div class="tbl-wrap"><table><tbody>${D.normals.map(n => `<tr><td>${n[0]}</td><td class="v">${n[1]}</td></tr>`).join("")}</tbody></table></div>
+    </section>`;
+  }
+
+  function render() {
+    renderTabs();
+    const s = S.find(x => x.id === st.view);
+    $("#main").innerHTML = st.view === "home" ? home() : s ? station(s) : st.view === "triage" ? triage() : st.view === "map" ? mapView() : decoder();
+    const tm = $("#team"); if (document.activeElement !== tm) tm.value = st.team || "";
+  }
+
+  // ---------- events ----------
+  document.addEventListener("click", e => {
+    const el = e.target.closest("button, [data-bin]"); if (!el || el.disabled) return;
+    const d = el.dataset;
+    if (d.go) return go(d.go);
+    if (d.chk !== undefined) { st.checks[d.chk] = +d.i; save(); return render(); }
+    if (d.pred) { st.preds[d.pred + d.i] = +d.j; save(); return renderKeep(el); }
+    if (d.lock) { st.locked[d.lock] = true; save(); render(); const c = document.getElementById("b-" + d.lock); if (c) c.scrollIntoView({ block: "nearest" }); return; }
+    if (d.triGo !== undefined) { st.tIdx = +d.triGo; save(); render(); return window.scrollTo({ top: 0 }); }
+    if (d.tri) { const r = st.tri[d.i] || (st.tri[d.i] = {}); r[d.tri] = d.tri === "part" ? S[+d.j].id : +d.j; save(); return render(); }
+    if (d.chip) { e.stopPropagation(); picked = picked === d.chip ? null : d.chip; return render(); }
+    if (d.bin !== undefined && picked && !st.mapChecked) { if (d.bin) st.map[picked] = d.bin; else delete st.map[picked]; picked = null; save(); return render(); }
+    if (el.id === "checkMap") { st.mapChecked = true; save(); return render(); }
+    if (el.id === "resetAsk") { $("#resetBox").innerHTML = '<span>Erase every answer and score?</span><button class="btn broken" id="resetYes">Yes, reset</button><button class="btn ghost" id="resetNo">Cancel</button>'; return; }
+    if (el.id === "resetYes") { const team = st.team; st = { team, checks: {}, preds: {}, locked: {}, tri: {}, map: {}, mapChecked: false, view: "home", tIdx: 0 }; save(); return render(); }
+    if (el.id === "resetNo") return render();
+  });
+  // re-render without losing scroll position on prediction clicks
+  function renderKeep(el) { const y = window.scrollY; render(); window.scrollTo({ top: y }); }
+  document.addEventListener("keydown", e => { const b = e.target.closest && e.target.closest(".bin"); if (b && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); b.click(); } });
+  $("#team").addEventListener("input", e => { st.team = e.target.value; save(); });
+  render();
+})();
+</script>
+
+</body></html>

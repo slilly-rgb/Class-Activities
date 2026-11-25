@@ -1,0 +1,858 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Code Oncology</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0b1220; --panel:#131d31; --panel2:#1a2640; --line:#2a3a5c;
+  --text:#e8eef9; --muted:#9fb0cf; --teal:#2dd4bf; --teal-d:#0f766e;
+  --amber:#fbbf24; --red:#f87171; --green:#4ade80; --violet:#a78bfa;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;line-height:1.5}
+body{min-height:100vh;background:radial-gradient(1200px 600px at 80% -10%,#15304a 0%,transparent 60%),var(--bg)}
+button{font:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;background:#070c16;border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.hud{display:flex;gap:10px;flex-wrap:wrap}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.9rem;white-space:nowrap}
+.chip b{font-variant-numeric:tabular-nums}
+.chip.over{border-color:var(--red);color:var(--red)}
+.hidden{display:none!important}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);margin:.2em 0}
+h2{margin:.2em 0 .4em}
+.sub{color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.btn{background:var(--teal);color:#042f2e;border:none;border-radius:10px;padding:10px 18px;font-weight:700}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn.amber{background:var(--amber);color:#422006}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=text],input[type=number]{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:inherit;width:100%;max-width:360px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:transparent;color:var(--muted);border:none;padding:8px 14px}
+.seg button.on{background:var(--teal-d);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.station{position:relative;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;color:var(--text);transition:transform .1s,border-color .1s}
+.station:hover{transform:translateY(-2px);border-color:var(--teal)}
+.station .ic{font-size:1.8rem}
+.station .nm{font-weight:700;font-size:1.05rem;margin-top:4px}
+.station .tp{color:var(--muted);font-size:.88rem}
+.station .st{position:absolute;top:12px;right:12px;font-size:.8rem;padding:2px 10px;border-radius:999px;background:var(--panel2);color:var(--muted)}
+.station.done{border-color:var(--green)}
+.station.done .st{background:#14532d;color:var(--green)}
+.station.prog .st{background:#422006;color:var(--amber)}
+.digits{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.digit{width:48px;height:60px;border-radius:10px;border:2px dashed var(--line);display:grid;place-items:center;font-size:1.8rem;font-weight:800;font-family:ui-monospace,Consolas,monospace;color:var(--muted)}
+.digit.got{border-style:solid;border-color:var(--green);color:var(--green);background:#0d2a1a}
+.caseBox{background:var(--panel2);border-left:4px solid var(--amber);border-radius:10px;padding:12px 14px;margin:10px 0}
+table.labs{width:100%;border-collapse:collapse;margin-top:8px;font-size:.95rem}
+table.labs th,table.labs td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+table.labs th{color:var(--muted);font-weight:600}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:.9rem}
+.stem{font-size:1.08rem;font-weight:600;margin:10px 0 14px}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;color:var(--text)}
+.opt:hover{border-color:var(--teal)}
+.opt.sel{border-color:var(--teal);background:#0f2f33}
+.opt .box{flex:0 0 22px;height:22px;border:2px solid var(--muted);border-radius:6px;display:grid;place-items:center;font-size:.8rem;margin-top:1px}
+.opt.radio .box{border-radius:50%}
+.opt.sel .box{border-color:var(--teal);background:var(--teal);color:#042f2e}
+.opt.right{border-color:var(--green);background:#0d2a1a}
+.opt.locked{pointer-events:none}
+.mrow{display:grid;grid-template-columns:1fr minmax(170px,240px);gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
+.mrow.bad{border-color:var(--red)}
+.mrow.good{border-color:var(--green)}
+select{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;width:100%}
+.fb{border-radius:10px;padding:12px 14px;margin-top:12px}
+.fb.bad{background:#3b1111;border:1px solid var(--red)}
+.fb.good{background:#0d2a1a;border:1px solid var(--green)}
+.fb.hint{background:#2e2106;border:1px solid var(--amber)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.progress{display:flex;gap:6px}
+.progress span{width:26px;height:6px;border-radius:4px;background:var(--line)}
+.progress span.on{background:var(--teal)}
+.progress span.done{background:var(--green)}
+.keypad{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center;margin:12px 0}
+.keypad button{height:52px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:1.3rem;font-weight:700}
+.keypad button:hover{border-color:var(--teal)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+table.sum{width:100%;border-collapse:collapse}
+table.sum td,table.sum th{padding:8px;border-bottom:1px solid var(--line);text-align:left}
+.big{font-size:2.2rem;font-weight:800;color:var(--teal)}
+.foot{color:var(--muted);font-size:.8rem;text-align:center;margin:24px 0 8px}
+@media (max-width:560px){.mrow{grid-template-columns:1fr}.digit{width:40px;height:52px;font-size:1.5rem}}
+
+</style>
+<header class="top">
+  <div class="brand"><span class="dot"></span> CODE ONCOLOGY · 7 WEST</div>
+  <div class="hud hidden" id="hud">
+    <span class="chip" id="teamChip"></span>
+    <span class="chip" id="timerChip">⏱ <b id="timer">35:00</b></span>
+    <span class="chip">★ <b id="score">0</b> pts</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- INTRO -->
+  <section id="intro">
+    <p class="sub" style="margin-top:18px">Oncology nursing escape room · about 45 minutes</p>
+    <h1>Code Oncology: Crisis on 7 West</h1>
+    <div class="card">
+      <p>It's 0300 on the oncology unit. The crash cart is <b>locked with a 6-digit code</b>, and the charge nurse is off the floor. Clear each of the <b>six stations</b> to earn one digit of the code. When you have all six, unlock the cart and answer the final rapid-response call.</p>
+      <p class="sub" style="margin-bottom:0">You can do the stations in any order. First-try answers earn 10 points, second tries earn 6, and later tries earn 3. Each hint costs 2 points. You have 35 minutes.</p>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <label for="team"><b>Team or student name(s)</b></label>
+      <div style="margin:8px 0 14px"><input type="text" id="team" placeholder="e.g., Team 3: Ana, Jordan, Priya" maxlength="80"></div>
+      <div class="row" style="margin-bottom:14px"><b>Mode:</b>
+        <div class="seg" id="modeSeg"><button class="on" data-m="Group">Group</button><button data-m="Individual">Individual</button></div>
+      </div>
+      <button class="btn" id="startBtn" disabled>Start shift ▶</button>
+      <p class="sub" style="font-size:.85rem;margin:10px 0 0">Keep this tab open. Refreshing the page will reset your progress.</p>
+    </div>
+  </section>
+
+  <!-- HUB -->
+  <section id="hub" class="hidden">
+    <h2 style="margin-top:14px">Unit map: 7 West Oncology</h2>
+    <p class="sub">Choose a station. Every station you clear adds one digit to the crash cart code.</p>
+    <div class="grid" id="stationGrid"></div>
+    <div class="card" style="margin-top:18px;text-align:center">
+      <b>🔒 Crash cart code</b>
+      <div class="digits" id="hubDigits"></div>
+      <button class="btn amber" id="toFinal" disabled>Go to the crash cart</button>
+    </div>
+  </section>
+
+  <!-- STATION -->
+  <section id="station" class="hidden">
+    <div class="row" style="justify-content:space-between;margin-top:14px">
+      <button class="btn ghost" id="backHub">← Unit map</button>
+      <div class="progress" id="qProg"></div>
+    </div>
+    <h2 id="stTitle" style="margin-top:12px"></h2>
+    <div class="caseBox" id="stIntro"></div>
+    <div class="card" id="qCard"></div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="final" class="hidden">
+    <div class="row" style="margin-top:14px"><button class="btn ghost" id="backHub2">← Unit map</button></div>
+    <div class="card" style="margin-top:12px;text-align:center" id="lockCard">
+      <h2>🔒 Crash cart</h2>
+      <p class="sub">Enter the 6-digit code in station order (Screening Clinic → Hypercalcemia).</p>
+      <div class="digits" id="entry"></div>
+      <div class="keypad" id="keypad"></div>
+      <div id="lockMsg" class="sub"></div>
+    </div>
+    <div class="card hidden" style="margin-top:12px" id="finalQ"></div>
+  </section>
+
+  <!-- END -->
+  <section id="end" class="hidden">
+    <div class="card" style="margin-top:18px;text-align:center">
+      <div style="font-size:2.4rem">🏆</div>
+      <h1>Shift complete</h1>
+      <p class="sub" id="endTeam"></p>
+      <div class="row" style="justify-content:center;gap:28px">
+        <div><div class="big" id="endScore"></div><div class="sub">points</div></div>
+        <div><div class="big" id="endTime"></div><div class="sub">time used</div></div>
+        <div><div class="big" id="endHints"></div><div class="sub">hints</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>Station report</h2>
+      <table class="sum" id="sumTable"></table>
+      <p class="sub" style="margin-bottom:0">📸 Take a screenshot of this screen and submit it to your instructor. Then answer the exit ticket on your recording sheet.</p>
+    </div>
+  </section>
+  <div class="foot">For educational use. Fictional clients. Always follow facility protocols and provider prescriptions.</div>
+</main>
+
+<script>
+const DATA = {
+ "title": "Code Oncology: Crisis on 7 West",
+ "code": "492715",
+ "stations": [
+  {
+   "id": "s1",
+   "name": "Screening Clinic",
+   "icon": "🔍",
+   "digit": "4",
+   "topic": "Skin cancer prevention & detection",
+   "items": "Answer key #22, #29, #37",
+   "intro": "Before the night shift heats up, you're covering the outpatient dermatology screening clinic. Three clients, three decisions.",
+   "questions": [
+    {
+     "type": "sata",
+     "stem": "A nurse at a dermatology clinic is reviewing client histories. Which findings increase a client's risk for developing malignant melanoma? Select all that apply.",
+     "options": [
+      "Dark hair and a dark complexion",
+      "Long-term immunosuppressant therapy after a kidney transplant",
+      "Fair skin and light-colored hair",
+      "Age 24",
+      "Works outdoors full-time as a roofer",
+      "Female sex",
+      "Age 62",
+      "History of chronic inflammatory skin irritation"
+     ],
+     "answer": [
+      1,
+      2,
+      4,
+      6,
+      7
+     ],
+     "rationale": "Risk factors for skin cancer include fair skin and hair, age greater than 50, male sex, chronic inflammatory skin irritation, chronic sun exposure, chemical pollution, and immunosuppression. Dark complexion, younger age, and female sex are not risk factors.",
+     "hint": "Think about three things: how much UV the skin gets, how well the skin can protect itself, and whether the immune system can catch abnormal cells."
+    },
+    {
+     "type": "mc",
+     "stem": "A client who has AIDS has many raised, purplish-brown lesions on the skin and oral mucosa. The nurse recognizes these findings are consistent with which condition?",
+     "options": [
+      "Actinic keratosis",
+      "Kaposi's sarcoma",
+      "Toxic epidermal necrolysis",
+      "Basal cell carcinoma"
+     ],
+     "answer": 1,
+     "rationale": "Kaposi's sarcoma is an AIDS-related malignancy of the skin and mucous membranes. Lesions are usually purplish-brown, raised, and edematous. Actinic keratosis lesions are small, rough, precancerous papules. TEN causes erythema and large blisters. Basal cell carcinoma looks like a pearly, raised bump.",
+     "hint": "The key clues are the color and the fact that the client is immunocompromised. This malignancy is an AIDS-defining illness."
+    },
+    {
+     "type": "mc",
+     "stem": "A nurse is teaching a sun protection class for parents. Which statement shows the teaching was effective?",
+     "options": [
+      "\"I'll put sunscreen on my 3-month-old so she can play on the beach with us.\"",
+      "\"I'll use the lowest SPF so we can still get a little color.\"",
+      "\"I'll plan our outdoor time for before 10 a.m. or after 4 p.m. when I can.\"",
+      "\"Sunscreen protects my toddler better than sunblock does.\""
+     ],
+     "answer": 2,
+     "rationale": "UV rays are strongest from about 10 a.m. to 4 p.m., so outdoor time should be limited then. A higher SPF gives more protection. Sunblock reflects UV rays, while sunscreen only absorbs some of them. Infants under 6 months should be kept out of direct sun and dressed in protective clothing instead of relying on sunscreen.",
+     "hint": "Rule out the answers about infants, SPF number, and sunscreen vs. sunblock. What's left is about when UV exposure is highest."
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "name": "Infusion Suite",
+   "icon": "💉",
+   "digit": "9",
+   "topic": "Chemotherapy & radiation adverse effects; therapeutic communication",
+   "items": "Answer key #9, #10, #11, #19, #21, #68",
+   "intro": "The infusion suite is busy. Match drugs to their adverse effects, then handle two clients who need teaching and support.",
+   "questions": [
+    {
+     "type": "match",
+     "stem": "Match each antineoplastic medication with the adverse effect the nurse should include in client teaching.",
+     "rows": [
+      "Cisplatin",
+      "Tamoxifen",
+      "Docetaxel"
+     ],
+     "choices": [
+      "Hot flashes",
+      "Urinary retention",
+      "Tinnitus and hearing loss",
+      "Fluid retention and weight gain"
+     ],
+     "answer": [
+      2,
+      0,
+      3
+     ],
+     "rationale": "Cisplatin is ototoxic, causing tinnitus and hearing loss. It also causes nephrotoxicity and hypokalemia. Tamoxifen is an antiestrogen that blocks estrogen receptors, so hot flashes are expected. Docetaxel causes fluid retention and weight gain. None of these medications is associated with urinary retention.",
+     "hint": "Cisplatin is a platinum drug known for damaging the ears and kidneys. Tamoxifen blocks estrogen, so its effects are similar to menopause."
+    },
+    {
+     "type": "mc",
+     "stem": "A client has had severe nausea and vomiting for 2 days after a course of chemotherapy. The nurse should monitor for which acid-base imbalance?",
+     "options": [
+      "Metabolic acidosis",
+      "Metabolic alkalosis",
+      "Respiratory acidosis",
+      "Respiratory alkalosis"
+     ],
+     "answer": 1,
+     "rationale": "Excessive vomiting causes the loss of hydrochloric acid from the stomach, which leads to metabolic alkalosis. Diarrhea, by contrast, causes loss of bicarbonate and metabolic acidosis.",
+     "hint": "Vomiting removes stomach contents. What does the stomach contain, and what happens to pH when you lose it?"
+    },
+    {
+     "type": "sata",
+     "stem": "A client has dryness, redness, and scaling within the radiation treatment markings. Which instructions should the nurse include? Select all that apply.",
+     "options": [
+      "Apply moist heat to relieve the dryness",
+      "Do not wash off the treatment markings",
+      "Scrub the area daily with soap and water",
+      "Wear loose, soft cotton clothing over the area",
+      "Sit in the sun for 10 minutes a day to promote healing",
+      "Gently apply prescribed hydrating lotion that is free of alcohol, perfume, and metal",
+      "Protect the area from sun exposure and extreme temperatures"
+     ],
+     "answer": [
+      1,
+      3,
+      5,
+      6
+     ],
+     "rationale": "Irradiated skin should be moisturized gently with approved lotions and protected from friction, sun, and extreme temperatures, which can damage new cells. Treatment markings guide therapy and must stay in place. Soap and scrubbing irritate the skin and can wash off the markings.",
+     "hint": "The goal is to protect new, fragile skin cells. Any choice that adds heat, friction, or UV is wrong."
+    },
+    {
+     "type": "mc",
+     "stem": "A client with cancer is scheduled for chemotherapy right away. She tells the nurse, \"I want to try nontraditional treatments first.\" Which response is most therapeutic?",
+     "options": [
+      "\"Nontraditional treatments aren't a good idea. I'd rather you avoid that route.\"",
+      "\"A lot of people try those and find out too late that they made the wrong choice.\"",
+      "\"Your provider is very knowledgeable. If he prescribes chemotherapy, it's the best treatment for you.\"",
+      "\"Tell me more about your concerns about taking chemotherapy.\""
+     ],
+     "answer": 3,
+     "rationale": "Asking the client to say more is the therapeutic technique of exploring, and it encourages her to talk about her fears. The other responses are nontherapeutic: disapproving, minimizing (and possibly threatening), and defending.",
+     "hint": "Pick the only response that keeps the client talking instead of shutting her down."
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "name": "Protective Environment",
+   "icon": "🛡️",
+   "digit": "2",
+   "topic": "Neutropenia, bone marrow suppression & infection prevention",
+   "items": "Answer key #8, #41, #63, #66",
+   "intro": "Room 704: a client receiving chemotherapy and radiation for metastatic breast cancer. Her morning CBC just posted.",
+   "questions": [
+    {
+     "type": "num",
+     "stem": "The client's WBC is 2,500/mm³, with 30% segmented neutrophils and 2% bands. Calculate the absolute neutrophil count (ANC) in cells/mm³. Enter a whole number.",
+     "answer": 800,
+     "unit": "cells/mm³",
+     "rationale": "ANC = WBC × (% segs + % bands). 2,500 × (0.30 + 0.02) = 2,500 × 0.32 = 800 cells/mm³. An ANC below 1,000/mm³ means neutropenic precautions are needed. An ANC below 500/mm³ is severe neutropenia.",
+     "hint": "Add the segs and bands percentages together, convert to a decimal, and multiply by the WBC."
+    },
+    {
+     "type": "sata",
+     "stem": "The client's ANC is below 1,000/mm³. Which precautions should the nurse include in the plan of care? Select all that apply.",
+     "options": [
+      "Serve only thoroughly cooked foods",
+      "Restrict all visitors from entering the room",
+      "Take rectal temperatures every 4 hours to detect fever early",
+      "Encourage the client to bathe daily",
+      "Administer the live herpes zoster vaccine before the next cycle",
+      "Remove fresh flowers and potted plants from the room",
+      "Dispose of all linens in the trash after use",
+      "Restrict visitors who have signs of an active infection"
+     ],
+     "answer": [
+      0,
+      3,
+      5,
+      7
+     ],
+     "rationale": "Flowers, plants, and raw foods can carry microorganisms. Only visitors who are ill need to be restricted. Daily bathing removes bacteria from the skin. Rectal temperatures are avoided because they can injure the rectal mucosa and let bacteria in. Linens go in a linen bag to be laundered, not in the trash. Live virus vaccines are contraindicated for clients receiving chemotherapy because their immune system is suppressed.",
+     "hint": "Protect the client from actual sources of microorganisms without isolating her more than needed. Could a live vaccine be dangerous for her?"
+    },
+    {
+     "type": "match",
+     "stem": "Bone marrow suppression from chemotherapy or radiation affects every blood cell line. Match each finding with the cell line most responsible.",
+     "rows": [
+      "Fever of 38.4°C (101.1°F)",
+      "Petechiae on the lower legs",
+      "Pallor and fatigue",
+      "Bruising after minor bumps"
+     ],
+     "choices": [
+      "Leukopenia (↓ WBCs)",
+      "Thrombocytopenia (↓ platelets)",
+      "Anemia (↓ RBCs)"
+     ],
+     "answer": [
+      0,
+      1,
+      2,
+      1
+     ],
+     "rationale": "Fever is a sign of infection with leukopenia. With neutropenia it may be the only sign, because the client can't mount a normal inflammatory response. Petechiae and bruising come from low platelets (thrombocytopenia). Pallor and fatigue come from low RBCs (anemia).",
+     "hint": "WBCs fight infection, platelets clot, and RBCs carry oxygen. Match each finding to what's missing."
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "name": "Tumor Lysis Syndrome",
+   "icon": "⚡",
+   "digit": "7",
+   "topic": "Oncologic emergency: tumor lysis syndrome",
+   "items": "Extension content (not in answer key)",
+   "intro": "Room 711: Marcus Hill, 24, has Burkitt lymphoma with a bulky abdominal mass. He is 30 hours past his first induction chemotherapy. He reports muscle cramps and tingling around his mouth. Urine output has been 20 mL/hr for the last 3 hours.",
+   "labs": [
+    [
+     "Potassium",
+     "6.4 mEq/L",
+     "3.5–5.0"
+    ],
+    [
+     "Phosphorus",
+     "7.9 mg/dL",
+     "3.0–4.5"
+    ],
+    [
+     "Calcium (total)",
+     "6.8 mg/dL",
+     "9.0–10.5"
+    ],
+    [
+     "Uric acid",
+     "12.2 mg/dL",
+     "3.5–7.2"
+    ],
+    [
+     "Creatinine",
+     "2.4 mg/dL",
+     "0.6–1.2"
+    ],
+    [
+     "Sodium",
+     "139 mEq/L",
+     "136–145"
+    ],
+    [
+     "Glucose",
+     "104 mg/dL",
+     "70–110"
+    ]
+   ],
+   "questions": [
+    {
+     "type": "sata",
+     "stem": "Review Marcus's labs. Which findings are consistent with tumor lysis syndrome (TLS)? Select all that apply.",
+     "options": [
+      "Potassium 6.4 mEq/L",
+      "Sodium 139 mEq/L",
+      "Uric acid 12.2 mg/dL",
+      "Calcium 6.8 mg/dL",
+      "Glucose 104 mg/dL",
+      "Creatinine 2.4 mg/dL",
+      "Phosphorus 7.9 mg/dL"
+     ],
+     "answer": [
+      0,
+      2,
+      3,
+      5,
+      6
+     ],
+     "rationale": "When chemotherapy rapidly destroys cancer cells, their contents are released into the blood. This causes hyperkalemia, hyperphosphatemia, hyperuricemia (from nucleic acid breakdown), and hypocalcemia. Uric acid and calcium-phosphate crystals can block the renal tubules and cause acute kidney injury, which explains the high creatinine and low urine output. TLS usually appears 12–72 hours after treatment starts. Risk is highest with fast-growing, bulky, or blood cancers such as Burkitt lymphoma and ALL.",
+     "hint": "Picture a cell bursting. Potassium, phosphate, and nucleic acids spill out. What happens to calcium, and what happens to the kidneys?"
+    },
+    {
+     "type": "mc",
+     "stem": "Why is Marcus's serum calcium LOW when so many cells are breaking down?",
+     "options": [
+      "Phosphate released from lysed cells binds calcium, and the calcium-phosphate complex precipitates",
+      "Lysed tumor cells release a hormone that increases renal calcium excretion",
+      "Calcium is lost through the vomiting caused by chemotherapy",
+      "Allopurinol blocks calcium absorption in the intestine"
+     ],
+     "answer": 0,
+     "rationale": "Phosphate and calcium have a reciprocal relationship. When phosphate rises sharply, it binds calcium and the complex precipitates in soft tissue and the kidneys. Serum calcium falls, and the client develops cramps, perioral tingling, positive Chvostek and Trousseau signs, tetany, and dysrhythmias.",
+     "hint": "Calcium and phosphorus are like a seesaw. When one goes up, the other goes down."
+    },
+    {
+     "type": "mc",
+     "stem": "Which action should the nurse take FIRST?",
+     "options": [
+      "Place Marcus on continuous cardiac monitoring",
+      "Encourage him to drink 240 mL of water every hour",
+      "Check for a positive Trousseau sign",
+      "Obtain a 24-hour urine specimen for uric acid"
+     ],
+     "answer": 0,
+     "rationale": "A potassium of 6.4 mEq/L, together with low calcium, puts Marcus at immediate risk for lethal dysrhythmias. Watch for peaked T waves, a widened QRS, and ventricular dysrhythmias. Monitoring the heart comes before the other assessments. Hydration is important, but with oliguria it is given IV as prescribed, with strict I&O.",
+     "hint": "Which electrolyte abnormality can kill in minutes? Protect that organ first."
+    },
+    {
+     "type": "mc",
+     "stem": "The provider writes several prescriptions for Marcus. Which one should the nurse clarify before carrying it out?",
+     "options": [
+      "Rasburicase IV once",
+      "0.9% sodium chloride IV at 150 mL/hr",
+      "Potassium chloride 20 mEq added to each liter of IV fluid",
+      "Allopurinol 300 mg PO daily"
+     ],
+     "answer": 2,
+     "rationale": "Adding potassium would worsen dangerous hyperkalemia, so this prescription should be clarified. Aggressive IV hydration flushes the kidneys. Allopurinol stops new uric acid from forming (ideally started 24–48 hours before chemotherapy). Rasburicase breaks down existing uric acid (check for G6PD deficiency before giving). Other treatments may include insulin with dextrose, potassium binders, and dialysis.",
+     "hint": "Look at his potassium, then find the prescription that would push it higher."
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "name": "Superior Vena Cava Syndrome",
+   "icon": "🫁",
+   "digit": "1",
+   "topic": "Oncologic emergency: SVC syndrome",
+   "items": "Extension content (not in answer key)",
+   "intro": "Room 716: Doris Kline, 67, has small cell lung cancer with a right upper lobe mass. She says, \"My face is so puffy when I wake up, and my shirt collars feel tight.\" You notice distended veins across her upper chest.",
+   "questions": [
+    {
+     "type": "match",
+     "stem": "Sort each manifestation of superior vena cava syndrome (SVCS) as an EARLY or LATE sign.",
+     "rows": [
+      "Facial and periorbital edema, worse in the morning",
+      "Inspiratory stridor",
+      "Distended neck and chest wall veins",
+      "Confusion and decreasing level of consciousness",
+      "Cyanosis of the face and upper torso",
+      "Tight shirt collar (Stokes sign)"
+     ],
+     "choices": [
+      "Early",
+      "Late"
+     ],
+     "answer": [
+      0,
+      1,
+      0,
+      1,
+      1,
+      0
+     ],
+     "rationale": "A tumor (most often lung cancer or lymphoma) compresses or blocks the SVC, so blood can't drain from the head, neck, and arms. Early signs are facial and periorbital edema, the Stokes sign, venous distention, and dyspnea. Late signs mean the airway or brain is compromised: stridor, hoarseness, cerebral edema with changes in LOC, cyanosis, and hypotension.",
+     "hint": "Early signs come from blood backing up. Late signs mean the airway is narrowing or the brain is swelling."
+    },
+    {
+     "type": "match",
+     "stem": "For each nursing action, choose whether it is ANTICIPATED or CONTRAINDICATED for Doris.",
+     "rows": [
+      "Place the client in high-Fowler's position",
+      "Obtain blood pressure from the right upper arm",
+      "Start a peripheral IV in the right hand",
+      "Administer oxygen as prescribed",
+      "Prepare the client for radiation therapy or endovascular stent placement",
+      "Position the client flat to promote rest"
+     ],
+     "choices": [
+      "Anticipated",
+      "Contraindicated"
+     ],
+     "answer": [
+      0,
+      1,
+      1,
+      0,
+      0,
+      1
+     ],
+     "rationale": "High-Fowler's position uses gravity to drain the head and neck and makes breathing easier. Oxygen helps with dyspnea. Radiation, chemotherapy, or an SVC stent relieves the obstruction, and corticosteroids may reduce swelling. Avoid BP readings, venipuncture, and IV starts in the upper extremities: venous return is already impaired, and these increase the risk of thrombosis and poor medication delivery. Lying flat makes edema and airway compromise worse.",
+     "hint": "The upper body can't drain. What helps it drain, and what adds more pressure or volume above the blockage?"
+    },
+    {
+     "type": "mc",
+     "stem": "Two hours later, which new finding requires the nurse's IMMEDIATE action?",
+     "options": [
+      "Facial edema that improves slightly when she sits upright",
+      "Distended veins across the upper chest",
+      "A high-pitched sound on inspiration with new hoarseness",
+      "She says her rings feel tight"
+     ],
+     "answer": 2,
+     "rationale": "Stridor with hoarseness means laryngeal edema and a narrowing airway, a late and life-threatening sign of SVCS. Call a rapid response and get ready for airway support. The other findings are expected with SVCS and already being monitored.",
+     "hint": "Airway comes first. Which finding means the airway is closing?"
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "name": "Hypercalcemia of Malignancy",
+   "icon": "🦴",
+   "digit": "5",
+   "topic": "Oncologic emergency: hypercalcemia",
+   "items": "Extension content (not in answer key)",
+   "intro": "Room 720: Janet Price, 58, has metastatic breast cancer with bone metastases. Her daughter says, \"She's been confused and sleeping all day. She's thirsty and urinating constantly, and she hasn't had a bowel movement in 5 days.\" Serum calcium is 14.2 mg/dL (reference 9.0–10.5).",
+   "questions": [
+    {
+     "type": "sata",
+     "stem": "Which additional findings should the nurse expect with Janet's hypercalcemia? Select all that apply.",
+     "options": [
+      "Shortened QT interval",
+      "Hyperactive deep tendon reflexes",
+      "Polyuria leading to dehydration",
+      "Hypoactive deep tendon reflexes",
+      "Kidney stones (renal calculi)",
+      "Positive Chvostek sign",
+      "Nausea and anorexia",
+      "Muscle weakness and fatigue"
+     ],
+     "answer": [
+      0,
+      2,
+      3,
+      4,
+      6,
+      7
+     ],
+     "rationale": "Calcium has a sedative effect on nerves and muscles, so high calcium causes weakness, hypoactive reflexes, lethargy, confusion, constipation, nausea, and a shortened QT. High calcium also impairs the kidney's ability to concentrate urine, which causes polyuria and dehydration and makes hypercalcemia worse. Extra calcium in the urine can form kidney stones. A positive Chvostek sign and hyperactive reflexes point to HYPOcalcemia. Remember \"bones, stones, groans, and psychiatric overtones.\"",
+     "hint": "High calcium slows things down: nerves, muscles, gut, and brain. Rule out the signs of LOW calcium."
+    },
+    {
+     "type": "mc",
+     "stem": "Which intervention should the nurse expect to start FIRST?",
+     "options": [
+      "Furosemide 40 mg IV",
+      "Zoledronic acid IV",
+      "IV 0.9% sodium chloride at a high rate",
+      "A low-calcium diet"
+     ],
+     "answer": 2,
+     "rationale": "Janet is dehydrated from polyuria. Rehydrating with 0.9% sodium chloride restores volume and increases calcium excretion by the kidneys, so it comes first. A loop diuretic may be added only after she is rehydrated. Bisphosphonates such as zoledronic acid are essential but take 2–4 days to work. Dietary restriction has little effect in hypercalcemia of malignancy.",
+     "hint": "She has been urinating constantly and is confused. What does she need before anything else can work?"
+    },
+    {
+     "type": "match",
+     "stem": "For each prescription or action, choose whether it is ANTICIPATED or CONTRAINDICATED for Janet.",
+     "rows": [
+      "Zoledronic acid (bisphosphonate) IV",
+      "Hydrochlorothiazide PO daily",
+      "Calcitonin subcutaneous",
+      "Calcium carbonate antacid PRN for indigestion",
+      "Encourage ambulation as tolerated",
+      "Furosemide IV after rehydration"
+     ],
+     "choices": [
+      "Anticipated",
+      "Contraindicated"
+     ],
+     "answer": [
+      0,
+      1,
+      0,
+      1,
+      0,
+      0
+     ],
+     "rationale": "Bisphosphonates and calcitonin reduce bone resorption. Calcitonin works within hours, and bisphosphonates give longer control (watch renal function and for osteonecrosis of the jaw). A loop diuretic increases calcium excretion once volume is restored. Thiazide diuretics cause the kidneys to RETAIN calcium, and calcium carbonate adds more calcium, so both are contraindicated. Weight-bearing activity slows the release of calcium from bone.",
+     "hint": "Two choices add calcium or keep the body from getting rid of it. Loop diuretics and thiazides handle calcium very differently."
+    }
+   ]
+  }
+ ],
+ "final": {
+  "stem": "RAPID RESPONSE: You've unlocked the crash cart, but three call lights go off at the same moment. Which client should the nurse see FIRST?",
+  "options": [
+   "Marcus (TLS): potassium 6.4 mEq/L, peaked T waves on the monitor, IV fluids infusing",
+   "Doris (SVCS): new inspiratory stridor and hoarseness, SpO₂ 89%",
+   "Janet (hypercalcemia): calcium 14.2 mg/dL, lethargic but arousable, IV 0.9% NaCl infusing"
+  ],
+  "answer": 1,
+  "rationale": "Airway comes first. Stridor means Doris's upper airway is closing and could be completely obstructed within minutes. Marcus is the next priority: his hyperkalemia with ECG changes is a circulation emergency, and he is already monitored with treatment underway. Janet is stable enough to be seen third, since her treatment has started and she is protecting her airway. All three need prompt attention, and delegation or a rapid response call for Marcus should happen at the same time.",
+  "hint": "ABCs. Which client has a problem with A?"
+ }
+};
+const LIMIT = 35*60;
+const S = { team:"", mode:"Group", start:0, score:0, hints:0, st:{}, final:{attempts:0,hinted:false,done:false}, cur:null, qi:0, entry:"" };
+DATA.stations.forEach(s=>{ S.st[s.id]={ q:s.questions.map(()=>({attempts:0,hinted:false,done:false,pts:0})) }; });
+const $=id=>document.getElementById(id);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function show(id){ ["intro","hub","station","final","end"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); window.scrollTo(0,0); }
+function stDone(s){ return S.st[s.id].q.every(q=>q.done); }
+function ptsFor(a){ return a===1?10:a===2?6:3; }
+function setScore(){ $("score").textContent=S.score; }
+
+// ---------- intro ----------
+$("team").addEventListener("input",e=>{$("startBtn").disabled=!e.target.value.trim();});
+$("modeSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ $("modeSeg").querySelectorAll("button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); S.mode=b.dataset.m; });
+$("startBtn").onclick=()=>{
+  S.team=$("team").value.trim(); S.start=Date.now();
+  $("teamChip").textContent=(S.mode==="Group"?"👥 ":"👤 ")+S.team;
+  $("hud").classList.remove("hidden");
+  setInterval(tick,500); renderHub(); show("hub");
+};
+function elapsed(){ return Math.floor((Date.now()-S.start)/1000); }
+function fmt(s){ return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function tick(){
+  if(S.endAt) return;
+  const e=elapsed(), left=LIMIT-e;
+  if(left>=0){ $("timer").textContent=fmt(left); }
+  else { $("timer").textContent="+"+fmt(-left)+" OVER"; $("timerChip").classList.add("over"); }
+}
+
+// ---------- hub ----------
+function renderDigits(el){
+  el.innerHTML=DATA.stations.map(s=>`<div class="digit ${stDone(s)?"got":""}" title="${esc(s.name)}">${stDone(s)?s.digit:"?"}</div>`).join("");
+}
+function renderHub(){
+  $("stationGrid").innerHTML=DATA.stations.map((s,i)=>{
+    const qs=S.st[s.id].q, n=qs.filter(q=>q.done).length, done=n===qs.length;
+    const cls=done?"done":n?"prog":"";
+    const st=done?`✓ Digit: ${s.digit}`:n?`${n}/${qs.length}`:"Open";
+    return `<button class="station ${cls}" data-i="${i}"><span class="st">${st}</span><div class="ic">${s.icon}</div><div class="nm">Station ${i+1}: ${esc(s.name)}</div><div class="tp">${esc(s.topic)}</div></button>`;
+  }).join("");
+  $("stationGrid").querySelectorAll(".station").forEach(b=>b.onclick=()=>openStation(+b.dataset.i));
+  renderDigits($("hubDigits"));
+  $("toFinal").disabled=!DATA.stations.every(stDone);
+}
+$("backHub").onclick=$("backHub2").onclick=()=>{renderHub();show("hub");};
+$("toFinal").onclick=()=>{ openFinal(); };
+
+// ---------- station ----------
+function openStation(i){
+  S.cur=DATA.stations[i];
+  const qs=S.st[S.cur.id].q; S.qi=qs.findIndex(q=>!q.done); if(S.qi<0) S.qi=0;
+  $("stTitle").textContent=`${S.cur.icon} Station ${i+1}: ${S.cur.name}`;
+  let h=`<div>${esc(S.cur.intro)}</div>`;
+  if(S.cur.labs){ h+=`<table class="labs"><tr><th>Lab</th><th>Result</th><th>Reference</th></tr>`+S.cur.labs.map(r=>`<tr><td>${esc(r[0])}</td><td><b>${esc(r[1])}</b></td><td class="sub">${esc(r[2])}</td></tr>`).join("")+`</table>`; }
+  $("stIntro").innerHTML=h;
+  renderQ(); show("station");
+}
+function renderProg(){
+  const qs=S.st[S.cur.id].q;
+  $("qProg").innerHTML=qs.map((q,i)=>`<span class="${q.done?"done":i===S.qi?"on":""}"></span>`).join("");
+}
+function questionHTML(q,prefix){
+  let h=`<div class="stem">${esc(q.stem)}</div>`;
+  if(q.type==="mc"||q.type==="sata"){
+    h+=q.options.map((o,i)=>`<button class="opt ${q.type==="mc"?"radio":""}" data-i="${i}"><span class="box"></span><span>${esc(o)}</span></button>`).join("");
+  } else if(q.type==="match"){
+    h+=q.rows.map((r,i)=>`<div class="mrow" data-i="${i}"><div>${esc(r)}</div><select data-i="${i}"><option value="">Choose…</option>${q.choices.map((c,j)=>`<option value="${j}">${esc(c)}</option>`).join("")}</select></div>`).join("");
+  } else if(q.type==="num"){
+    h+=`<div class="row"><input type="number" id="${prefix}num" inputmode="numeric" placeholder="Answer" style="max-width:200px"><span class="sub">${esc(q.unit||"")}</span></div>`;
+  }
+  return h;
+}
+function wireOptions(root,q){
+  root.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(q.type==="mc"){ root.querySelectorAll(".opt").forEach(x=>{x.classList.remove("sel");x.querySelector(".box").textContent="";}); }
+    b.classList.toggle("sel"); b.querySelector(".box").textContent=b.classList.contains("sel")?(q.type==="mc"?"●":"✓"):"";
+  });
+}
+function readAnswer(root,q,prefix){
+  if(q.type==="mc"){ const s=root.querySelector(".opt.sel"); return s?+s.dataset.i:null; }
+  if(q.type==="sata"){ const a=[...root.querySelectorAll(".opt.sel")].map(b=>+b.dataset.i); return a.length?a:null; }
+  if(q.type==="match"){ const a=[...root.querySelectorAll("select")].map(s=>s.value===""?null:+s.value); return a.includes(null)?null:a; }
+  if(q.type==="num"){ const v=root.querySelector("#"+prefix+"num").value; return v===""?null:Number(v); }
+}
+function grade(q,a,attempt,root){
+  // returns {ok, msg}
+  if(q.type==="mc") return {ok:a===q.answer, msg:"That's not the best answer. Reread the stem and try again."};
+  if(q.type==="num"){ const ok=Math.abs(a-q.answer)<0.5; return {ok, msg:a>q.answer*5?"That number is far too high. Did you convert the percentages to decimals?":"Check your math and try again."}; }
+  if(q.type==="sata"){
+    const set=new Set(a), ans=new Set(q.answer);
+    const wrong=a.filter(x=>!ans.has(x)).length, missed=q.answer.filter(x=>!set.has(x)).length;
+    const ok=!wrong&&!missed;
+    let msg="Not quite. At least one choice is incorrect or missing.";
+    if(attempt>=2) msg=`Not quite. You have ${wrong} incorrect selection${wrong===1?"":"s"} and missed ${missed} correct option${missed===1?"":"s"}.`;
+    return {ok,msg};
+  }
+  if(q.type==="match"){
+    let right=0; a.forEach((v,i)=>{ if(v===q.answer[i]) right++; });
+    if(attempt>=2 && root){ root.querySelectorAll(".mrow").forEach((r,i)=>{ r.classList.toggle("good",a[i]===q.answer[i]); r.classList.toggle("bad",a[i]!==q.answer[i]); }); }
+    return {ok:right===q.answer.length, msg:attempt>=2?`${right} of ${q.answer.length} are correct. The rows outlined in red need another look.`:`${right} of ${q.answer.length} are correct. Try again.`};
+  }
+}
+function revealCorrect(root,q){
+  root.querySelectorAll(".opt").forEach(b=>{ b.classList.add("locked"); const i=+b.dataset.i; const ok=q.type==="mc"?i===q.answer:q.answer.includes(i); b.classList.toggle("right",ok); });
+  root.querySelectorAll("select").forEach(s=>s.disabled=true);
+  root.querySelectorAll(".mrow").forEach(r=>{r.classList.remove("bad");r.classList.add("good");});
+  const n=root.querySelector("input[type=number]"); if(n) n.disabled=true;
+}
+function renderQ(){
+  renderProg();
+  const q=S.cur.questions[S.qi], rec=S.st[S.cur.id].q[S.qi], total=S.cur.questions.length;
+  const root=$("qCard");
+  root.innerHTML=`<div class="qhead"><span>Question ${S.qi+1} of ${total} · ${q.type==="sata"?"Select all that apply":q.type==="match"?"Matching":q.type==="num"?"Calculation":"Multiple choice"}</span><span>Attempts: ${rec.attempts}</span></div>`+questionHTML(q,"s")+
+    `<div id="fb"></div><div class="actions"><button class="btn" id="submitBtn">Submit</button><button class="btn ghost" id="hintBtn">💡 Hint (−2)</button><button class="btn hidden" id="nextBtn"></button></div>`;
+  wireOptions(root,q);
+  if(rec.done){ lockDone(root,q,rec); return; }
+  if(rec.hinted) showHint(q);
+  $("submitBtn").onclick=()=>{
+    const a=readAnswer(root,q,"s");
+    if(a===null){ $("fb").innerHTML=`<div class="fb hint">Answer every part before you submit.</div>`; return; }
+    rec.attempts++;
+    root.querySelector(".qhead span:last-child").textContent="Attempts: "+rec.attempts;
+    const g=grade(q,a,rec.attempts,root);
+    if(g.ok){ rec.done=true; rec.pts=ptsFor(rec.attempts); S.score+=rec.pts; setScore(); lockDone(root,q,rec,true); }
+    else { root.classList.remove("shake"); void root.offsetWidth; root.classList.add("shake"); $("fb").innerHTML=`<div class="fb bad">❌ ${esc(g.msg)}${rec.attempts>=3&&!rec.hinted?" Try using a hint.":""}</div>`+(rec.hinted?`<div class="fb hint">💡 ${esc(q.hint)}</div>`:""); }
+  };
+  $("hintBtn").onclick=()=>{ if(!rec.hinted){ rec.hinted=true; S.hints++; S.score-=2; setScore(); } showHint(q); };
+}
+function showHint(q){ const f=$("fb"); if(!f.querySelector(".fb.hint")) f.insertAdjacentHTML("beforeend",`<div class="fb hint">💡 ${esc(q.hint)}</div>`); const hb=$("hintBtn"); if(hb){hb.disabled=true;} }
+function lockDone(root,q,rec,fresh){
+  revealCorrect(root,q);
+  if(!fresh){ // restore visual selection of correct answer
+    root.querySelectorAll("select").forEach((s,i)=>s.value=q.answer[i]);
+    const n=root.querySelector("input[type=number]"); if(n) n.value=q.answer;
+  }
+  $("submitBtn").classList.add("hidden"); $("hintBtn").classList.add("hidden");
+  $("fb").innerHTML=`<div class="fb good">✅ <b>Correct${fresh?` (+${rec.pts} pts)`:""}.</b> ${esc(q.rationale)}</div>`;
+  const qs=S.st[S.cur.id].q, nextIdx=qs.findIndex(x=>!x.done), nb=$("nextBtn");
+  nb.classList.remove("hidden");
+  if(nextIdx<0){
+    nb.textContent=`🔓 Station cleared! Your digit is ${S.cur.digit}. Back to the unit map`;
+    nb.onclick=()=>{renderHub();show("hub");};
+  } else {
+    nb.textContent="Next question →";
+    nb.onclick=()=>{ S.qi=nextIdx; renderQ(); window.scrollTo(0,0); };
+  }
+  renderProg();
+}
+
+// ---------- final ----------
+function openFinal(){
+  show("final");
+  if(S.final.unlocked){ $("lockCard").classList.add("hidden"); renderFinalQ(); return; }
+  S.entry=""; drawEntry();
+  $("keypad").innerHTML=[1,2,3,4,5,6,7,8,9,"⌫",0,"✓"].map(k=>`<button data-k="${k}">${k}</button>`).join("");
+  $("keypad").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k;
+    if(k==="⌫") S.entry=S.entry.slice(0,-1);
+    else if(k==="✓") return tryCode();
+    else if(S.entry.length<6) S.entry+=k;
+    drawEntry();
+  });
+}
+function drawEntry(){ $("entry").innerHTML=[0,1,2,3,4,5].map(i=>`<div class="digit ${S.entry[i]?"got":""}">${S.entry[i]||""}</div>`).join(""); }
+function tryCode(){
+  if(S.entry===DATA.code){ S.final.unlocked=true; $("lockMsg").innerHTML=""; $("lockCard").classList.add("hidden"); renderFinalQ(); }
+  else { $("lockCard").classList.remove("shake"); void $("lockCard").offsetWidth; $("lockCard").classList.add("shake"); $("lockMsg").innerHTML=`<span style="color:var(--red)">Access denied. Check your digits and their order on the unit map.</span>`; S.entry=""; drawEntry(); }
+}
+function renderFinalQ(){
+  const q=Object.assign({type:"mc"},DATA.final), rec=S.final, root=$("finalQ");
+  root.classList.remove("hidden");
+  root.innerHTML=`<div class="qhead"><span>🚨 Final challenge · Prioritization</span><span>Attempts: ${rec.attempts}</span></div>`+questionHTML(q,"f")+`<div id="ffb"></div><div class="actions"><button class="btn" id="fSubmit">Submit</button><button class="btn ghost" id="fHint">💡 Hint (−2)</button></div>`;
+  wireOptions(root,q);
+  $("fHint").onclick=()=>{ if(!rec.hinted){rec.hinted=true;S.hints++;S.score-=2;setScore();} $("ffb").insertAdjacentHTML("beforeend",`<div class="fb hint">💡 ${esc(q.hint)}</div>`); $("fHint").disabled=true; };
+  $("fSubmit").onclick=()=>{
+    const a=readAnswer(root,q,"f"); if(a===null) return;
+    rec.attempts++;
+    if(a===q.answer){
+      rec.done=true; rec.pts=ptsFor(rec.attempts); S.score+=rec.pts; setScore(); S.endAt=elapsed();
+      revealCorrect(root,q);
+      $("ffb").innerHTML=`<div class="fb good">✅ <b>Correct (+${rec.pts} pts).</b> ${esc(q.rationale)}</div>`;
+      $("fSubmit").outerHTML=`<button class="btn amber" id="toEnd">End shift and see results →</button>`; $("fHint").remove();
+      $("toEnd").onclick=renderEnd;
+    } else { $("ffb").innerHTML=`<div class="fb bad">❌ Not the first priority. Think about the ABCs.</div>`; }
+  };
+}
+function renderEnd(){
+  $("endTeam").textContent=`${S.team} · ${S.mode} · ${new Date().toLocaleString()}`;
+  const max=(DATA.stations.reduce((n,s)=>n+s.questions.length,0)+1)*10;
+  $("endScore").textContent=`${S.score}/${max}`;
+  $("endTime").textContent=fmt(S.endAt)+(S.endAt>LIMIT?" ⚠":"");
+  $("endHints").textContent=S.hints;
+  let h=`<tr><th>Station</th><th>1st-try correct</th><th>Total attempts</th><th>Hints</th><th>Points</th></tr>`;
+  DATA.stations.forEach((s,i)=>{ const q=S.st[s.id].q; h+=`<tr><td>${i+1}. ${esc(s.name)}</td><td>${q.filter(x=>x.attempts===1).length}/${q.length}</td><td>${q.reduce((n,x)=>n+x.attempts,0)}</td><td>${q.filter(x=>x.hinted).length}</td><td>${q.reduce((n,x)=>n+x.pts,0)-2*q.filter(x=>x.hinted).length}</td></tr>`; });
+  const f=S.final; h+=`<tr><td>🚨 Final: Prioritization</td><td>${f.attempts===1?"1/1":"0/1"}</td><td>${f.attempts}</td><td>${f.hinted?1:0}</td><td>${f.pts-(f.hinted?2:0)}</td></tr>`;
+  $("sumTable").innerHTML=h;
+  show("end");
+}
+</script>
+
+</body></html>

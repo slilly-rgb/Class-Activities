@@ -1,0 +1,733 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>The Spark Line</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: an ECG-paper workbench. One beat animator up top (heart + cell | strip + story), then a deflection lab, a pathway puzzle, and a self-check. */
+:root{
+  --paper:#fbf7f6; --surface:#ffffff; --ink:#1c2333; --muted:#5a6376; --line:#eadcd9;
+  --grid-minor:#f3d3ce; --grid-major:#e3a199;
+  --depol:#e2560f; --depol-soft:#fbe0d0; --repol:#1b6fc2; --repol-soft:#d7e7f7;
+  --rest:#dfe3ea; --tissue-edge:#9aa3b3; --skeleton:#c9b8a6;
+  --good:#237a39; --good-soft:#dcefe0; --bad:#b42323; --bad-soft:#f7dede;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12161f; --surface:#1a1f2b; --ink:#e8ebf2; --muted:#9ba4b6; --line:#2b3242;
+  --grid-minor:#3a2428; --grid-major:#5e2f35;
+  --depol:#ff8a45; --depol-soft:#4a2a1a; --repol:#5aaef5; --repol-soft:#1b3350;
+  --rest:#343c4f; --tissue-edge:#6d778b; --skeleton:#6b5d50;
+  --good:#5fcf7a; --good-soft:#173322; --bad:#ff7b7b; --bad-soft:#3a1c1f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12161f; --surface:#1a1f2b; --ink:#e8ebf2; --muted:#9ba4b6; --line:#2b3242;
+  --grid-minor:#3a2428; --grid-major:#5e2f35;
+  --depol:#ff8a45; --depol-soft:#4a2a1a; --repol:#5aaef5; --repol-soft:#1b3350;
+  --rest:#343c4f; --tissue-edge:#6d778b; --skeleton:#6b5d50;
+  --good:#5fcf7a; --good-soft:#173322; --bad:#ff7b7b; --bad-soft:#3a1c1f;
+  color-scheme:dark}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;scroll-margin-top:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px;display:flex;flex-direction:column;gap:24px}
+.panel{padding-top:12px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.6rem,7vw,4.4rem);letter-spacing:.01em;text-transform:uppercase}
+h2{font-size:clamp(1.7rem,3.6vw,2.3rem);text-transform:uppercase;letter-spacing:.02em}
+h3{font-size:1.25rem;letter-spacing:.02em}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:62ch;color:var(--muted);font-size:1.08rem}
+header{display:flex;flex-direction:column;gap:12px}
+.stripTag{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--f-mono);font-size:.78rem;color:var(--depol);letter-spacing:.06em}
+.sec-head{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:10px}
+.term{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.term b{font-family:var(--f-display);font-size:1.15rem;letter-spacing:.03em;text-transform:uppercase}
+.term span{color:var(--muted);font-size:.95rem}
+.term.d b{color:var(--depol)} .term.r b{color:var(--repol)}
+
+.beat{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.35fr);gap:16px;align-items:start}
+@media (max-width:880px){.beat{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.panelHead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+svg text{font-family:var(--f-body)}
+#heart{width:100%;height:auto;display:block;max-height:440px}
+.tissue{fill:var(--rest);stroke:var(--tissue-edge);stroke-width:1.5}
+.depolFill{fill:var(--depol);opacity:.55}
+.skeleton{fill:var(--skeleton);opacity:.55}
+.cond{fill:none;stroke:var(--tissue-edge);stroke-width:3;stroke-linecap:round;opacity:.7}
+.lit{fill:none;stroke:var(--depol);stroke-width:4.5;stroke-linecap:round}
+.node{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.spark{fill:var(--depol);stroke:var(--surface);stroke-width:2}
+.lbl{font-size:10.5px;fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round;font-weight:600}
+.lbl.small{font-size:8.5px;font-weight:400;fill:var(--muted)}
+.lbl.ch{font-family:var(--f-display);font-size:15px;fill:var(--muted)}
+.mech{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.mech div{border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:.88rem;display:flex;flex-direction:column}
+.mech small{font-family:var(--f-mono);font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.mech .on{color:var(--depol);font-weight:700}
+
+.ecgBox{background:var(--paper);border:1px solid var(--grid-major);border-radius:6px;overflow:hidden}
+#ecg{width:100%;height:auto;display:block}
+.gmin{stroke:var(--grid-minor);stroke-width:1}
+.gmaj{stroke:var(--grid-major);stroke-width:1.6}
+.ghost{fill:none;stroke:var(--ink);stroke-width:2;opacity:.16}
+.trace{fill:none;stroke:var(--ink);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.cursor{stroke:var(--depol);stroke-width:2}
+.band{fill:var(--depol);opacity:.12}
+.wl{font-family:var(--f-display);font-size:22px;font-weight:700;fill:var(--muted)}
+.wl.on{fill:var(--depol)}
+.iv line{stroke:var(--muted);stroke-width:1.5}
+.iv text{font-family:var(--f-mono);font-size:13px;fill:var(--muted)}
+.refA{fill:var(--bad);opacity:.13}.refR{fill:var(--repol);opacity:.16}
+.refT{font-family:var(--f-mono);font-size:12px}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--f-display);font-size:1.05rem;font-weight:600;letter-spacing:.04em;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--depol);border-color:var(--depol);color:var(--surface)}
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+button{font:inherit;cursor:pointer}
+.btn{font-family:var(--f-body);font-weight:600;font-size:.95rem;padding:8px 14px;border-radius:7px;border:1px solid var(--ink);background:var(--ink);color:var(--paper)}
+.btn.ghostb{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:focus-visible,.chip:focus-visible,.opt:focus-visible,.seg button:focus-visible,.pw:focus-visible{outline:3px solid var(--repol);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--ink);padding:7px 10px;font-family:var(--f-mono);font-size:.82rem}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+label.ck{display:inline-flex;gap:6px;align-items:center;font-size:.92rem;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--depol)}
+.readout{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.85rem;color:var(--muted)}
+
+.story{display:flex;flex-direction:column;gap:12px}
+.story h3{font-size:2rem;text-transform:uppercase;color:var(--depol)}
+.story .when{font-family:var(--f-mono);font-size:.82rem;color:var(--muted)}
+.rows{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+@media (max-width:560px){.rows{grid-template-columns:minmax(0,1fr)}}
+.row{border-top:2px solid var(--line);padding-top:8px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.row small{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.row p{font-size:.97rem}
+.row.e{border-color:var(--depol)} .row.c{border-color:var(--repol)}
+
+#ap{width:100%;height:auto;display:block}
+.apGhost{fill:none;stroke:var(--muted);stroke-width:2;opacity:.3}
+.apLive{fill:none;stroke:var(--repol);stroke-width:3}
+.apDot{fill:var(--repol);stroke:var(--surface);stroke-width:2}
+.thr{stroke:var(--muted);stroke-dasharray:4 4;stroke-width:1}
+.apAx{font-family:var(--f-mono);font-size:10px;fill:var(--muted)}
+.ion{font-size:.93rem;min-height:3.2em}
+.ion b{color:var(--repol)}
+
+.lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:820px){.lab{grid-template-columns:minmax(0,1fr)}}
+#tissue,#defl{width:100%;height:auto;display:block}
+.strip{stroke:var(--tissue-edge);stroke-width:1.5}
+.chg{font-family:var(--f-mono);font-size:13px;font-weight:600;text-anchor:middle}
+.verdict{font-family:var(--f-display);font-size:1.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.callout{border-left:4px solid var(--repol);background:var(--repol-soft);padding:12px 14px;border-radius:0 8px 8px 0;font-size:.97rem}
+.callout b{font-family:var(--f-display);font-size:1.1rem;letter-spacing:.03em;text-transform:uppercase}
+
+.pathGame{display:flex;flex-direction:column;gap:14px}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.pw{font-family:var(--f-body);font-weight:600;font-size:.95rem;padding:9px 13px;border-radius:8px;border:1px dashed var(--tissue-edge);background:var(--surface);color:var(--ink)}
+.pw.used{opacity:.3;cursor:default}
+.pw.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:44px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--paper)}
+.chain .lk{font-family:var(--f-display);font-size:1.05rem;font-weight:600;background:var(--depol-soft);color:var(--ink);border-radius:6px;padding:4px 10px}
+.chain .ar{color:var(--depol);font-weight:700}
+.chain .hint{color:var(--muted);font-size:.9rem}
+
+.quizTop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score{font-family:var(--f-mono);font-size:1rem}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;margin-top:14px}
+.q{display:flex;flex-direction:column;gap:10px}
+.q .qn{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.1em}
+.q p.stem{font-weight:600}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{text-align:left;padding:9px 12px;border-radius:7px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:.95rem}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.why{font-size:.93rem;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.why b{color:var(--ink)}
+footer{color:var(--muted);font-size:.85rem}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:6px;overflow-x:auto;padding:8px 0;background:var(--paper);border-bottom:1px solid var(--line);scrollbar-width:thin}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.tab{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:7px 14px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left}
+.tab .tn{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tab .tl{font-family:var(--f-display);font-size:1.15rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.tab[aria-selected="true"] .tn{color:var(--paper);opacity:.75}
+.tab:focus-visible,.def:focus-visible{outline:3px solid var(--repol);outline-offset:2px}
+.panelNav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+.panelNav .sp{flex:1}
+.subh{font-size:1.6rem;text-transform:uppercase}
+.defs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:10px}
+.def{display:flex;flex-direction:column;gap:6px;text-align:left;padding:12px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:.95rem}
+.def b{font-family:var(--f-display);font-size:1.3rem;letter-spacing:.03em;text-transform:uppercase}
+.def span{color:var(--muted)}
+.def em{font-style:normal;font-family:var(--f-mono);font-size:.78rem;color:var(--depol);margin-top:auto}
+.def[aria-pressed="true"]{border-color:var(--depol);box-shadow:inset 0 0 0 1px var(--depol);background:var(--depol-soft)}
+.def[aria-pressed="true"] span{color:var(--ink)}
+.anatCard{margin-top:12px;display:flex;flex-direction:column;gap:12px}
+#anat{width:100%;height:auto;display:block}
+.hiBox{fill:var(--depol);opacity:.2}
+.hiTxt{font-family:var(--f-display);font-size:20px;font-weight:700;fill:var(--depol);text-anchor:middle;paint-order:stroke;stroke:var(--paper);stroke-width:4px}
+.br line{stroke:var(--repol);stroke-width:2.5}
+.br text{font-family:var(--f-mono);font-size:14px;font-weight:600;fill:var(--repol);paint-order:stroke;stroke:var(--paper);stroke-width:4px}
+.anatList{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:8px 16px}
+.anatList div{border-top:2px solid var(--line);padding-top:6px;font-size:.93rem;min-width:0}
+.anatList div b{font-family:var(--f-display);font-size:1.1rem;letter-spacing:.03em}
+.anatList .mono{color:var(--muted);font-size:.8rem}
+
+@media (prefers-reduced-motion:reduce){.pw.shake{animation:none}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="stripTag"><span>LEAD II</span><span>25 mm/s</span><span>10 mm/mV</span><span>HR 75 · one beat = 0.80 s</span></div>
+  <h1>The Spark Line</h1>
+  <p class="lede">Every bump on an ECG is a story about charge moving through heart muscle. Watch one beat in slow motion, then test how the direction of that charge decides whether the pen goes up, down, or both.</p>
+</header>
+<nav class="tabs" role="tablist" aria-label="Activity parts"><button type="button" role="tab" class="tab" id="tab-vocab" aria-controls="vocab" aria-selected="false" data-tab="vocab"><span class="tn">Part 1</span><span class="tl">Vocabulary</span></button><button type="button" role="tab" class="tab" id="tab-beat" aria-controls="beat" aria-selected="false" data-tab="beat"><span class="tn">Part 2</span><span class="tl">Watch one beat</span></button><button type="button" role="tab" class="tab" id="tab-lab" aria-controls="lab" aria-selected="false" data-tab="lab"><span class="tn">Part 3</span><span class="tl">Deflection lab</span></button><button type="button" role="tab" class="tab" id="tab-route" aria-controls="route" aria-selected="false" data-tab="route"><span class="tn">Part 4</span><span class="tl">Rebuild the route</span></button><button type="button" role="tab" class="tab" id="tab-check" aria-controls="check" aria-selected="false" data-tab="check"><span class="tn">Part 5</span><span class="tl">Check yourself</span></button></nav>
+
+<section class="panel" id="vocab" role="tabpanel" aria-labelledby="tab-vocab">
+  <div class="sec-head"><span class="eyebrow">Part 1 · Vocabulary</span><h2>Words to own</h2></div>
+  <div class="terms">
+    <div class="term d"><b>Depolarization</b><span>The inside of the cell flips from negative to positive as ions (Na⁺ or Ca²⁺) rush in. An electrical event, and the trigger for contraction.</span></div>
+    <div class="term r"><b>Repolarization</b><span>The cell restores its negative interior, mainly by letting K⁺ flow out. The cell resets so it can fire again.</span></div>
+    <div class="term"><b>Automaticity</b><span>Pacemaker cells (SA node first) drift toward threshold on their own and fire without an outside signal.</span></div>
+    <div class="term"><b>Isoelectric line</b><span>The flat baseline. No net current is moving toward or away from the electrode, so the pen stays level.</span></div>
+    <div class="term"><b>Deflection</b><span>Any movement of the tracing off baseline. Upward is positive, downward is negative, both is biphasic.</span></div>
+    <div class="term"><b>Refractory period</b><span>The window when a cell cannot respond (absolute) or needs a stronger-than-normal stimulus (relative) to fire again.</span></div>
+  </div>
+
+  <div class="sec-head" style="margin-top:34px"><h3 class="subh">Reading the tracing: wave, complex, segment, interval</h3>
+  <p class="lede">Tap a term to light up every example of it on the strip below. The key difference: a <b>segment</b> is baseline <i>between</i> waves, and an <b>interval</b> <i>includes</i> at least one wave.</p></div>
+  <div class="defs" role="group" aria-label="Tracing terms">
+    <button type="button" class="def" data-def="wave" aria-pressed="true"><b>Wave</b><span>One deflection off the baseline, up or down, made when a region of the heart depolarizes or repolarizes.</span><em>P, Q, R, S, T</em></button>
+    <button type="button" class="def" data-def="complex" aria-pressed="false"><b>Complex</b><span>A group of waves that together record one event. The QRS complex is ventricular depolarization, even when all three waves are not visible.</span><em>QRS</em></button>
+    <button type="button" class="def" data-def="segment" aria-pressed="false"><b>Segment</b><span>A flat stretch of baseline between the end of one wave and the start of the next. It contains no waves.</span><em>PR, ST, TP</em></button>
+    <button type="button" class="def" data-def="interval" aria-pressed="false"><b>Interval</b><span>A measured span of time that includes at least one wave, often plus a segment. Intervals are what you time with the boxes.</span><em>PR, QRS, QT</em></button>
+  </div>
+  <div class="card anatCard">
+    <div class="ecgBox"><svg id="anat" viewBox="0 0 1040 250" role="img" aria-label="One beat with the selected term highlighted"><g id="aGrid"></g><g id="aHi"></g><path id="aTrace" class="trace"/><g id="aLbl"></g></svg></div>
+    <div class="anatList" id="anatList" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="panel" id="beat" role="tabpanel" aria-labelledby="tab-beat">
+  <div class="sec-head"><span class="eyebrow">Part 2 · Animation</span><h2>Watch one beat</h2>
+  <p class="lede">The orange wave is depolarization. Watch where it is in the heart, what the cell is doing, and what the pen draws at the same instant. Tap a wave name to jump to it.</p></div>
+
+  <div class="beat">
+    <div class="col">
+      <div class="card">
+        <div class="panelHead"><h3>Conduction system</h3><span class="eyebrow">anterior view</span></div>
+        <svg id="heart" viewBox="0 0 340 362" role="img" aria-label="Heart conduction system animation">
+          <defs>
+            <clipPath id="atriaClip"><path d="M 72 92 Q 72 52 112 50 L 160 50 L 160 162 L 82 162 Q 66 140 72 92 Z"/><path d="M 180 50 L 230 50 Q 270 52 270 92 Q 274 140 258 162 L 180 162 Z"/></clipPath>
+            <clipPath id="ventClip"><path d="M 72 180 L 268 180 Q 284 262 206 334 Q 188 348 172 336 Q 58 262 72 180 Z"/></clipPath>
+          </defs>
+          <g id="atriaG">
+            <path class="tissue" d="M 72 92 Q 72 52 112 50 L 160 50 L 160 162 L 82 162 Q 66 140 72 92 Z"/>
+            <path class="tissue" d="M 180 50 L 230 50 Q 270 52 270 92 Q 274 140 258 162 L 180 162 Z"/>
+            <g clip-path="url(#atriaClip)"><circle id="atrDepol" class="depolFill" cx="95" cy="70" r="0"/></g>
+            <text class="lbl ch" x="104" y="122">RA</text><text class="lbl ch" x="222" y="122">LA</text>
+          </g>
+          <rect class="skeleton" x="66" y="165" width="208" height="12" rx="3"/>
+          <text class="lbl small" x="232" y="160" text-anchor="middle">fibrous skeleton (insulates)</text>
+          <g id="ventG">
+            <path class="tissue" d="M 72 180 L 268 180 Q 284 262 206 334 Q 188 348 172 336 Q 58 262 72 180 Z"/>
+            <g clip-path="url(#ventClip)"><circle id="venDepol" class="depolFill" cx="175" cy="248" r="0"/></g>
+            <line x1="172" y1="182" x2="186" y2="330" stroke="var(--tissue-edge)" stroke-width="1.2" stroke-dasharray="3 4"/>
+            <text class="lbl ch" x="104" y="225">RV</text><text class="lbl ch" x="226" y="225">LV</text>
+          </g>
+          <g id="condBase">
+            <path class="cond" id="pIntern" d="M 95 70 Q 120 120 163 160"/>
+            <path class="cond" id="pBach" d="M 95 70 Q 160 56 236 80"/>
+            <path class="cond" id="pHis" d="M 163 160 L 172 196"/>
+            <path class="cond" id="pRbb" d="M 172 196 Q 168 250 160 290 Q 140 314 112 285 Q 90 250 92 205"/>
+            <path class="cond" id="pLbb" d="M 172 196 Q 184 250 196 300 Q 214 322 244 288 Q 262 250 256 205"/>
+          </g>
+          <g id="condLit">
+            <path class="lit" d="M 95 70 Q 120 120 163 160"/>
+            <path class="lit" d="M 95 70 Q 160 56 236 80"/>
+            <path class="lit" d="M 163 160 L 172 196"/>
+            <path class="lit" d="M 172 196 Q 168 250 160 290 Q 140 314 112 285 Q 90 250 92 205"/>
+            <path class="lit" d="M 172 196 Q 184 250 196 300 Q 214 322 244 288 Q 262 250 256 205"/>
+          </g>
+          <circle id="saNode" class="node" cx="95" cy="70" r="7"/>
+          <circle id="avNode" class="node" cx="163" cy="160" r="6"/>
+          <circle id="sparkA" class="spark" r="6" cx="-20" cy="-20"/>
+          <circle id="sparkB" class="spark" r="6" cx="-20" cy="-20"/>
+          <text class="lbl" x="40" y="40">SA node</text>
+          <text class="lbl" x="150" y="44">Bachmann's bundle</text>
+          <text class="lbl" x="98" y="150" text-anchor="end">Internodal</text>
+          <text class="lbl" x="124" y="176" text-anchor="end">AV node</text>
+          <text class="lbl" x="182" y="196">Bundle of His</text>
+          <text class="lbl" x="128" y="262" text-anchor="end">R bundle</text>
+          <text class="lbl" x="214" y="262">L bundle</text>
+          <text class="lbl" x="250" y="320">Purkinje fibers</text>
+        </svg>
+        <div class="mech">
+          <div><small>Atria</small><span id="mAtria">Relaxed</span></div>
+          <div><small>Ventricles</small><span id="mVent">Diastole · filling</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="panelHead"><h3>Inside one cell</h3>
+          <div class="seg" role="group" aria-label="Cell type">
+            <button type="button" id="cellV" aria-pressed="true">Ventricular muscle</button>
+            <button type="button" id="cellP" aria-pressed="false">SA pacemaker</button>
+          </div>
+        </div>
+        <svg id="ap" viewBox="0 0 400 170" role="img" aria-label="Action potential graph">
+          <g id="apAxes"></g>
+          <path id="apGhost" class="apGhost"/>
+          <path id="apLive" class="apLive"/>
+          <circle id="apDot" class="apDot" r="5"/>
+        </svg>
+        <p class="ion" id="ionText"></p>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="panelHead"><h3>Lead II strip</h3><span class="mono eyebrow" id="tRead">t = 0.000 s</span></div>
+        <div class="ecgBox">
+          <svg id="ecg" viewBox="0 0 800 280" role="img" aria-label="ECG tracing synced to the animation">
+            <g id="grid"></g>
+            <g id="refG" hidden>
+              <rect class="refA" x="160" y="0" width="280" height="280"/>
+              <rect class="refR" x="440" y="0" width="90" height="280"/>
+              <text class="refT" x="166" y="18" fill="var(--bad)">Absolute refractory</text>
+              <text class="refT" x="444" y="18" fill="var(--repol)">Relative</text>
+            </g>
+            <rect id="band" class="band" x="0" y="0" width="0" height="280"/>
+            <path id="ghost" class="ghost"/>
+            <path id="trace" class="trace"/>
+            <line id="cursor" class="cursor" x1="0" x2="0" y1="0" y2="280"/>
+            <g id="wLabels"></g>
+            <g class="iv" id="intervals"></g>
+          </svg>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
+          <div class="chips" id="chips" role="group" aria-label="Jump to part of the beat"></div>
+          <input type="range" id="scrub" min="0" max="799" value="0" aria-label="Scrub through the beat">
+          <div class="controls">
+            <button type="button" class="btn" id="play">Pause</button>
+            <button type="button" class="btn ghostb" id="prev">◀ Prev</button>
+            <button type="button" class="btn ghostb" id="next">Next ▶</button>
+            <div class="seg" role="group" aria-label="Speed" id="speeds"></div>
+          </div>
+          <div class="controls">
+            <label class="ck"><input type="checkbox" id="stopEach"> Pause at each wave</label>
+            <label class="ck"><input type="checkbox" id="showRef"> Show refractory periods</label>
+          </div>
+          <div class="readout mono"><span>1 small box = 0.04 s</span><span>1 large box = 0.20 s</span><span id="boxRead">0.0 small boxes</span></div>
+        </div>
+      </div>
+
+      <div class="card story" aria-live="polite">
+        <div><span class="when" id="sWhen"></span><h3 id="sName"></h3></div>
+        <div class="rows">
+          <div class="row e"><small>Electrical</small><p id="sElec"></p></div>
+          <div class="row c"><small>Deflection</small><p id="sDefl"></p></div>
+          <div class="row"><small>Mechanical</small><p id="sMech"></p></div>
+          <div class="row"><small>Nursing link</small><p id="sNurse"></p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="lab" role="tabpanel" aria-labelledby="tab-lab">
+  <div class="sec-head"><span class="eyebrow">Part 3 · Deflection lab</span><h2>Why the pen goes up or down</h2>
+  <p class="lede">An electrode is a one-way eye. Move the positive electrode around a strip of muscle and watch what it records as a wave crosses the strip.</p></div>
+  <div class="lab">
+    <div class="card">
+      <svg id="tissue" viewBox="0 0 360 300" role="img" aria-label="Tissue strip with a moving wave and a positive electrode">
+        <circle cx="180" cy="150" r="115" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/>
+        <rect x="90" y="132" width="180" height="36" rx="4" fill="var(--rest)" class="strip"/>
+        <rect id="lFill" x="90" y="132" width="0" height="36" rx="4"/>
+        <line id="lFront" x1="90" x2="90" y1="126" y2="174" stroke-width="3"/>
+        <g id="lCharges"></g>
+        <path id="lArrow" d="M 120 196 L 240 196 M 230 189 L 242 196 L 230 203" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+        <text id="lArrowT" x="180" y="220" text-anchor="middle" class="lbl small">direction the wave travels</text>
+        <line id="eLine" x1="180" y1="150" stroke="var(--muted)" stroke-dasharray="4 4"/>
+        <circle id="eDot" r="15" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>
+        <text id="eTxt" text-anchor="middle" dominant-baseline="central" font-family="var(--f-mono)" font-weight="700" font-size="18" fill="var(--ink)">+</text>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+        <label for="angle" class="eyebrow">Electrode position: <span id="angleV" class="mono">0°</span></label>
+        <input type="range" id="angle" min="0" max="359" value="0">
+        <div class="controls">
+          <button type="button" class="btn ghostb" data-ang="0">Toward</button>
+          <button type="button" class="btn ghostb" data-ang="90">Perpendicular</button>
+          <button type="button" class="btn ghostb" data-ang="180">Away</button>
+          <div class="seg" role="group" aria-label="Wave type">
+            <button type="button" id="mD" aria-pressed="true">Depolarization</button>
+            <button type="button" id="mR" aria-pressed="false">Repolarization</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="panelHead"><h3>What the electrode records</h3></div>
+        <div class="ecgBox"><svg id="defl" viewBox="0 0 360 150" role="img" aria-label="Recorded deflection"><g id="dGrid"></g><path id="dGhost" class="ghost"/><path id="dLive" class="trace"/></svg></div>
+        <p class="verdict" id="verdict" style="margin-top:12px"></p>
+        <p id="verdictWhy" style="color:var(--muted)"></p>
+      </div>
+      <div class="callout"><b>Two negatives make an upright T wave.</b><br>Repolarization moving toward a positive electrode draws a downward line. But the ventricles repolarize in reverse, from the outer wall (epicardium) back toward the inner wall (endocardium), because outer cells have shorter action potentials. A reversed wave of a reversed charge points the pen up again, so in Lead II the T wave is upright, matching the QRS. Try it: pick Repolarization, then Away.</div>
+      <div class="callout" style="border-color:var(--depol);background:var(--depol-soft)"><b>Lead II in one sentence.</b><br>Its positive electrode sits at the lower left, near the apex. Normal conduction runs from the SA node (upper right) down toward the apex, straight at that electrode, which is why a healthy Lead II shows an upright P, a tall R, and an upright T.</div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="route" role="tabpanel" aria-labelledby="tab-route">
+  <div class="sec-head"><span class="eyebrow">Part 4 · Pathway puzzle</span><h2>Rebuild the route</h2>
+  <p class="lede">Tap the structures in the order a normal impulse travels. A wrong tap shakes and doesn't count.</p></div>
+  <div class="card pathGame">
+    <div class="pool" id="pool"></div>
+    <div class="chain" id="chain"><span class="hint">Your route appears here.</span></div>
+    <div class="controls"><button type="button" class="btn ghostb" id="pathReset">Shuffle and restart</button><span class="mono" id="pathMsg" style="color:var(--muted)"></span></div>
+  </div>
+</section>
+
+<section class="panel" id="check" role="tabpanel" aria-labelledby="tab-check">
+  <div class="sec-head"><span class="eyebrow">Part 5 · Check yourself</span><h2>Read the beat</h2></div>
+  <div class="quizTop"><span class="score" id="score">0 of 12 correct · 0 answered</span><button type="button" class="btn ghostb" id="qReset">Reset questions</button></div>
+  <div class="qgrid" id="quiz"></div>
+</section>
+
+<footer>Timings model a normal sinus beat at 75/min for teaching. Waveforms are idealized; real tracings vary by lead, rate, and patient.</footer>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const NS="http://www.w3.org/2000/svg";
+const mk=(tag,attrs,parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;};
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- beat model ---------- */
+const BEAT=800;
+const g=(t,c,s)=>Math.exp(-0.5*((t-c)/s)**2);
+function ecg(t){
+  const tS=t<440?45:32;
+  return 0.15*g(t,50,16)-0.10*g(t,176,5)+1.0*g(t,196,7)-0.28*g(t,216,7)+0.30*Math.exp(-0.5*((t-440)/tS)**2);
+}
+const PH=[
+ {k:"P",name:"P wave",a:0,b:100,
+  elec:"The SA node fires. Depolarization spreads across both atria through the internodal pathways (right atrium) and Bachmann's bundle (left atrium).",
+  defl:"Small and rounded: the atria are thin, so there is little muscle mass. The wave heads down and to the left, toward Lead II's positive electrode, so the P wave is upright.",
+  mech:"Atrial contraction follows the electrical signal. The atrial kick tops off the ventricles with roughly the last 20 to 30% of their filling.",
+  nurse:"One upright P before every QRS in Lead II suggests the beat started in the SA node. Absent or inverted P waves point to a different pacemaker site."},
+ {k:"PR",name:"PR segment",a:100,b:160,
+  elec:"The impulse crawls through the AV node, the only electrical doorway through the fibrous skeleton. The node deliberately slows conduction.",
+  defl:"Flat. The AV node is a tiny cluster of cells, too small to move the pen. The PR interval (start of P to start of QRS) is normally 0.12 to 0.20 s, or 3 to 5 small boxes.",
+  mech:"The pause lets the atria finish emptying before the ventricles squeeze.",
+  nurse:"A PR interval longer than 0.20 s signals AV block. Digoxin, beta blockers, and calcium channel blockers all slow AV conduction and can lengthen it."},
+ {k:"QRS",name:"QRS complex",a:160,b:245,
+  elec:"The signal races down the Bundle of His, the right and left bundle branches, and the Purkinje fibers, then depolarizes the ventricular muscle from the inside (endocardium) out. Atrial repolarization happens now too, hidden inside the QRS.",
+  defl:"Big because the ventricles are big. Q: the septum depolarizes left to right, slightly away from Lead II (small dip). R: the main mass fires toward the apex (tall spike). S: the last basal areas fire upward and away (small dip). Normal width is under 0.12 s, fewer than 3 small boxes.",
+  mech:"Ventricular systole begins just after the QRS. The AV valves close (S1).",
+  nurse:"A wide QRS means the impulse took a slow, abnormal route, such as a bundle branch block or a beat that started in the ventricle (PVC, V-tach)."},
+ {k:"ST",name:"ST segment",a:245,b:340,
+  elec:"Every ventricular cell is depolarized and sitting in the plateau (phase 2). Ca²⁺ is flowing in.",
+  defl:"Flat, because all the cells carry the same charge. With no difference between regions there is no net current for the electrode to see, so the line returns to the isoelectric baseline.",
+  mech:"The ventricles are contracting and ejecting blood. Calcium entering during the plateau is what powers the squeeze.",
+  nurse:"An ST segment raised or lowered from baseline can mean injured or ischemic muscle that cannot hold the same charge. ST elevation with chest pain is an emergency."},
+ {k:"T",name:"T wave",a:340,b:530,
+  elec:"Ventricular repolarization. K⁺ flows out and the cells restore their negative interior. The outer wall recovers first, so the wave travels outside to inside.",
+  defl:"Broader and lower than the QRS because repolarization is slower and less synchronized. Upright in Lead II because a reversed wave of a reversed charge points the same way as the QRS (see Part 3).",
+  mech:"Ventricles finish ejecting and begin to relax. The semilunar valves close (S2) near the end of the T wave.",
+  nurse:"The downslope of the T is the vulnerable period. A PVC landing here (R-on-T) can trigger V-fib. Peaked T waves suggest hyperkalemia; flat T waves suggest hypokalemia."},
+ {k:"TP",name:"TP segment",a:530,b:800,
+  elec:"Electrical rest. Muscle cells sit at about −90 mV (phase 4). SA node cells are not resting: they slowly drift toward threshold on their own.",
+  defl:"Flat isoelectric baseline. This is the reference line you use to judge whether the ST segment is elevated or depressed.",
+  mech:"Diastole. The ventricles are relaxed and filling passively, and the coronary arteries fill best now.",
+  nurse:"As heart rate rises this segment shrinks first, which cuts filling time and coronary perfusion. That is why sustained tachycardia can cause chest pain and low cardiac output."}
+];
+const phaseAt=t=>PH.findIndex(p=>t>=p.a&&t<p.b);
+
+/* ---------- ECG drawing ---------- */
+const X=t=>t, Y=v=>180-v*130;
+(function grid(){
+  const G=$("grid");
+  /* 1 unit = 1 ms: small box every 40 (0.04 s), large box every 200 (0.20 s) */
+  for(let x=0;x<=800;x+=40){mk("line",{x1:x,x2:x,y1:0,y2:280,class:x%200===0?"gmaj":"gmin"},G);}
+  for(let y=20;y<=280;y+=40){mk("line",{x1:0,x2:800,y1:y,y2:y,class:(y-180)%200===0?"gmaj":"gmin"},G);}
+})();
+function tracePath(t1){let d="";for(let t=0;t<=t1;t+=2){d+=(t?"L":"M")+X(t).toFixed(1)+" "+Y(ecg(t)).toFixed(1);}return d;}
+$("ghost").setAttribute("d",tracePath(799));
+const WL=[["P",50,0.15],["Q",176,-0.1],["R",196,1.0],["S",216,-0.28],["T",440,0.30]];
+const wlEls=WL.map(([k,t,v])=>{const e=mk("text",{x:t,y:v>=0?Y(v)-10:Y(v)+26,"text-anchor":"middle",class:"wl"},$("wLabels"));e.textContent=k;return {e,t,k};});
+(function intervals(){
+  const I=$("intervals");
+  const iv=(a,b,y,txt)=>{mk("line",{x1:a,x2:b,y1:y,y2:y},I);mk("line",{x1:a,x2:a,y1:y-5,y2:y+5},I);mk("line",{x1:b,x2:b,y1:y-5,y2:y+5},I);const t=mk("text",{x:(a+b)/2,y:y-6,"text-anchor":"middle"},I);t.textContent=txt;};
+  iv(0,160,232,"PR 0.16 s");iv(160,245,262,"QRS 0.08 s");iv(160,530,232,"QT 0.37 s");
+})();
+
+/* chips */
+const chips=PH.map((p,i)=>{const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=p.k;b.setAttribute("aria-pressed","false");b.onclick=()=>{t=p.a+0.01;setPlaying(false);render();};$("chips").appendChild(b);return b;});
+
+/* heart refs */
+const litPaths=[...$("condLit").children];
+const basePaths=["pIntern","pBach","pHis","pRbb","pLbb"].map($);
+const lens=basePaths.map(p=>p.getTotalLength());
+litPaths.forEach((p,i)=>{p.style.strokeDasharray=lens[i];p.style.strokeDashoffset=lens[i];});
+const ptOn=(i,f)=>basePaths[i].getPointAtLength(lens[i]*clamp(f));
+const bump=(t,a,b)=>t<a||t>b?0:Math.sin(Math.PI*(t-a)/(b-a));
+
+/* action potential */
+let cell="V";
+function apV(t){ if(t<190)return -90; if(t<200)return -90+110*((t-190)/10); if(t<215)return 20-20*((t-200)/15); if(t<340)return -8*((t-215)/125); if(t<500){const k=(t-340)/160;return -8-82*(0.5-0.5*Math.cos(Math.PI*k));} return -90;}
+function apP(t){ if(t<50)return -40+50*(0.5-0.5*Math.cos(Math.PI*t/50)); if(t<200){const k=(t-50)/150;return 10-70*(0.5-0.5*Math.cos(Math.PI*k));} return -60+20*Math.pow((t-200)/600,1.4);}
+const AX=t=>20+t*0.47, AY=v=>150-(v+100)*0.95;
+function apIon(t){
+  if(cell==="V"){
+    if(t<190||t>=500)return "<b>Phase 4 · resting.</b> About −90 mV. K⁺ leaks out and keeps the inside negative while the cell waits for the wave to arrive.";
+    if(t<200)return "<b>Phase 0 · rapid depolarization.</b> Fast Na⁺ channels open and Na⁺ rushes in. The inside swings to about +20 mV in milliseconds.";
+    if(t<215)return "<b>Phase 1 · early repolarization.</b> Na⁺ channels slam shut and a brief burst of K⁺ leaves the cell.";
+    if(t<340)return "<b>Phase 2 · plateau.</b> Ca²⁺ flows in while K⁺ flows out, so the voltage holds near 0. Calcium triggers contraction. On the ECG this is the ST segment.";
+    return "<b>Phase 3 · rapid repolarization.</b> Ca²⁺ channels close and K⁺ pours out, restoring the negative interior. On the ECG this is the T wave.";
+  }
+  if(t<50)return "<b>Phase 0 · depolarization.</b> Pacemaker cells have no fast Na⁺ channels. Slow Ca²⁺ channels open instead, so the upstroke is gentler.";
+  if(t<200)return "<b>Phase 3 · repolarization.</b> K⁺ flows out and the cell falls to about −60 mV. Pacemaker cells never settle as low as muscle cells.";
+  return "<b>Phase 4 · spontaneous depolarization.</b> Na⁺ leaks in through the funny current (I<sub>f</sub>), so the cell drifts up toward threshold (−40 mV) on its own. This is automaticity.";
+}
+function drawAPAxes(){
+  const A=$("apAxes");A.innerHTML="";
+  const thr=cell==="V"?-70:-40;
+  [20,0,-40,-90].forEach(v=>{const tx=mk("text",{x:16,y:AY(v)+3,"text-anchor":"end",class:"apAx"},A);tx.textContent=v;});
+  mk("line",{x1:20,x2:396,y1:AY(0),y2:AY(0),stroke:"var(--line)"},A);
+  mk("line",{x1:20,x2:396,y1:AY(thr),y2:AY(thr),class:"thr"},A);
+  const lt=mk("text",{x:394,y:AY(thr)-4,"text-anchor":"end",class:"apAx"},A);lt.textContent="threshold "+thr+" mV";
+  const u=mk("text",{x:20,y:12,class:"apAx"},A);u.textContent="mV";
+  const f=cell==="V"?apV:apP;let d="";for(let tt=0;tt<800;tt+=2)d+=(tt?"L":"M")+AX(tt).toFixed(1)+" "+AY(f(tt)).toFixed(1);
+  $("apGhost").setAttribute("d",d);
+}
+function setCell(c){cell=c;$("cellV").setAttribute("aria-pressed",c==="V");$("cellP").setAttribute("aria-pressed",c==="P");drawAPAxes();render();}
+$("cellV").onclick=()=>setCell("V");$("cellP").onclick=()=>setCell("P");
+
+/* ---------- state + render ---------- */
+let t=reduce?40:0, playing=!reduce, speed=0.2, last=null, lastPhase=-1;
+const SPEEDS=[[0.1,"0.1×"],[0.2,"0.2×"],[0.5,"0.5×"],[1,"Real time"]];
+const spBtns=SPEEDS.map(([v,l])=>{const b=document.createElement("button");b.type="button";b.textContent=l;b.setAttribute("aria-pressed",v===speed);b.onclick=()=>{speed=v;spBtns.forEach((x,i)=>x.setAttribute("aria-pressed",SPEEDS[i][0]===v));};$("speeds").appendChild(b);return b;});
+function setPlaying(p){playing=p;$("play").textContent=p?"Pause":"Play";last=null;}
+$("play").onclick=()=>setPlaying(!playing);
+$("prev").onclick=()=>{const i=phaseAt(t);const j=(t-PH[i].a<20)?(i+PH.length-1)%PH.length:i;t=PH[j].a+0.01;setPlaying(false);render();};
+$("next").onclick=()=>{const i=phaseAt(t);t=PH[(i+1)%PH.length].a+0.01;setPlaying(false);render();};
+$("scrub").oninput=e=>{t=+e.target.value;setPlaying(false);render();};
+$("showRef").onchange=e=>{$("refG").hidden=!e.target.checked;};
+
+const atr=$("atrDepol"),ven=$("venDepol");
+function render(){
+  const i=phaseAt(t),p=PH[i];
+  /* ECG */
+  $("trace").setAttribute("d",tracePath(t));
+  $("cursor").setAttribute("x1",t);$("cursor").setAttribute("x2",t);
+  $("band").setAttribute("x",p.a);$("band").setAttribute("width",p.b-p.a);
+  wlEls.forEach(w=>w.e.classList.toggle("on",Math.abs(t-w.t)<(w.k==="T"?60:w.k==="P"?35:12)));
+  $("tRead").textContent="t = "+(t/1000).toFixed(3)+" s";
+  $("boxRead").textContent=(t/40).toFixed(1)+" small boxes";
+  $("scrub").value=Math.floor(t);
+  chips.forEach((c,j)=>c.setAttribute("aria-pressed",j===i));
+  /* heart: atria */
+  let ar=0,ao=0.55;
+  if(t<100){ar=230*(t/100);} else if(t<530){ar=230;ao=t<160?0.55:0.55*(1-clamp((t-160)/90));} else ar=0;
+  atr.setAttribute("r",ar.toFixed(1));atr.style.opacity=ao;
+  /* ventricles: depol inside-out, repol outside-in */
+  let vr=0;
+  if(t>=185&&t<245)vr=190*((t-185)/60); else if(t>=245&&t<340)vr=190; else if(t>=340&&t<530)vr=190*(1-(t-340)/190);
+  ven.setAttribute("r",vr.toFixed(1));
+  /* lit paths */
+  const prog=[clamp(t/55),clamp(t/55),clamp((t-160)/22),clamp((t-182)/53),clamp((t-182)/53)];
+  litPaths.forEach((pth,k)=>pth.style.strokeDashoffset=lens[k]*(1-prog[k]));
+  $("condLit").style.opacity=t<530?1:Math.max(0,1-(t-530)/70);
+  /* sparks */
+  const A=$("sparkA"),B=$("sparkB");let a=null,b=null;
+  if(t<55){a=ptOn(0,t/55);b=ptOn(1,t/55);}
+  else if(t<160){a={x:163,y:160};}
+  else if(t<182){a=ptOn(2,(t-160)/22);}
+  else if(t<235){a=ptOn(3,(t-182)/53);b=ptOn(4,(t-182)/53);}
+  const place=(el,pt,r)=>{if(pt){el.setAttribute("cx",pt.x);el.setAttribute("cy",pt.y);el.setAttribute("r",r);}else{el.setAttribute("cx",-20);el.setAttribute("cy",-20);}};
+  place(A,a,t>=55&&t<160?4+2*Math.abs(Math.sin(t/12)):6);place(B,b,6);
+  /* SA node charging */
+  const sa=$("saNode");const charge=t>=200?clamp((t-200)/600):0;
+  sa.style.fill=t<25?"var(--depol)":`color-mix(in srgb, var(--depol) ${Math.round(charge*70)}%, var(--surface))`;
+  $("avNode").style.fill=(t>=55&&t<160)?"var(--depol-soft)":"var(--surface)";
+  /* mechanical squeeze */
+  const sA=1-0.045*bump(t,70,200), sV=1-0.06*bump(t,230,520);
+  $("atriaG").setAttribute("transform",`translate(170 106) scale(${sA}) translate(-170 -106)`);
+  $("ventG").setAttribute("transform",`translate(172 255) scale(${sV}) translate(-172 -255)`);
+  const atrOn=t>=70&&t<200, vOn=t>=230&&t<520;
+  $("mAtria").textContent=atrOn?"Contracting (atrial kick)":"Relaxed";$("mAtria").className=atrOn?"on":"";
+  $("mVent").textContent=vOn?(t<280?"Systole · pressure building":"Systole · ejecting"):(t>=520?"Diastole · relaxing and filling":"Diastole · filling");$("mVent").className=vOn?"on":"";
+  /* AP */
+  const f=cell==="V"?apV:apP;let d="";for(let tt=0;tt<=t;tt+=2)d+=(tt?"L":"M")+AX(tt).toFixed(1)+" "+AY(f(tt)).toFixed(1);
+  $("apLive").setAttribute("d",d);$("apDot").setAttribute("cx",AX(t));$("apDot").setAttribute("cy",AY(f(t)));
+  $("ionText").innerHTML=apIon(t);
+  /* story */
+  if(i!==lastPhase){lastPhase=i;
+    $("sName").textContent=p.name;
+    $("sWhen").textContent=`${(p.a/1000).toFixed(2)}–${(p.b/1000).toFixed(2)} s · ${((p.b-p.a)/40).toFixed(1)} small boxes`;
+    $("sElec").textContent=p.elec;$("sDefl").textContent=p.defl;$("sMech").textContent=p.mech;$("sNurse").textContent=p.nurse;}
+}
+function frame(ts){
+  if(playing){
+    if(last!=null){
+      let nt=t+(ts-last)*speed; if(nt>=BEAT)nt-=BEAT;
+      const pi=phaseAt(t),ni=phaseAt(nt);
+      if($("stopEach").checked&&ni!==pi){nt=PH[ni].a+0.01;t=nt;setPlaying(false);}
+      else t=nt;
+    }
+    last=ts;render();
+  }
+  requestAnimationFrame(frame);
+}
+drawAPAxes();setPlaying(playing);render();requestAnimationFrame(frame);
+
+/* ---------- deflection lab ---------- */
+let ang=0,mode="D",lp=0,lLast=null;
+const LOOP=1700;
+const dX=p=>20+p*320, dY=v=>75-v*55;
+const bumpL=p=>Math.exp(-0.5*((p-0.5)/0.13)**2);
+const biL=p=>Math.exp(-0.5*((p-0.36)/0.09)**2)-Math.exp(-0.5*((p-0.64)/0.09)**2);
+function sig(p){const th=ang*Math.PI/180;const s=mode==="D"?1:-1;return s*(Math.cos(th)*bumpL(p)+Math.abs(Math.sin(th))*0.75*biL(p));}
+(function(){const G=$("dGrid");for(let x=0;x<=360;x+=10)mk("line",{x1:x,x2:x,y1:0,y2:150,class:x%50===0?"gmaj":"gmin"},G);for(let y=0;y<=150;y+=10)mk("line",{x1:0,x2:360,y1:y,y2:y,class:(y-75)%50===0?"gmaj":"gmin"},G);})();
+const charges=[];for(let k=0;k<9;k++){const e=mk("text",{x:100+k*20,y:154,class:"chg"},$("lCharges"));charges.push(e);}
+function labStatic(){
+  const th=ang*Math.PI/180,ex=180+115*Math.cos(th),ey=150-115*Math.sin(th);
+  $("eDot").setAttribute("cx",ex);$("eDot").setAttribute("cy",ey);$("eTxt").setAttribute("x",ex);$("eTxt").setAttribute("y",ey);
+  $("eLine").setAttribute("x2",ex);$("eLine").setAttribute("y2",ey);
+  $("angleV").textContent=ang+"°";$("angle").value=ang;
+  let d="";for(let p=0;p<=1.0001;p+=0.01)d+=(p?"L":"M")+dX(p).toFixed(1)+" "+dY(sig(p)).toFixed(1);$("dGhost").setAttribute("d",d);
+  const c=Math.cos(th);const col=mode==="D"?"var(--depol)":"var(--repol)";
+  $("lArrow").setAttribute("stroke",col);$("lFront").setAttribute("stroke",col);
+  let v,why;
+  const dir=c>0.38?"toward":c<-0.38?"away":"perp";
+  if(dir==="perp"){v="Biphasic";why=mode==="D"?"The wave runs across the electrode's line of sight. It approaches (up), then leaves (down), so the deflections are small and roughly cancel.":"Repolarization running across the line of sight also gives a small up-and-down deflection, in reverse order.";}
+  else if(mode==="D"){v=dir==="toward"?"Upright (positive)":"Inverted (negative)";why=dir==="toward"?"Depolarization moving toward the positive electrode deflects the pen upward. The more directly it heads at the electrode, the taller the wave.":"Depolarization moving away from the positive electrode deflects the pen downward.";}
+  else{v=dir==="toward"?"Inverted (negative)":"Upright (positive)";why=dir==="toward"?"Repolarization carries the opposite charge, so moving toward the positive electrode it deflects the pen downward. The rule flips.":"Repolarization moving away from the positive electrode deflects the pen upward. This is the ventricles' trick for an upright T wave.";}
+  $("verdict").textContent=v;$("verdict").style.color=v.startsWith("Upright")?"var(--good)":v.startsWith("Inverted")?"var(--bad)":"var(--ink)";
+  $("verdictWhy").textContent=why;
+}
+function labRender(){
+  const p=clamp(lp/1300);const fx=90+180*p;
+  $("lFront").setAttribute("x1",fx);$("lFront").setAttribute("x2",fx);
+  const F=$("lFill");
+  if(mode==="D"){F.setAttribute("x",90);F.setAttribute("width",fx-90);F.style.fill="var(--depol-soft)";$("tissue").querySelector(".strip").style.fill="var(--rest)";}
+  else{F.setAttribute("x",90);F.setAttribute("width",fx-90);F.style.fill="var(--repol-soft)";$("tissue").querySelector(".strip").style.fill="var(--depol-soft)";}
+  charges.forEach((e,k)=>{const x=100+k*20;const behind=x<fx;let pos= mode==="D"?behind:!behind;e.textContent=pos?"+":"−";e.style.fill=pos?"var(--depol)":"var(--muted)";});
+  let d="";for(let q=0;q<=p+0.0001;q+=0.01)d+=(q?"L":"M")+dX(q).toFixed(1)+" "+dY(sig(q)).toFixed(1);$("dLive").setAttribute("d",d);
+}
+function labFrame(ts){
+  if(lLast!=null&&!reduce){lp+=(ts-lLast);if(lp>LOOP)lp=0;}
+  lLast=ts;labRender();requestAnimationFrame(labFrame);
+}
+if(reduce)lp=1300;
+$("angle").oninput=e=>{ang=+e.target.value;labStatic();labRender();};
+document.querySelectorAll("[data-ang]").forEach(b=>b.onclick=()=>{ang=+b.dataset.ang;lp=0;labStatic();labRender();});
+const setMode=m=>{mode=m;$("mD").setAttribute("aria-pressed",m==="D");$("mR").setAttribute("aria-pressed",m==="R");lp=reduce?1300:0;labStatic();labRender();};
+$("mD").onclick=()=>setMode("D");$("mR").onclick=()=>setMode("R");
+labStatic();labRender();requestAnimationFrame(labFrame);
+
+/* ---------- pathway puzzle ---------- */
+const ROUTE=["SA node","Atrial muscle (internodal paths, Bachmann's bundle)","AV node","Bundle of His","Right & left bundle branches","Purkinje fibers","Ventricular muscle"];
+let step=0;
+function shuffle(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function buildPath(){
+  step=0;const pool=$("pool");pool.innerHTML="";$("chain").innerHTML='<span class="hint">Your route appears here.</span>';$("pathMsg").textContent="0 of 7";
+  shuffle(ROUTE).forEach(name=>{const b=document.createElement("button");b.type="button";b.className="pw";b.textContent=name;
+    b.onclick=()=>{if(b.classList.contains("used"))return;
+      if(name===ROUTE[step]){b.classList.add("used");b.disabled=true;const ch=$("chain");if(step===0)ch.innerHTML="";else{const ar=document.createElement("span");ar.className="ar";ar.textContent="→";ch.appendChild(ar);}
+        const lk=document.createElement("span");lk.className="lk";lk.textContent=name;ch.appendChild(lk);step++;
+        $("pathMsg").textContent=step===7?"Complete. That is one normal beat.":step+" of 7";}
+      else{b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");$("pathMsg").textContent="Not yet. What does the impulse reach after "+(step?ROUTE[step-1]:"nothing")+"?";if(!step)$("pathMsg").textContent="Not yet. Where does a normal beat start?";}
+    };pool.appendChild(b);});
+}
+$("pathReset").onclick=buildPath;buildPath();
+
+/* ---------- quiz ---------- */
+const Q=[
+ {q:"What does the P wave represent?",o:["Atrial contraction","Atrial depolarization","SA node firing","Atrial repolarization"],a:1,w:"The P wave is the electrical wave spreading across the atria. The SA node itself is too small to register, and contraction is the mechanical response that follows."},
+ {q:"Where is atrial repolarization on a normal ECG?",o:["The T wave","The PR segment","Hidden inside the QRS complex","The U wave"],a:2,w:"It happens at the same time the much larger ventricles depolarize, so the QRS buries it."},
+ {q:"Why is the PR segment flat?",o:["The heart is at rest","The impulse is delayed in the AV node, which is too small to register","The atria are repolarizing","The ventricles are filling"],a:1,w:"The AV node holds the impulse about 0.1 s so the atria can empty. So few cells are involved that the pen doesn't move."},
+ {q:"Normal PR interval in an adult is:",o:["0.04–0.10 s","0.12–0.20 s","0.20–0.30 s","Under 0.12 s"],a:1,w:"0.12–0.20 s, or 3 to 5 small boxes. Longer than 0.20 s suggests AV block."},
+ {q:"A patient's QRS complex measures 0.14 s. What does this most likely mean?",o:["The AV node is holding the impulse longer than normal","The impulse took a slow or abnormal route through the ventricles","The atria are depolarizing too slowly","This is a normal finding"],a:1,w:"A normal QRS is under 0.12 s. A wide QRS means the ventricles depolarized slowly, for example through a bundle branch block or from a beat that started in the ventricle. A long AV delay would lengthen the PR interval instead."},
+ {q:"The SA node stops firing. If the AV junction takes over as pacemaker, which heart rate should the nurse expect?",o:["60–100/min","40–60/min","20–40/min","100–150/min"],a:1,w:"Each backup site has a slower built-in rate: SA node 60–100, AV junction 40–60, ventricles (Purkinje) 20–40. The lower the pacemaker sits in the pathway, the slower the rate."},
+ {q:"A wave of depolarization travels directly away from the positive electrode. The tracing shows:",o:["An upright deflection","A negative (downward) deflection","A biphasic deflection","No change"],a:1,w:"Toward the positive electrode = up; away = down."},
+ {q:"A wave of depolarization travels perpendicular to the lead. The tracing shows:",o:["A tall upright deflection","A deep negative deflection","A small biphasic deflection","A flat line with no deflection ever"],a:2,w:"It approaches, then leaves, so you see a small up-then-down wave that roughly cancels."},
+ {q:"Why is the T wave upright in Lead II even though it represents repolarization?",o:["Repolarization is always upright","Ventricles repolarize from epicardium to endocardium, reversing the direction","K⁺ is a positive ion","The atria are contracting"],a:1,w:"Repolarization alone would draw opposite to depolarization, but it also travels in the reverse direction. The two reversals cancel and the T points the same way as the QRS."},
+ {q:"Which part of the beat is the vulnerable period, when a PVC could trigger V-fib?",o:["The P wave","The PR segment","The downslope of the T wave","The TP segment"],a:2,w:"During the relative refractory period some cells have recovered and others haven't. An extra stimulus here (R-on-T) can start a chaotic rhythm."},
+ {q:"The monitor shows organized QRS complexes but the patient has no pulse. This shows that:",o:["The monitor is broken","Electrical activity does not guarantee mechanical contraction","The SA node has failed","The ECG measures blood pressure"],a:1,w:"Depolarization is electrical; contraction is mechanical. Pulseless electrical activity (PEA) is the clinical proof. Always assess the patient, not just the monitor."},
+ {q:"A patient's serum potassium is 6.8 mEq/L. Which ECG change should the nurse anticipate first?",o:["Tall, peaked T waves","A prominent U wave","A prolonged PR interval only","Flattened T waves"],a:0,w:"Repolarization depends on K⁺ leaving the cell, so potassium changes show up in the T wave first. High K⁺ produces tall, peaked T waves. Low K⁺ produces flat T waves and U waves."}
+];
+let answered=0,right=0;
+function buildQuiz(){
+  answered=0;right=0;const Z=$("quiz");Z.innerHTML="";updScore();
+  Q.forEach((it,n)=>{const c=document.createElement("div");c.className="card q";
+    c.innerHTML=`<span class="qn">QUESTION ${n+1}</span><p class="stem"></p><div class="opts"></div><p class="why" hidden></p>`;
+    c.querySelector(".stem").textContent=it.q;const O=c.querySelector(".opts"),W=c.querySelector(".why");
+    it.o.forEach((o,k)=>{const b=document.createElement("button");b.type="button";b.className="opt";b.textContent=o;
+      b.onclick=()=>{O.querySelectorAll("button").forEach((x,j)=>{x.disabled=true;if(j===it.a)x.classList.add("right");});
+        if(k!==it.a)b.classList.add("wrong");else right++;answered++;updScore();
+        W.innerHTML=(k===it.a?"<b>Correct.</b> ":"<b>Not quite.</b> ")+it.w;W.hidden=false;};
+      O.appendChild(b);});
+    Z.appendChild(c);});
+}
+function updScore(){$("score").textContent=`${right} of ${Q.length} correct · ${answered} answered`;}
+$("qReset").onclick=buildQuiz;buildQuiz();
+
+/* ---------- tracing anatomy ---------- */
+const AN={
+ wave:{kind:"box",items:[["P",10,95,"Atrial depolarization. Small and rounded."],["Q",164,186,"First downward wave before R. Septum depolarizing."],["R",186,206,"First upward wave. Main ventricular mass."],["S",206,230,"Downward wave after R. Last basal areas."],["T",345,530,"Ventricular repolarization. Broad and upright in Lead II."]]},
+ complex:{kind:"box",items:[["QRS",160,245,"Ventricular depolarization. Normal duration under 0.12 s (3 small boxes). Atrial repolarization is hidden here."]]},
+ segment:{kind:"box",items:[["PR",95,160,"End of P to start of QRS. The AV node delay. Flat."],["ST",245,345,"End of QRS (J point) to start of T. Ventricles fully depolarized. Should sit on baseline."],["TP",530,800,"End of T to the next P. Electrical rest, diastole. Use it as your baseline reference."]]},
+ interval:{kind:"br",items:[["PR",0,160,"Start of P to start of QRS. Normal 0.12–0.20 s (3–5 small boxes)."],["QRS",160,240,"Start to end of the QRS. Normal under 0.12 s."],["QT",160,530,"Start of QRS to end of T. All of ventricular depolarization plus repolarization. Shortens as rate rises, so it is corrected for rate (QTc)."],["R–R",196,996,"Peak of one R to the next R. Used for heart rate: 1500 ÷ small boxes between Rs. At 75/min the R–R is 0.80 s, or 20 small boxes."]]}
+};
+const aY=v=>140-v*110;
+(function(){const G=$("aGrid");for(let x=0;x<=1040;x+=40)mk("line",{x1:x,x2:x,y1:0,y2:250,class:x%200===0?"gmaj":"gmin"},G);for(let y=20;y<=250;y+=40)mk("line",{x1:0,x2:1040,y1:y,y2:y,class:(y-140)%200===0?"gmaj":"gmin"},G);
+ let d="";for(let tt=0;tt<=1040;tt+=2){d+=(tt?"L":"M")+tt+" "+aY(ecg(tt%800)).toFixed(1);}
+ $("aTrace").setAttribute("d",d);})();
+function showDef(k){
+  document.querySelectorAll(".def").forEach(b=>b.setAttribute("aria-pressed",b.dataset.def===k));
+  const H=$("aHi"),L=$("aLbl");H.innerHTML="";L.innerHTML="";const c=AN[k];
+  if(c.kind==="box"){c.items.forEach(([n,a,b])=>{mk("rect",{x:a,y:0,width:b-a,height:250,class:"hiBox"},H);const tx=mk("text",{x:(a+b)/2,y:k==="wave"&&(n==="Q"||n==="S")?236:22,class:"hiTxt"},L);tx.textContent=n;});}
+  else{c.items.forEach(([n,a,b],i)=>{const y=[184,212,240,26][i];const g=mk("g",{class:"br"},L);mk("line",{x1:a,x2:b,y1:y,y2:y},g);mk("line",{x1:a,x2:a,y1:y-7,y2:y+7},g);mk("line",{x1:b,x2:b,y1:y-7,y2:y+7},g);const tx=mk("text",{x:i===3?(a+b)/2:a+6,y:y-7,"text-anchor":i===3?"middle":"start"},g);tx.textContent=n+" "+((b-a)/1000).toFixed(2)+" s";});}
+  $("anatList").innerHTML=c.items.map(([n,a,b,t])=>`<div><b>${n}</b> <span class="mono">${((b-a)/1000).toFixed(2)} s</span><br>${t}</div>`).join("");
+}
+document.querySelectorAll(".def").forEach(b=>b.onclick=()=>showDef(b.dataset.def));
+showDef("wave");
+
+/* ---------- tabs ---------- */
+const TABS=[...document.querySelectorAll(".tab")],PANELS=TABS.map(b=>$(b.dataset.tab));
+PANELS.forEach((P,i)=>{const nav=document.createElement("div");nav.className="panelNav";
+  if(i>0){const b=document.createElement("button");b.type="button";b.className="btn ghostb";b.textContent="◀ Part "+i+": "+TABS[i-1].querySelector(".tl").textContent;b.onclick=()=>selectTab(i-1,true);nav.appendChild(b);}
+  const sp=document.createElement("span");sp.className="sp";nav.appendChild(sp);
+  if(i<PANELS.length-1){const b=document.createElement("button");b.type="button";b.className="btn";b.textContent="Part "+(i+2)+": "+TABS[i+1].querySelector(".tl").textContent+" ▶";b.onclick=()=>selectTab(i+1,true);nav.appendChild(b);}
+  P.appendChild(nav);});
+function selectTab(i,scroll){
+  TABS.forEach((b,j)=>{const on=j===i;b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1;PANELS[j].hidden=!on;});
+  try{history.replaceState(null,"","#"+PANELS[i].id);}catch(e){}
+  try{localStorage.setItem("sparkTab",PANELS[i].id);}catch(e){}
+  if(scroll){TABS[i].scrollIntoView({block:"nearest",inline:"nearest"});window.scrollTo({top:0,behavior:reduce?"auto":"smooth"});}
+}
+TABS.forEach((b,i)=>{b.onclick=()=>selectTab(i,false);
+  b.onkeydown=e=>{let j=null;if(e.key==="ArrowRight")j=(i+1)%TABS.length;if(e.key==="ArrowLeft")j=(i+TABS.length-1)%TABS.length;if(e.key==="Home")j=0;if(e.key==="End")j=TABS.length-1;if(j!==null){e.preventDefault();selectTab(j);TABS[j].focus();}};});
+let start=0;const h=(location.hash||"").slice(1);let saved=null;try{saved=localStorage.getItem("sparkTab");}catch(e){}
+const want=PANELS.findIndex(P=>P.id===h);const sv=PANELS.findIndex(P=>P.id===saved);
+selectTab(want>=0?want:(sv>=0?sv:0),false);
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,288 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ACS Look-Alikes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: projector screen. Round rail on top, then the look-alike patients side by side as bedside cards, then the current step's question under them; scoreboard docked at the bottom. Same palette as After the Storm so Unit 4 reads as one set. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb; --ink:#18202e; --muted:#5a6476; --line:#d7dde6;
+  --accent:#b8314b; --accent-soft:#f8e3e8; --ok:#1d7349; --ok-soft:#e1f2e8; --bad:#b03a2e; --bad-soft:#f9e4e1;
+  --warn:#9a5b00; --warn-soft:#fbefd9; --sel:#1f4f8f; --sel-soft:#e2ecf8;
+  --pA:#1f4f8f; --pB:#8a3d8f; --pC:#1d7349;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45;
+  --pA:#8db8f2; --pB:#d79be0; --pC:#5ccb92; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45;
+  --pA:#8db8f2; --pB:#d79be0; --pC:#5ccb92; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+.wrap{max-width:1400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 120px;display:flex;flex-direction:column;gap:14px}
+
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.brand{font-family:var(--display);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.brand b{display:block;font-size:34px;letter-spacing:.02em;text-transform:none;color:var(--ink);font-weight:700}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:700}
+
+.rail{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.rd{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.rd .n{font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rd .l{font-weight:700;font-size:15px;line-height:1.25}
+.rd[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+
+.howto{background:var(--warn-soft);border:1px solid var(--warn);border-radius:10px;padding:16px 18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.howto h3{font-size:20px;color:var(--warn);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.howto ol,.howto ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:16px}
+.howto table{border-collapse:collapse;width:100%;font-size:15px}
+.howto td{padding:3px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.howto td.num{font-family:var(--mono);white-space:nowrap}
+
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:16px}
+.rhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.rhead h2{font-size:38px}
+.rhead .cc{font-family:var(--display);text-transform:uppercase;letter-spacing:.12em;font-size:15px;color:var(--accent);font-weight:700}
+.max{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.steps{display:flex;gap:4px;flex-wrap:wrap}
+.sp{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 12px;font-size:15px;font-weight:700;color:var(--muted)}
+.sp[aria-current="step"]{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.pts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.pt{border:2px solid var(--line);border-top:6px solid var(--c);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:var(--surface);min-width:0}
+.pt .who{display:flex;gap:10px;align-items:baseline}
+.pt .lt{font-family:var(--display);font-size:40px;font-weight:700;color:var(--c);line-height:.9}
+.pt .nm{font-weight:700;font-size:19px}
+.pt .ctx{color:var(--muted);font-size:15px}
+.pt ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.pt li.new{font-weight:700}
+.pt li.new::marker{color:var(--accent)}
+.newtag{font-family:var(--display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-left:6px}
+.hidden-more{color:var(--muted);font-style:italic;font-size:15px}
+.ans{border-radius:8px;background:var(--ok-soft);border:1px solid var(--ok);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.ans b{color:var(--ok);font-size:19px}
+.ans span{font-size:15px}
+
+.task{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:12px}
+.task h3{font-size:26px}
+.instr{font-size:17px;max-width:78ch}
+.instr b{color:var(--accent)}
+.olist{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.oi{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface-2);border:2px solid var(--line);border-radius:8px;padding:10px 12px}
+.oi .k{font-family:var(--mono);font-weight:600;font-size:18px;width:30px;height:30px;border-radius:50%;background:var(--surface);border:2px solid var(--muted);display:grid;place-items:center}
+.oi.right{border-color:var(--ok);background:var(--ok-soft)} .oi.right .k{border-color:var(--ok);background:var(--ok);color:var(--surface)}
+.oi.dim{opacity:.55}
+.oi .why{display:block;font-size:15px;color:var(--muted);margin-top:4px}
+.oi.right .why{color:var(--ink)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table.act{border-collapse:collapse;width:100%;font-size:17px}
+.act th,.act td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+.act th{font-family:var(--display);font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+.act th.c,.act td.c{text-align:center;width:90px}
+.act td.n{font-family:var(--mono);width:36px;color:var(--muted)}
+.mark{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;border:2px solid var(--line)}
+.mark.on{background:var(--ok);border-color:var(--ok);color:var(--surface);font-weight:700}
+.act tr.why td{font-size:15px;color:var(--muted);padding-top:0;border-bottom:1px solid var(--line)}
+.act tr.has-why td{border-bottom:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:8px;padding:10px 18px;font-weight:700;background:var(--accent);color:#fff}
+.btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.ptsnote{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.deb{background:var(--warn-soft);border:1px solid var(--warn);border-radius:8px;padding:14px 16px}
+.deb ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+
+.board{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-block:8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.board .in{max-width:1400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:10px;align-items:center;overflow-x:auto}
+.board .lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:14px;white-space:nowrap}
+.team{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 10px;white-space:nowrap}
+.team input.tn{width:80px;border:0;background:transparent;font-weight:700}
+.team input.tp{width:3.2ch;border:0;background:transparent;font-family:var(--mono);font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.team button{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:30px;height:30px;font-weight:700}
+.board .reset{margin-left:auto;font-size:14px;white-space:nowrap}
+
+@media (max-width:1000px){.rail{grid-template-columns:repeat(4,minmax(0,1fr))}.howto{grid-template-columns:1fr}.rhead h2{font-size:30px}}
+@media (max-width:520px){.rail{grid-template-columns:repeat(2,minmax(0,1fr))}body{font-size:17px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Unit 4 · Section 3 · Acute Coronary Syndromes<b>ACS Look-Alikes</b></div>
+    <div class="tools">
+      <button class="chip" id="howBtn" aria-pressed="false">How to run</button>
+    </div>
+  </header>
+  <section class="howto" id="howto" hidden></section>
+  <nav class="rail" id="rail" aria-label="Rounds"></nav>
+  <section class="stage" id="stage" aria-live="polite"></section>
+</div>
+<div class="board" aria-label="Team scoreboard"><div class="in" id="board"></div></div>
+
+<script>
+const R=[
+ {cc:"Chest pressure on exertion",
+  pts:[{who:"Bill, 66",ctx:"Seen in the cardiology clinic",first:["Chest pressure when shoveling or climbing hills, for 6 months","Goes away after 3 minutes of rest"],more:["Same pattern every time","Relieved by one nitroglycerin tablet","Troponin normal","ECG normal at rest"],cond:0,mech:"A fixed plaque narrows the artery. At rest enough blood gets through; with exertion, demand outruns supply until rest restores the balance."},
+       {who:"Carol, 62",ctx:"Known exertional angina",first:["Chest pressure, familiar to her","Now it wakes her from sleep"],more:["Three episodes today, each longer than the last","Needed 3 nitroglycerin tablets this morning","Troponin normal on two draws","ECG: new ST depression during pain"],cond:1,mech:"A plaque has ruptured and a clot partly blocks the artery, so supply drops even at rest."}],
+  names:["Stable angina","Unstable angina","NSTEMI","Variant (Prinzmetal) angina"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["Pain at rest and a worsening pattern vs. a predictable pattern relieved by rest",1,"A change in pattern means the plaque is no longer stable."],["Troponin",0,"Both are normal; troponin can't separate unstable angina from stable angina."],["Chest pressure",0,"Both describe pressure."],["Use of nitroglycerin",0,"Both use it."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Admit to a monitored bed; anticipate heparin and dual antiplatelet therapy",1,"Unstable angina is ACS."],["Teach to take nitroglycerin before planned exertion such as shoveling",0,"Prevents predictable episodes."],["Teach: if pain isn't better 5 minutes after one nitroglycerin, call 911",2,"Every client with angina needs this rule."],["Daily low-dose aspirin and a statin as ordered",2,"Secondary prevention for coronary disease."],["Reassure that the normal troponin means there's no MI risk",3,"Unstable angina can progress to MI within hours."]]},
+  fac:["Why can't troponin tell these two apart?","What changed in Carol's pattern that made it an emergency?","Walk through the at-home nitroglycerin rule, step by step."]},
+
+ {cc:"Crushing chest pain in the ED",
+  pts:[{who:"Raymond, 58",ctx:"Arrived by ambulance",first:["Crushing substernal pain for 40 minutes","Diaphoretic and nauseated"],more:["ECG: ST elevation in two related leads","Troponin: still pending","BP 150/90, HR 104"],cond:2,mech:"A clot completely blocks a coronary artery, and the full thickness of the wall is dying."},
+       {who:"Linda, 61",ctx:"Arrived by private car",first:["Crushing substernal pain for 40 minutes","Diaphoretic and nauseated"],more:["ECG: ST depression and T-wave inversion","hs-Troponin 64 → 210 ng/L","BP 148/88, HR 98"],cond:1,mech:"A partial blockage injures the inner layer of muscle. Troponin rises, but the artery isn't fully closed."}],
+  names:["Unstable angina","NSTEMI","STEMI","Acute pericarditis"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["ST elevation on the ECG",1,"The ECG makes the STEMI call. Don't wait for troponin."],["The troponin result",0,"Both will have rising troponin; Raymond's just isn't back yet."],["The quality of the pain",0,"Both have crushing pain."],["Diaphoresis",0,"Both are diaphoretic."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Activate the cath lab now; door-to-balloon 90 minutes or less",0,"STEMI needs emergency reperfusion."],["Give aspirin 162–325 mg, chewed",2,"All ACS."],["Plan cardiac catheterization within 24–48 hours based on risk",1,"NSTEMI is urgent, but not a cath-lab activation."],["Give nitroglycerin SL if SBP ≥ 90 and no PDE5 inhibitor use",2,"Relieves ischemic pain in both."],["Wait for the troponin result before calling the cardiologist",3,"Never delay for troponin."]]},
+  fac:["Raymond's troponin is still pending. Why does that not matter?","Which layer of the heart wall is injured in each?","What is your door-to-balloon clock doing right now?"]},
+
+ {cc:"Inferior wall, two ways",
+  pts:[{who:"Hector, 64",ctx:"Inferior STEMI on the ECG",first:["Crushing chest pain for 1 hour","HR 58"],more:["BP 146/88","Lungs clear","No JVD","Nauseated"],cond:0,mech:"The RCA is blocked. The inferior wall of the left ventricle is injured, and the slow rate comes from RCA blood supply to the conduction system."},
+       {who:"Bernard, 69",ctx:"Inferior STEMI on the ECG",first:["Crushing chest pain for 1 hour","HR 50"],more:["BP 84/50","Lungs clear","JVD at 45°","Light-headed"],cond:1,mech:"The RCA blockage also killed right ventricular muscle. The right side can't push blood forward, so it backs up into the veins while the left side gets too little."}],
+  names:["Inferior MI, left ventricle only","Inferior MI with right ventricular infarction","Cardiogenic shock from anterior MI","Cardiac tamponade"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["Hypotension with JVD and clear lungs",1,"The right ventricle is failing: venous backup without lung congestion."],["A slow heart rate",0,"Both are slow from RCA involvement."],["Clear lungs",0,"Both have clear lungs."],["ST elevation",0,"Both are STEMIs."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Give nitroglycerin SL for pain as ordered",0,"Safe for Hector; it could crash Bernard's pressure."],["Give IV normal saline boluses to support preload",1,"A failing right ventricle needs filling pressure."],["Watch for bradycardia and heart block; have atropine or pacing ready",2,"The RCA supplies the SA and AV nodes."],["Activate the cath lab",2,"Both are STEMIs."],["Give IV furosemide for the JVD",3,"Unsafe in a preload-dependent right ventricle, and not needed for Hector."]]},
+  fac:["Why does the same artery cause a slow heart rate?","Bernard has JVD. Why is furosemide the wrong move?","Link to Section 2: which shock pattern does Bernard look like?"]},
+
+ {cc:"Upper-abdominal discomfort",
+  pts:[{who:"Maria, 67",ctx:"Type 2 diabetes for 20 years",first:["Extreme fatigue and nausea since this morning","Vague upper-abdominal discomfort"],more:["Short of breath walking to the bathroom","Cool, clammy skin","hs-Troponin 38 → 152 ng/L","ECG: ST depression"],cond:0,mech:"Ischemia with an atypical presentation. Long-standing diabetes can blunt the sensation of chest pain."},
+       {who:"Kevin, 52",ctx:"No cardiac history",first:["Burning upper-abdominal discomfort","Nausea after a large late dinner"],more:["Worse lying down; sour taste in the mouth","Relieved by an antacid","hs-Troponin under 5 ng/L on two draws","ECG normal"],cond:1,mech:"Stomach acid flows back into the esophagus and irritates it. The heart is not involved."}],
+  names:["NSTEMI with an atypical presentation","Gastroesophageal reflux (GERD)","Stable angina","Acute pericarditis"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["Rising troponin with cardiac risk factors vs. normal troponin and meal-related burning relieved by an antacid",1,"Objective data and the pattern separate them. Symptoms alone can overlap."],["Nausea",0,"Both are nauseated."],["The location of the discomfort",0,"Both feel it in the upper abdomen."],["Relief with an antacid",0,"It helps, but by itself it can't rule out ischemia."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Obtain a 12-lead ECG within 10 minutes",2,"Upper-abdominal pain in an adult with nausea gets an ECG."],["Give aspirin and an anticoagulant as ordered",0,"Maria is having an NSTEMI."],["Teach to avoid late meals and raise the head of the bed",1,"GERD management."],["Continuous cardiac monitoring",0,"Dysrhythmia risk with an MI."],["Discharge Maria because she has no chest pain",3,"Missing an atypical MI can be fatal."]]},
+  fac:["Who is most likely to present like Maria?","Why does Kevin still get an ECG?","What would you tell a new nurse who says, \"She has no chest pain, so it isn't cardiac\"?"]},
+
+ {cc:"Chest pain at rest",
+  pts:[{who:"Nadia, 41",ctx:"Smoker; history of migraines",first:["Chest pain at rest at 5 a.m.","Lasts 10 minutes, then goes away"],more:["ECG during pain: ST elevation that returns to normal afterward","Troponin normal","Cath last year: clean coronary arteries","Episodes worse in cold weather"],cond:0,mech:"A coronary artery goes into spasm and briefly closes, then relaxes. There is no fixed plaque."},
+       {who:"Earl, 70",ctx:"Known 70% LAD blockage",first:["Chest pain at rest","Lasts 15 minutes"],more:["Episodes increasing over 2 days","ECG during pain: ST depression","Troponin normal on two draws","Pain eased after two nitroglycerin tablets"],cond:1,mech:"His known plaque has become unstable; a clot is partly blocking the LAD."}],
+  names:["Variant (Prinzmetal) angina","Unstable angina","STEMI","Stable angina"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["Clean arteries with short-lived ST elevation from spasm vs. a known plaque with ST depression",1,"Spasm vs. plaque rupture."],["Pain at rest",0,"Both have pain at rest."],["Normal troponin",0,"Both are normal."],["Relief with nitroglycerin",0,"Nitrates help both."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Teach to take a calcium channel blocker as ordered and to stop smoking",0,"Prevents spasm."],["Anticipate heparin and dual antiplatelet therapy",1,"Unstable angina is ACS."],["Nitroglycerin SL for episodes",2,"Relieves both spasm and ischemia."],["Avoid triggers such as cocaine and cold exposure",0,"Cocaine and cold can each trigger coronary spasm."],["Schedule an exercise stress test for today",3,"Unsafe in unstable angina and unhelpful for spasm."]]},
+  fac:["How can ST elevation appear without an MI?","Why would a calcium channel blocker help Nadia?","What makes Earl's angina unstable?"]},
+
+ {cc:"Trouble after the MI",
+  pts:[{who:"Walter, 72",ctx:"Day 3 after an inferior MI",first:["Suddenly very short of breath","Anxious, SpO₂ 86%"],more:["New loud holosystolic murmur at the apex","Crackles throughout both lungs","BP 96/60, HR 118"],cond:0,mech:"The muscle that anchors the mitral valve tore. The valve flops open in systole and blood floods back toward the lungs."},
+       {who:"Joan, 66",ctx:"Week 3 after an anterior MI",first:["Sharp chest pain, worse with a deep breath","Feels feverish"],more:["T 100.8 °F","Pericardial friction rub","Pain better leaning forward","BP 132/78, HR 92"],cond:1,mech:"An immune reaction inflames the pericardium weeks after the MI."},
+       {who:"Victor, 70",ctx:"Day 4 after a large anterior MI",first:["Sudden chest pain and collapse","BP 70/50"],more:["JVD at 45°","Heart sounds muffled","Rhythm on the monitor but a weak, thready pulse"],cond:2,mech:"The dead, softened wall tore. Blood fills the pericardium and squeezes the heart (tamponade)."}],
+  names:["Papillary muscle rupture","Dressler syndrome","Ventricular free wall rupture","Reinfarction"],
+  tell:{q:"Which finding points to Dressler syndrome rather than the other two?",o:[["Fever and a friction rub weeks after the MI",1,"Timing plus signs of inflammation."],["Chest pain",0,"All three have chest pain."],["Tachycardia",0,"Nonspecific."],["An anterior MI",0,"Victor also had an anterior MI."]]},
+  act:{cols:["A","B","C","All"],rows:[["Prepare for emergency mitral valve surgery",0,"A torn papillary muscle needs surgical repair."],["Give aspirin or colchicine as ordered for the inflammation",1,"Treats Dressler syndrome."],["Prepare for emergency pericardiocentesis and surgery",2,"Relieve the tamponade and repair the wall."],["Report the new finding to the provider now",3,"Every new finding after MI gets reported."],["Sit upright, give oxygen, anticipate IV diuretic for pulmonary edema",0,"Walter's lungs are flooding."]]},
+  fac:["Put the three in order of urgency. Why?","Which complication would you find first by listening to the heart?","Joan's signs look like which condition from Section 2?"]},
+
+ {cc:"STEMI, 2.5 hours from a cath lab",bonus:true,
+  pts:[{who:"Dale, 55",ctx:"Rural ED; nearest PCI center 2.5 hours away",first:["STEMI on the ECG","Symptoms started 2 hours ago"],more:["No bleeding history","BP 148/90","No prior stroke or recent surgery"],cond:0,mech:"PCI can't happen within 120 minutes, and he has no contraindications, so a fibrinolytic can dissolve the clot now."},
+       {who:"Rosa, 74",ctx:"Same rural ED, same transfer time",first:["STEMI on the ECG","Symptoms started 2 hours ago"],more:["Hemorrhagic stroke 3 years ago","BP 152/92","Takes no anticoagulants"],cond:1,mech:"A prior intracranial bleed is an absolute contraindication to fibrinolytics, so the artery has to be opened mechanically."}],
+  names:["Fibrinolytic therapy now","Immediate transfer for primary PCI","Medical management only","Emergency CABG"],
+  tell:{q:"Which finding decides the different plans?",o:[["A history of intracranial hemorrhage",1,"Any prior intracranial bleed rules out fibrinolytics."],["Age",0,"Age alone isn't a contraindication."],["Blood pressure",0,"Both are under the 180/110 concern level."],["Time since symptom onset",0,"Both are 2 hours in."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Door-to-needle goal of 30 minutes or less",0,"Fibrinolytics work best early."],["Monitor for bleeding: gums, IV sites, urine, stool and neuro changes",0,"The main risk after a fibrinolytic."],["Transfer immediately for primary PCI instead of a fibrinolytic",1,"Rosa can't receive a fibrinolytic."],["Give aspirin 162–325 mg, chewed",2,"Both have ACS."],["Hold all antiplatelet drugs until they reach the cath lab",3,"Antiplatelets start now."]]},
+  fac:["What signs tell you the fibrinolytic worked? (pain eases, ST resolves, reperfusion dysrhythmias)","Name three other absolute contraindications."]}
+];
+const STEPS=["First look","Full picture","Name it","The tell","Act","Debrief"];
+const LET=["A","B","C"]; const COL=["var(--pA)","var(--pB)","var(--pC)"];
+const S={r:0,step:0,rev:{},how:false,teams:[["Team 1",0],["Team 2",0],["Team 3",0],["Team 4",0],["Team 5",0]]};
+try{const t=JSON.parse(localStorage.getItem("acsla-board")||"null");if(Array.isArray(t)&&t.length===5)S.teams=t}catch(e){}
+function saveBoard(){try{localStorage.setItem("acsla-board",JSON.stringify(S.teams))}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rev=(k)=>(S.rev[S.r]||{})[k];
+function maxPts(rd){return 1+rd.pts.length+1+rd.act.rows.length}
+
+function renderHow(){
+  $("#howto").innerHTML=`<div><h3>How to play</h3><ol>
+   <li>Five teams of 4, each with a whiteboard. Every student commits an answer (Vevox or paper) before the team talks.</li>
+   <li><b>First look:</b> teams may lock in names for every patient now. All correct at first look earns a <b>+1 bonus</b>.</li>
+   <li><b>Full picture:</b> new findings appear in bold. Teams may change answers (no bonus).</li>
+   <li><b>Name it:</b> teams write each patient letter with an option number (for example A-2, B-1). 1 point per correct patient.</li>
+   <li><b>The tell:</b> write one option number. 1 point.</li>
+   <li><b>Act:</b> write a column for each numbered action (1-A, 2-Both…). 1 point per correct row; teams self-score.</li>
+   <li><b>Debrief</b> 2 minutes per round, using the prompts.</li></ol></div>
+   <div><h3>Suggested 3-hour session</h3><table>
+   <tr><td class="num">0:00</td><td>Vevox warm-up: 5 recall questions from the prep</td><td class="num">10</td></tr>
+   <tr><td class="num">0:10</td><td>Micro-lecture: the ACS spectrum and atypical presentations</td><td class="num">20</td></tr>
+   <tr><td class="num">0:30</td><td>Look-Alikes Rounds 1–2</td><td class="num">20</td></tr>
+   <tr><td class="num">0:50</td><td>Micro-lecture: the first 10 minutes, ACS drugs, reperfusion</td><td class="num">20</td></tr>
+   <tr><td class="num">1:10</td><td>Look-Alikes Rounds 3–4</td><td class="num">20</td></tr>
+   <tr><td class="num">1:30</td><td>Break</td><td class="num">10</td></tr>
+   <tr><td class="num">1:40</td><td>Micro-lecture: complications, CABG, discharge teaching</td><td class="num">15</td></tr>
+   <tr><td class="num">1:55</td><td>Look-Alikes Rounds 5–6, bonus if time</td><td class="num">35</td></tr>
+   <tr><td class="num">2:30</td><td>Whole-game debrief: which pair was hardest and why</td><td class="num">15</td></tr>
+   <tr><td class="num">2:45</td><td>Exit ticket: 5 mixed questions + muddiest point</td><td class="num">10</td></tr>
+   <tr><td class="num">2:55</td><td>Buffer</td><td class="num">5</td></tr></table></div>`;
+}
+function renderRail(){
+  $("#rail").innerHTML=R.map((rd,i)=>`<button class="rd" data-r="${i}" aria-current="${S.r===i}"><span class="n">${rd.bonus?"Bonus":"Round "+(i+1)}</span><span class="l">${esc(rd.cc)}</span></button>`).join("");
+}
+function renderStage(){
+  const rd=R[S.r], st=S.step, showMore=st>=1, named=!!rev("name");
+  const pts=rd.pts.map((p,i)=>`<article class="pt" style="--c:${COL[i]}">
+     <div class="who"><span class="lt">${LET[i]}</span><div><div class="nm">${esc(p.who)}</div><div class="ctx">${esc(p.ctx)}</div></div></div>
+     <ul>${p.first.map(f=>`<li>${esc(f)}</li>`).join("")}${showMore?p.more.map(f=>`<li class="${st===1?"new":""}">${esc(f)}</li>`).join(""):""}</ul>
+     ${showMore?"":`<p class="hidden-more">${p.more.length} more findings in the full picture</p>`}
+     ${named?`<div class="ans"><b>${esc(rd.names[p.cond])}</b><span>${esc(p.mech)}</span></div>`:""}
+   </article>`).join("");
+  let task="";
+  if(st===0) task=`<h3>First look</h3><p class="instr">Same complaint, different problems. With only these findings, can your team name each patient? Lock in now for a <b>+1 bonus</b> if every name is correct. Options appear on the Name it step, so use your own words.</p>`;
+  if(st===1) task=`<h3>Full picture</h3><p class="instr">New findings are in bold. Look for the one finding that separates the patients, and change your answers if you need to.</p>`;
+  if(st===2){const r=rev("name");
+    task=`<h3>Name it</h3><p class="instr">Write each patient letter with an option number, for example <b>A-2</b>. <span class="ptsnote">1 point per patient</span></p>
+    <div class="olist">${rd.names.map((n,i)=>{const used=rd.pts.map((p,j)=>p.cond===i?LET[j]:null).filter(Boolean);
+      return `<div class="oi${r?(used.length?" right":" dim"):""}"><span class="k">${i+1}</span><span>${esc(n)}${r&&used.length?`<span class="why">Patient ${used.join(", ")}</span>`:""}</span></div>`}).join("")}</div>
+    <div class="row">${r?"":`<button class="btn" data-rev="name">Reveal names</button>`}</div>`;}
+  if(st===3){const r=rev("tell");
+    task=`<h3>The tell</h3><p class="instr">${esc(rd.tell.q)} <span class="ptsnote">1 point</span></p>
+    <div class="olist">${rd.tell.o.map((o,i)=>`<div class="oi${r?(o[1]?" right":" dim"):""}"><span class="k">${i+1}</span><span>${esc(o[0])}${r?`<span class="why">${esc(o[2])}</span>`:""}</span></div>`).join("")}</div>
+    <div class="row">${r?"":`<button class="btn" data-rev="tell">Reveal the tell</button>`}</div>`;}
+  if(st===4){const r=rev("act");
+    task=`<h3>Act</h3><p class="instr">For each numbered action, write the column it belongs to, for example <b>1-Both</b>. <span class="ptsnote">1 point per correct row</span></p>
+    <div class="tbl"><table class="act"><thead><tr><th>#</th><th>Action</th>${rd.act.cols.map(c=>`<th class="c">${c}</th>`).join("")}</tr></thead><tbody>${
+      rd.act.rows.map((row,i)=>`<tr class="${r?"has-why":""}"><td class="n">${i+1}</td><td>${esc(row[0])}</td>${rd.act.cols.map((c,j)=>`<td class="c"><span class="mark${r&&row[1]===j?" on":""}" aria-label="${r&&row[1]===j?"Correct: "+c:""}">${r&&row[1]===j?"✓":""}</span></td>`).join("")}</tr>${r?`<tr class="why"><td></td><td colspan="${rd.act.cols.length+1}">${esc(row[2])}</td></tr>`:""}`).join("")
+    }</tbody></table></div>
+    <div class="row">${r?"":`<button class="btn" data-rev="act">Reveal actions</button>`}</div>`;}
+  if(st===5) task=`<h3>Debrief</h3><div class="deb"><ul>${rd.fac.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div>`;
+  const nextLbl = st<5?`Next: ${STEPS[st+1]} →`:(S.r<R.length-1?`Next: ${R[S.r+1].bonus?"Bonus round":"Round "+(S.r+2)} →`:"");
+  $("#stage").innerHTML=`<div class="rhead"><div><div class="cc">${rd.bonus?"Bonus round":"Round "+(S.r+1)} · ${rd.pts.length} patients</div><h2>${esc(rd.cc)}</h2></div><span class="max">Up to ${maxPts(rd)} points</span></div>
+   <div class="steps">${STEPS.map((s,i)=>`<button class="sp" data-step="${i}" ${i===st?'aria-current="step"':""}>${s}</button>`).join("")}</div>
+   <div class="pts">${pts}</div>
+   <div class="task">${task}<div class="row">${st>0?`<button class="btn ghost" id="backBtn">← Back</button>`:""}${nextLbl?`<button class="btn ghost" id="nextBtn">${nextLbl}</button>`:""}</div></div>`;
+}
+function renderBoard(){
+  $("#board").innerHTML=`<span class="lbl">Teams</span>${S.teams.map((t,i)=>`<div class="team"><input class="tn" id="tn${i}" value="${esc(t[0])}" aria-label="Team ${i+1} name"><input class="tp" id="tp${i}" inputmode="numeric" value="${t[1]}" aria-label="Team ${i+1} points"><button data-team="${i}" data-d="-1" aria-label="Subtract a point">−</button><button data-team="${i}" data-d="1" aria-label="Add a point">+</button></div>`).join("")}<button class="chip reset" id="resetBoard">Reset scores</button>`;
+}
+function renderAll(){renderRail();renderStage();}
+
+let resetArmed=false;
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.id==="howBtn"){S.how=!S.how;b.setAttribute("aria-pressed",S.how);$("#howto").hidden=!S.how;return;}
+  if(b.dataset.r!=null){S.r=+b.dataset.r;S.step=0;renderAll();return;}
+  if(b.dataset.step!=null){S.step=+b.dataset.step;renderStage();return;}
+  if(b.dataset.rev){(S.rev[S.r]=S.rev[S.r]||{})[b.dataset.rev]=true;renderStage();return;}
+  if(b.id==="nextBtn"){if(S.step<5)S.step++;else{S.r++;S.step=0;}renderAll();window.scrollTo({top:0,behavior:"smooth"});return;}
+  if(b.id==="backBtn"){S.step=Math.max(0,S.step-1);renderStage();return;}
+  if(b.dataset.team!=null){const i=+b.dataset.team;S.teams[i][1]=Math.max(0,(+S.teams[i][1]||0)+ +b.dataset.d);saveBoard();renderBoard();return;}
+  if(b.id==="resetBoard"){if(!resetArmed){resetArmed=true;b.textContent="Tap again to reset";setTimeout(()=>{resetArmed=false;const x=$("#resetBoard");if(x)x.textContent="Reset scores"},3000);return;}
+    S.teams.forEach(t=>t[1]=0);resetArmed=false;saveBoard();renderBoard();return;}
+});
+document.addEventListener("input",e=>{
+  let m=e.target.id.match(/^tn(\d)$/);if(m){S.teams[+m[1]][0]=e.target.value;saveBoard();return;}
+  m=e.target.id.match(/^tp(\d)$/);if(m){S.teams[+m[1]][1]=Math.max(0,parseInt(e.target.value,10)||0);saveBoard();}
+});
+renderHow();renderAll();renderBoard();
+</script>
+
+</body></html>

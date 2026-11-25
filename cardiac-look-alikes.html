@@ -1,0 +1,287 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cardiac Look-Alikes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: projector screen. Round rail on top, then the look-alike patients side by side as bedside cards, then the current step's question under them; scoreboard docked at the bottom. Same palette as After the Storm so Unit 4 reads as one set. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb; --ink:#18202e; --muted:#5a6476; --line:#d7dde6;
+  --accent:#b8314b; --accent-soft:#f8e3e8; --ok:#1d7349; --ok-soft:#e1f2e8; --bad:#b03a2e; --bad-soft:#f9e4e1;
+  --warn:#9a5b00; --warn-soft:#fbefd9; --sel:#1f4f8f; --sel-soft:#e2ecf8;
+  --pA:#1f4f8f; --pB:#8a3d8f; --pC:#1d7349;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45;
+  --pA:#8db8f2; --pB:#d79be0; --pC:#5ccb92; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45;
+  --pA:#8db8f2; --pB:#d79be0; --pC:#5ccb92; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+.wrap{max-width:1400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 120px;display:flex;flex-direction:column;gap:14px}
+
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.brand{font-family:var(--display);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.brand b{display:block;font-size:34px;letter-spacing:.02em;text-transform:none;color:var(--ink);font-weight:700}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:700}
+
+.rail{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.rd{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.rd .n{font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rd .l{font-weight:700;font-size:15px;line-height:1.25}
+.rd[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+
+.howto{background:var(--warn-soft);border:1px solid var(--warn);border-radius:10px;padding:16px 18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.howto h3{font-size:20px;color:var(--warn);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.howto ol,.howto ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:16px}
+.howto table{border-collapse:collapse;width:100%;font-size:15px}
+.howto td{padding:3px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.howto td.num{font-family:var(--mono);white-space:nowrap}
+
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:16px}
+.rhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.rhead h2{font-size:38px}
+.rhead .cc{font-family:var(--display);text-transform:uppercase;letter-spacing:.12em;font-size:15px;color:var(--accent);font-weight:700}
+.max{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.steps{display:flex;gap:4px;flex-wrap:wrap}
+.sp{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 12px;font-size:15px;font-weight:700;color:var(--muted)}
+.sp[aria-current="step"]{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.pts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.pt{border:2px solid var(--line);border-top:6px solid var(--c);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:var(--surface);min-width:0}
+.pt .who{display:flex;gap:10px;align-items:baseline}
+.pt .lt{font-family:var(--display);font-size:40px;font-weight:700;color:var(--c);line-height:.9}
+.pt .nm{font-weight:700;font-size:19px}
+.pt .ctx{color:var(--muted);font-size:15px}
+.pt ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.pt li.new{font-weight:700}
+.pt li.new::marker{color:var(--accent)}
+.newtag{font-family:var(--display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-left:6px}
+.hidden-more{color:var(--muted);font-style:italic;font-size:15px}
+.ans{border-radius:8px;background:var(--ok-soft);border:1px solid var(--ok);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.ans b{color:var(--ok);font-size:19px}
+.ans span{font-size:15px}
+
+.task{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:12px}
+.task h3{font-size:26px}
+.instr{font-size:17px;max-width:78ch}
+.instr b{color:var(--accent)}
+.olist{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.oi{display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface-2);border:2px solid var(--line);border-radius:8px;padding:10px 12px}
+.oi .k{font-family:var(--mono);font-weight:600;font-size:18px;width:30px;height:30px;border-radius:50%;background:var(--surface);border:2px solid var(--muted);display:grid;place-items:center}
+.oi.right{border-color:var(--ok);background:var(--ok-soft)} .oi.right .k{border-color:var(--ok);background:var(--ok);color:var(--surface)}
+.oi.dim{opacity:.55}
+.oi .why{display:block;font-size:15px;color:var(--muted);margin-top:4px}
+.oi.right .why{color:var(--ink)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table.act{border-collapse:collapse;width:100%;font-size:17px}
+.act th,.act td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+.act th{font-family:var(--display);font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+.act th.c,.act td.c{text-align:center;width:90px}
+.act td.n{font-family:var(--mono);width:36px;color:var(--muted)}
+.mark{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;border:2px solid var(--line)}
+.mark.on{background:var(--ok);border-color:var(--ok);color:var(--surface);font-weight:700}
+.act tr.why td{font-size:15px;color:var(--muted);padding-top:0;border-bottom:1px solid var(--line)}
+.act tr.has-why td{border-bottom:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:8px;padding:10px 18px;font-weight:700;background:var(--accent);color:#fff}
+.btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.ptsnote{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.deb{background:var(--warn-soft);border:1px solid var(--warn);border-radius:8px;padding:14px 16px}
+.deb ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+
+.board{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-block:8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.board .in{max-width:1400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:10px;align-items:center;overflow-x:auto}
+.board .lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:14px;white-space:nowrap}
+.team{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 10px;white-space:nowrap}
+.team input.tn{width:80px;border:0;background:transparent;font-weight:700}
+.team input.tp{width:3.2ch;border:0;background:transparent;font-family:var(--mono);font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.team button{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:30px;height:30px;font-weight:700}
+.board .reset{margin-left:auto;font-size:14px;white-space:nowrap}
+
+@media (max-width:1000px){.rail{grid-template-columns:repeat(4,minmax(0,1fr))}.howto{grid-template-columns:1fr}.rhead h2{font-size:30px}}
+@media (max-width:520px){.rail{grid-template-columns:repeat(2,minmax(0,1fr))}body{font-size:17px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Unit 4 · Section 2 · Cardiac Conditions<b>Cardiac Look-Alikes</b></div>
+    <div class="tools">
+      <button class="chip" id="howBtn" aria-pressed="false">How to run</button>
+    </div>
+  </header>
+  <section class="howto" id="howto" hidden></section>
+  <nav class="rail" id="rail" aria-label="Rounds"></nav>
+  <section class="stage" id="stage" aria-live="polite"></section>
+</div>
+<div class="board" aria-label="Team scoreboard"><div class="in" id="board"></div></div>
+
+<script>
+const R=[
+ {cc:"Short of breath and tired",
+  pts:[{who:"Ruth, 74",ctx:"Admitted from home",first:["Can't lie flat; sleeps on 3 pillows","Wakes up gasping at night"],more:["Crackles in both lung bases","SpO₂ 90% on room air","Coughing pink, frothy sputum","S3 heart sound","BP 168/96"],cond:0,mech:"The weak left ventricle can't move blood forward, so pressure backs up into the pulmonary veins and fluid leaks into the alveoli."},
+       {who:"Walt, 66",ctx:"15-year history of COPD",first:["Ankles too swollen for his shoes","Weight up 4 kg (9 lb) this week"],more:["JVD at 45°","3+ pitting edema to the knees","Enlarged, tender liver; abdomen distended","Lungs diminished but no crackles"],cond:1,mech:"Long-standing lung disease raises pulmonary artery pressure. The right ventricle fails and blood backs up into the body's veins (cor pulmonale)."}],
+  names:["Left-sided heart failure","Right-sided heart failure","Pneumonia","Cardiac tamponade"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["Where the fluid shows up: lungs (crackles, frothy sputum) vs. body (JVD, edema, liver)",1,"Left-sided failure backs up into the lungs; right-sided failure backs up into the systemic veins."],["Weight gain",0,"Both can gain weight from fluid."],["Shortness of breath",0,"Both are short of breath."],["Age",0,"Both are older adults."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Daily weight on the same scale; report a gain of 2–3 lb in a day",2,"Both are retaining fluid."],["Give oxygen targeting SpO₂ 88–92%",1,"Walt has COPD; a lower target avoids blunting his drive to breathe."],["Prepare IV furosemide now for acute pulmonary edema and recheck lung sounds",0,"Ruth's alveoli are flooding; she needs rapid diuresis."],["Limit sodium as ordered and teach label reading",2,"Sodium holds water in both."],["Give a 1 L normal saline bolus to improve output",3,"Extra volume worsens both."]]},
+  fac:["Where is the blood backing up in each patient, and why?","Why is Walt's oxygen target lower than Ruth's?","Ruth has an S3. What does that tell you? (Link to Section 1.)"]},
+
+ {cc:"Low blood pressure, fast heart rate",
+  pts:[{who:"Joyce, 71",ctx:"Day 1 after hip replacement",first:["BP 82/50, HR 124","Restless and anxious"],more:["Neck veins flat even lying flat","Lungs clear","Skin cool, pale, clammy","Urine output 10 mL/hr","Hemoglobin 13.1 → 8.4 g/dL","Hip dressing saturated with blood"],cond:0,mech:"Blood loss empties the tank. Preload drops, stroke volume falls, and the body clamps down vessels to compensate."},
+       {who:"Darnell, 59",ctx:"Dilated cardiomyopathy, EF 15%",first:["BP 84/58, HR 118","Restless and anxious"],more:["JVD at 45°","Crackles halfway up both lungs","New S3","Skin cool, pale, clammy","Urine output 15 mL/hr"],cond:1,mech:"The weak muscle can't squeeze. Output falls while blood backs up into the lungs: a full tank with a failing pump."}],
+  names:["Hypovolemic shock","Cardiogenic shock","Septic shock","Neurogenic shock"],
+  tell:{q:"Both are cold and fast. Which finding best tells them apart?",o:[["Volume status: flat neck veins and clear lungs vs. JVD and crackles",1,"The difference is preload: empty in A, overfull in B."],["Heart rate",0,"Both are tachycardic from compensation."],["Skin temperature",0,"Both are cool and clammy from vasoconstriction."],["Urine output",0,"Both have low output from poor kidney perfusion."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Give blood products and IV fluids rapidly as ordered",0,"Replace what Joyce lost."],["Anticipate an inotrope such as dobutamine",1,"Helps Darnell's weak muscle squeeze."],["Measure urine output every hour",2,"Tracks kidney perfusion in any shock."],["Watch closely for worsening crackles with any fluid given",1,"Darnell's lungs are already wet."],["Hold oxygen until an ABG result comes back",3,"Both need oxygen now."]]},
+  fac:["Both are cold and fast. What one assessment would you do first to tell them apart?","Why can a fluid bolus save Joyce but harm Darnell?","What compensation do you see in both? (tachycardia, vasoconstriction, low urine output)"]},
+
+ {cc:"Chest pain after a cold",
+  pts:[{who:"Marcus, 34",ctx:"Had a cold last week",first:["Sharp chest pain for 2 days","Worse when he breathes in or lies down"],more:["Better sitting up and leaning forward","Scratchy, high-pitched sound at the left sternal border","T 100.6 °F","BP 128/80, HR 96","Heart sounds normal in loudness"],cond:0,mech:"The inflamed pericardium rubs against the heart with each beat and breath."},
+       {who:"Denise, 52",ctx:"Admitted 3 days ago with pericarditis",first:["Now short of breath and anxious","Vague chest pressure"],more:["BP 86/72 (narrow pulse pressure)","JVD at 45°","Heart sounds muffled and distant","SBP drops 18 mm Hg when she breathes in","HR 128"],cond:1,mech:"Fluid fills the pericardial sac and squeezes the heart. The ventricles can't fill, so preload and output crash."}],
+  names:["Acute pericarditis","Cardiac tamponade","Infective endocarditis","Pneumothorax"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["Muffled heart sounds with hypotension and JVD",1,"Beck's triad: the heart is being compressed."],["Chest pain",0,"Both have chest discomfort."],["A history of inflammation",0,"Pericarditis can lead to tamponade, so both share it."],["Tachycardia",0,"Nonspecific."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Give NSAIDs or colchicine; position sitting up, leaning forward",0,"Treats the inflammation and eases the pain."],["Call the rapid response team and prepare for pericardiocentesis",1,"Removing the fluid is the only fix."],["Give IV fluids to support preload while the procedure is set up",1,"A compressed heart needs filling pressure."],["Monitor heart sounds, BP and pulsus paradoxus for change",2,"Marcus could progress to tamponade."],["Give nitroglycerin for the chest pain",3,"Not indicated for A; it would drop preload and BP in B."]]},
+  fac:["What changed between Marcus's picture and Denise's? Which finding scared you most?","Why do fluids help in tamponade but not in cardiogenic shock?","What type of shock is tamponade? (obstructive)"]},
+
+ {cc:"Fainted during exertion",
+  pts:[{who:"Jordan, 19",ctx:"College basketball player",first:["Passed out during practice","Chest tightness with hard exercise"],more:["Uncle died suddenly at age 30","Harsh systolic murmur along the left sternal border","Murmur gets louder when he stands or bears down","Echo: very thick septum narrowing the outflow tract"],cond:0,mech:"The thick septum blocks blood leaving the left ventricle. Less filling (dehydration, standing, bearing down) makes the blockage worse."},
+       {who:"Eleanor, 81",ctx:"Lives alone",first:["Passed out climbing stairs","Chest tightness with exertion"],more:["Short of breath after one flight","Crescendo-decrescendo systolic murmur at 2nd ICS, right sternal border","Murmur radiates to the carotids","Echo: calcified, narrowed aortic valve"],cond:1,mech:"A stiff, narrowed valve limits how much blood can leave the ventricle, so the brain and heart muscle get too little during exertion."}],
+  names:["Hypertrophic cardiomyopathy","Aortic stenosis","Dilated cardiomyopathy","Mitral regurgitation"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["Age and family history, plus a murmur that gets louder with standing or bearing down",1,"HCM is inherited and shows up young; its murmur grows louder when filling drops. Aortic stenosis is a disease of aging valves."],["Fainting with exertion",0,"Both faint because outflow is limited."],["A systolic murmur",0,"Both have systolic murmurs."],["Chest tightness",0,"Both have exertional chest pain."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Avoid competitive sports; screen first-degree relatives",0,"HCM is inherited and can cause sudden death with exertion."],["Prepare for aortic valve replacement (surgical or TAVR)",1,"Replacing the valve is the definitive treatment."],["Use caution with nitrates and diuretics",2,"Both depend on preload; dropping it can cause collapse."],["Give a beta-blocker as ordered to slow the rate and improve filling",0,"Longer diastole means more filling and less obstruction in HCM."],["Encourage high-intensity exercise to strengthen the heart",3,"Unsafe for both."]]},
+  fac:["Why does standing make Jordan's murmur louder?","Both are preload dependent. What does that mean for nitroglycerin?","Name the classic triad of aortic stenosis. (angina, syncope, heart failure)"]},
+
+ {cc:"Fever and feeling run down",
+  pts:[{who:"Tyler, 29",ctx:"Seen in the ED",first:["Fever and night sweats for 1 week","Very tired, aching joints"],more:["Injects drugs; track marks on both arms","New systolic murmur","Thin red-brown lines under the fingernails","Painless red spots on the palms","T 102.2 °F"],cond:0,mech:"Bacteria form vegetations on a valve. Pieces break off as emboli to the skin, brain, kidneys or lungs."},
+       {who:"Priya, 24",ctx:"Graduate student",first:["Flu-like illness 2 weeks ago","Very tired, low-grade fever"],more:["Short of breath with mild activity","HR 118 at rest","Crackles at the bases and an S3","Troponin elevated","Echo: weak, mildly enlarged left ventricle; valves normal"],cond:1,mech:"A virus inflames the heart muscle, weakening contraction and causing heart failure signs and dysrhythmias."}],
+  names:["Infective endocarditis","Myocarditis","Acute pericarditis","Septic shock"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["A new murmur with embolic skin signs vs. heart failure signs with normal valves",1,"Endocarditis damages a valve and throws emboli; myocarditis weakens the muscle."],["Fever",0,"Both have fever."],["Fatigue",0,"Both are fatigued."],["Age",0,"Both are young adults."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Draw blood cultures from separate sites before the first antibiotic",0,"Antibiotics first can make the cultures negative."],["Teach about 4–6 weeks of IV antibiotics and PICC line care",0,"Vegetations need long treatment."],["Limit activity and avoid strenuous exercise for months",1,"Inflamed muscle needs time to heal; exertion can trigger dysrhythmias."],["Monitor for heart failure and dysrhythmias",2,"Both can damage the heart's pumping and rhythm."],["Start antibiotics now and draw cultures later if time allows",3,"Cultures always come first."]]},
+  fac:["Janeway lesions vs. Osler nodes: which is painful? (Osler)","Why must cultures come before antibiotics?","Priya looks like which patient from Round 1? Why?"]},
+
+ {cc:"Hypotension, three ways",
+  pts:[{who:"Gloria, 70",ctx:"Brought in by her daughter",first:["BP 84/48, HR 120","Confused; burning on urination for 3 days"],more:["T 102.6 °F","Skin warm and flushed","RR 26","Lactate 4.6 mmol/L","WBC 18,400/mm³"],cond:0,mech:"Infection triggers widespread vasodilation and leaky capillaries, so blood pools in the periphery."},
+       {who:"Andre, 28",ctx:"Admitted for cellulitis",first:["BP 78/40, HR 132","IV antibiotic started 10 minutes ago"],more:["Hives across the chest","Wheezing and a hoarse voice","Lips and tongue swelling","Says he feels a sense of doom"],cond:1,mech:"Histamine release dilates vessels, leaks fluid and constricts the airways within minutes."},
+       {who:"Liam, 22",ctx:"Diving accident",first:["BP 80/46, HR 48","C6 spinal cord injury"],more:["Skin warm and dry below the injury","No movement or sensation below the shoulders","Lungs clear","T 96.8 °F"],cond:2,mech:"Lost sympathetic tone below the injury: vessels dilate and the heart rate can't speed up."}],
+  names:["Septic shock","Anaphylactic shock","Neurogenic shock","Hypovolemic shock"],
+  tell:{q:"All three are distributive shock. Which finding sets Liam apart from the other two?",o:[["Hypotension with a slow heart rate",1,"Every other shock speeds the heart. Neurogenic shock removes the sympathetic push."],["Warm skin",0,"Gloria is warm too."],["Hypotension",0,"All three are hypotensive."],["A recent new medication",0,"That points to Andre."]]},
+  act:{cols:["A","B","C","All"],rows:[["Give epinephrine IM and stop the infusing drug",1,"First-line for anaphylaxis."],["Draw blood cultures, then give antibiotics within 1 hour",0,"Sepsis bundle."],["Give atropine for symptomatic bradycardia; keep the spine immobilized",2,"Treats the lost sympathetic tone and protects the cord."],["Give IV crystalloids and a vasopressor as needed for MAP ≥ 65",3,"All three have dilated vessels and low pressure."],["Recheck lactate after the fluid bolus",0,"Lactate shows whether perfusion is improving in sepsis."]]},
+  fac:["What do all distributive shocks share? (vasodilation, low SVR)","Why is Liam's heart rate slow when the others are fast?","In which patient is the airway the first priority?"]},
+
+ {cc:"Short of breath with a murmur",bonus:true,
+  pts:[{who:"Grace, 58",ctx:"Rheumatic fever as a child",first:["Short of breath with activity","Heart flutters; irregular pulse"],more:["Low-pitched rumbling diastolic murmur at the apex","Atrial fibrillation on the monitor","Coughed up blood-streaked sputum"],cond:0,mech:"The narrowed mitral valve blocks blood leaving the left atrium. The atrium enlarges (AFib) and pressure backs up into the lungs."},
+       {who:"Ray, 70",ctx:"MI 6 months ago",first:["Short of breath with activity","Increasing fatigue"],more:["Blowing holosystolic murmur at the apex, radiating to the left axilla","S3 heart sound","Echo: leaky mitral valve, enlarged left ventricle"],cond:1,mech:"The leaky mitral valve lets blood flow back into the atrium with each squeeze, overloading the left ventricle."}],
+  names:["Mitral stenosis","Mitral regurgitation","Aortic stenosis","Aortic regurgitation"],
+  tell:{q:"Which finding best tells A and B apart?",o:[["The timing of the murmur: diastolic rumble vs. holosystolic blowing murmur",1,"Stenosis is heard when the valve should be open (diastole for mitral); regurgitation when it should be closed (systole)."],["Dyspnea",0,"Both are short of breath."],["Murmur loudest at the apex",0,"Both mitral murmurs are loudest at the apex."],["Age",0,"Not distinguishing."]]},
+  act:{cols:["A","B","Both","Neither"],rows:[["Anticoagulate as ordered to lower stroke risk from atrial fibrillation",0,"Blood pools in Grace's enlarged atrium."],["Slow the heart rate as ordered to lengthen diastole for filling",0,"More time for blood to cross the narrow valve."],["Teach to report worsening dyspnea, weight gain or swelling",2,"Both can progress to heart failure."],["Follow left ventricular size on repeat echocardiograms",1,"Ray's ventricle is enlarging from the extra volume."],["Lie flat to ease breathing",3,"Lying flat worsens pulmonary congestion."]]},
+  fac:["Use the rule: stenosis is heard when the valve should be open. Apply it to all four valve problems.","Why does a fast heart rate hurt Grace more than Ray?"]}
+];
+const STEPS=["First look","Full picture","Name it","The tell","Act","Debrief"];
+const LET=["A","B","C"]; const COL=["var(--pA)","var(--pB)","var(--pC)"];
+const S={r:0,step:0,rev:{},how:false,teams:[["Team 1",0],["Team 2",0],["Team 3",0],["Team 4",0],["Team 5",0]]};
+try{const t=JSON.parse(localStorage.getItem("cla-board")||"null");if(Array.isArray(t)&&t.length===5)S.teams=t}catch(e){}
+function saveBoard(){try{localStorage.setItem("cla-board",JSON.stringify(S.teams))}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rev=(k)=>(S.rev[S.r]||{})[k];
+function maxPts(rd){return 1+rd.pts.length+1+rd.act.rows.length}
+
+function renderHow(){
+  $("#howto").innerHTML=`<div><h3>How to play</h3><ol>
+   <li>Five teams of 4, each with a whiteboard. Every student commits an answer (Vevox or paper) before the team talks.</li>
+   <li><b>First look:</b> teams may lock in names for every patient now. All correct at first look earns a <b>+1 bonus</b>.</li>
+   <li><b>Full picture:</b> new findings appear in bold. Teams may change answers (no bonus).</li>
+   <li><b>Name it:</b> teams write each patient letter with an option number (for example A-2, B-1). 1 point per correct patient.</li>
+   <li><b>The tell:</b> write one option number. 1 point.</li>
+   <li><b>Act:</b> write a column for each numbered action (1-A, 2-Both…). 1 point per correct row; teams self-score.</li>
+   <li><b>Debrief</b> 2 minutes per round, using the prompts.</li></ol></div>
+   <div><h3>Suggested 3-hour session</h3><table>
+   <tr><td class="num">0:00</td><td>Vevox warm-up: 5 recall questions from the prep</td><td class="num">10</td></tr>
+   <tr><td class="num">0:10</td><td>Micro-lecture: heart failure and HF medications</td><td class="num">20</td></tr>
+   <tr><td class="num">0:30</td><td>Micro-lecture: shock types and hemodynamics</td><td class="num">15</td></tr>
+   <tr><td class="num">0:45</td><td>Look-Alikes Rounds 1–2</td><td class="num">20</td></tr>
+   <tr><td class="num">1:05</td><td>Micro-lecture: inflammatory, infectious, valve and muscle disease</td><td class="num">20</td></tr>
+   <tr><td class="num">1:25</td><td>Break</td><td class="num">10</td></tr>
+   <tr><td class="num">1:35</td><td>Look-Alikes Rounds 3–6, bonus if time (mixed topics)</td><td class="num">45</td></tr>
+   <tr><td class="num">2:20</td><td>Whole-game debrief: which pair was hardest and why</td><td class="num">15</td></tr>
+   <tr><td class="num">2:35</td><td>Exit ticket: 5 mixed questions + muddiest point</td><td class="num">10</td></tr>
+   <tr><td class="num">2:45</td><td>Muddiest points from the prep, buffer</td><td class="num">15</td></tr></table></div>`;
+}
+function renderRail(){
+  $("#rail").innerHTML=R.map((rd,i)=>`<button class="rd" data-r="${i}" aria-current="${S.r===i}"><span class="n">${rd.bonus?"Bonus":"Round "+(i+1)}</span><span class="l">${esc(rd.cc)}</span></button>`).join("");
+}
+function renderStage(){
+  const rd=R[S.r], st=S.step, showMore=st>=1, named=!!rev("name");
+  const pts=rd.pts.map((p,i)=>`<article class="pt" style="--c:${COL[i]}">
+     <div class="who"><span class="lt">${LET[i]}</span><div><div class="nm">${esc(p.who)}</div><div class="ctx">${esc(p.ctx)}</div></div></div>
+     <ul>${p.first.map(f=>`<li>${esc(f)}</li>`).join("")}${showMore?p.more.map(f=>`<li class="${st===1?"new":""}">${esc(f)}</li>`).join(""):""}</ul>
+     ${showMore?"":`<p class="hidden-more">${p.more.length} more findings in the full picture</p>`}
+     ${named?`<div class="ans"><b>${esc(rd.names[p.cond])}</b><span>${esc(p.mech)}</span></div>`:""}
+   </article>`).join("");
+  let task="";
+  if(st===0) task=`<h3>First look</h3><p class="instr">Same complaint, different problems. With only these findings, can your team name each patient? Lock in now for a <b>+1 bonus</b> if every name is correct. Options appear on the Name it step, so use your own words.</p>`;
+  if(st===1) task=`<h3>Full picture</h3><p class="instr">New findings are in bold. Look for the one finding that separates the patients, and change your answers if you need to.</p>`;
+  if(st===2){const r=rev("name");
+    task=`<h3>Name it</h3><p class="instr">Write each patient letter with an option number, for example <b>A-2</b>. <span class="ptsnote">1 point per patient</span></p>
+    <div class="olist">${rd.names.map((n,i)=>{const used=rd.pts.map((p,j)=>p.cond===i?LET[j]:null).filter(Boolean);
+      return `<div class="oi${r?(used.length?" right":" dim"):""}"><span class="k">${i+1}</span><span>${esc(n)}${r&&used.length?`<span class="why">Patient ${used.join(", ")}</span>`:""}</span></div>`}).join("")}</div>
+    <div class="row">${r?"":`<button class="btn" data-rev="name">Reveal names</button>`}</div>`;}
+  if(st===3){const r=rev("tell");
+    task=`<h3>The tell</h3><p class="instr">${esc(rd.tell.q)} <span class="ptsnote">1 point</span></p>
+    <div class="olist">${rd.tell.o.map((o,i)=>`<div class="oi${r?(o[1]?" right":" dim"):""}"><span class="k">${i+1}</span><span>${esc(o[0])}${r?`<span class="why">${esc(o[2])}</span>`:""}</span></div>`).join("")}</div>
+    <div class="row">${r?"":`<button class="btn" data-rev="tell">Reveal the tell</button>`}</div>`;}
+  if(st===4){const r=rev("act");
+    task=`<h3>Act</h3><p class="instr">For each numbered action, write the column it belongs to, for example <b>1-Both</b>. <span class="ptsnote">1 point per correct row</span></p>
+    <div class="tbl"><table class="act"><thead><tr><th>#</th><th>Action</th>${rd.act.cols.map(c=>`<th class="c">${c}</th>`).join("")}</tr></thead><tbody>${
+      rd.act.rows.map((row,i)=>`<tr class="${r?"has-why":""}"><td class="n">${i+1}</td><td>${esc(row[0])}</td>${rd.act.cols.map((c,j)=>`<td class="c"><span class="mark${r&&row[1]===j?" on":""}" aria-label="${r&&row[1]===j?"Correct: "+c:""}">${r&&row[1]===j?"✓":""}</span></td>`).join("")}</tr>${r?`<tr class="why"><td></td><td colspan="${rd.act.cols.length+1}">${esc(row[2])}</td></tr>`:""}`).join("")
+    }</tbody></table></div>
+    <div class="row">${r?"":`<button class="btn" data-rev="act">Reveal actions</button>`}</div>`;}
+  if(st===5) task=`<h3>Debrief</h3><div class="deb"><ul>${rd.fac.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div>`;
+  const nextLbl = st<5?`Next: ${STEPS[st+1]} →`:(S.r<R.length-1?`Next: ${R[S.r+1].bonus?"Bonus round":"Round "+(S.r+2)} →`:"");
+  $("#stage").innerHTML=`<div class="rhead"><div><div class="cc">${rd.bonus?"Bonus round":"Round "+(S.r+1)} · ${rd.pts.length} patients</div><h2>${esc(rd.cc)}</h2></div><span class="max">Up to ${maxPts(rd)} points</span></div>
+   <div class="steps">${STEPS.map((s,i)=>`<button class="sp" data-step="${i}" ${i===st?'aria-current="step"':""}>${s}</button>`).join("")}</div>
+   <div class="pts">${pts}</div>
+   <div class="task">${task}<div class="row">${st>0?`<button class="btn ghost" id="backBtn">← Back</button>`:""}${nextLbl?`<button class="btn ghost" id="nextBtn">${nextLbl}</button>`:""}</div></div>`;
+}
+function renderBoard(){
+  $("#board").innerHTML=`<span class="lbl">Teams</span>${S.teams.map((t,i)=>`<div class="team"><input class="tn" id="tn${i}" value="${esc(t[0])}" aria-label="Team ${i+1} name"><input class="tp" id="tp${i}" inputmode="numeric" value="${t[1]}" aria-label="Team ${i+1} points"><button data-team="${i}" data-d="-1" aria-label="Subtract a point">−</button><button data-team="${i}" data-d="1" aria-label="Add a point">+</button></div>`).join("")}<button class="chip reset" id="resetBoard">Reset scores</button>`;
+}
+function renderAll(){renderRail();renderStage();}
+
+let resetArmed=false;
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.id==="howBtn"){S.how=!S.how;b.setAttribute("aria-pressed",S.how);$("#howto").hidden=!S.how;return;}
+  if(b.dataset.r!=null){S.r=+b.dataset.r;S.step=0;renderAll();return;}
+  if(b.dataset.step!=null){S.step=+b.dataset.step;renderStage();return;}
+  if(b.dataset.rev){(S.rev[S.r]=S.rev[S.r]||{})[b.dataset.rev]=true;renderStage();return;}
+  if(b.id==="nextBtn"){if(S.step<5)S.step++;else{S.r++;S.step=0;}renderAll();window.scrollTo({top:0,behavior:"smooth"});return;}
+  if(b.id==="backBtn"){S.step=Math.max(0,S.step-1);renderStage();return;}
+  if(b.dataset.team!=null){const i=+b.dataset.team;S.teams[i][1]=Math.max(0,(+S.teams[i][1]||0)+ +b.dataset.d);saveBoard();renderBoard();return;}
+  if(b.id==="resetBoard"){if(!resetArmed){resetArmed=true;b.textContent="Tap again to reset";setTimeout(()=>{resetArmed=false;const x=$("#resetBoard");if(x)x.textContent="Reset scores"},3000);return;}
+    S.teams.forEach(t=>t[1]=0);resetArmed=false;saveBoard();renderBoard();return;}
+});
+document.addEventListener("input",e=>{
+  let m=e.target.id.match(/^tn(\d)$/);if(m){S.teams[+m[1]][0]=e.target.value;saveBoard();return;}
+  m=e.target.id.match(/^tp(\d)$/);if(m){S.teams[+m[1]][1]=Math.max(0,parseInt(e.target.value,10)||0);saveBoard();}
+});
+renderHow();renderAll();renderBoard();
+</script>
+
+</body></html>

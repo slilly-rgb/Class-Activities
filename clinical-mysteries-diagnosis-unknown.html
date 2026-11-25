@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clinical Mysteries: Diagnosis Unknown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060f0e; --panel: #0e1e1c; --panel-2: #123330; --line: #1c3a37;
+    --teal: #2fd9c4; --teal-dim: #12524a; --text: #eaf5f2; --text-dim: #92b3ae;
+    --amber: #f0b649; --amber-dim: #3d2f10; --red: #e2685a; --red-dim: #3a2220;
+    --green: #58c98f; --green-dim: #123626;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; min-height: 100%; }
+  .masthead { background: #030807; border-bottom: 1px solid var(--line); padding: 14px 20px 14px; padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
+  .masthead-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .masthead-left { display: flex; align-items: center; gap: 12px; }
+  .mark { flex-shrink: 0; }
+  .wordmark-block { display: flex; flex-direction: column; }
+  .wordmark { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 21px; letter-spacing: 0.01em; color: var(--text); line-height: 1.1; }
+  .wordmark span { color: var(--teal); }
+  .tagline { font-size: 11.5px; color: var(--text-dim); letter-spacing: 0.04em; margin-top: 2px; }
+  .org-badge { font-size: 11px; color: var(--teal); letter-spacing: 0.04em; border: 1px solid var(--teal-dim); background: rgba(47,217,196,0.08); padding: 5px 10px; border-radius: 6px; font-weight: 600; }
+  .masthead-right { display: flex; align-items: center; gap: 10px; }
+  .fs-btn { background: none; border: 1px solid var(--line); color: var(--text-dim); font-family: "Inter", sans-serif; font-size: 11.5px; font-weight: 600; padding: 6px 11px; border-radius: 7px; cursor: pointer; }
+  .fs-btn:hover { color: var(--text); border-color: var(--text-dim); }
+  .intro-disclaimer { display: flex; align-items: flex-start; gap: 10px; background: var(--amber-dim); border: 1px solid rgba(240,182,73,0.4); border-radius: 10px; padding: 13px 15px; margin-bottom: 22px; font-size: 13px; color: var(--text); line-height: 1.5; }
+  .intro-disclaimer .icon { font-size: 16px; flex-shrink: 0; }
+
+  .case-bar { max-width: 900px; margin: 0 auto; padding: 16px 20px 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .case-id { font-size: 12px; color: var(--text-dim); letter-spacing: 0.03em; margin-bottom: 4px; }
+  .case-name { font-family: "Space Grotesk", sans-serif; font-size: 26px; font-weight: 600; }
+  .case-name .age { color: var(--text-dim); font-weight: 500; font-size: 18px; }
+  .case-bar-right { display: flex; align-items: center; gap: 10px; }
+  .reset-btn { background: none; border: 1px solid var(--line); color: var(--text-dim); font-family: "Inter", sans-serif; font-size: 12px; font-weight: 600; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+  .reset-btn:hover { color: var(--text); border-color: var(--text-dim); }
+  .token-bank { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; }
+  .token-count { font-family: "Space Grotesk", sans-serif; font-size: 22px; font-weight: 600; color: var(--teal); min-width: 2ch; text-align: right; }
+  .token-label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.03em; }
+  .token-dots { display: flex; gap: 3px; margin-left: 4px; flex-wrap: wrap; max-width: 130px; }
+  .token-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); transition: background 0.3s ease, transform 0.3s ease; }
+  .token-dot.spent { background: #24413d; transform: scale(0.8); }
+
+  .presenting { max-width: 900px; margin: 14px auto 0; padding: 0 20px; }
+  .presenting p { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--teal); border-radius: 6px; padding: 14px 16px; font-size: 14.5px; line-height: 1.6; color: var(--text); margin: 0; }
+
+  .tabs { max-width: 900px; margin: 18px auto 0; padding: 0 20px; display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--line); }
+  .tab { background: none; border: none; color: var(--text-dim); font-family: "Inter", sans-serif; font-size: 13.5px; font-weight: 600; padding: 11px 14px; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 6px; transition: color 0.15s ease; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+  .tab .lock { font-size: 10px; color: var(--amber); background: rgba(240,182,73,0.12); border: 1px solid rgba(240,182,73,0.35); border-radius: 4px; padding: 1px 5px; }
+  .tab .paid-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+  .tab-diagnosis { color: var(--amber); font-weight: 700; }
+  .tab-diagnosis:hover { color: var(--amber); filter: brightness(1.15); }
+  .tab-diagnosis.active { color: var(--amber); border-bottom-color: var(--amber); }
+  .tab-conditions { padding-left: 18px; border-left: 1px solid var(--line); }
+
+  .panel { max-width: 900px; margin: 0 auto; padding: 20px 20px 60px; }
+  .locked-state { background: var(--panel); border: 1px dashed var(--line); border-radius: 10px; padding: 40px 24px; text-align: center; }
+  .locked-state .btn { margin-top: 14px; }
+  .locked-state p { color: var(--text-dim); font-size: 13.5px; margin: 6px 0 0; }
+
+  .btn { background: var(--teal); color: #04201c; border: none; font-family: "Inter", sans-serif; font-weight: 700; font-size: 13.5px; padding: 10px 18px; border-radius: 7px; cursor: pointer; transition: filter 0.15s ease, transform 0.1s ease; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { background: #1e2f2d; color: #587570; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--text-dim); border: 1px solid var(--line); font-weight: 600; }
+  .btn.ghost:hover { color: var(--text); border-color: var(--text-dim); }
+  .btn.amber { background: var(--amber); color: #2b1e05; }
+  .btn.big { padding: 14px 26px; font-size: 14.5px; }
+
+  .evidence-grid { display: flex; flex-direction: column; gap: 8px; }
+  .evidence-row { background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .evidence-label { color: var(--text-dim); font-weight: 600; font-size: 12px; letter-spacing: 0.02em; margin-bottom: 3px; }
+  .evidence-value { font-size: 14.5px; }
+  .evidence-toggle { background: var(--panel-2); color: var(--teal); border: 1px solid var(--teal-dim); font-size: 12px; font-weight: 700; padding: 7px 13px; border-radius: 6px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .evidence-toggle:hover { background: var(--teal-dim); }
+  .evidence-toggle.added { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+
+  .test-grid { display: flex; flex-direction: column; gap: 8px; }
+  .test-row { background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 13px 16px; }
+  .test-row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .test-name { font-weight: 600; font-size: 14px; }
+  .test-order-btn { background: var(--panel-2); color: var(--teal); border: 1px solid var(--teal-dim); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .test-order-btn:hover { background: var(--teal-dim); }
+  .test-order-btn:disabled { color: #587570; border-color: #1e2f2d; cursor: not-allowed; background: none; }
+  .test-result { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.55; color: var(--text); }
+  .test-evidence-row { margin-top: 10px; display: flex; justify-content: flex-end; }
+  .late-stage-row { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .late-stage-hint { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
+
+  .dx-banner { background: linear-gradient(135deg, rgba(240,182,73,0.12), rgba(240,182,73,0.02)); border: 1px solid rgba(240,182,73,0.4); border-radius: 10px; padding: 16px 18px; margin-bottom: 18px; }
+  .dx-banner-title { font-family: "Space Grotesk", sans-serif; font-size: 18px; font-weight: 700; color: var(--amber); }
+  .dx-banner-sub { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .dx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+  .dx-card { background: var(--panel); border: 1.5px solid var(--line); border-radius: 10px; padding: 14px 15px; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease; }
+  .dx-card:hover:not(.ruled-out) { border-color: var(--amber); }
+  .dx-card.selected { border-color: var(--amber); background: var(--amber-dim); }
+  .dx-card.ruled-out { opacity: 0.42; cursor: default; }
+  .dx-name { font-weight: 700; font-size: 14px; }
+  .dx-card.ruled-out .dx-name { text-decoration: line-through; color: var(--text-dim); }
+  .dx-status { font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; margin-top: 5px; }
+  .dx-status.ruled { color: var(--red); }
+  .dx-status.neutral { color: var(--text-dim); }
+  .dx-reasons { margin-top: 6px; font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
+  .diagnosis-footer { margin-top: 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .diagnosis-hint { font-size: 12.5px; color: var(--text-dim); }
+
+  .req-checklist { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+  .req-title { font-size: 12px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.03em; margin-bottom: 10px; }
+  .req-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .req-item { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line); color: var(--text-dim); }
+  .req-item.met { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(2,6,5,0.72); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px; max-width: 340px; width: 100%; }
+  .modal h3 { font-family: "Space Grotesk", sans-serif; font-size: 17px; margin: 0 0 6px; }
+  .modal p { font-size: 13.5px; color: var(--text-dim); margin: 0 0 18px; line-height: 1.5; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  .feedback-panel { border-radius: 12px; padding: 24px; border: 1.5px solid; margin-top: 18px; }
+  .feedback-panel.correct { background: var(--green-dim); border-color: var(--green); }
+  .feedback-panel.incorrect { background: var(--red-dim); border-color: var(--red); }
+  .feedback-verdict { font-family: "Space Grotesk", sans-serif; font-size: 20px; font-weight: 700; }
+  .feedback-panel.correct .feedback-verdict { color: var(--green); }
+  .feedback-panel.incorrect .feedback-verdict { color: var(--red); }
+  .feedback-body { font-size: 14px; line-height: 1.6; margin-top: 10px; }
+  .feedback-stats { margin-top: 16px; font-size: 12.5px; color: var(--text-dim); border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; }
+  .missed-clues { margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; }
+  .missed-clues-title { font-size: 13px; font-weight: 700; color: var(--text); }
+  .missed-clues-sub { font-size: 12.5px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+  .missed-clues-row { margin-top: 10px; font-size: 13px; line-height: 1.5; }
+  .missed-clues-cat { font-weight: 700; color: var(--teal); font-size: 11.5px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .missed-clues-items { color: var(--text); margin-top: 2px; }
+
+  .treatment-section { margin-top: 22px; background: var(--panel); border: 1px solid var(--teal-dim); border-radius: 12px; padding: 22px; }
+  .treatment-title { font-family: "Space Grotesk", sans-serif; font-size: 18px; font-weight: 700; color: var(--teal); }
+  .treatment-sub { font-size: 13px; color: var(--text-dim); margin-top: 5px; line-height: 1.5; }
+  .treatment-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .treatment-option { background: var(--panel-2); border: 1.5px solid var(--line); border-radius: 9px; padding: 12px 14px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; line-height: 1.5; transition: border-color 0.15s ease; }
+  .treatment-option:hover { border-color: var(--teal-dim); }
+  .treatment-option.picked { border-color: var(--teal); background: rgba(47,217,196,0.08); }
+  .treatment-option.right { border-color: var(--green); background: var(--green-dim); }
+  .treatment-option.wrong { border-color: var(--red); background: var(--red-dim); }
+  .treatment-checkbox { width: 17px; height: 17px; border-radius: 5px; border: 1.5px solid var(--text-dim); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .treatment-option.picked .treatment-checkbox { border-color: var(--teal); background: var(--teal); color: #04201c; }
+  .treatment-option.right .treatment-checkbox { border-color: var(--green); background: var(--green); color: #04201c; }
+  .treatment-option.wrong .treatment-checkbox { border-color: var(--red); background: var(--red); color: #2b0d0a; }
+  .treatment-footer { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .treatment-msg { font-size: 13px; color: var(--text-dim); }
+  .treatment-msg.success { color: var(--green); font-weight: 700; }
+  .treatment-next { margin-top: 18px; }
+
+  .complete-screen { text-align: center; padding: 60px 24px; background: var(--panel); border: 1px solid rgba(240,182,73,0.4); border-radius: 14px; }
+  .complete-title { font-family: "Space Grotesk", sans-serif; font-size: 26px; font-weight: 700; color: var(--amber); }
+  .complete-sub { color: var(--text-dim); margin-top: 10px; font-size: 14px; }
+
+  .cond-grid { display: flex; flex-direction: column; gap: 14px; }
+  .cond-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .cond-name { font-family: "Space Grotesk", sans-serif; font-size: 17px; font-weight: 700; color: var(--teal); margin-bottom: 10px; }
+  .cond-row { margin-top: 10px; }
+  .cond-row-label { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+  .cond-row-value { font-size: 13.5px; line-height: 1.55; }
+  .cond-list { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.6; }
+
+  .intro-wrap { max-width: 760px; margin: 32px auto 60px; padding: 0 20px; }
+  .intro-card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 36px 32px; }
+  .intro-org { display: inline-block; font-size: 11.5px; color: var(--teal); letter-spacing: 0.06em; font-weight: 700; text-transform: uppercase; border: 1px solid var(--teal-dim); background: rgba(47,217,196,0.08); padding: 5px 12px; border-radius: 20px; margin-bottom: 16px; }
+  .intro-title { font-family: "Space Grotesk", sans-serif; font-size: 30px; font-weight: 700; line-height: 1.15; }
+  .intro-title span { color: var(--teal); }
+  .intro-lede { margin-top: 12px; font-size: 15px; color: var(--text-dim); line-height: 1.6; }
+  .intro-section-title { font-family: "Space Grotesk", sans-serif; font-size: 15px; font-weight: 700; color: var(--amber); margin: 26px 0 10px; }
+  .intro-list { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.75; color: var(--text); }
+  .intro-list li { margin-bottom: 4px; }
+  .intro-cta { margin-top: 30px; text-align: center; }
+
+  ::-webkit-scrollbar { height: 6px; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-left">
+      <svg class="mark" width="34" height="34" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="17" cy="17" r="12" stroke="#2fd9c4" stroke-width="2.4"/>
+        <path d="M9 17 L13 17 L15 11 L18 23 L21 15 L23 17 L26 17" stroke="#2fd9c4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <line x1="26" y1="26" x2="35" y2="35" stroke="#2fd9c4" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+      <div class="wordmark-block">
+        <div class="wordmark">CLINICAL <span>MYSTERIES</span></div>
+        <div class="tagline">Investigate. Analyze. Solve.</div>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <button class="fs-btn" id="fsBtn" title="Toggle fullscreen">⛶ Fullscreen</button>
+      <div class="org-badge">THE NURSING TEAM</div>
+    </div>
+  </div>
+</div>
+
+<div id="introScreen"></div>
+
+<div id="gameScreen" style="display:none;">
+  <div class="case-bar">
+    <div>
+      <div class="case-id" id="caseId">CASE 1 OF 8</div>
+      <div class="case-name" id="caseName">— <span class="age"></span></div>
+    </div>
+    <div class="case-bar-right">
+      <button class="reset-btn" id="resetBtn">↺ Reset Case</button>
+      <div class="token-bank">
+        <div>
+          <div class="token-count" id="tokenCount">15</div>
+          <div class="token-label">TOKENS LEFT</div>
+        </div>
+        <div class="token-dots" id="tokenDots"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="presenting"><p id="presentingText"></p></div>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="panel" id="panel"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Pay 1 token?</h3>
+    <p id="modalBody"></p>
+    <div class="modal-actions">
+      <button class="btn ghost" id="modalCancel">Cancel</button>
+      <button class="btn" id="modalConfirm">Pay 1 Token</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL_TOKENS = 15;
+
+const diagnoses = [
+  { id: 'lupus',    name: 'Systemic Lupus Erythematosus' },
+  { id: 'gout',     name: 'Gout' },
+  { id: 'raynauds', name: "Raynaud's Phenomenon" },
+  { id: 'ra',       name: 'Rheumatoid Arthritis' },
+  { id: 'fibro',    name: 'Fibromyalgia' },
+  { id: 'sclero',   name: 'Scleroderma (Systemic Sclerosis)' },
+  { id: 'itp',      name: 'Immune Thrombocytopenia (ITP)' },
+  { id: 'lyme',     name: 'Lyme Disease' },
+];
+const ALL_OTHERS = (id) => diagnoses.map(d => d.id).filter(x => x !== id);
+const DEFAULT_RESULT = "Within normal limits. No additional findings.";
+
+const labsMenu = [
+  { key: 'bmp', name: 'BMP (Basic Metabolic Panel)' }, { key: 'cbc', name: 'CBC' },
+  { key: 'esr', name: 'ESR' }, { key: 'crp', name: 'CRP' }, { key: 'ana', name: 'ANA' },
+  { key: 'antidsdna', name: 'Anti-dsDNA' }, { key: 'antismith', name: 'Anti-Smith' },
+  { key: 'rf', name: 'RF (Rheumatoid Factor)' }, { key: 'anticcp', name: 'Anti-CCP' },
+  { key: 'uricacid', name: 'Uric Acid' }, { key: 'lymesero', name: 'Lyme Serology' },
+  { key: 'complement', name: 'Complement (C3/C4)' }, { key: 'sclabs', name: 'Anti-Scl-70 & Anticentromere' },
+];
+const diagnosticsMenu = [
+  { key: 'jointasp', name: 'Joint Aspiration (Synovial Fluid Analysis)' },
+  { key: 'nailfold', name: 'Nailfold Capillaroscopy' }, { key: 'ecg', name: 'ECG' },
+  { key: 'csf', name: 'CSF Analysis' }, { key: 'painindex', name: 'Widespread Pain Index / Symptom Severity Scale' },
+];
+const imagingMenu = [
+  { key: 'xray', name: 'X-ray' }, { key: 'us', name: 'Ultrasound' }, { key: 'mri', name: 'MRI' },
+  { key: 'ct', name: 'CT' }, { key: 'biopsy', name: 'Kidney Biopsy' }, { key: 'echo', name: 'Echocardiogram' },
+];
+
+// ---------- Patients ----------
+const PATIENTS = [
+{
+  id: 'maria', name: 'Maria', age: 29, correctDiagnosis: 'lupus',
+  presenting: "Fatigue for several months. Reports joint pain in both hands and knees. Says the pain seems to \"move around.\" Recently developed a red rash across her cheeks after spending a day outside. She has also noticed her urine has become unusually foamy.",
+  rationale: "The malar rash, photosensitivity, oral ulcers, polyarthralgia, and renal findings (proteinuria, RBC casts) are classic for SLE — and the family history of lupus adds further weight. The strongly positive ANA, positive anti-dsDNA and anti-Smith (highly specific for SLE), and low complement confirm active lupus — the kidney biopsy sealed it by showing immune-complex glomerulonephritis compatible with lupus nephritis.",
+  historyItems: [
+    { key:'famhx', label:'Family History', value:'Mother was diagnosed with lupus in her 40s.', support:['lupus'], ruleOut: ALL_OTHERS('lupus') },
+    { key:'photosens', label:'Sun Exposure', value:'Patient reports the facial rash consistently worsens after time in the sun.', support:['lupus'], ruleOut:['gout','raynauds','ra','fibro','sclero','itp','lyme'] },
+    { key:'occupation', label:'Occupation', value:'Works as a payroll accountant; mostly desk-based work.' },
+    { key:'travel', label:'Recent Travel', value:'Went camping in a wooded area two months ago; does not recall any tick bites.' },
+    { key:'lifestyle', label:'Lifestyle', value:'Vegetarian diet, exercises about 3 times per week.' },
+    { key:'repro', label:'Reproductive History', value:'Regular menstrual cycles, no history of pregnancy complications.' },
+    { key:'substance', label:'Substance Use', value:'Non-smoker, drinks alcohol socially.' },
+  ],
+  vitalsItems: [
+    { key:'temp', label:'Temperature', value:'99.8°F' }, { key:'hr', label:'Heart Rate', value:'92 bpm' },
+    { key:'rr', label:'Respiratory Rate', value:'18/min' }, { key:'bp', label:'Blood Pressure', value:'146/92' },
+    { key:'spo2', label:'SpO2', value:'98% on room air' }, { key:'pain', label:'Pain', value:'5/10' },
+  ],
+  examItems: [
+    { key:'general', label:'General', value:'Fatigued, appears uncomfortable' },
+    { key:'skin', label:'Skin', value:'Erythematous malar rash across cheeks and bridge of nose; spares nasolabial folds', support:['lupus'], ruleOut: ALL_OTHERS('lupus') },
+    { key:'oral', label:'Oral cavity', value:'Two small painless oral ulcers', support:['lupus'], ruleOut: ALL_OTHERS('lupus') },
+    { key:'joints', label:'Joints', value:'Mild tenderness and swelling of bilateral MCP and PIP joints', support:['lupus','ra'], ruleOut:['gout','raynauds','fibro','sclero','itp','lyme'] },
+    { key:'neuro', label:'Neurologic', value:'Alert and oriented' },
+    { key:'edema', label:'Edema', value:'1+ bilateral ankle edema', support:['lupus','sclero'] },
+    { key:'lungs', label:'Lungs', value:'Clear' }, { key:'heart', label:'Heart', value:'Regular rhythm' },
+    { key:'renal', label:'Renal', value:'Reports foamy urine and increased urinary frequency', support:['lupus','sclero'], ruleOut:['gout','raynauds','ra','fibro','itp','lyme'] },
+  ],
+  labs: {
+    bmp: { result:"Creatinine 1.4 mg/dL (elevated), BUN 27 mg/dL (elevated) — suggests renal impairment. Urinalysis reflex: 3+ protein, 2+ blood, 15–20 RBCs/hpf, RBC casts present.", support:['lupus'], ruleOut:['gout','raynauds','ra','fibro','sclero','itp','lyme'] },
+    cbc: { result:"Hgb 10.8 g/dL (low), WBC 3,200/mm³ (low), Platelets 142,000/mm³ (low-normal) — mild pancytopenia.", support:['lupus'], ruleOut:['gout','raynauds','fibro','itp','lyme'] },
+    esr: { result:"58 mm/hr (elevated).", ruleOut:['fibro','raynauds','itp'] },
+    crp: { result:"1.4 mg/dL (mildly elevated).", ruleOut:['fibro','raynauds','itp'] },
+    ana: { result:"Positive, titer 1:1280, homogeneous pattern.", support:['lupus'], ruleOut:['gout','fibro','itp','lyme','raynauds'] },
+    antidsdna: { result:"Positive, elevated.", support:['lupus'], ruleOut: ALL_OTHERS('lupus') },
+    antismith: { result:"Positive — highly specific for SLE.", support:['lupus'], ruleOut: ALL_OTHERS('lupus') },
+    complement: { result:"C3 54 mg/dL (low), C4 8 mg/dL (low). Additional panel: Direct Coombs positive; antiphospholipid antibodies negative; urine protein/creatinine ratio 1.2 g/g (elevated).", support:['lupus'] },
+  },
+  diagnostics: {},
+  imaging: {
+    xray: { result:"Chest X-ray: normal." },
+    us: { result:"Renal ultrasound: kidneys normal in size; no obstruction." },
+    biopsy: { result:"Immune-complex glomerulonephritis compatible with lupus nephritis.", support:['lupus'], ruleOut: ALL_OTHERS('lupus') },
+  },
+},
+{
+  id: 'james', name: 'James', age: 58, correctDiagnosis: 'gout',
+  presenting: "James wakes up during the night with severe pain in his right big toe. He says the pain came on suddenly and is so intense that even the bedsheet touching his toe hurts. His toe is swollen, red, and feels hot. He reports having a few beers and eating a large steak at a family celebration over the weekend. He takes medication for high blood pressure.",
+  rationale: "Sudden-onset, exquisitely tender monoarticular pain in the great toe (podagra), elevated uric acid, and synovial fluid showing needle-shaped, negatively birefringent crystals (with the double-contour sign on ultrasound) are classic for gout.",
+  historyItems: [
+    { key:'diet', label:'Diet/Alcohol', value:'Ate a large steak and drank several beers at a family celebration over the weekend.', support:['gout'], ruleOut: ALL_OTHERS('gout') },
+    { key:'meds', label:'Medications', value:'Takes a thiazide diuretic for high blood pressure, which can raise uric acid levels.', support:['gout'], ruleOut: ALL_OTHERS('gout') },
+    { key:'occupation', label:'Occupation', value:'Works as a long-haul truck driver.' },
+    { key:'hydration', label:'Hydration', value:'Admits he "probably doesn\'t drink enough water."' },
+    { key:'famhx', label:'Family History', value:'Father had heart disease; no known joint conditions in the family.' },
+    { key:'prior', label:'Prior Episodes', value:'States he has never experienced anything like this before.' },
+  ],
+  vitalsItems: [
+    { key:'temp', label:'Temperature', value:'100.4°F' }, { key:'hr', label:'Heart Rate', value:'104 bpm' },
+    { key:'rr', label:'Respiratory Rate', value:'20/min' }, { key:'bp', label:'Blood Pressure', value:'148/88' },
+    { key:'spo2', label:'SpO2', value:'97% on room air' }, { key:'pain', label:'Pain', value:'9/10' },
+  ],
+  examItems: [
+    { key:'general', label:'General', value:'Extremely uncomfortable' },
+    { key:'toe', label:'Right great toe', value:'Bright red, swollen, hot', support:['gout'], ruleOut: ALL_OTHERS('gout') },
+    { key:'skin', label:'Skin', value:'Extremely sensitive to light touch (allodynia)', support:['gout'] },
+    { key:'rom', label:'ROM', value:'Severely limited because of pain' },
+    { key:'otherjoints', label:'Other joints', value:'No significant swelling' },
+    { key:'neuro', label:'Neurologic', value:'Intact' },
+  ],
+  labs: {
+    cbc: { result:"WBC 12,800/mm³ (elevated) — acute inflammatory response.", ruleOut:['fibro','raynauds','itp'] },
+    esr: { result:"48 mm/hr (elevated).", ruleOut:['fibro','raynauds','itp'] },
+    crp: { result:"8.6 mg/dL (significantly elevated).", ruleOut:['fibro','raynauds','itp'] },
+    uricacid: { result:"8.9 mg/dL (elevated).", support:['gout'], ruleOut: ALL_OTHERS('gout') },
+  },
+  diagnostics: {
+    jointasp: { result:"Synovial fluid: cloudy, WBC 42,000/mm³, predominantly neutrophils. Needle-shaped crystals with strong negative birefringence. Gram stain: no organisms. Culture: no growth.", support:['gout'], ruleOut: ALL_OTHERS('gout') },
+  },
+  imaging: {
+    xray: { result:"X-ray of right foot: no significant erosive changes." },
+    us: { result:"Focal crystal deposition with a double-contour sign.", support:['gout'], ruleOut: ALL_OTHERS('gout') },
+  },
+},
+{
+  id: 'denise', name: 'Denise', age: 34, correctDiagnosis: 'raynauds',
+  presenting: "Denise reports that her fingers occasionally become numb and painful when she goes outside in cold weather. Several fingers first turn very pale or white, then develop a bluish color. After she warms her hands, they become red and feel warm and tingly. Episodes usually last several minutes and have been happening more frequently. She denies any recent hand injuries.",
+  rationale: "The classic triphasic color change (white → blue → red) triggered by cold, with a normal nailfold capillaroscopy and no evidence of an underlying connective tissue disease (normal inflammatory markers, negative ANA), point to primary Raynaud's phenomenon rather than a secondary cause like scleroderma or lupus.",
+  historyItems: [
+    { key:'famhx', label:'Family History', value:'No family history of autoimmune disease.', ruleOut:['sclero'] },
+    { key:'pattern', label:'Symptom Pattern', value:'Episodes are consistently triggered by cold exposure or stress and have become more frequent over the past several months.', support:['raynauds'], ruleOut:['gout','ra','fibro','itp','lyme'] },
+    { key:'occupation', label:'Occupation', value:'Works as a receptionist in an air-conditioned office.' },
+    { key:'substance', label:'Substance Use', value:'Non-smoker, drinks caffeine daily.' },
+    { key:'exercise', label:'Exercise', value:'Recently started attending a new gym; no injuries reported.' },
+    { key:'injury', label:'Trauma History', value:'Denies any recent injury to the hands.' },
+  ],
+  vitalsItems: [
+    { key:'temp', label:'Temperature', value:'98.4°F' }, { key:'hr', label:'Heart Rate', value:'76 bpm' },
+    { key:'rr', label:'Respiratory Rate', value:'16/min' }, { key:'bp', label:'Blood Pressure', value:'118/74' },
+    { key:'spo2', label:'SpO2', value:'99% on room air' }, { key:'pain', label:'Pain', value:'2/10' },
+  ],
+  examItems: [
+    { key:'baseline', label:'Hands at room temperature', value:'Appear normal; radial pulses 2+ bilaterally; no joint swelling; no skin thickening; no digital ulcers.' },
+    { key:'coldresponse', label:'Response to cold exposure', value:'Triphasic color change: white → blue → red, with numbness, tingling, and burning during rewarming. Episodes last 5–15 minutes with no symptoms between them.', support:['raynauds'], ruleOut:['gout','ra','fibro','itp','lyme'] },
+  ],
+  labs: {
+    esr: { result:"7 mm/hr (normal).", ruleOut:['gout','ra'] },
+    crp: { result:"Normal.", ruleOut:['gout','ra'] },
+    ana: { result:"Negative.", ruleOut:['lupus','sclero'] },
+  },
+  diagnostics: {
+    nailfold: { result:"Normal capillary architecture. No giant capillaries. No hemorrhages. No significant capillary dropout.", support:['raynauds'], ruleOut:['sclero'] },
+  },
+  imaging: {},
+},
+{
+  id: 'angela', name: 'Angela', age: 46, correctDiagnosis: 'ra',
+  presenting: "Angela reports that her hands have been hurting for several months. Pain and stiffness are worst when she first wakes up and last more than an hour before improving. Both hands feel swollen, particularly around the small joints of her fingers, and she's recently noticed similar symptoms in both wrists and feet. She has difficulty opening jars and turning doorknobs.",
+  rationale: "Symmetric small-joint polyarthritis with DIP sparing, prolonged morning stiffness, a strongly positive anti-CCP (highly specific for RA) alongside a positive RF, and imaging showing erosive changes with synovitis on ultrasound confirm rheumatoid arthritis.",
+  historyItems: [
+    { key:'famhx', label:'Family History', value:"Mother has a history of rheumatoid arthritis.", support:['ra'], ruleOut: ALL_OTHERS('ra') },
+    { key:'function', label:'Functional Impact', value:'Reports increasing difficulty buttoning shirts and opening jars, gradually worsening over several months.', support:['ra'] },
+    { key:'occupation', label:'Occupation', value:'Works as an elementary school teacher.' },
+    { key:'smoking', label:'Substance Use', value:'Non-smoker.' },
+    { key:'travel', label:'Recent Travel', value:'No recent travel or outdoor exposure.' },
+    { key:'menopause', label:'Reproductive History', value:'Postmenopausal; not on hormone replacement therapy.' },
+  ],
+  vitalsItems: [
+    { key:'temp', label:'Temperature', value:'99.2°F' }, { key:'hr', label:'Heart Rate', value:'88 bpm' },
+    { key:'rr', label:'Respiratory Rate', value:'18/min' }, { key:'bp', label:'Blood Pressure', value:'134/82' },
+    { key:'spo2', label:'SpO2', value:'98% on room air' }, { key:'pain', label:'Pain', value:'6/10' },
+  ],
+  examItems: [
+    { key:'general', label:'General', value:'Fatigued' },
+    { key:'joints', label:'Hands, wrists, feet', value:'Bilateral, symmetric swelling and tenderness of the MCP/PIP joints, wrists, and MTP joints, with DIP joints relatively spared.', support:['ra'], ruleOut:['gout','raynauds','fibro','itp','lyme'] },
+    { key:'stiffness', label:'Morning stiffness', value:'Approximately 90 minutes before improving.', support:['ra'], ruleOut:['gout','raynauds','fibro','itp','lyme'] },
+    { key:'grip', label:'Grip strength', value:'Reduced', support:['ra'] },
+    { key:'skin', label:'Skin', value:'No malar rash', ruleOut:['lupus'] },
+    { key:'neuro', label:'Neurologic', value:'Normal' },
+  ],
+  labs: {
+    cbc: { result:"Hgb 11.2 g/dL (mildly low), WBC 7,900/mm³ (normal), Platelets 468,000/mm³ (elevated — reactive thrombocytosis).", support:['ra'], ruleOut:['itp'] },
+    esr: { result:"62 mm/hr (significantly elevated).", ruleOut:['fibro','raynauds','itp'] },
+    crp: { result:"4.8 mg/dL (elevated).", ruleOut:['fibro','raynauds','itp'] },
+    rf: { result:"Positive, 86 IU/mL.", support:['ra'], ruleOut:['gout','raynauds','fibro','sclero','itp','lyme'] },
+    anticcp: { result:"Positive, >250 U/mL — strongly positive.", support:['ra'], ruleOut: ALL_OTHERS('ra') },
+    ana: { result:"Low-positive, 1:80 (nonspecific)." },
+  },
+  diagnostics: {},
+  imaging: {
+    us: { result:"Musculoskeletal ultrasound: bilateral synovitis with increased Doppler signal and small erosive changes.", support:['ra'], ruleOut: ALL_OTHERS('ra') },
+    xray: { result:"Hand X-ray: periarticular osteopenia, joint-space narrowing, early marginal erosions.", support:['ra'], ruleOut: ALL_OTHERS('ra') },
+  },
+},
+{
+  id: 'marcus', name: 'Marcus', age: 42, correctDiagnosis: 'fibro',
+  presenting: "Marcus reports having pain \"all over\" his body for more than a year. There isn't one particular joint or muscle that hurts all the time — the pain moves around and is worse after a poor night's sleep. He feels exhausted even after eight hours of sleep and has trouble concentrating and finding words. Prior blood tests have all come back normal.",
+  rationale: "Widespread pain for over a year without objective joint swelling or synovitis, alongside unrefreshing sleep, fatigue, and cognitive symptoms, with consistently normal inflammatory markers and autoimmune serologies, and an elevated Widespread Pain Index/Symptom Severity Scale, are characteristic of fibromyalgia — a clinical diagnosis made after ruling out inflammatory and autoimmune causes.",
+  historyItems: [
+    { key:'sleep', label:'Sleep', value:'Reports consistently unrefreshing sleep and frequent nighttime awakenings for over a year.', support:['fibro'] },
+    { key:'priorworkup', label:'Prior Workup', value:'States that previous blood work ordered by his primary care provider was unremarkable.', support:['fibro'], ruleOut:['gout','ra','lupus','sclero'] },
+    { key:'occupation', label:'Occupation', value:'Works as a software developer, sedentary job with long hours at a desk.' },
+    { key:'stress', label:'Stress', value:'Reports increased stress at work over the past year.' },
+    { key:'travel', label:'Recent Travel', value:'No recent travel; has not been outdoors much recently.' },
+    { key:'exercise', label:'Exercise', value:'Used to exercise regularly but has stopped due to pain and fatigue.' },
+  ],
+  vitalsItems: [
+    { key:'temp', label:'Temperature', value:'98.6°F' }, { key:'hr', label:'Heart Rate', value:'78 bpm' },
+    { key:'rr', label:'Respiratory Rate', value:'16/min' }, { key:'bp', label:'Blood Pressure', value:'126/78' },
+    { key:'spo2', label:'SpO2', value:'98% on room air' }, { key:'pain', label:'Pain', value:'6/10' },
+  ],
+  examItems: [
+    { key:'general', label:'General', value:'Alert, no acute distress, appears tired' },
+    { key:'msk', label:'Musculoskeletal', value:'Widespread tenderness, no objective joint swelling, no joint warmth, full range of motion, no synovitis, normal muscle strength.', support:['fibro'], ruleOut:['gout','ra','lupus','sclero'] },
+    { key:'neuro', label:'Neurologic', value:'Normal sensation, reflexes, and gait' },
+    { key:'reported', label:'Patient reports', value:'Widespread pain for 18 months, fatigue, unrefreshing sleep, difficulty concentrating ("brain fog").', support:['fibro'] },
+  ],
+  labs: {
+    esr: { result:"9 mm/hr (normal).", ruleOut:['gout','ra'] },
+    crp: { result:"Normal.", ruleOut:['gout','ra'] },
+    ana: { result:"Negative.", ruleOut:['lupus','sclero'] },
+    rf: { result:"Negative.", ruleOut:['ra'] },
+    anticcp: { result:"Negative.", ruleOut:['ra'] },
+  },
+  diagnostics: {
+    painindex: { result:"Widespread Pain Index and Symptom Severity Scale both elevated, consistent with widespread pain, fatigue, unrefreshing sleep, and cognitive symptoms.", support:['fibro'], ruleOut: ALL_OTHERS('fibro') },
+  },
+  imaging: {
+    xray: { result:"X-rays of symptomatic joints: normal. No erosions. No significant degenerative changes.", ruleOut:['ra','gout'] },
+  },
+},
+{
+  id: 'patricia', name: 'Patricia', age: 51, correctDiagnosis: 'sclero',
+  presenting: "Patricia has noticed the skin on her fingers becoming increasingly tight and shiny over the past year. Her fingers sometimes become very pale and then blue in the cold. She has also developed difficulty swallowing and frequent heartburn, and the skin around her mouth has become tight, making it harder to open widely.",
+  rationale: "Progressive skin thickening and tapering of the fingertips, microstomia, Raynaud's with an abnormal nailfold pattern (capillary dropout, giant capillaries), esophageal dysmotility, and interstitial lung disease on CT — together with a positive ANA and Anti-Scl-70 — are classic for systemic sclerosis (scleroderma).",
+  historyItems: [
+    { key:'progression', label:'Symptom Progression', value:'Skin changes have gradually progressed over about a year, along with worsening Raynaud\'s symptoms.', support:['sclero'] },
+    { key:'famhx', label:'Family History', value:'Sister has a diagnosis of systemic sclerosis.', support:['sclero'], ruleOut: ALL_OTHERS('sclero') },
+    { key:'occupation', label:'Occupation', value:'Works as a hairdresser.' },
+    { key:'diet', label:'Diet', value:'Follows a low-sodium diet due to her blood pressure.' },
+    { key:'travel', label:'Recent Travel', value:'No recent travel.' },
+    { key:'smoking', label:'Substance Use', value:'Former smoker, quit 10 years ago.' },
+  ],
+  vitalsItems: [
+    { key:'temp', label:'Temperature', value:'98.9°F' }, { key:'hr', label:'Heart Rate', value:'86 bpm' },
+    { key:'rr', label:'Respiratory Rate', value:'18/min' }, { key:'bp', label:'Blood Pressure', value:'138/86' },
+    { key:'spo2', label:'SpO2', value:'96% on room air' }, { key:'pain', label:'Pain', value:'4/10' },
+  ],
+  examItems: [
+    { key:'skin', label:'Skin', value:'Tight, shiny skin over the fingers with a tapered appearance.', support:['sclero'], ruleOut: ALL_OTHERS('sclero') },
+    { key:'mouth', label:'Mouth', value:'Reduced ability to open the mouth widely (microstomia).', support:['sclero'] },
+    { key:'raynauds', label:'Raynaud\'s', value:'Present — color changes in the fingers on cold exposure.', support:['sclero','raynauds'] },
+    { key:'nails', label:'Nails', value:'Abnormal nailfold appearance' },
+    { key:'gi', label:'GI', value:'Dysphagia and reflux', support:['sclero'] },
+    { key:'lungs', label:'Lungs', value:'Fine bibasilar crackles', support:['sclero'] },
+    { key:'joints', label:'Joints', value:'Mild stiffness' },
+    { key:'ulcers', label:'Digital ulcers', value:'None currently' },
+  ],
+  labs: {
+    bmp: { result:"Creatinine 1.0 mg/dL (normal). No evidence of renal crisis at this time." },
+    cbc: { result:"Mild normocytic anemia.", support:['sclero'] },
+    esr: { result:"31 mm/hr (elevated).", ruleOut:['fibro','raynauds','itp'] },
+    crp: { result:"Mildly elevated.", ruleOut:['fibro','raynauds','itp'] },
+    ana: { result:"Positive, titer 1:640.", support:['sclero'], ruleOut:['gout','fibro','itp','lyme','raynauds'] },
+    sclabs: { result:"Anti-Scl-70: positive. Anticentromere: negative. Anti-RNA polymerase III: negative.", support:['sclero'], ruleOut: ALL_OTHERS('sclero') },
+  },
+  diagnostics: {
+    nailfold: { result:"Enlarged capillary loops, capillary dropout, microhemorrhages, abnormal architecture.", support:['sclero'], ruleOut:['raynauds'] },
+  },
+  imaging: {
+    ct: { result:"High-resolution CT chest: bilateral peripheral/interstitial abnormalities consistent with interstitial lung disease.", support:['sclero'], ruleOut: ALL_OTHERS('sclero') },
+    echo: { result:"Mildly elevated estimated pulmonary artery pressure.", support:['sclero'] },
+  },
+},
+{
+  id: 'robert', name: 'Robert', age: 27, correctDiagnosis: 'itp',
+  presenting: "Robert comes to the clinic because he has noticed numerous small red and purple spots on his lower legs that don't go away when he presses on them. Over the past several weeks he has also developed several large bruises without remembering an injury. Yesterday his gums started bleeding while brushing his teeth, and he has had two nosebleeds this week. He is not taking any blood-thinning medication.",
+  rationale: "An isolated, markedly low platelet count (14,000/mm³) with an otherwise normal CBC, in a patient with new-onset mucocutaneous bleeding (petechiae, ecchymoses, gum bleeding, epistaxis) following a recent viral illness and no other cause for bleeding, is classic for immune thrombocytopenia (ITP).",
+  historyItems: [
+    { key:'meds', label:'Medications', value:'Denies taking any blood-thinning or anticoagulant medications.', support:['itp'] },
+    { key:'illness', label:'Recent Illness', value:'Reports a mild viral upper respiratory infection about three weeks ago.', support:['itp'], ruleOut: ALL_OTHERS('itp') },
+    { key:'occupation', label:'Occupation', value:'Works as a warehouse associate.' },
+    { key:'diet', label:'Diet', value:'No significant dietary changes recently.' },
+    { key:'travel', label:'Recent Travel', value:'No recent travel outside the local area.' },
+    { key:'famhx', label:'Family History', value:'No family history of bleeding disorders.' },
+  ],
+  vitalsItems: [
+    { key:'temp', label:'Temperature', value:'98.7°F' }, { key:'hr', label:'Heart Rate', value:'82 bpm' },
+    { key:'rr', label:'Respiratory Rate', value:'16/min' }, { key:'bp', label:'Blood Pressure', value:'124/76' },
+    { key:'spo2', label:'SpO2', value:'99% on room air' }, { key:'pain', label:'Pain', value:'2/10' },
+  ],
+  examItems: [
+    { key:'general', label:'General', value:'Alert, appears mildly anxious' },
+    { key:'skin1', label:'Skin', value:'Numerous petechiae on lower extremities', support:['itp'], ruleOut: ALL_OTHERS('itp') },
+    { key:'skin2', label:'Skin', value:'Multiple ecchymoses', support:['itp'] },
+    { key:'oral', label:'Oral cavity', value:'Bleeding gums', support:['itp'] },
+    { key:'nose', label:'Nose', value:'Recent epistaxis', support:['itp'] },
+    { key:'joints', label:'Joints', value:'No swelling' },
+    { key:'abdomen', label:'Abdomen', value:'No significant hepatosplenomegaly', support:['itp'] },
+    { key:'neuro', label:'Neurologic', value:'Initially normal' },
+  ],
+  labs: {
+    cbc: { result:"Hemoglobin 13.8 g/dL (normal), WBC 7,200/mm³ (normal), Platelets 14,000/mm³ (markedly low) — isolated severe thrombocytopenia.", support:['itp'], ruleOut: ALL_OTHERS('itp') },
+    esr: { result:"Normal.", ruleOut:['gout','ra','sclero','lyme'] },
+    crp: { result:"1.8 mg/dL (mildly elevated) — likely reflects the recent viral illness." },
+  },
+  diagnostics: {},
+  imaging: {},
+},
+{
+  id: 'emily', name: 'Emily', age: 31, correctDiagnosis: 'lyme',
+  presenting: "Emily reports feeling unusually tired for the past several weeks. She recently developed a circular expanding rash on her thigh that she initially thought was a reaction to an insect bite. She remembers a weekend hiking trip several weeks ago but doesn't recall being bitten by a tick. She has also had intermittent headaches, muscle aches, and low-grade fevers, plus occasional tingling in her hands and aching knees.",
+  rationale: "The expanding erythema migrans rash following a hiking trip in a wooded area, systemic symptoms (fever, headache, myalgias), and a repeat Lyme serology that turned positive after an appropriately timed early negative test, confirm Lyme disease — with later findings (AV block, neurologic involvement, or arthritis) reflecting disease progression if untreated.",
+  historyItems: [
+    { key:'exposure', label:'Exposure History', value:'Went on a weekend hiking trip in a wooded area several weeks before symptoms began; does not recall a tick bite.', support:['lyme'] },
+    { key:'season', label:'Timing', value:'Symptoms began in early summer, a few weeks after the hiking trip.', support:['lyme'] },
+    { key:'occupation', label:'Occupation', value:'Works as a graphic designer, mostly indoors.' },
+    { key:'pets', label:'Pets', value:'Has a dog that also spends time outdoors, up to date on tick prevention.' },
+    { key:'diet', label:'Diet', value:'No significant dietary changes.' },
+    { key:'famhx', label:'Family History', value:'No family history of autoimmune disease.' },
+  ],
+  vitalsItems: [
+    { key:'temp', label:'Temperature', value:'100.5°F' }, { key:'hr', label:'Heart Rate', value:'94 bpm' },
+    { key:'rr', label:'Respiratory Rate', value:'18/min' }, { key:'bp', label:'Blood Pressure', value:'122/78' },
+    { key:'spo2', label:'SpO2', value:'98% on room air' }, { key:'pain', label:'Pain', value:'4/10' },
+  ],
+  examItems: [
+    { key:'rash', label:'Rash', value:'Expanding erythematous lesion on the thigh, approximately 12 cm × 10 cm, center lighter than the edges — consistent with erythema migrans.', support:['lyme'], ruleOut: ALL_OTHERS('lyme') },
+    { key:'systemic', label:'Systemic', value:'Fatigue, headache, myalgias, and mild cervical lymphadenopathy.', support:['lyme'] },
+  ],
+  labs: {
+    cbc: { result:"Essentially normal." },
+    bmp: { result:"Normal." },
+    esr: { result:"Mildly elevated." },
+    crp: { result:"Mildly elevated." },
+    lymesero: {
+      twoStage: true,
+      early: { result:"Lyme EIA: Negative. (Test obtained very early after symptom onset — a negative early antibody test does not necessarily rule out Lyme disease.)" },
+      late: { result:"Repeat testing (2–3 weeks later): first-tier EIA positive; second-tier immunoblot/EIA positive.", support:['lyme'], ruleOut: ALL_OTHERS('lyme') },
+      lateButtonLabel: "Repeat Testing (2–3 weeks later)",
+    },
+  },
+  diagnostics: {
+    ecg: { result:"First-degree AV block with prolonged PR interval — several weeks later, Emily developed intermittent palpitations and dizziness. Findings consistent with Lyme carditis.", support:['lyme'], ruleOut: ALL_OTHERS('lyme') },
+    csf: { result:"Obtained after Emily developed facial weakness: lymphocytic pleocytosis, elevated protein, and Lyme-specific antibody findings in the appropriate context — consistent with Lyme neuroborreliosis.", support:['lyme'], ruleOut: ALL_OTHERS('lyme') },
+    jointasp: { result:"Obtained after Emily developed a large swollen knee: inflammatory synovial fluid with elevated WBC; Lyme PCR considered given the clinical context — consistent with Lyme arthritis.", support:['lyme'], ruleOut: ALL_OTHERS('lyme') },
+  },
+  imaging: {
+    xray: { result:"Chest X-ray: normal (not typically necessary to diagnose uncomplicated Lyme disease)." },
+  },
+},
+];
+
+// ---------- Treatments / Nursing Interventions / Patient Education ----------
+const TREATMENTS = {
+  lupus: [
+    { text:"Administer prescribed corticosteroids or immunosuppressants as ordered.", correct:true },
+    { text:"Educate the patient on daily sunscreen use and sun-protective clothing.", correct:true },
+    { text:"Monitor renal function and urine output closely.", correct:true },
+    { text:"Encourage adherence to hydroxychloroquine therapy as prescribed.", correct:true },
+    { text:"Educate the patient on early signs of infection, given immunosuppressive therapy.", correct:true },
+    { text:"Administer colchicine for the acute flare.", correct:false },
+    { text:"Instruct the patient to keep hands and feet warm during cold exposure.", correct:false },
+    { text:"Recommend a strict low-purine diet.", correct:false },
+    { text:"Administer a prophylactic platelet transfusion.", correct:false },
+  ],
+  gout: [
+    { text:"Administer NSAIDs, colchicine, or corticosteroids as ordered for the acute flare.", correct:true },
+    { text:"Encourage increased fluid intake.", correct:true },
+    { text:"Educate on dietary purine restriction (limit red meat, organ meats, alcohol, shellfish).", correct:true },
+    { text:"Elevate and rest the affected joint; apply ice packs to reduce inflammation.", correct:true },
+    { text:"Administer prescribed urate-lowering therapy (e.g., allopurinol) for long-term management.", correct:true },
+    { text:"Apply warm compresses to the affected joint.", correct:false },
+    { text:"Encourage aggressive range-of-motion exercise of the joint during the acute attack.", correct:false },
+    { text:"Educate on daily sunscreen use.", correct:false },
+    { text:"Administer a prophylactic platelet transfusion.", correct:false },
+  ],
+  raynauds: [
+    { text:"Educate the patient to avoid cold exposure and dress in layers, especially hands and feet.", correct:true },
+    { text:"Encourage smoking cessation, if applicable.", correct:true },
+    { text:"Educate on avoiding vasoconstricting substances (e.g., caffeine, certain decongestants) when possible.", correct:true },
+    { text:"Administer prescribed calcium channel blockers as ordered.", correct:true },
+    { text:"Teach stress-reduction techniques, since stress can trigger episodes.", correct:true },
+    { text:"Administer immunosuppressive therapy.", correct:false },
+    { text:"Encourage frequent ice-water immersion of the hands.", correct:false },
+    { text:"Educate on dietary purine restriction.", correct:false },
+    { text:"Administer prescribed antibiotics for the full course.", correct:false },
+  ],
+  ra: [
+    { text:"Administer DMARDs (e.g., methotrexate) as prescribed.", correct:true },
+    { text:"Encourage regular, gentle range-of-motion exercises to maintain joint mobility.", correct:true },
+    { text:"Apply heat to stiff joints, especially in the morning.", correct:true },
+    { text:"Educate the patient on energy-conservation techniques.", correct:true },
+    { text:"Monitor for medication side effects (e.g., liver function with methotrexate).", correct:true },
+    { text:"Administer allopurinol for uric acid control.", correct:false },
+    { text:"Encourage strict immobilization of the affected joints.", correct:false },
+    { text:"Educate the patient on monitoring for an expanding target-like rash.", correct:false },
+    { text:"Administer a prophylactic platelet transfusion.", correct:false },
+  ],
+  fibro: [
+    { text:"Encourage a regular, gentle aerobic exercise program.", correct:true },
+    { text:"Educate on sleep hygiene practices.", correct:true },
+    { text:"Administer prescribed medications (e.g., duloxetine, pregabalin) as ordered.", correct:true },
+    { text:"Encourage stress management and relaxation techniques.", correct:true },
+    { text:"Validate the patient's symptoms and provide emotional support, as fibromyalgia is often underrecognized.", correct:true },
+    { text:"Administer corticosteroids for joint inflammation.", correct:false },
+    { text:"Encourage strict bed rest.", correct:false },
+    { text:"Administer colchicine for the acute flare.", correct:false },
+    { text:"Educate the patient on monitoring for joint erosion.", correct:false },
+  ],
+  sclero: [
+    { text:"Educate on skin care and use of emollients to reduce dryness and cracking.", correct:true },
+    { text:"Encourage Raynaud's precautions — keep extremities warm.", correct:true },
+    { text:"Monitor for signs of pulmonary or renal complications.", correct:true },
+    { text:"Administer prescribed medications for GI symptoms (e.g., a proton pump inhibitor for reflux).", correct:true },
+    { text:"Encourage small, frequent meals due to esophageal dysmotility.", correct:true },
+    { text:"Administer allopurinol for uric acid control.", correct:false },
+    { text:"Encourage a high-sodium diet.", correct:false },
+    { text:"Administer a prophylactic platelet transfusion.", correct:false },
+    { text:"Encourage strict immobilization of affected joints.", correct:false },
+  ],
+  itp: [
+    { text:"Monitor platelet counts and for signs of bleeding.", correct:true },
+    { text:"Educate the patient to avoid activities with a high risk of injury (contact sports, razors, hard-bristled toothbrushes).", correct:true },
+    { text:"Avoid NSAIDs and aspirin, which increase bleeding risk.", correct:true },
+    { text:"Administer corticosteroids or IVIG as prescribed.", correct:true },
+    { text:"Educate the patient on when to seek emergency care (e.g., severe headache, which could indicate intracranial bleeding).", correct:true },
+    { text:"Encourage regular use of ibuprofen for pain relief.", correct:false },
+    { text:"Administer anticoagulant therapy.", correct:false },
+    { text:"Educate the patient on daily sunscreen use.", correct:false },
+    { text:"Administer urate-lowering therapy.", correct:false },
+  ],
+  lyme: [
+    { text:"Administer prescribed antibiotics (e.g., doxycycline) and educate on completing the full course.", correct:true },
+    { text:"Educate on tick-bite prevention (protective clothing, tick checks, repellents).", correct:true },
+    { text:"Monitor for signs of disease progression (cardiac, neurologic, or joint symptoms).", correct:true },
+    { text:"Educate the patient on the importance of early treatment to prevent complications.", correct:true },
+    { text:"Monitor cardiac rhythm if carditis is suspected.", correct:true },
+    { text:"Administer corticosteroids as first-line therapy.", correct:false },
+    { text:"Educate on dietary purine restriction.", correct:false },
+    { text:"Administer a prophylactic platelet transfusion.", correct:false },
+    { text:"Administer DMARDs as ordered.", correct:false },
+  ],
+};
+
+// ---------- Conditions Reference ----------
+const CONDITIONS = [
+  { id:'fibro', name:'Fibromyalgia',
+    path:"A central sensitization disorder involving abnormal pain processing in the central nervous system, without underlying tissue inflammation or damage.",
+    risk:["Female sex","Middle age","History of stress or trauma","Other chronic pain disorders","Poor sleep"],
+    presentation:["Widespread pain lasting more than 3 months","Fatigue, unrefreshing sleep","Cognitive difficulties (\"fibro fog\")","No objective joint swelling"],
+    vitals:"Typically within normal limits. There is no expected fever, tachycardia, or other systemic vital sign abnormality, since fibromyalgia is not an inflammatory or infectious process.",
+    labs:["Typically normal — used to rule out other causes (CBC, ESR, CRP, ANA, RF, anti-CCP all normal/negative)"],
+    diag:["Widespread Pain Index / Symptom Severity Scale — elevated; part of the clinical diagnostic criteria","Imaging typically normal; used to exclude other causes"] },
+  { id:'gout', name:'Gout',
+    path:"Deposition of monosodium urate crystals in joints due to hyperuricemia, triggering an acute inflammatory response.",
+    risk:["Male sex","Obesity","Alcohol use","High-purine diet","Diuretic use","Renal insufficiency"],
+    presentation:["Sudden-onset, severe monoarticular pain (often the great toe — podagra)","Redness, warmth, swelling","Exquisite tenderness to light touch"],
+    vitals:"Low-grade to moderate fever is common during an acute attack. Pain and inflammation can also drive mild tachycardia and an increased respiratory rate.",
+    labs:["Uric acid — often elevated (may be normal during an acute attack)","CBC — leukocytosis","ESR/CRP — elevated during flare"],
+    diag:["Joint aspiration — needle-shaped, negatively birefringent crystals (definitive)","X-ray — may be normal early; chronic gout shows erosions","Ultrasound — double-contour sign"] },
+  { id:'itp', name:'Immune Thrombocytopenia (ITP)',
+    path:"Autoimmune destruction of platelets, often triggered by a preceding viral infection, resulting in isolated thrombocytopenia.",
+    risk:["Recent viral illness","Female sex (in adults)","Certain other autoimmune conditions"],
+    presentation:["Petechiae, ecchymoses","Mucosal bleeding (gum bleeding, epistaxis)","Otherwise well-appearing"],
+    vitals:"Usually stable and within normal limits. Significant or ongoing bleeding can cause tachycardia and hypotension if blood loss becomes severe.",
+    labs:["CBC — isolated, often severely low platelet count with otherwise normal cell lines"],
+    diag:["Largely a diagnosis of exclusion; imaging typically normal, no hepatosplenomegaly"] },
+  { id:'lyme', name:'Lyme Disease',
+    path:"Infection with Borrelia burgdorferi transmitted via an Ixodes tick bite, causing a localized then potentially disseminated infection affecting the skin, joints, heart, and nervous system.",
+    risk:["Outdoor or wooded activity in endemic areas","Tick exposure","Warmer months"],
+    presentation:["Erythema migrans (expanding, target-like rash)","Fatigue, headache, myalgias, low-grade fever","Later, if untreated: carditis, neurologic symptoms, arthritis"],
+    vitals:"Low-grade fever is common early in the illness. If Lyme carditis develops, an irregular or slowed heart rate (bradycardia from AV block) may be seen.",
+    labs:["Lyme serology (EIA/immunoblot) — may be falsely negative early; repeat testing recommended if suspicion remains"],
+    diag:["ECG — AV block if carditis is present","CSF analysis — if neurologic symptoms develop","Joint aspiration — if arthritis develops","Imaging generally not necessary for uncomplicated Lyme disease"] },
+  { id:'raynauds', name:"Raynaud's Phenomenon",
+    path:"An exaggerated vasospastic response of the digital arteries to cold or stress, causing transient reduced blood flow to the fingers and toes.",
+    risk:["Female sex","Young adulthood","Cold climates","Smoking","Family history","Secondary form associated with connective tissue disease"],
+    presentation:["Triphasic color change of digits with cold exposure: white → blue → red","Numbness, tingling, burning during rewarming","Episodes typically last 5–15 minutes"],
+    vitals:"Typically normal, both during and between episodes. Raynaud's is localized to the digits and doesn't usually cause systemic vital sign changes.",
+    labs:["ANA, ESR/CRP — to screen for secondary causes; typically normal in primary Raynaud's"],
+    diag:["Nailfold capillaroscopy — normal in primary; abnormal (giant capillaries, dropout) in secondary","Imaging generally not needed for primary Raynaud's"] },
+  { id:'ra', name:'Rheumatoid Arthritis',
+    path:"A chronic autoimmune disease causing synovial inflammation and progressive joint destruction, driven by autoantibodies (RF, anti-CCP) and inflammatory cytokines.",
+    risk:["Female sex","Smoking","Family history","Age 30–60"],
+    presentation:["Symmetric polyarthritis of small joints (hands, wrists, feet)","Morning stiffness lasting more than an hour","Fatigue","DIP joints typically spared"],
+    vitals:"May show a mild low-grade fever and mild tachycardia during active flares. Otherwise often unremarkable, though chronic pain can mildly elevate heart rate and blood pressure.",
+    labs:["RF — positive, but nonspecific","Anti-CCP — positive, highly specific","ESR/CRP — elevated","CBC — may show anemia or reactive thrombocytosis"],
+    diag:["Musculoskeletal ultrasound — synovitis, erosions","X-ray — periarticular osteopenia, joint-space narrowing, erosions"] },
+  { id:'sclero', name:'Scleroderma (Systemic Sclerosis)',
+    path:"An autoimmune disease causing excessive collagen deposition and fibrosis of the skin and internal organs, along with vascular damage.",
+    risk:["Female sex","Age 30–50","Certain occupational exposures (silica, solvents)","Family history"],
+    presentation:["Skin thickening and tightening (fingers, face)","Raynaud's phenomenon","Dysphagia and reflux","Microstomia","Pulmonary fibrosis"],
+    vitals:"May show mild hypoxia (low SpO2) if interstitial lung disease is present. Blood pressure can rise sharply and dangerously in scleroderma renal crisis — a medical emergency.",
+    labs:["ANA — positive","Anti-Scl-70 — associated with diffuse disease","Anticentromere — associated with limited disease"],
+    diag:["Nailfold capillaroscopy — abnormal (capillary dropout, giant capillaries)","High-resolution CT chest — interstitial lung disease","Echocardiogram — pulmonary hypertension"] },
+  { id:'lupus', name:'Systemic Lupus Erythematosus',
+    path:"Autoimmune disease in which the immune system produces autoantibodies (e.g., ANA, anti-dsDNA) that form immune complexes, depositing in tissues and driving widespread inflammation — particularly of the skin, joints, kidneys, and blood cells.",
+    risk:["Female sex","Age 15–45","Family history of autoimmune disease","Certain ethnicities (higher risk in Black, Hispanic, and Asian populations)","UV light exposure"],
+    presentation:["Malar rash, photosensitivity","Oral ulcers","Joint pain and swelling","Fatigue","Renal involvement (proteinuria, edema)","Cytopenias"],
+    vitals:"Often a low-grade fever during flares. Blood pressure may be elevated, and heart rate mildly increased, particularly when renal involvement is present.",
+    labs:["ANA — positive, high titer","Anti-dsDNA — positive, disease-specific","Anti-Smith — positive, highly specific","Complement C3/C4 — low in active disease","CBC — cytopenias","BMP — renal impairment"],
+    diag:["Kidney biopsy — immune-complex glomerulonephritis, if renal involvement is suspected","Chest X-ray/echo — if cardiopulmonary involvement is suspected"] },
+];
+
+
+const tabDefsFor = (p) => [
+  { id: 'history', label: 'Patient History', kind: 'gate', items: p.historyItems, key: 'history' },
+  { id: 'exam',   label: 'Vitals & Physical Assessment', kind: 'gate', items: p.vitalsItems.concat(p.examItems), key: 'exam' },
+  { id: 'labs',   label: 'Labs', kind: 'menu', menu: labsMenu, store: 'labs', data: p.labs },
+  { id: 'diagnostics', label: 'Diagnostics', kind: 'menu', menu: diagnosticsMenu, store: 'diagnostics', data: p.diagnostics },
+  { id: 'imaging', label: 'Imaging', kind: 'menu', menu: imagingMenu, store: 'imaging', data: p.imaging },
+  { id: 'diagnosis', label: '🔍 Diagnosis', kind: 'diagnosis' },
+  { id: 'conditions', label: '📖 Conditions', kind: 'conditions' },
+];
+
+// ---------- State ----------
+function newPatientState() {
+  return {
+    tokens: TOTAL_TOKENS,
+    opened: { history:false, exam:false },
+    ordered: { labs:{}, diagnostics:{}, imaging:{} },
+    evidence: { history:{}, exam:{}, labs:{}, diagnostics:{}, imaging:{} },
+    activeTab: 'history',
+    selectedDx: null,
+    submitted: false,
+    treatmentPicked: {},
+    treatmentChecked: false,
+    treatmentSolved: false,
+  };
+}
+let currentIndex = 0;
+let S = newPatientState();
+let pendingAction = null;
+let appStage = 'intro';
+
+function currentPatient() { return PATIENTS[currentIndex]; }
+
+function evidenceCount(store) { return Object.values(S.evidence[store]).filter(Boolean).length; }
+
+function isDefinitiveEntry(entry) {
+  if (!entry) return false;
+  const target = diagnoses.length - 1;
+  if (entry.twoStage) return !!(entry.late && entry.late.ruleOut && entry.late.ruleOut.length === target);
+  return !!(entry.ruleOut && entry.ruleOut.length === target);
+}
+function hasDefinitiveTest(dataObj) { return Object.values(dataObj).some(isDefinitiveEntry); }
+
+function requirementsFor(p) {
+  return {
+    history: 2,
+    exam: 2,
+    labs: 2,
+    diagnostics: hasDefinitiveTest(p.diagnostics) ? 1 : 0,
+    imaging: hasDefinitiveTest(p.imaging) ? 1 : 0,
+  };
+}
+function requirementsMet() {
+  const reqs = requirementsFor(currentPatient());
+  return Object.keys(reqs).every(store => evidenceCount(store) >= reqs[store]);
+}
+
+function renderTokenBank() {
+  document.getElementById('tokenCount').textContent = S.tokens;
+  const dots = document.getElementById('tokenDots');
+  dots.innerHTML = '';
+  for (let i = 0; i < TOTAL_TOKENS; i++) {
+    const d = document.createElement('div');
+    d.className = 'token-dot' + (i >= S.tokens ? ' spent' : '');
+    dots.appendChild(d);
+  }
+}
+
+function renderHeader() {
+  const p = currentPatient();
+  document.getElementById('caseId').textContent = `CASE ${currentIndex+1} OF ${PATIENTS.length}`;
+  document.getElementById('caseName').innerHTML = `${p.name} <span class="age">${p.age}</span>`;
+  document.getElementById('presentingText').textContent = p.presenting;
+}
+
+function renderTabs() {
+  const p = currentPatient();
+  const tabsDef = tabDefsFor(p);
+  const tabsEl = document.getElementById('tabs');
+  tabsEl.innerHTML = '';
+  tabsDef.forEach(t => {
+    const btn = document.createElement('button');
+    let cls = 'tab';
+    if (S.activeTab === t.id) cls += ' active';
+    if (t.id === 'diagnosis') cls += ' tab-diagnosis';
+    if (t.id === 'conditions') cls += ' tab-conditions';
+    btn.className = cls;
+    let inner = t.label;
+    if (t.kind === 'gate') inner += S.opened[t.key] ? ' <span class="paid-dot"></span>' : ' <span class="lock">1</span>';
+    btn.innerHTML = inner;
+    btn.onclick = () => { S.activeTab = t.id; renderAll(); };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function evidenceToggleBtn(active, onClick) {
+  const btn = document.createElement('button');
+  btn.className = 'evidence-toggle' + (active ? ' added' : '');
+  btn.textContent = active ? '✓ In Evidence (tap to remove)' : '+ Add to Evidence';
+  btn.onclick = onClick;
+  return btn;
+}
+
+function renderGate(t) {
+  const panel = document.getElementById('panel');
+  if (!S.opened[t.key]) {
+    panel.innerHTML = `
+      <div class="locked-state">
+        <button class="btn" id="unlockBtn">Pay 1 Token to View ${t.label}</button>
+        <p>${S.tokens > 0 ? "You'll unlock this for the rest of the case." : 'No tokens remaining.'}</p>
+      </div>`;
+    const unlockBtn = document.getElementById('unlockBtn');
+    if (S.tokens <= 0) unlockBtn.disabled = true;
+    unlockBtn.onclick = () => openModal(`Pay 1 Token?`, `Unlock ${t.label} for this patient. This charge applies once — you can revisit it for free afterward.`,
+      () => { S.tokens--; S.opened[t.key] = true; renderAll(); });
+    return;
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'evidence-grid';
+  t.items.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'evidence-row';
+    const active = !!S.evidence[t.key][item.key];
+    row.innerHTML = `<div><div class="evidence-label">${item.label}</div><div class="evidence-value">${item.value}</div></div>`;
+    row.appendChild(evidenceToggleBtn(active, () => { S.evidence[t.key][item.key] = !active; renderAll(); }));
+    wrap.appendChild(row);
+  });
+  panel.innerHTML = '';
+  panel.appendChild(wrap);
+}
+
+function renderMenu(t) {
+  const panel = document.getElementById('panel');
+  const wrap = document.createElement('div');
+  wrap.className = 'test-grid';
+  t.menu.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'test-row';
+    const entry = t.data[item.key];
+    const isOrdered = !!S.ordered[t.store][item.key];
+    const head = document.createElement('div');
+    head.className = 'test-row-head';
+    head.innerHTML = `<div class="test-name">${item.name}</div>`;
+    const orderBtn = document.createElement('button');
+    orderBtn.className = 'test-order-btn';
+    if (isOrdered) { orderBtn.textContent = 'Ordered'; orderBtn.disabled = true; }
+    else if (S.tokens <= 0) { orderBtn.textContent = 'No tokens'; orderBtn.disabled = true; }
+    else {
+      orderBtn.textContent = 'Order · 1 token';
+      orderBtn.onclick = () => openModal('Pay 1 Token?', `Run "${item.name}" for this patient?`,
+        () => { S.tokens--; S.ordered[t.store][item.key] = true; renderAll(); });
+    }
+    head.appendChild(orderBtn);
+    row.appendChild(head);
+
+    if (isOrdered) {
+      if (entry && entry.twoStage) {
+        const resDiv = document.createElement('div');
+        resDiv.className = 'test-result';
+        resDiv.textContent = entry.early.result;
+        row.appendChild(resDiv);
+        const evRow = document.createElement('div');
+        evRow.className = 'test-evidence-row';
+        const activeEarly = !!S.evidence[t.store][item.key];
+        evRow.appendChild(evidenceToggleBtn(activeEarly, () => { S.evidence[t.store][item.key] = !activeEarly; renderAll(); }));
+        row.appendChild(evRow);
+
+        const lateKey = item.key + '_late';
+        const lateOrdered = !!S.ordered[t.store][lateKey];
+        const lateWrap = document.createElement('div');
+        lateWrap.className = 'late-stage-row';
+        if (!lateOrdered) {
+          lateWrap.innerHTML = `<div class="late-stage-hint">Time has passed since the initial result. A repeat test may tell a different story.</div>`;
+          const lateBtn = document.createElement('button');
+          lateBtn.className = 'test-order-btn';
+          if (S.tokens <= 0) { lateBtn.textContent = 'No tokens'; lateBtn.disabled = true; }
+          else {
+            lateBtn.textContent = (entry.lateButtonLabel || 'Repeat Testing') + ' · 1 token';
+            lateBtn.onclick = () => openModal('Pay 1 Token?', `Run "${entry.lateButtonLabel || 'repeat testing'}" for this patient?`,
+              () => { S.tokens--; S.ordered[t.store][lateKey] = true; renderAll(); });
+          }
+          lateWrap.appendChild(lateBtn);
+        } else {
+          const resDiv2 = document.createElement('div');
+          resDiv2.className = 'test-result';
+          resDiv2.textContent = entry.late.result;
+          lateWrap.appendChild(resDiv2);
+          const evRow2 = document.createElement('div');
+          evRow2.className = 'test-evidence-row';
+          const activeLate = !!S.evidence[t.store][lateKey];
+          evRow2.appendChild(evidenceToggleBtn(activeLate, () => { S.evidence[t.store][lateKey] = !activeLate; renderAll(); }));
+          lateWrap.appendChild(evRow2);
+        }
+        row.appendChild(lateWrap);
+      } else {
+        const result = entry ? entry.result : DEFAULT_RESULT;
+        const resDiv = document.createElement('div');
+        resDiv.className = 'test-result';
+        resDiv.textContent = result;
+        row.appendChild(resDiv);
+        const evRow = document.createElement('div');
+        evRow.className = 'test-evidence-row';
+        const active = !!S.evidence[t.store][item.key];
+        evRow.appendChild(evidenceToggleBtn(active, () => { S.evidence[t.store][item.key] = !active; renderAll(); }));
+        row.appendChild(evRow);
+      }
+    }
+    wrap.appendChild(row);
+  });
+  panel.innerHTML = '';
+  panel.appendChild(wrap);
+}
+
+function computeDxState() {
+  const p = currentPatient();
+  const ruledOut = {}; const reasons = {};
+  diagnoses.forEach(d => { ruledOut[d.id] = false; reasons[d.id] = []; });
+
+  function applyEntry(entry, label) {
+    if (!entry) return;
+    if (entry.ruleOut) entry.ruleOut.forEach(id => { ruledOut[id] = true; reasons[id].push(label); });
+  }
+
+  p.historyItems.forEach(item => { if (S.evidence.history[item.key]) applyEntry(item, item.label); });
+  p.vitalsItems.forEach(item => { if (S.evidence.exam[item.key]) applyEntry(item, item.label); });
+  p.examItems.forEach(item => { if (S.evidence.exam[item.key]) applyEntry(item, item.label); });
+
+  [
+    { evidence: S.evidence.labs, data: p.labs, menu: labsMenu },
+    { evidence: S.evidence.diagnostics, data: p.diagnostics, menu: diagnosticsMenu },
+    { evidence: S.evidence.imaging, data: p.imaging, menu: imagingMenu },
+  ].forEach(({evidence, data, menu}) => {
+    Object.keys(evidence).forEach(key => {
+      if (!evidence[key]) return;
+      let baseKey = key, isLate = false;
+      if (key.endsWith('_late')) { baseKey = key.slice(0, -5); isLate = true; }
+      const rawEntry = data[baseKey];
+      if (!rawEntry) return;
+      const entry = rawEntry.twoStage ? (isLate ? rawEntry.late : rawEntry.early) : rawEntry;
+      const menuName = menu.find(m => m.key === baseKey)?.name || baseKey;
+      const label = isLate ? menuName + ' (repeat)' : menuName;
+      applyEntry(entry, label);
+    });
+  });
+
+  return { ruledOut, reasons };
+}
+
+function renderReqChecklist() {
+  const p = currentPatient();
+  const reqs = requirementsFor(p);
+  const labelMap = { history: 'Patient History', exam: 'Vitals & Physical Assessment', labs: 'Labs', diagnostics: 'Diagnostics', imaging: 'Imaging' };
+  const box = document.createElement('div');
+  box.className = 'req-checklist';
+  box.innerHTML = `<div class="req-title">BEFORE YOU CAN SUBMIT — REQUIRED EVIDENCE:</div>`;
+  const items = document.createElement('div');
+  items.className = 'req-items';
+  Object.keys(reqs).forEach(store => {
+    const need = reqs[store];
+    if (need <= 0) return;
+    const count = evidenceCount(store);
+    const met = count >= need;
+    const el = document.createElement('div');
+    el.className = 'req-item' + (met ? ' met' : '');
+    el.textContent = `${met ? '✓' : ''} ${labelMap[store]}: ${count}/${need}`;
+    items.appendChild(el);
+  });
+  box.appendChild(items);
+  return box;
+}
+
+function renderTreatmentSection(p) {
+  const wrap = document.createElement('div');
+  wrap.className = 'treatment-section';
+  wrap.innerHTML = `
+    <div class="treatment-title">Treatments, Nursing Interventions &amp; Patient Education</div>
+    <div class="treatment-sub">Select every appropriate treatment, nursing intervention, and patient-education point for <strong>${diagnoses.find(d=>d.id===p.correctDiagnosis).name}</strong>. Some options are incorrect for this diagnosis — leave those unchecked.</div>
+  `;
+  const grid = document.createElement('div');
+  grid.className = 'treatment-grid';
+  const options = TREATMENTS[p.correctDiagnosis];
+  options.forEach((opt, idx) => {
+    const row = document.createElement('div');
+    const picked = !!S.treatmentPicked[idx];
+    let cls = 'treatment-option';
+    if (S.treatmentChecked) {
+      if (picked && opt.correct) cls += ' right';
+      else if (picked && !opt.correct) cls += ' wrong';
+    } else if (picked) {
+      cls += ' picked';
+    }
+    row.className = cls;
+    const box = document.createElement('div');
+    box.className = 'treatment-checkbox';
+    box.textContent = picked ? '✓' : '';
+    row.appendChild(box);
+    const txt = document.createElement('div');
+    txt.textContent = opt.text;
+    row.appendChild(txt);
+    if (!S.treatmentSolved) {
+      row.onclick = () => { S.treatmentPicked[idx] = !picked; S.treatmentChecked = false; renderAll(); };
+    }
+    grid.appendChild(row);
+  });
+  wrap.appendChild(grid);
+
+  const footer = document.createElement('div');
+  footer.className = 'treatment-footer';
+  const msg = document.createElement('div');
+  msg.className = 'treatment-msg' + (S.treatmentSolved ? ' success' : '');
+  if (S.treatmentSolved) {
+    msg.textContent = '✓ All correct selections made.';
+  } else if (S.treatmentChecked) {
+    const missed = options.filter((o,i) => o.correct && !S.treatmentPicked[i]).length;
+    const wrongPicked = options.filter((o,i) => !o.correct && S.treatmentPicked[i]).length;
+    msg.textContent = `Not quite — ${missed} correct option(s) still unchecked, ${wrongPicked} incorrect option(s) selected. Adjust and check again.`;
+  } else {
+    msg.textContent = 'Select your answers, then check your work.';
+  }
+  footer.appendChild(msg);
+  if (!S.treatmentSolved) {
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'btn amber';
+    checkBtn.textContent = 'Check My Selections';
+    checkBtn.onclick = () => {
+      S.treatmentChecked = true;
+      const allCorrectPicked = options.every((o,i) => !o.correct || S.treatmentPicked[i]);
+      const noIncorrectPicked = options.every((o,i) => o.correct || !S.treatmentPicked[i]);
+      S.treatmentSolved = allCorrectPicked && noIncorrectPicked;
+      renderAll();
+    };
+    footer.appendChild(checkBtn);
+  }
+  wrap.appendChild(footer);
+
+  if (S.treatmentSolved) {
+    const isLast = currentIndex === PATIENTS.length - 1;
+    const nextWrap = document.createElement('div');
+    nextWrap.className = 'treatment-next';
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn amber big';
+    nextBtn.textContent = isLast ? 'Finish Case Files' : 'Next Patient →';
+    nextBtn.onclick = () => {
+      if (isLast) {
+        const panel = document.getElementById('panel');
+        const done = document.createElement('div');
+        done.className = 'complete-screen';
+        done.style.marginTop = '18px';
+        done.innerHTML = `<div class="complete-title">Case Files Closed</div><div class="complete-sub">All 8 patients diagnosed and treated. Nice work, detective.</div>`;
+        panel.appendChild(done);
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Case Complete';
+      } else {
+        currentIndex++; S = newPatientState(); renderAll();
+      }
+    };
+    nextWrap.appendChild(nextBtn);
+    wrap.appendChild(nextWrap);
+  }
+
+  return wrap;
+}
+
+function computeMissedClues(p) {
+  const missed = { history: [], exam: [], labs: [], diagnostics: [], imaging: [] };
+  const hasEffect = (entry) => entry && (((entry.support||[]).length) || ((entry.ruleOut||[]).length));
+
+  p.historyItems.forEach(item => { if (hasEffect(item) && !S.evidence.history[item.key]) missed.history.push(item.label); });
+  p.vitalsItems.concat(p.examItems).forEach(item => { if (hasEffect(item) && !S.evidence.exam[item.key]) missed.exam.push(item.label); });
+
+  [
+    { menu: labsMenu, data: p.labs, store: 'labs' },
+    { menu: diagnosticsMenu, data: p.diagnostics, store: 'diagnostics' },
+    { menu: imagingMenu, data: p.imaging, store: 'imaging' },
+  ].forEach(({menu, data, store}) => {
+    menu.forEach(item => {
+      const entry = data[item.key];
+      if (!entry) return;
+      if (entry.twoStage) {
+        if (hasEffect(entry.late) && !S.evidence[store][item.key + '_late']) missed[store].push(item.name + ' (repeat testing)');
+      } else if (hasEffect(entry) && !S.evidence[store][item.key]) {
+        missed[store].push(item.name);
+      }
+    });
+  });
+  return missed;
+}
+
+function renderDiagnosis() {
+  const p = currentPatient();
+  const panel = document.getElementById('panel');
+  panel.innerHTML = '';
+  const banner = document.createElement('div');
+  banner.className = 'dx-banner';
+  banner.innerHTML = `<div class="dx-banner-title">🔍 The Diagnosis</div><div class="dx-banner-sub">Based on everything currently in evidence, what's really going on with this patient?</div>`;
+  panel.appendChild(banner);
+
+  if (!S.submitted) panel.appendChild(renderReqChecklist());
+
+  const { ruledOut, reasons } = computeDxState();
+  const grid = document.createElement('div');
+  grid.className = 'dx-grid';
+  diagnoses.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'dx-card' + (ruledOut[d.id] ? ' ruled-out' : '') + (S.selectedDx === d.id ? ' selected' : '');
+    let statusHTML = ruledOut[d.id]
+      ? `<div class="dx-status ruled">RULED OUT</div><div class="dx-reasons">${reasons[d.id].join(', ')}</div>`
+      : `<div class="dx-status neutral">Still possible</div>`;
+    card.innerHTML = `<div class="dx-name">${d.name}</div>${statusHTML}`;
+    if (!ruledOut[d.id] && !S.submitted) card.onclick = () => { S.selectedDx = d.id; renderAll(); };
+    grid.appendChild(card);
+  });
+  panel.appendChild(grid);
+
+  if (S.submitted) {
+    const correct = S.selectedDx === p.correctDiagnosis;
+    const fb = document.createElement('div');
+    fb.className = 'feedback-panel ' + (correct ? 'correct' : 'incorrect');
+    fb.innerHTML = `
+      <div class="feedback-verdict">${correct ? '🎉 Good job — Correctly Diagnosed!' : 'Not Quite'}</div>
+      <div class="feedback-body">${correct ? p.rationale : `You selected <strong>${diagnoses.find(x=>x.id===S.selectedDx).name}</strong>. The correct diagnosis was <strong>${diagnoses.find(x=>x.id===p.correctDiagnosis).name}</strong>. ${p.rationale}`}</div>
+      <div class="feedback-stats">Tokens remaining at submission: ${S.tokens} / ${TOTAL_TOKENS}</div>`;
+    if (correct) {
+      const missed = computeMissedClues(p);
+      const labelMap2 = { history: 'Patient History', exam: 'Vitals & Physical Assessment', labs: 'Labs', diagnostics: 'Diagnostics', imaging: 'Imaging' };
+      const anyMissed = Object.values(missed).some(arr => arr.length);
+      if (anyMissed) {
+        const missedBox = document.createElement('div');
+        missedBox.className = 'missed-clues';
+        missedBox.innerHTML = `<div class="missed-clues-title">You got it right — here's what else was available</div><div class="missed-clues-sub">You didn't need these to reach the correct diagnosis, but each of the following also would have pointed toward or away from it. Worth knowing for next time:</div>`;
+        Object.keys(missed).forEach(store => {
+          if (!missed[store].length) return;
+          const row = document.createElement('div');
+          row.className = 'missed-clues-row';
+          row.innerHTML = `<div class="missed-clues-cat">${labelMap2[store]}</div><div class="missed-clues-items">${missed[store].join(', ')}</div>`;
+          missedBox.appendChild(row);
+        });
+        fb.appendChild(missedBox);
+      }
+    }
+    panel.appendChild(fb);
+    panel.appendChild(renderTreatmentSection(p));
+  } else {
+    const footer = document.createElement('div');
+    footer.className = 'diagnosis-footer';
+    footer.innerHTML = `<div class="diagnosis-hint">Select the diagnosis best supported by what's currently in evidence.</div>`;
+    const btn = document.createElement('button');
+    btn.className = 'btn amber';
+    btn.textContent = 'Submit Diagnosis';
+    btn.disabled = !S.selectedDx || !requirementsMet();
+    btn.onclick = () => { S.submitted = true; renderAll(); };
+    footer.appendChild(btn);
+    panel.appendChild(footer);
+  }
+}
+
+function renderConditions() {
+  const panel = document.getElementById('panel');
+  panel.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'cond-grid';
+  CONDITIONS.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'cond-card';
+    card.innerHTML = `
+      <div class="cond-name">${c.name}</div>
+      <div class="cond-row"><div class="cond-row-label">Pathophysiology</div><div class="cond-row-value">${c.path}</div></div>
+      <div class="cond-row"><div class="cond-row-label">Risk Factors</div><ul class="cond-list">${c.risk.map(r=>`<li>${r}</li>`).join('')}</ul></div>
+      <div class="cond-row"><div class="cond-row-label">Typical Presentation</div><ul class="cond-list">${c.presentation.map(r=>`<li>${r}</li>`).join('')}</ul></div>
+      <div class="cond-row"><div class="cond-row-label">Vital Signs</div><div class="cond-row-value">${c.vitals}</div></div>
+      <div class="cond-row"><div class="cond-row-label">Labs to Order &amp; Typical Results</div><ul class="cond-list">${c.labs.map(r=>`<li>${r}</li>`).join('')}</ul></div>
+      <div class="cond-row"><div class="cond-row-label">Diagnostics &amp; Imaging to Order</div><ul class="cond-list">${c.diag.map(r=>`<li>${r}</li>`).join('')}</ul></div>
+    `;
+    grid.appendChild(card);
+  });
+  panel.appendChild(grid);
+}
+
+function renderPanel() {
+  const p = currentPatient();
+  const t = tabDefsFor(p).find(x => x.id === S.activeTab);
+  if (t.kind === 'gate') renderGate(t);
+  else if (t.kind === 'menu') renderMenu(t);
+  else if (t.kind === 'diagnosis') renderDiagnosis();
+  else if (t.kind === 'conditions') renderConditions();
+}
+
+function renderAll() {
+  if (appStage === 'intro') { renderIntro(); return; }
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  renderHeader();
+  renderTokenBank();
+  renderTabs();
+  renderPanel();
+}
+
+function renderIntro() {
+  document.getElementById('gameScreen').style.display = 'none';
+  const intro = document.getElementById('introScreen');
+  intro.style.display = 'block';
+  intro.innerHTML = `
+    <div class="intro-wrap">
+      <div class="intro-card">
+        <div class="intro-org">Presented by The Nursing Team</div>
+        <div class="intro-title">Clinical Mysteries: <span>Diagnosis Unknown</span></div>
+        <div class="intro-disclaimer"><span class="icon">🖥️</span><span><strong>Best viewed on a computer or tablet.</strong> This activity is designed for a larger screen — it will be hard to use on a small mobile phone display. Use "Begin Investigation" below to also enter fullscreen mode for the best experience.</span></div>
+        <div class="intro-lede">Eight patients have come to the practice, each with a set of possible diagnoses that could explain what's happening to them. Your job: investigate, gather evidence, and land on the right diagnosis — for real, like a nurse actually would.</div>
+
+        <div class="intro-section-title">How It Works</div>
+        <ul class="intro-list">
+          <li>You'll work through 8 patients, one at a time. Each patient gives you <strong>15 tokens</strong> to spend on their case.</li>
+          <li><strong>Patient History</strong> and <strong>Vitals &amp; Physical Assessment</strong> each cost 1 token to unlock — once unlocked, you can review everything in that tab for free.</li>
+          <li><strong>Labs, Diagnostics,</strong> and <strong>Imaging</strong> are free to open, but each individual test you order costs 1 token.</li>
+          <li>Anything you order or review can be added to your <strong>evidence</strong> — and just as easily removed if you decide it isn't relevant. Toggle freely; it never costs extra tokens.</li>
+        </ul>
+
+        <div class="intro-section-title">Building Your Case</div>
+        <ul class="intro-list">
+          <li>The <strong>🔍 Diagnosis</strong> tab lists all 8 possible diagnoses. As you add evidence, diagnoses that don't fit are automatically ruled out for you.</li>
+          <li>Before you can submit a diagnosis, you must have at least <strong>2 pieces of evidence</strong> selected from Patient History, Physical Assessment, and Labs. If a patient has a Diagnostics or Imaging test that's definitive for their diagnosis, you'll also need at least <strong>1 selection</strong> from that tab.</li>
+          <li>Once you submit, you'll see whether you were right, along with the clinical rationale.</li>
+        </ul>
+
+        <div class="intro-section-title">Treatments, Interventions &amp; Education</div>
+        <ul class="intro-list">
+          <li>After every submission, you'll complete a <strong>Treatments / Nursing Interventions / Patient Education</strong> checklist for the patient's actual diagnosis.</li>
+          <li>Some choices are correct, some aren't — you must select <strong>all</strong> the correct ones (and none of the incorrect ones) before moving on. You can try as many times as you need.</li>
+        </ul>
+
+        <div class="intro-section-title">A Few More Things</div>
+        <ul class="intro-list">
+          <li>Stuck on a condition? The <strong>📖 Conditions</strong> tab is a free reference covering pathophysiology, risk factors, presentation, and what to order for all 8 possible diagnoses — available anytime.</li>
+          <li>Made a mistake or want a do-over? <strong>Reset Case</strong> restores the current patient to a clean slate.</li>
+        </ul>
+
+        <div class="intro-cta">
+          <button class="btn amber big" id="beginBtn">Begin Investigation →</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('beginBtn').onclick = () => { requestFullscreenSafely(); appStage = 'game'; renderAll(); };
+}
+
+function requestFullscreenSafely() {
+  try {
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (req) { req.call(el).catch(() => {}); }
+  } catch (e) { /* fullscreen not available in this context — ignore */ }
+}
+function toggleFullscreen() {
+  try {
+    if (!document.fullscreenElement) requestFullscreenSafely();
+    else (document.exitFullscreen || (()=>{})).call(document);
+  } catch (e) { /* ignore */ }
+}
+document.getElementById('fsBtn').onclick = toggleFullscreen;
+
+function openModal(title, body, onConfirm) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent = body;
+  pendingAction = onConfirm;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); pendingAction = null; }
+document.getElementById('modalCancel').onclick = closeModal;
+document.getElementById('modalConfirm').onclick = () => { if (pendingAction) pendingAction(); closeModal(); };
+document.getElementById('modalOverlay').addEventListener('click', (e) => { if (e.target.id === 'modalOverlay') closeModal(); });
+
+document.getElementById('resetBtn').onclick = () => openModal(
+  'Reset this case?',
+  'This clears all purchased data, evidence, and your selected diagnosis for the current patient, and restores your 15 tokens.',
+  () => { S = newPatientState(); renderAll(); }
+);
+
+renderAll();
+</script>
+</body>
+</html>

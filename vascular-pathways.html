@@ -1,0 +1,1344 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Vascular Pathways</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: sticky progress bar, left section rail (select on phones), one reading column; arterial red vs. venous blue as the two working colors */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --sunk:#E8ECF2; --line:#D3DAE4;
+  --ink:#16202E; --muted:#56627A;
+  --art:#A8233A; --art-soft:#F7E4E8;
+  --ven:#2C5590; --ven-soft:#E2EAF6;
+  --ok:#1D7A4E; --ok-soft:#DFF2E8; --bad:#B4321F; --bad-soft:#FBE5E0; --warn:#9A6A08; --warn-soft:#FBF0D6;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F141C; --surface:#18202B; --sunk:#202A37; --line:#2E3A4A;
+  --ink:#E7ECF3; --muted:#9AA7BA;
+  --art:#F0697F; --art-soft:#3A1E26; --ven:#7FA7E6; --ven-soft:#1B2A42;
+  --ok:#5CC994; --ok-soft:#15302A; --bad:#F2846E; --bad-soft:#3A201B; --warn:#E5B54D; --warn-soft:#332A14;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F141C; --surface:#18202B; --sunk:#202A37; --line:#2E3A4A;
+  --ink:#E7ECF3; --muted:#9AA7BA;
+  --art:#F0697F; --art-soft:#3A1E26; --ven:#7FA7E6; --ven-soft:#1B2A42;
+  --ok:#5CC994; --ok-soft:#15302A; --bad:#F2846E; --bad-soft:#3A201B; --warn:#E5B54D; --warn-soft:#332A14;
+  color-scheme:dark}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:16px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{flex:none}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:19px;letter-spacing:-.01em;white-space:nowrap}
+.brand span{font-size:13px;color:var(--muted);white-space:nowrap}
+.prog{margin-left:auto;display:flex;align-items:center;gap:10px;min-width:0}
+.prog-bar{width:160px;height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.prog-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--art),var(--ven));transition:width .4s}
+.prog-txt{font:600 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+@media (max-width:620px){.brand span{display:none}.prog-bar{width:80px}}
+@media (max-width:460px){.prog-bar{display:none}.brand b{font-size:17px}.brand{flex:1 1 auto}}
+
+/* shell */
+.shell{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:40px;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:900px){.shell{grid-template-columns:minmax(0,1fr);gap:16px;padding-top:16px}}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px);align-self:start}
+@media (max-width:900px){.rail{display:none}}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.rail a{text-decoration:none;box-sizing:border-box;width:100%;display:grid;grid-template-columns:26px 1fr 18px;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:15px;color:var(--muted)}
+.rail a:hover{background:var(--sunk);color:var(--ink)}
+.rail a:focus-visible{outline:2px solid var(--ven);outline-offset:1px}
+.rail a[aria-current="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--art)}
+.rail .n{font:600 12px var(--f-mono);color:var(--muted)}
+.rail .ck{font-size:13px;color:var(--ok);text-align:right}
+.rail .grp{font:700 11px var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:14px 10px 4px}
+.mnav{display:block;margin-bottom:20px;max-width:760px}
+@media (min-width:901px){.mnav{display:none}}
+.mnav label{display:block;font:700 11px var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.mnav select{width:100%;font:600 16px var(--f-body);padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+
+.jump-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.jump-card{display:flex;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600}
+.jump-card:hover{border-color:var(--art)}
+.jump-card:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.jump-card .n{font:700 12px var(--f-mono);color:var(--art)}
+.sec+.sec{margin-top:56px}
+.js .sec+.sec{margin-top:0}
+.concepts{display:flex;flex-direction:column;gap:14px}
+.concept{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.c-top{display:flex;gap:10px;align-items:baseline}
+.c-num{font:700 12px var(--f-mono);color:var(--art);flex:none}
+.sec .concept h4{margin:0;font-size:20px}
+.c-rule{font-size:17px;font-weight:600;max-width:66ch}
+.c-eq{background:var(--sunk);border-radius:8px;padding:8px 12px;font-size:14.5px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere}
+.c-ana{color:var(--muted);font-size:15.5px;max-width:66ch}
+.c-ana b{color:var(--ink)}
+.c-where{border-top:1px dashed var(--line);padding-top:10px;font-size:15.5px}
+.c-where b{font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ven);display:block;margin-bottom:4px}
+.c-where ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:3px}
+.ctags{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+.ctag{display:inline-block;font:700 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:99px;border:1px dashed var(--ven);color:var(--ven);background:var(--surface)}
+
+.anim{margin:16px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px;max-width:100%}
+.anim-h{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap}
+.sec .anim-h h4{margin:0;font-size:17px}
+.anim-ctl{display:flex;gap:6px;flex-wrap:wrap}
+.chipbtn{all:unset;box-sizing:border-box;cursor:pointer;font:700 13px var(--f-body);padding:6px 12px;border-radius:99px;border:1px solid var(--line);color:var(--ink);background:var(--bg)}
+.chipbtn:hover{border-color:var(--ven)}
+.chipbtn:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.chipbtn.anim-mode[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.anim svg{width:100%;height:auto;display:block;max-width:100%}
+.anim figcaption{font-size:15px;color:var(--muted);max-width:68ch}
+.anim.paused *{animation-play-state:paused!important}
+.anim svg *{transform-box:fill-box}
+.anim .sc{transform-origin:center}
+.anim .scl{transform-origin:0 50%}
+.anim .scb{transform-origin:50% 100%}
+.f-art{fill:var(--art)}.f-ven{fill:var(--ven)}.f-warn{fill:var(--warn)}.f-bad{fill:var(--bad)}.f-ink{fill:var(--ink)}.f-sunk{fill:var(--sunk)}.f-surf{fill:var(--surface)}.f-line{fill:var(--line)}.f-artsoft{fill:var(--art-soft)}.f-vensoft{fill:var(--ven-soft)}
+.nf{fill:none}.s-ink{stroke:var(--ink)}.s-art{stroke:var(--art)}.s-ven{stroke:var(--ven)}.s-bad{stroke:var(--bad)}.s-warn{stroke:var(--warn)}
+.anim .t{fill:var(--ink);font:600 15px var(--f-body)}
+.anim .tm{fill:var(--muted);font:500 13px var(--f-body)}
+.anim .tb{font-weight:800}
+.anim .mono{font-family:var(--f-mono)}
+@keyframes mv{from{transform:translate(0,0)}to{transform:translate(var(--dx,0px),var(--dy,0px))}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(var(--dy,-8px))}}
+@keyframes beat{0%,100%{transform:scale(1)}18%{transform:scale(1.07)}36%{transform:scale(1)}}
+@keyframes leak{0%{transform:translateX(0);opacity:0}20%{opacity:1}100%{transform:translateX(var(--dx));opacity:0}}
+@keyframes pezone{0%,68%{opacity:0}78%,95%{opacity:.55}100%{opacity:0}}
+@keyframes swell{from{transform:scaleX(1)}to{transform:scaleX(2.6)}}
+@keyframes gauge{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+@keyframes extend{0%{transform:scaleX(0)}80%,100%{transform:scaleX(1)}}
+@keyframes b12n{0%{transform:translate(0,0);opacity:1}20%{transform:translate(70px,0)}65%{transform:translate(390px,0)}80%{transform:translate(390px,92px);opacity:1}92%,100%{transform:translate(470px,92px);opacity:0}}
+@keyframes ifn{0%,17%{transform:translate(0,0);opacity:0}20%{transform:translate(0,0);opacity:1}65%{transform:translate(320px,0)}80%{transform:translate(320px,92px);opacity:1}92%,100%{transform:translate(400px,92px);opacity:0}}
+@keyframes b12p{0%{transform:translate(0,0);opacity:1}85%{transform:translate(500px,0);opacity:1}100%{transform:translate(530px,0);opacity:0}}
+@keyframes jam{0%{transform:translateX(0);opacity:0}8%{opacity:1}55%,92%{transform:translateX(var(--dx));opacity:1}100%{transform:translateX(var(--dx));opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(.8);opacity:.35}50%{transform:scale(1.4);opacity:.7}}
+@keyframes plug{0%{transform:translate(0,0);opacity:0}8%{opacity:1}45%,92%{transform:translate(var(--dx),var(--dy));opacity:1}100%{transform:translate(var(--dx),var(--dy));opacity:0}}
+@keyframes dropstop{0%{transform:translateY(0);opacity:1}12%{transform:translateY(-28px);opacity:0}100%{opacity:0}}
+@keyframes drip{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-34px);opacity:0}}
+@keyframes fibrin{0%,25%{opacity:0}45%,92%{opacity:1}100%{opacity:0}}
+@keyframes plugfail{0%,45%{transform:translate(0,0);opacity:1}65%,95%{transform:translate(6px,-12px);opacity:.25}100%{opacity:1;transform:translate(0,0)}}
+@keyframes leaklate{0%,55%{opacity:0;transform:translateY(0)}62%{opacity:1}75%{opacity:0;transform:translateY(-32px)}100%{opacity:0}}
+@keyframes dicclot{0%{opacity:0}8%,85%{opacity:1}95%,100%{opacity:0}}
+@keyframes dicbleed{0%,52%{opacity:0;transform:translateY(0)}60%{opacity:1}75%{opacity:0;transform:translateY(var(--dy))}100%{opacity:0}}
+@keyframes dicbar{0%{transform:scaleX(1)}50%,90%{transform:scaleX(.12)}100%{transform:scaleX(1)}}
+@keyframes dicl1{0%,47%{opacity:1}50%,100%{opacity:0}}
+@keyframes dicl2{0%,48%{opacity:0}52%,96%{opacity:1}100%{opacity:0}}
+@keyframes abomove{0%,15%{transform:translate(0,0)}50%,100%{transform:translate(var(--dx),var(--dy))}}
+@keyframes burst{0%,55%{transform:scale(1);opacity:1}70%{transform:scale(1.15);opacity:.6}80%,96%{transform:scale(1.3);opacity:0}100%{transform:scale(1);opacity:0}}
+
+.ctag{cursor:pointer;font-family:var(--f-body)}
+button.ctag{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font:700 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:99px;border:1px dashed var(--ven);color:var(--ven);background:var(--surface)}
+button.ctag::after{content:"i";display:inline-grid;place-items:center;width:14px;height:14px;border-radius:50%;background:var(--ven);color:var(--surface);font:700 10px var(--f-mono);text-transform:none;letter-spacing:0}
+button.ctag:hover,button.ctag[aria-expanded="true"]{background:var(--ven-soft);border-style:solid}
+button.ctag:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.cpop{position:absolute;z-index:30;width:min(380px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 14px 40px rgba(10,20,40,.22);padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px}
+.cpop[hidden]{display:none!important}
+.cpop-top{display:flex;justify-content:space-between;align-items:center}
+.cpop h4{margin:0;font-size:19px}
+.cpop .c-rule{font-size:16px}
+.cpop .c-eq:empty{display:none}
+.cpop-x{all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;font-size:22px;line-height:1;color:var(--muted)}
+.cpop-x:hover{background:var(--sunk);color:var(--ink)}
+.cpop-x:focus-visible{outline:2px solid var(--ven)}
+.cpop .cpop-go{align-self:flex-start;margin-top:4px}
+@media (max-width:600px){.cpop{position:fixed;top:auto!important;left:max(12px,env(safe-area-inset-left,0px))!important;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:auto;max-height:70vh;overflow:auto}}
+
+/* content */
+main{min-width:0}
+.sec{max-width:760px}
+.eyebrow{font:700 12px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--art);margin-bottom:8px}
+.sec h2{font-size:clamp(30px,4.5vw,42px);font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
+.lede{font-size:19px;color:var(--muted);max-width:62ch;margin-bottom:28px}
+.sec h3{font-size:22px;font-weight:700;margin:36px 0 12px}
+.sec h4{font-size:17px;font-weight:700;margin:22px 0 8px}
+.prose{display:flex;flex-direction:column;gap:12px;max-width:66ch}
+.prose ul,.prose ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.prose strong{color:var(--ink)}
+.callout{border-radius:var(--r);padding:14px 16px;background:var(--sunk);display:flex;flex-direction:column;gap:6px;max-width:66ch}
+.callout b.lbl{font:700 12px var(--f-body);letter-spacing:.09em;text-transform:uppercase}
+.callout.art{background:var(--art-soft)} .callout.art b.lbl{color:var(--art)}
+.callout.ven{background:var(--ven-soft)} .callout.ven b.lbl{color:var(--ven)}
+.callout.warn{background:var(--warn-soft)} .callout.warn b.lbl{color:var(--warn)}
+.tbl-wrap{overflow-x:auto;margin:6px 0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 12px var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td.k{font-weight:700;white-space:nowrap}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:620px){.two{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.panel h4{margin:0}
+.panel ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15.5px}
+.tag{display:inline-block;font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px}
+.tag.art{background:var(--art-soft);color:var(--art)} .tag.ven{background:var(--ven-soft);color:var(--ven)}
+
+/* objectives */
+.objs{counter-reset:o;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;max-width:66ch}
+.objs li{counter-increment:o;display:grid;grid-template-columns:34px 1fr;gap:10px}
+.objs li::before{content:counter(o,decimal-leading-zero);font:700 13px var(--f-mono);color:var(--art);padding-top:3px}
+.how{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:6px}
+@media (max-width:620px){.how{grid-template-columns:1fr}}
+.how .panel p{font-size:15.5px;color:var(--muted)}
+
+/* term cards */
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.term{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;min-height:118px;display:flex;flex-direction:column;gap:6px}
+.term:hover{border-color:var(--ven)}
+.term:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.term b{font-family:var(--f-display);font-size:18px}
+.term .hint{font-size:13px;color:var(--muted)}
+.term .def{font-size:15px;line-height:1.45}
+.term[aria-pressed="true"]{background:var(--ven-soft);border-color:transparent}
+.parts td:first-child{font-family:var(--f-mono);font-weight:700;color:var(--ven)}
+
+/* tools */
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px;margin:8px 0}
+.tool-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tool-h h4{margin:0}
+.tool-h span{font-size:13px;color:var(--muted)}
+.fields{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font:700 12px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.field input{width:110px;font:700 20px var(--f-mono);padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.field input:focus{outline:2px solid var(--ven);outline-offset:1px}
+.readout{display:flex;gap:10px;flex-wrap:wrap}
+.chip{border-radius:8px;padding:10px 14px;background:var(--sunk);display:flex;flex-direction:column;gap:2px;min-width:120px}
+.chip small{font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chip b{font:700 18px var(--f-mono)}
+.chip.lvl-0{background:var(--ok-soft)} .chip.lvl-0 b{color:var(--ok)}
+.chip.lvl-1{background:var(--warn-soft)} .chip.lvl-1 b{color:var(--warn)}
+.chip.lvl-2{background:var(--art-soft)} .chip.lvl-2 b{color:var(--art)}
+.chip.lvl-3{background:var(--bad);} .chip.lvl-3 b,.chip.lvl-3 small{color:var(--surface)}
+.tool p.note{font-size:15px;color:var(--muted)}
+
+/* stepper */
+.stepper svg{width:100%;height:auto;max-width:100%;display:block}
+.step-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--art)}
+.step-txt{min-height:4.5em}
+.step-txt b{font-family:var(--f-display);font-size:18px;display:block;margin-bottom:2px}
+
+/* buttons */
+.btn{all:unset;box-sizing:border-box;cursor:pointer;font:700 15px var(--f-body);padding:9px 16px;border-radius:8px;background:var(--ink);color:var(--surface);text-align:center}
+.btn:hover{opacity:.88}
+.btn:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--sunk);opacity:1}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+.btn.art{background:var(--art);color:#fff}
+
+/* sorter */
+.sorter{display:flex;flex-direction:column;gap:8px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--bg)}
+.srow .pick{display:flex;gap:6px}
+.srow .pick button{all:unset;cursor:pointer;font:700 13px var(--f-body);padding:6px 10px;border-radius:6px;border:1px solid var(--line)}
+.srow .pick button:focus-visible{outline:2px solid var(--ven)}
+.srow .pick button[data-s="a"]{color:var(--art)} .srow .pick button[data-s="v"]{color:var(--ven)}
+.srow.right{background:var(--ok-soft)} .srow.wrong{background:var(--bad-soft)}
+.srow .fb{grid-column:1/-1;font-size:14px;color:var(--muted)}
+
+/* quizzes */
+.quiz{margin-top:32px;border-top:2px solid var(--ink);padding-top:18px;display:flex;flex-direction:column;gap:16px}
+.quiz-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.quiz-h h3{margin:0}
+.quiz-h .score{font:700 14px var(--f-mono);color:var(--muted)}
+.inline-q{margin:22px 0}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px}
+.q-top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.q-num{font:700 12px var(--f-mono);color:var(--art)}
+.q-type{font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ven);background:var(--ven-soft);padding:2px 8px;border-radius:99px}
+.q-stem{font-weight:600;font-size:17px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--bg)}
+.opt:hover{border-color:var(--ven)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt .mk{width:22px;height:22px;border:2px solid var(--muted);display:grid;place-items:center;font:700 12px var(--f-mono);color:var(--muted);margin-top:1px}
+.opt .mk.r{border-radius:50%} .opt .mk.c{border-radius:5px}
+.opt:has(input:checked){border-color:var(--ven);background:var(--ven-soft)}
+.opt:has(input:checked) .mk{border-color:var(--ven);background:var(--ven);color:#fff}
+.opt:has(input:focus-visible){outline:2px solid var(--ven);outline-offset:1px}
+.q.done .opt{cursor:default}
+.opt.is-correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.is-correct .mk{border-color:var(--ok)!important;background:var(--ok)!important;color:#fff!important}
+.opt.is-wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.is-wrong .mk{border-color:var(--bad)!important;background:var(--bad)!important;color:#fff!important}
+.opt.missed{border-style:dashed;border-color:var(--ok)}
+.q-act{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.verdict{font-weight:700}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--bad)}
+.why{background:var(--sunk);border-radius:8px;padding:12px 14px;font-size:15.5px;display:flex;flex-direction:column;gap:6px}
+.why b{font:700 12px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* pager */
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:44px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pager .btn{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:10px 16px;max-width:100%}
+.pager .btn small{font:600 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.pager .next{margin-left:auto;align-items:flex-end;text-align:right}
+
+/* final */
+.final-head{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.final-head .field input{width:240px;font:600 17px var(--f-body)}
+.result{background:var(--ink);color:var(--surface);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:8px}
+.result .big{font:800 54px var(--f-display);letter-spacing:-.02em;line-height:1}
+.result p{opacity:.85}
+.unanswered{color:var(--bad);font-weight:600}
+
+/* bring list */
+.bring{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;max-width:70ch}
+.bring li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.bring input{width:20px;height:20px;accent-color:var(--ok);margin-top:3px}
+.bring li:has(input:checked){background:var(--ok-soft);border-color:transparent}
+.bring b{display:block}
+.bring span{font-size:15.5px;color:var(--muted)}
+.vessel-fig{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.vessel-fig figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.vessel-fig svg{width:100%;max-width:170px;height:auto}
+.vessel-fig figcaption{font-size:14px;color:var(--muted)}
+.vessel-fig figcaption b{color:var(--ink);font-family:var(--f-display);font-size:16px;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);justify-content:center}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+</style>
+
+<div id="top-anchor"></div>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M3 10 C10 4, 18 16, 27 10" fill="none" stroke="var(--art)" stroke-width="3" stroke-linecap="round"/><path d="M3 20 C10 14, 18 26, 27 20" fill="none" stroke="var(--ven)" stroke-width="3" stroke-linecap="round"/></svg>
+      <b>Vascular Pathways</b><span>Unit 4 · Pre-class assignment</span>
+    </div>
+    <div class="prog" aria-label="Progress">
+      <div class="prog-bar"><i id="progFill"></i></div>
+      <span class="prog-txt" id="progTxt">0 / 0 checks</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Sections"><ol id="railList"><li class="grp">Start here</li><li><a class="navlink" href="#sec-intro" data-i="0"><span class="n">01</span><span>Introduction</span><span class="ck"></span></a></li><li class="grp">Foundations</li><li><a class="navlink" href="#sec-terms" data-i="1"><span class="n">02</span><span>Medical terminology</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-anp" data-i="2"><span class="n">03</span><span>A&amp;P of the vessels</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-concepts" data-i="3"><span class="n">04</span><span>Key concepts</span><span class="ck"></span></a></li><li class="grp">Conditions</li><li><a class="navlink" href="#sec-htn" data-i="4"><span class="n">05</span><span>Hypertension &amp; crisis</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-athero" data-i="5"><span class="n">06</span><span>Atherosclerosis &amp; arteriosclerosis</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-pad" data-i="6"><span class="n">07</span><span>Peripheral arterial disease</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-cvi" data-i="7"><span class="n">08</span><span>Venous insufficiency</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-vte" data-i="8"><span class="n">09</span><span>Venous thromboembolism</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-aaa" data-i="9"><span class="n">10</span><span>Abdominal aortic aneurysm</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-diss" data-i="10"><span class="n">11</span><span>Aortic dissection</span><span class="ck"></span></a></li><li class="grp">Finish</li><li><a class="navlink" href="#sec-final" data-i="11"><span class="n">12</span><span>Final test</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-bring" data-i="12"><span class="n">13</span><span>Come to class with</span><span class="ck"></span></a></li></ol></nav>
+  <main>
+    <div class="mnav"><label for="mnavSel">Jump to a section</label><select id="mnavSel"><option value="0">1. Introduction</option><option value="1">2. Medical terminology</option><option value="2">3. A&amp;P of the vessels</option><option value="3">4. Key concepts</option><option value="4">5. Hypertension &amp; crisis</option><option value="5">6. Atherosclerosis &amp; arteriosclerosis</option><option value="6">7. Peripheral arterial disease</option><option value="7">8. Venous insufficiency</option><option value="8">9. Venous thromboembolism</option><option value="9">10. Abdominal aortic aneurysm</option><option value="10">11. Aortic dissection</option><option value="11">12. Final test</option><option value="12">13. Come to class with</option></select></div>
+
+    <!-- 0 INTRO -->
+    <section class="sec" id="sec-intro" data-id="intro" data-title="Introduction" data-grp="Start here">
+      <div class="eyebrow">Section 1 · Introduction</div>
+      <h2>The vessels carry the story</h2>
+      <p class="lede">The heart gets most of the attention, but the vessels decide whether blood actually reaches the tissues. When vessel walls stiffen, narrow, balloon, tear, or let blood pool, every organ downstream feels it.</p>
+      <div class="prose">
+        <p>This assignment walks you through the vascular conditions you will see constantly in med-surg, the ED, and critical care. Some develop silently over decades, like hypertension and atherosclerosis. Others, like a ruptured aneurysm or an aortic dissection, can kill within hours. Your job as the nurse is to recognize which is which, understand <em>why</em> the signs appear, and know what to do first.</p>
+        <p>Every condition here traces back to three questions: <strong>Is blood getting in</strong> (arterial flow)? <strong>Is blood getting out</strong> (venous return)? <strong>Is the vessel wall holding</strong> (structure)?</p>
+      </div>
+
+      <h3>Learning objectives</h3>
+      <p class="prose" style="margin-bottom:12px">When you finish, you should be able to:</p>
+      <ol class="objs">
+        <li>Define the medical terms used to describe vascular disease and its findings.</li>
+        <li>Describe the structure of arteries, veins, and capillaries and how blood pressure is regulated.</li>
+        <li>Apply core physical and biological principles (flow and resistance, Poiseuille's and Laplace's laws, gravity, Starling forces, turbulence, daily weight) to explain vascular findings.</li>
+        <li>Classify blood pressure readings and explain the difference between hypertensive urgency and hypertensive emergency.</li>
+        <li>Explain how arteriosclerosis and atherosclerosis develop and why plaque rupture causes acute events.</li>
+        <li>Compare the assessment findings and nursing care of peripheral arterial disease and chronic venous insufficiency.</li>
+        <li>Explain how Virchow's triad leads to venous thromboembolism and why anticoagulants are used to prevent and treat it.</li>
+        <li>Differentiate an abdominal aortic aneurysm from an aortic dissection and explain the priority nursing actions for each.</li>
+      </ol>
+
+      <h3>How to use this assignment</h3>
+      <div class="how">
+        <div class="panel"><h4>Work in order</h4><p>Terminology, A&amp;P, and Key concepts come first because every later section uses them. Use the <strong>Next</strong> button at the bottom of each section, the section list, or the <strong>Jump to a section</strong> menu to move around.</p></div>
+        <div class="panel"><h4>Answer every check</h4><p>Each section ends with a short quiz, and some have questions in the middle. You get the answer and the rationale right away. Read the rationale even when you get it right.</p></div>
+        <div class="panel"><h4>Use the tools</h4><p>Try the blood pressure classifier, the ABI calculator, the plaque step-through, and the arterial vs. venous sorter. They are there to make the numbers stick.</p></div>
+        <div class="panel"><h4>Finish with the test</h4><p>The final test has 20 NCLEX-RN style items at the understanding level. Answer all of them, submit, and take a screenshot of your score page if your instructor asks for it.</p></div>
+      </div>
+      <h3>Jump to a section</h3>
+      <div class="jump-grid"><a class="jump-card navlink" href="#sec-terms" data-i="1"><span class="n">02</span><span>Medical terminology</span></a><a class="jump-card navlink" href="#sec-anp" data-i="2"><span class="n">03</span><span>A&amp;P of the vessels</span></a><a class="jump-card navlink" href="#sec-concepts" data-i="3"><span class="n">04</span><span>Key concepts</span></a><a class="jump-card navlink" href="#sec-htn" data-i="4"><span class="n">05</span><span>Hypertension &amp; crisis</span></a><a class="jump-card navlink" href="#sec-athero" data-i="5"><span class="n">06</span><span>Atherosclerosis &amp; arteriosclerosis</span></a><a class="jump-card navlink" href="#sec-pad" data-i="6"><span class="n">07</span><span>Peripheral arterial disease</span></a><a class="jump-card navlink" href="#sec-cvi" data-i="7"><span class="n">08</span><span>Venous insufficiency</span></a><a class="jump-card navlink" href="#sec-vte" data-i="8"><span class="n">09</span><span>Venous thromboembolism</span></a><a class="jump-card navlink" href="#sec-aaa" data-i="9"><span class="n">10</span><span>Abdominal aortic aneurysm</span></a><a class="jump-card navlink" href="#sec-diss" data-i="10"><span class="n">11</span><span>Aortic dissection</span></a><a class="jump-card navlink" href="#sec-final" data-i="11"><span class="n">12</span><span>Final test</span></a><a class="jump-card navlink" href="#sec-bring" data-i="12"><span class="n">13</span><span>Come to class with</span></a></div>
+      <div class="callout ven" style="margin-top:14px"><b class="lbl">Time and saving</b><p>Plan on about 90 minutes. Your answers are saved in this browser on this device, so you can stop and come back. Switching devices or using a private window starts you over.</p></div>
+    </section>
+
+    <!-- 1 TERMS -->
+    <section class="sec" id="sec-terms" data-id="terms" data-title="Medical terminology" data-grp="Foundations">
+      <div class="eyebrow">Section 2 · Foundations</div>
+      <h2>Medical terminology</h2>
+      <p class="lede">Learn the word parts first. Most vascular terms are built from a handful of roots, so if you know the pieces you can decode a word you have never seen.</p>
+      <h3>Word parts</h3>
+      <div class="tbl-wrap"><table class="parts">
+        <thead><tr><th>Part</th><th>Meaning</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>angi/o, vas/o</td><td>vessel</td><td>angioplasty, vasoconstriction</td></tr>
+          <tr><td>arteri/o</td><td>artery</td><td>arteriosclerosis</td></tr>
+          <tr><td>phleb/o, ven/o</td><td>vein</td><td>phlebitis, venous stasis</td></tr>
+          <tr><td>ather/o</td><td>fatty paste, plaque</td><td>atherosclerosis</td></tr>
+          <tr><td>scler/o, -sclerosis</td><td>hardening</td><td>arteriosclerosis</td></tr>
+          <tr><td>thromb/o</td><td>clot</td><td>thrombus, thrombolytic</td></tr>
+          <tr><td>embol/o</td><td>something that travels and plugs</td><td>embolus, embolism</td></tr>
+          <tr><td>isch-</td><td>to hold back (blood)</td><td>ischemia</td></tr>
+          <tr><td>-emia</td><td>blood condition</td><td>hyperlipidemia, ischemia</td></tr>
+          <tr><td>-itis</td><td>inflammation</td><td>thrombophlebitis, vasculitis</td></tr>
+          <tr><td>-plasty / -ectomy</td><td>surgical repair / removal</td><td>angioplasty, endarterectomy</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Key terms</h3>
+      <p class="prose" style="margin-bottom:12px">Say the definition to yourself first, then tap the card to check.</p>
+      <div class="terms" id="termGrid"></div>
+      <div class="quiz" data-quiz="terms"></div>
+    </section>
+
+    <!-- 2 A&P -->
+    <section class="sec" id="sec-anp" data-id="anp" data-title="A&amp;P of the vessels" data-grp="Foundations">
+      <div class="eyebrow">Section 3 · Foundations</div>
+      <h2>A&amp;P of the vascular system</h2>
+      <p class="lede">Arteries are built to handle pressure. Veins are built to hold volume. Capillaries are built for exchange. Each disease in this unit breaks one of those designs.</p>
+
+      <h3>Three layers, three vessel types</h3>
+      <div class="vessel-fig" role="img" aria-label="Cross sections of an artery, a vein, and a capillary">
+        <figure>
+          <svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="74" fill="var(--sunk)" stroke="var(--line)"/><circle cx="80" cy="80" r="62" fill="var(--art)" opacity=".85"/><circle cx="80" cy="80" r="36" fill="var(--warn)"/><circle cx="80" cy="80" r="32" fill="var(--surface)"/></svg>
+          <figcaption><b>Artery</b>Thick muscular media, round lumen, high pressure</figcaption>
+        </figure>
+        <figure>
+          <svg viewBox="0 0 160 160"><ellipse cx="80" cy="80" rx="74" ry="58" fill="var(--sunk)" stroke="var(--line)"/><ellipse cx="80" cy="80" rx="64" ry="48" fill="var(--ven)" opacity=".85"/><ellipse cx="80" cy="80" rx="58" ry="42" fill="var(--warn)"/><ellipse cx="80" cy="80" rx="55" ry="39" fill="var(--surface)"/></svg>
+          <figcaption><b>Vein</b>Thin media, wide lumen, valves, low pressure</figcaption>
+        </figure>
+        <figure>
+          <svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="22" fill="var(--warn)"/><circle cx="80" cy="80" r="17" fill="var(--surface)"/></svg>
+          <figcaption><b>Capillary</b>One layer of endothelium, built for exchange</figcaption>
+        </figure>
+      </div>
+      <div class="legend"><span><i style="background:var(--sunk);border:1px solid var(--line)"></i>Tunica externa (adventitia)</span><span><i style="background:var(--art)"></i><i style="background:var(--ven);margin-left:-3px"></i>Tunica media</span><span><i style="background:var(--warn)"></i>Tunica intima (endothelium)</span></div>
+
+      <div class="tbl-wrap" style="margin-top:16px"><table>
+        <thead><tr><th>Layer</th><th>What it is</th><th>Why it matters clinically</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Tunica intima</td><td>Endothelium, a single cell layer lining every vessel</td><td>Where atherosclerosis begins; injury here triggers clotting and inflammation; tears here start an aortic dissection</td></tr>
+          <tr><td class="k">Tunica media</td><td>Smooth muscle and elastic fibers</td><td>Controls vessel diameter (constriction and dilation); weakens in aneurysms; stiffens with age and hypertension</td></tr>
+          <tr><td class="k">Tunica externa</td><td>Connective tissue and collagen</td><td>Anchors the vessel and resists overstretching</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Arteries vs. veins</h3>
+      <div class="two">
+        <div class="panel"><span class="tag art">Arterial side</span><h4>Delivery under pressure</h4><ul><li>Carry blood away from the heart</li><li>Elastic large arteries absorb each beat and recoil to keep flow moving</li><li>Arterioles are the main control point for resistance</li><li>Problem when blocked: tissue is starved of oxygen (ischemia)</li></ul></div>
+        <div class="panel"><span class="tag ven">Venous side</span><h4>Return against gravity</h4><ul><li>Carry blood back to the heart</li><li>Hold about 60 to 70% of total blood volume (capacitance vessels)</li><li>One-way valves plus the calf muscle pump push blood upward</li><li>Problem when blocked or valves fail: blood pools, causing edema and congestion</li></ul></div>
+      </div>
+
+      <h3>What sets blood pressure</h3>
+      <div class="prose">
+        <p class="mono" style="font-size:16px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px">BP = Cardiac output × Systemic vascular resistance<br>Cardiac output = Heart rate × Stroke volume</p>
+        <p>Anything that raises heart rate, stroke volume, or resistance raises blood pressure. The body adjusts all three constantly:</p>
+        <ul>
+          <li><strong>Baroreceptors</strong> in the carotid sinus and aortic arch sense stretch. High BP leads to slower heart rate and vasodilation; low BP leads to the opposite.</li>
+          <li><strong>Sympathetic nervous system</strong> releases norepinephrine, which raises heart rate and constricts vessels.</li>
+          <li><strong>RAAS</strong>: low renal perfusion releases renin → angiotensin I → (ACE) → angiotensin II. Angiotensin II is a powerful vasoconstrictor and triggers aldosterone, which retains sodium and water.</li>
+          <li><strong>ADH</strong> (vasopressin) retains water and constricts vessels.</li>
+          <li><strong>Endothelium</strong> releases nitric oxide (vasodilator) and endothelin (vasoconstrictor) to fine-tune local flow.</li>
+        </ul>
+        <p><strong>Mean arterial pressure (MAP)</strong> is the average pressure pushing blood into the organs during one cardiac cycle: <span class="mono">MAP = (SBP + 2 × DBP) ÷ 3</span>. A MAP of at least 65 mm Hg is generally needed to perfuse the brain, heart, and kidneys.</p>
+      </div>
+      <div class="quiz" data-quiz="anp"></div>
+    </section>
+
+    <!-- CONCEPTS -->
+    <section class="sec" id="sec-concepts" data-id="concepts" data-title="Key concepts" data-grp="Foundations">
+      <div class="eyebrow">Section 4 · Foundations</div>
+      <h2>Key concepts</h2>
+      <p class="lede">These principles explain why the findings in the next sections happen. Learn them once and you can reason through conditions you haven't memorized.</p>
+      <div class="concepts">
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C1</span><h4>Flow, pressure, and resistance</h4></div>
+          <p class="c-rule">Blood pressure rises when the heart pumps more or the vessels resist more. Lower either one and pressure falls.</p>
+          <p class="c-eq mono">BP = Cardiac output × Systemic vascular resistance</p>
+          <p class="c-ana"><b>Picture it:</b> A garden hose sprays harder when you open the faucet more (cardiac output) or squeeze the nozzle (resistance).</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Each antihypertensive class lowers one part: diuretics and beta blockers lower output; ACE inhibitors, ARBs, and calcium channel blockers lower resistance</li><li>Aortic dissection: beta blockers lower the force of each beat before vasodilators lower resistance</li><li>Shock: low output or lost resistance drops BP</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C2</span><h4>Poiseuille's law: radius rules flow</h4></div>
+          <p class="c-rule">Flow through a tube depends on its radius raised to the fourth power. A small narrowing causes a large drop in flow.</p>
+          <p class="c-eq mono">Flow ∝ radius⁴ · halve the radius → about 1/16 of the flow</p>
+          <p class="c-ana"><b>Picture it:</b> Pinch a drinking straw halfway closed and it becomes very hard to drink through.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Peripheral arterial disease: plaque that narrows the artery moderately can cut flow enough to cause claudication</li><li>Carotid and renal artery stenosis</li><li>Why small changes in arteriole diameter control blood pressure so powerfully</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C3</span><h4>Laplace's law: bigger vessels, more wall stress</h4></div>
+          <p class="c-rule">The tension on a vessel wall rises with both the pressure inside it and its radius. As a vessel widens, its wall is under more stress, so it widens further.</p>
+          <p class="c-eq mono">Wall tension ∝ Pressure × Radius</p>
+          <p class="c-ana"><b>Picture it:</b> A balloon is hardest to blow up at the start. Once it's big, it stretches easily, and that's when it pops.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Abdominal aortic aneurysm: rupture risk climbs as the diameter grows, which is why size guides repair</li><li>Why BP control matters for aneurysm and dissection</li><li>Dilated ventricles in heart failure work harder</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C4</span><h4>Gravity and hydrostatic pressure</h4></div>
+          <p class="c-rule">Gravity pulls blood toward the lowest part of the body. Positioning can help or hinder flow.</p>
+          
+          <p class="c-ana"><b>Picture it:</b> Water flows downhill. Pumping it uphill takes valves and muscle.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Peripheral arterial disease: dangling the legs helps arterial blood reach the feet</li><li>Venous insufficiency: elevating the legs helps blood return to the heart</li><li>Dependent edema; venous stasis as a cause of DVT</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C5</span><h4>Starling forces at the capillary</h4></div>
+          <p class="c-rule">Hydrostatic pressure pushes fluid out of capillaries. Oncotic pressure from plasma proteins (mainly albumin) pulls it back in. Edema forms when push beats pull.</p>
+          <p class="c-eq mono">Push out: capillary hydrostatic pressure · Pull in: plasma oncotic pressure</p>
+          <p class="c-ana"><b>Picture it:</b> A soaker hose leaks more when you turn up the water pressure. A sponge (albumin) next to it soaks some of the water back up.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Venous insufficiency: high venous pressure pushes fluid into the legs</li><li>Pulmonary edema in hypertensive emergency and fluid overload</li><li>Low albumin (liver disease, malnutrition) causes edema even with normal pressure</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C6</span><h4>Turbulent flow</h4></div>
+          <p class="c-rule">Blood normally flows smoothly in layers. A narrowing or a bulge disrupts the layers, creating turbulence you can hear (bruit) or feel (thrill).</p>
+          
+          <p class="c-ana"><b>Picture it:</b> A calm river is quiet. Where it narrows over rocks, the rapids roar.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Carotid bruit in atherosclerosis</li><li>Abdominal bruit over an aneurysm</li><li>Turbulence at rough plaque also activates platelets and promotes clots</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C7</span><h4>Daily weight tracks fluid</h4></div>
+          <p class="c-rule">Daily weight is the most reliable indicator of fluid gain or loss. A change of 1 kg (2.2 lb) is about 1 liter of fluid.</p>
+          <p class="c-eq mono">1 kg ≈ 1 L of fluid</p>
+          <p class="c-ana"><b>Picture it:</b> A liter bottle of water weighs about a kilogram. Gaining a kilogram overnight is like drinking that bottle and keeping it.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Clients on diuretics for hypertension</li><li>Heart failure from long-standing hypertension</li><li>Kidney injury after AAA repair; fluid overload during transfusion</li><li>Weigh at the same time, on the same scale, in similar clothing, usually after voiding and before breakfast</li></ul></div>
+        </article>
+      </div>
+      <div class="callout ven" style="margin-top:16px"><b class="lbl">Watch for the tags</b><p>In the condition sections, a tag such as <button type="button" class="ctag" data-c="3" aria-haspopup="dialog" aria-expanded="false">Concept · Gravity</button> marks where one of these concepts explains what you are reading. When you see one, stop and ask yourself how the concept applies.</p></div>
+      <div class="quiz" data-quiz="concepts"></div>
+    </section>
+
+
+    <!-- 3 HTN -->
+    <section class="sec" id="sec-htn" data-id="htn" data-title="Hypertension &amp; crisis" data-grp="Conditions">
+      <div class="eyebrow">Section 5 · Conditions</div>
+      <h2>Hypertension and hypertensive crisis</h2>
+      <p class="lede">Hypertension is a sustained elevation of arterial pressure. It usually causes no symptoms while it damages the heart, brain, kidneys, eyes, and vessels, which is why it is called the silent killer.</p>
+
+      <h3>Classification (adults)</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Category</th><th>Systolic</th><th></th><th>Diastolic</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Normal</td><td class="mono">&lt; 120</td><td>and</td><td class="mono">&lt; 80</td></tr>
+          <tr><td class="k">Elevated</td><td class="mono">120–129</td><td>and</td><td class="mono">&lt; 80</td></tr>
+          <tr><td class="k">Stage 1 hypertension</td><td class="mono">130–139</td><td>or</td><td class="mono">80–89</td></tr>
+          <tr><td class="k">Stage 2 hypertension</td><td class="mono">≥ 140</td><td>or</td><td class="mono">≥ 90</td></tr>
+          <tr><td class="k">Hypertensive crisis</td><td class="mono">&gt; 180</td><td>and/or</td><td class="mono">&gt; 120</td></tr>
+        </tbody>
+      </table></div>
+      <p class="prose" style="font-size:15px;color:var(--muted);margin-top:6px">Categories follow the AHA/ACC adult guideline. When systolic and diastolic fall in different categories, use the higher one.</p>
+
+      <div class="tool" id="bpTool">
+        <div class="tool-h"><h4>Blood pressure classifier</h4><span>Enter any reading</span></div>
+        <div class="fields">
+          <div class="field"><label for="bpS">Systolic</label><input id="bpS" type="number" inputmode="numeric" value="152"></div>
+          <div class="field"><label for="bpD">Diastolic</label><input id="bpD" type="number" inputmode="numeric" value="94"></div>
+        </div>
+        <div class="readout" id="bpOut"></div>
+        <p class="note" id="bpNote"></p>
+      </div>
+
+      <h3>Primary vs. secondary</h3>
+      <div class="two">
+        <div class="panel"><h4>Primary (essential), about 90%</h4><ul><li>No single identifiable cause</li><li>Develops gradually from genetics plus lifestyle</li><li>Risk factors: age, family history, Black race, obesity, high sodium intake, physical inactivity, excess alcohol, smoking, diabetes, stress</li></ul></div>
+        <div class="panel"><h4>Secondary, about 10%</h4><ul><li>Caused by another condition; often sudden or severe</li><li>Kidney disease, renal artery stenosis, sleep apnea, hyperaldosteronism, pheochromocytoma, thyroid disease</li><li>Drugs: NSAIDs, decongestants, oral contraceptives, steroids, cocaine, amphetamines</li></ul></div>
+      </div>
+
+      <h3>Target organ damage</h3>
+      <figure class="anim" id="fig-htn">
+        <div class="anim-h"><h4>The heart against high pressure</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 225" role="img" aria-label="Normal and thickened left ventricle beating"><text class="t mono" x="160" y="22" text-anchor="middle">BP 118/76</text><g class="sc" style="animation:beat 1.1s ease-in-out infinite"><circle class="f-art" cx="160" cy="112" r="62" opacity=".85"/><circle class="f-artsoft" cx="160" cy="112" r="46"/></g><text class="t" x="160" y="212" text-anchor="middle">Normal left ventricle</text><text class="t mono" x="440" y="22" text-anchor="middle">BP 168/102</text><g class="sc" style="animation:beat 1.1s ease-in-out infinite"><circle class="f-art" cx="440" cy="112" r="74" opacity=".85"/><circle class="f-artsoft" cx="440" cy="112" r="36"/></g><text class="t" x="440" y="212" text-anchor="middle">Hypertrophied left ventricle</text><text class="tm" x="300" y="116" text-anchor="middle">→</text></svg>
+        <figcaption>Pumping against high pressure year after year thickens the left ventricle (left ventricular hypertrophy). The thick wall needs more oxygen, fills poorly, and eventually fails.</figcaption>
+      </figure>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Organ</th><th>What chronic high pressure does</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Heart</td><td>Left ventricular hypertrophy (pumping against high afterload), heart failure, coronary artery disease, MI</td></tr>
+          <tr><td class="k">Brain</td><td>Stroke (ischemic and hemorrhagic), TIA, vascular dementia</td></tr>
+          <tr><td class="k">Kidneys</td><td>Nephrosclerosis leading to chronic kidney disease; watch BUN, creatinine, protein in urine</td></tr>
+          <tr><td class="k">Eyes</td><td>Retinopathy: narrowed arterioles, hemorrhages, vision changes</td></tr>
+          <tr><td class="k">Vessels</td><td>Accelerated atherosclerosis, PAD, aneurysm, aortic dissection</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Management and nursing care</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="0" aria-haspopup="dialog" aria-expanded="false">Concept · Flow, pressure, and resistance</button><button type="button" class="ctag" data-c="6" aria-haspopup="dialog" aria-expanded="false">Concept · Daily weight</button></div>
+      <div class="prose">
+        <p><strong>Lifestyle first, for everyone:</strong> DASH diet (fruits, vegetables, low-fat dairy, whole grains), sodium under 2,300 mg/day with an ideal of 1,500 mg, weight loss, about 150 minutes/week of aerobic activity, alcohol limits, smoking cessation, and stress management.</p>
+        <p><strong>Common medication classes:</strong></p>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Class</th><th>Example</th><th>How it lowers BP</th><th>Key nursing point</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Thiazide diuretic</td><td>hydrochlorothiazide</td><td>Reduces blood volume</td><td>Monitor potassium (hypokalemia); take in the morning</td></tr>
+          <tr><td class="k">ACE inhibitor (-pril)</td><td>lisinopril</td><td>Blocks angiotensin II formation</td><td>Dry cough; angioedema is an emergency; hyperkalemia</td></tr>
+          <tr><td class="k">ARB (-sartan)</td><td>losartan</td><td>Blocks angiotensin II receptor</td><td>Option when ACE cough occurs; hyperkalemia</td></tr>
+          <tr><td class="k">Calcium channel blocker</td><td>amlodipine</td><td>Relaxes arterial smooth muscle</td><td>Peripheral edema, dizziness; avoid grapefruit with some</td></tr>
+          <tr><td class="k">Beta blocker (-olol)</td><td>metoprolol</td><td>Lowers heart rate and contractility</td><td>Hold for low HR or SBP per orders; can mask hypoglycemia</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout ven" style="margin-top:14px"><b class="lbl">Measuring BP correctly</b><p>Seated 5 minutes, back supported, feet flat, arm at heart level, no caffeine, exercise, or smoking for 30 minutes, correct cuff size (bladder covers 80% of arm circumference). A cuff that is too small reads falsely high. Take two readings 1 to 2 minutes apart and average them.</p></div>
+
+      <div class="inline-q" data-quiz="htnA"></div>
+
+      <h3>Hypertensive crisis</h3>
+      <div class="prose"><p>A reading above 180 systolic and/or above 120 diastolic. The question that changes everything: <strong>is there new or worsening target organ damage?</strong></p></div>
+      <div class="two" style="margin-top:12px">
+        <div class="panel"><span class="tag ven">Without organ damage</span><h4>Hypertensive urgency</h4><ul><li>Very high BP, but no acute organ injury</li><li>May have headache, anxiety, or no symptoms</li><li>Usually oral medications, lowering BP over 24 to 48 hours</li><li>Often from missed doses: check adherence</li></ul></div>
+        <div class="panel"><span class="tag art">With organ damage</span><h4>Hypertensive emergency</h4><ul><li>Severe headache, confusion, seizures, vision changes (encephalopathy, stroke)</li><li>Chest pain, dyspnea, crackles (ACS, pulmonary edema)</li><li>Oliguria, rising creatinine (acute kidney injury)</li><li>Severe back pain (aortic dissection)</li><li>ICU, IV titratable drugs (nicardipine, clevidipine, labetalol, nitroprusside), arterial line</li></ul></div>
+      </div>
+      <div class="callout art" style="margin-top:14px"><b class="lbl">Lower it, but not too fast</b><p>In chronic hypertension the brain and kidneys have reset their autoregulation to expect high pressure. Dropping BP too quickly can cause stroke, MI, or kidney injury. The usual target: reduce MAP by <strong>no more than 25% in the first hour</strong>, then toward 160/100–110 over the next 2 to 6 hours, then toward normal over 24 to 48 hours. Exceptions include aortic dissection (lower fast, see Section 11) and acute ischemic stroke (follows its own targets).</p></div>
+      <p class="prose" style="margin-top:12px">Nursing care: BP every 5 to 15 minutes during titration, continuous cardiac monitoring, neuro checks, hourly urine output, and watch for hypotension.</p>
+      <div class="quiz" data-quiz="htn"></div>
+    </section>
+
+    <!-- 4 ATHERO -->
+    <section class="sec" id="sec-athero" data-id="athero" data-title="Atherosclerosis &amp; arteriosclerosis" data-grp="Conditions">
+      <div class="eyebrow">Section 6 · Conditions</div>
+      <h2>Atherosclerosis and arteriosclerosis</h2>
+      <p class="lede">These two words sound alike and get mixed up constantly. Arteriosclerosis is the umbrella; atherosclerosis is the most important type under it.</p>
+      <div class="two">
+        <div class="panel"><h4>Arteriosclerosis</h4><ul><li>"Hardening of the arteries"</li><li>Thickening and loss of elasticity of the arterial wall</li><li>Driven by aging and chronic hypertension</li><li>Stiff arteries raise systolic pressure and widen pulse pressure</li></ul></div>
+        <div class="panel"><h4>Atherosclerosis</h4><ul><li>A specific form of arteriosclerosis</li><li>Plaque (lipids, cells, debris, calcium) builds in the <strong>intima</strong> of medium and large arteries</li><li>Narrows the lumen and can rupture</li><li>Underlying cause of most CAD, stroke, and PAD</li></ul></div>
+      </div>
+
+      <h3>How a plaque forms</h3>
+      <div class="tool stepper">
+        <div class="tool-h"><h4>Plaque step-through</h4><span id="stepCount">Stage 1 of 6</span></div>
+        <svg viewBox="0 0 600 170" aria-hidden="true">
+          <rect x="0" y="10" width="600" height="28" fill="var(--art)" opacity=".75"/>
+          <rect x="0" y="132" width="600" height="28" fill="var(--art)" opacity=".75"/>
+          <rect x="0" y="38" width="600" height="6" fill="var(--warn)"/>
+          <rect x="0" y="126" width="600" height="6" fill="var(--warn)"/>
+          <g id="flow" fill="var(--art)"></g>
+          <path id="plaque" d="" fill="var(--warn)" stroke="var(--ink)" stroke-width="1.2"/>
+          <g id="extras"></g>
+          <text x="10" y="166" font-size="12" fill="var(--muted)" font-family="var(--f-body)">Arterial wall · intima shown in gold · blood flows left to right</text>
+        </svg>
+        <div class="step-txt" id="stepTxt" aria-live="polite"></div>
+        <div class="step-ctl"><button class="btn ghost" id="stepPrev">Back</button><button class="btn" id="stepNext">Next stage</button><div class="dots" id="stepDots"></div></div>
+      </div>
+
+      <h3>Risk factors</h3>
+      <div class="two">
+        <div class="panel"><h4>Modifiable</h4><ul><li>High LDL, low HDL, high triglycerides</li><li>Hypertension</li><li>Smoking (the strongest modifiable factor)</li><li>Diabetes</li><li>Obesity, inactivity, unhealthy diet</li></ul></div>
+        <div class="panel"><h4>Nonmodifiable</h4><ul><li>Age</li><li>Male sex (women's risk rises after menopause)</li><li>Family history of early heart disease</li><li>Genetics (familial hypercholesterolemia)</li></ul></div>
+      </div>
+
+      <h3>Lipid targets</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Lab</th><th>Desirable</th><th>Memory aid</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Total cholesterol</td><td class="mono">&lt; 200 mg/dL</td><td></td></tr>
+          <tr><td class="k">LDL</td><td class="mono">&lt; 100 mg/dL</td><td>L = Lousy; carries cholesterol <em>into</em> the artery wall (lower targets for high-risk clients)</td></tr>
+          <tr><td class="k">HDL</td><td class="mono">&gt; 40 men, &gt; 50 women</td><td>H = Healthy; carries cholesterol <em>back</em> to the liver</td></tr>
+          <tr><td class="k">Triglycerides</td><td class="mono">&lt; 150 mg/dL</td><td></td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Where plaque shows up</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="1" aria-haspopup="dialog" aria-expanded="false">Concept · Poiseuille's law</button><button type="button" class="ctag" data-c="5" aria-haspopup="dialog" aria-expanded="false">Concept · Turbulent flow</button></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Location</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Coronary arteries</td><td>Angina, MI</td></tr>
+          <tr><td class="k">Carotid / cerebral</td><td>TIA, stroke; carotid bruit</td></tr>
+          <tr><td class="k">Renal arteries</td><td>Secondary hypertension, kidney disease</td></tr>
+          <tr><td class="k">Mesenteric arteries</td><td>Abdominal pain after eating, bowel ischemia</td></tr>
+          <tr><td class="k">Legs</td><td>Peripheral arterial disease</td></tr>
+          <tr><td class="k">Aorta</td><td>Weakened wall contributes to aneurysm</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Treatment</h3>
+      <div class="prose"><ul>
+        <li><strong>Lifestyle:</strong> heart-healthy diet low in saturated and trans fat, exercise, weight loss, smoking cessation, diabetes and BP control.</li>
+        <li><strong>Statins</strong> (atorvastatin, rosuvastatin) lower LDL and stabilize plaque. Teach clients to report unexplained muscle pain or weakness (myopathy, rhabdomyolysis); liver enzymes are checked. Some statins are taken in the evening.</li>
+        <li><strong>Antiplatelets</strong> (aspirin, clopidogrel) reduce clot formation on plaque.</li>
+        <li><strong>Procedures</strong> when narrowing is severe: angioplasty with stent, endarterectomy, bypass grafting.</li>
+      </ul></div>
+      <div class="quiz" data-quiz="athero"></div>
+    </section>
+
+    <!-- 6 PAD -->
+    <section class="sec" id="sec-pad" data-id="pad" data-title="Peripheral arterial disease" data-grp="Conditions">
+      <div class="eyebrow">Section 7 · Conditions</div>
+      <h2>Peripheral arterial disease</h2>
+      <p class="lede">PAD is atherosclerosis in the arteries of the legs (most often). Oxygen supply can't keep up with demand, so muscles and skin starve. Think: <strong>blood can't get in.</strong></p>
+
+      <h3>Assessment findings</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="1" aria-haspopup="dialog" aria-expanded="false">Concept · Poiseuille's law</button><button type="button" class="ctag" data-c="3" aria-haspopup="dialog" aria-expanded="false">Concept · Gravity</button></div>
+      <div class="prose"><ul>
+        <li><strong>Intermittent claudication:</strong> cramping pain in the calf, thigh, or buttock with walking that goes away after a few minutes of rest. Pain occurs at a predictable distance.</li>
+        <li><strong>Rest pain:</strong> burning pain in the foot at rest, often at night, relieved by dangling the leg. This means advanced disease.</li>
+        <li>Diminished or absent pedal and posterior tibial pulses</li>
+        <li>Cool, pale skin; <strong>elevation pallor</strong> and <strong>dependent rubor</strong></li>
+        <li>Thin, shiny, hairless skin; thick, brittle toenails; slow capillary refill</li>
+        <li>Ulcers on toes, between toes, heels, or the lateral malleolus: pale, deep, round "punched-out," little drainage, very painful</li>
+      </ul></div>
+
+      
+      <figure class="anim" id="fig-pad">
+        <div class="anim-h"><h4>Why a narrowed artery starves the muscle</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 245" role="img" aria-label="Blood flow through a healthy artery and a narrowed artery"><defs><clipPath id="cpPad1"><rect x="30" y="34" width="540" height="52"/></clipPath><clipPath id="cpPad2"><rect x="30" y="144" width="540" height="52"/></clipPath></defs><rect class="f-sunk" x="30" y="34" width="540" height="52"/><rect class="f-art" x="30" y="24" width="540" height="10" opacity=".8"/><rect class="f-art" x="30" y="86" width="540" height="10" opacity=".8"/><rect class="f-sunk" x="30" y="144" width="540" height="52"/><rect class="f-art" x="30" y="134" width="540" height="10" opacity=".8"/><rect class="f-art" x="30" y="196" width="540" height="10" opacity=".8"/><g clip-path="url(#cpPad1)"><ellipse class="f-art" cx="10" cy="52.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -0.00s infinite"/><ellipse class="f-art" cx="10" cy="57.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -0.36s infinite"/><ellipse class="f-art" cx="10" cy="62.7" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -0.71s infinite"/><ellipse class="f-art" cx="10" cy="68.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -1.07s infinite"/><ellipse class="f-art" cx="10" cy="54.7" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -1.42s infinite"/><ellipse class="f-art" cx="10" cy="60.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -1.78s infinite"/><ellipse class="f-art" cx="10" cy="65.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -2.13s infinite"/><ellipse class="f-art" cx="10" cy="52.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -2.49s infinite"/><ellipse class="f-art" cx="10" cy="57.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3.2s linear -2.84s infinite"/></g><g clip-path="url(#cpPad2)"><ellipse class="f-warn" cx="300" cy="144" rx="70" ry="20"/><ellipse class="f-warn" cx="300" cy="196" rx="70" ry="20"/></g><g clip-path="url(#cpPad2)"><ellipse class="f-art" cx="10" cy="170.0" rx="7" ry="5" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -0.00s infinite"/><ellipse class="f-art" cx="10" cy="170.0" rx="7" ry="5" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -2.17s infinite"/><ellipse class="f-art" cx="10" cy="170.0" rx="7" ry="5" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -4.33s infinite"/></g><text class="t" x="30" y="122">Healthy artery: full flow</text><text class="t" x="30" y="232">Narrowed artery: a trickle, even at the same pressure</text><text class="tm" x="380" y="127">plaque narrows the lumen</text></svg>
+        <figcaption>Narrowing the radius cuts flow far more than the size of the plaque suggests (Poiseuille's law). At rest the trickle may be enough. With walking, the muscle's demand outruns the supply and claudication starts.</figcaption>
+      </figure>
+      <h3>Ankle-brachial index (ABI)</h3>
+      <div class="prose"><p>The ABI compares ankle systolic pressure to arm systolic pressure, measured with a Doppler. In healthy legs the ankle pressure is equal to or slightly higher than the arm. <span class="mono">ABI = ankle SBP ÷ brachial SBP</span> (use the higher arm reading).</p></div>
+      <div class="tool">
+        <div class="tool-h"><h4>ABI calculator</h4><span>Try 150 brachial, 96 ankle</span></div>
+        <div class="fields">
+          <div class="field"><label for="abiA">Ankle SBP</label><input id="abiA" type="number" inputmode="numeric" value="96"></div>
+          <div class="field"><label for="abiB">Brachial SBP</label><input id="abiB" type="number" inputmode="numeric" value="150"></div>
+        </div>
+        <div class="readout" id="abiOut"></div>
+        <p class="note" id="abiNote"></p>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ABI</th><th>Interpretation</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">&gt; 1.40</td><td>Noncompressible, calcified vessels (common in diabetes and CKD); result unreliable</td></tr>
+          <tr><td class="mono">1.00 – 1.40</td><td>Normal</td></tr>
+          <tr><td class="mono">0.91 – 0.99</td><td>Borderline</td></tr>
+          <tr><td class="mono">0.41 – 0.90</td><td>PAD, mild to moderate</td></tr>
+          <tr><td class="mono">≤ 0.40</td><td>Severe PAD (critical limb ischemia likely)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Management and nursing care</h3>
+      <div class="prose"><ul>
+        <li><strong>Smoking cessation</strong> is the single most important intervention.</li>
+        <li><strong>Supervised walking program:</strong> walk until claudication pain starts, rest until it stops, repeat, about 30 to 45 minutes, 3 times a week. This builds collateral circulation.</li>
+        <li><strong>Position:</strong> legs level or slightly dependent. Do not elevate the legs; gravity helps arterial blood reach the feet.</li>
+        <li>Avoid crossing legs and tight clothing; keep warm with socks, but <strong>no heating pads</strong> (reduced sensation means burns).</li>
+        <li>Daily foot inspection, well-fitting shoes, professional nail care.</li>
+        <li><strong>Medications:</strong> antiplatelet (aspirin, clopidogrel), statin, BP and glucose control, cilostazol for claudication (contraindicated in heart failure).</li>
+        <li><strong>Revascularization:</strong> angioplasty with stent, atherectomy, or bypass graft.</li>
+      </ul></div>
+      <div class="callout art" style="margin-top:14px"><b class="lbl">Emergency: acute arterial occlusion</b><p>A sudden clot or embolus blocks a limb artery. Watch for the <strong>six P's</strong>: pain, pallor, pulselessness, paresthesia, paralysis, poikilothermia (cold). Notify the provider immediately. This is also what you watch for after a revascularization procedure, along with bleeding at the access site and compartment syndrome.</p></div>
+      <div class="quiz" data-quiz="pad"></div>
+    </section>
+
+    <!-- 7 VENOUS -->
+    <section class="sec" id="sec-cvi" data-id="cvi" data-title="Venous insufficiency" data-grp="Conditions">
+      <div class="eyebrow">Section 8 · Conditions</div>
+      <h2>Chronic venous insufficiency</h2>
+      <p class="lede">When vein valves stop closing properly, blood falls backward and pools in the lower legs. Pressure builds in the veins and pushes fluid and red cells into the tissue. Think: <strong>blood can't get out.</strong></p>
+
+      <h3>Pathophysiology</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="3" aria-haspopup="dialog" aria-expanded="false">Concept · Gravity</button><button type="button" class="ctag" data-c="4" aria-haspopup="dialog" aria-expanded="false">Concept · Starling forces</button></div>
+      <div class="prose">
+        <p>Damaged valves (often after a DVT) or chronically stretched veins → reflux → <strong>venous hypertension</strong> in the lower leg → capillaries leak fluid, protein, and red blood cells into the tissue.</p>
+        <p>Those red cells break down and leave iron behind as <strong>hemosiderin</strong>, which stains the skin brown around the ankles. Over time the skin hardens and breaks down.</p>
+        <p><strong>Risk factors:</strong> previous DVT, varicose veins, obesity, pregnancy, prolonged standing or sitting, older age, female sex, family history.</p>
+      </div>
+
+      
+      <figure class="anim" id="fig-cvi">
+        <div class="anim-h"><h4>Vein valves: one-way flow vs. backflow</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 310" role="img" aria-label="Healthy vein valves and failed valves with pooling"><defs><clipPath id="cpCv1"><rect x="120" y="30" width="60" height="250"/></clipPath><clipPath id="cpCv2"><rect x="400" y="30" width="60" height="250"/></clipPath></defs><rect class="f-sunk" x="120" y="30" width="60" height="250"/><rect class="f-ven" x="112" y="30" width="8" height="250" opacity=".8"/><rect class="f-ven" x="180" y="30" width="8" height="250" opacity=".8"/><rect class="f-sunk" x="400" y="30" width="60" height="250"/><rect class="f-ven" x="392" y="30" width="8" height="250" opacity=".8"/><rect class="f-ven" x="460" y="30" width="8" height="250" opacity=".8"/><g clip-path="url(#cpCv1)"><ellipse class="f-ven" cx="150" cy="300.0" rx="8" ry="8" style="--dx:0px;--dy:-290px;animation:mv 4.5s linear -0.00s infinite"/><ellipse class="f-ven" cx="150" cy="300.0" rx="8" ry="8" style="--dx:0px;--dy:-290px;animation:mv 4.5s linear -0.56s infinite"/><ellipse class="f-ven" cx="150" cy="300.0" rx="8" ry="8" style="--dx:0px;--dy:-290px;animation:mv 4.5s linear -1.12s infinite"/><ellipse class="f-ven" cx="150" cy="300.0" rx="8" ry="8" style="--dx:0px;--dy:-290px;animation:mv 4.5s linear -1.69s infinite"/><ellipse class="f-ven" cx="150" cy="300.0" rx="8" ry="8" style="--dx:0px;--dy:-290px;animation:mv 4.5s linear -2.25s infinite"/><ellipse class="f-ven" cx="150" cy="300.0" rx="8" ry="8" style="--dx:0px;--dy:-290px;animation:mv 4.5s linear -2.81s infinite"/><ellipse class="f-ven" cx="150" cy="300.0" rx="8" ry="8" style="--dx:0px;--dy:-290px;animation:mv 4.5s linear -3.38s infinite"/><ellipse class="f-ven" cx="150" cy="300.0" rx="8" ry="8" style="--dx:0px;--dy:-290px;animation:mv 4.5s linear -3.94s infinite"/></g><path class="nf s-ink" stroke-width="3" d="M120 100 L146 78 M180 100 L154 78"/><path class="nf s-ink" stroke-width="3" d="M400 100 L414 112 M460 100 L446 112"/><path class="nf s-ink" stroke-width="3" d="M120 180 L146 158 M180 180 L154 158"/><path class="nf s-ink" stroke-width="3" d="M400 180 L414 192 M460 180 L446 192"/><path class="nf s-ink" stroke-width="3" d="M120 255 L146 233 M180 255 L154 233"/><path class="nf s-ink" stroke-width="3" d="M400 255 L414 267 M460 255 L446 267"/><g clip-path="url(#cpCv2)"><circle class="f-ven" cx="420" cy="70" r="8" style="--dy:-50px;animation:bob 2.6s ease-in-out 0.0s infinite"/><circle class="f-ven" cx="430" cy="120" r="8" style="--dy:-60px;animation:bob 2.9s ease-in-out -0.5s infinite"/><circle class="f-ven" cx="440" cy="160" r="8" style="--dy:-40px;animation:bob 3.2s ease-in-out -1.0s infinite"/><circle class="f-ven" cx="420" cy="200" r="8" style="--dy:-55px;animation:bob 3.5s ease-in-out -1.5s infinite"/><circle class="f-ven" cx="430" cy="90" r="8" style="--dy:-45px;animation:bob 3.8s ease-in-out -2.0s infinite"/><circle class="f-ven" cx="410" cy="262" r="8"/><circle class="f-ven" cx="423" cy="262" r="8"/><circle class="f-ven" cx="436" cy="262" r="8"/><circle class="f-ven" cx="449" cy="262" r="8"/><circle class="f-ven" cx="410" cy="248" r="8"/><circle class="f-ven" cx="423" cy="248" r="8"/><circle class="f-ven" cx="436" cy="248" r="8"/></g><circle class="f-ven" cx="472" cy="215" r="3.5" style="--dx:60px;animation:leak 3s ease-out 0.00s infinite"/><circle class="f-ven" cx="472" cy="235" r="3.5" style="--dx:60px;animation:leak 3s ease-out -0.75s infinite"/><circle class="f-ven" cx="472" cy="255" r="3.5" style="--dx:60px;animation:leak 3s ease-out -1.50s infinite"/><circle class="f-ven" cx="472" cy="270" r="3.5" style="--dx:60px;animation:leak 3s ease-out -2.25s infinite"/><circle class="f-warn" cx="500" cy="250" r="4" opacity=".8"/><circle class="f-warn" cx="512" cy="262" r="4" opacity=".8"/><circle class="f-warn" cx="492" cy="268" r="4" opacity=".8"/><circle class="f-warn" cx="520" cy="240" r="4" opacity=".8"/><text class="t" x="150" y="20" text-anchor="middle">↑ to the heart</text><text class="t" x="430" y="20" text-anchor="middle">↑ to the heart</text><text class="t" x="150" y="300" text-anchor="middle">Healthy valves</text><text class="t" x="430" y="300" text-anchor="middle">Failed valves</text><text class="tm" x="485" y="218">fluid leaks out</text><text class="tm" x="485" y="290">hemosiderin</text></svg>
+        <figcaption>Healthy valves let blood move only toward the heart. When valves fail, blood falls back and pools in the lower leg. The high pressure pushes fluid into the tissue (edema), and leaked red cells leave brown hemosiderin staining.</figcaption>
+      </figure>
+      <h3>Assessment findings</h3>
+      <div class="prose"><ul>
+        <li>Edema of the lower legs that worsens through the day and improves with elevation</li>
+        <li>Aching, heaviness, or fullness, relieved by elevating the legs</li>
+        <li>Brown or bronze discoloration (hemosiderin staining) around the ankles</li>
+        <li>Stasis dermatitis: itchy, scaly, thickened skin</li>
+        <li>Pulses present (they may be hard to feel through edema); legs warm</li>
+        <li>Varicose veins: dilated, twisted superficial veins</li>
+        <li>Ulcers near the <strong>medial malleolus</strong>: shallow, irregular edges, red granular base, moderate to heavy drainage, less painful than arterial ulcers</li>
+      </ul></div>
+
+      <h3>Management and nursing care</h3>
+      <div class="prose"><ul>
+        <li><strong>Elevate legs above heart level</strong> for 20 to 30 minutes several times a day and when sleeping.</li>
+        <li><strong>Compression</strong> stockings or wraps: apply in the morning before getting out of bed, before edema builds. Rule out arterial disease first (check ABI); compression on ischemic legs causes harm.</li>
+        <li>Walking activates the calf muscle pump. Avoid prolonged standing or sitting and crossing legs.</li>
+        <li>Venous ulcer care: moist wound healing, compression (Unna boot or multilayer wrap), treat infection.</li>
+        <li>Skin care: moisturize, protect from trauma, inspect daily.</li>
+      </ul></div>
+
+      <h3>Side by side: arterial vs. venous</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Feature</th><th><span class="tag art">Peripheral arterial</span></th><th><span class="tag ven">Chronic venous</span></th></tr></thead>
+        <tbody>
+          <tr><td class="k">Problem</td><td>Blood can't get in</td><td>Blood can't get out</td></tr>
+          <tr><td class="k">Pain</td><td>Claudication with walking; rest pain; relieved by dangling</td><td>Aching, heaviness; relieved by elevation</td></tr>
+          <tr><td class="k">Pulses</td><td>Weak or absent</td><td>Present</td></tr>
+          <tr><td class="k">Skin</td><td>Pale, cool, shiny, hairless, thick nails</td><td>Warm, brown staining, stasis dermatitis</td></tr>
+          <tr><td class="k">Edema</td><td>Little or none</td><td>Yes, often significant</td></tr>
+          <tr><td class="k">Ulcer site</td><td>Toes, heels, lateral malleolus</td><td>Medial malleolus</td></tr>
+          <tr><td class="k">Ulcer look</td><td>Deep, round, pale base, little drainage, painful</td><td>Shallow, irregular, red base, heavy drainage</td></tr>
+          <tr><td class="k">Positioning</td><td>Dependent; never elevate</td><td>Elevate above heart</td></tr>
+          <tr><td class="k">Compression</td><td>Avoid</td><td>Yes</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="tool">
+        <div class="tool-h"><h4>Arterial or venous?</h4><span id="sortScore">0 / 8 sorted</span></div>
+        <div class="sorter" id="sorter"></div>
+      </div>
+      <div class="quiz" data-quiz="cvi"></div>
+    </section>
+
+    <!-- 8 VTE -->
+    <section class="sec" id="sec-vte" data-id="vte" data-title="Venous thromboembolism" data-grp="Conditions">
+      <div class="eyebrow">Section 9 · Conditions</div>
+      <h2>Venous thromboembolism (VTE)</h2>
+      <p class="lede">VTE covers two linked conditions: a <strong>deep vein thrombosis (DVT)</strong>, a clot in a deep vein (usually the leg), and a <strong>pulmonary embolism (PE)</strong>, when part of that clot breaks off and lodges in the lungs.</p>
+
+      <h3>Virchow's triad</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="3" aria-haspopup="dialog" aria-expanded="false">Concept · Gravity</button></div>
+      <div class="prose"><p>Any one of these raises clot risk. Most hospitalized clients have at least two.</p></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Factor</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Venous stasis</td><td>Immobility, bed rest, long flights or car rides, paralysis, heart failure, obesity, pregnancy</td></tr>
+          <tr><td class="k">Vessel wall injury</td><td>Surgery (especially hip, knee, pelvic), trauma, fractures, IV catheters, central lines</td></tr>
+          <tr><td class="k">Hypercoagulability</td><td>Cancer, estrogen (oral contraceptives, hormone therapy), pregnancy, dehydration, smoking, inherited clotting disorders, sepsis</td></tr>
+        </tbody>
+      </table></div>
+
+      
+      <figure class="anim" id="fig-vte">
+        <div class="anim-h"><h4>From DVT to pulmonary embolism</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 320" role="img" aria-label="A clot travels from a calf vein through the heart to the lungs"><ellipse class="f-vensoft" cx="215" cy="80" rx="80" ry="60"/><ellipse class="f-vensoft" cx="395" cy="80" rx="80" ry="60"/><ellipse class="f-bad" cx="190" cy="70" rx="34" ry="24" style="animation:pezone 7s linear infinite"/><ellipse class="f-artsoft" cx="305" cy="165" rx="42" ry="32"/><rect class="f-sunk" x="300" y="235" width="70" height="80" rx="20"/><path class="nf s-ven" stroke-width="12" stroke-linecap="round" d="M335 300 L335 205 Q335 180 312 168 Q300 125 255 98 L222 78" opacity=".45"/><ellipse class="f-bad" rx="9" ry="6"><animateMotion dur="7s" repeatCount="indefinite" rotate="auto" keyPoints="0;0;1;1" keyTimes="0;0.2;0.7;1" calcMode="linear" path="M335 300 L335 205 Q335 180 312 168 Q300 125 255 98 L222 78"/></ellipse><text class="t" x="380" y="300">DVT forms in a calf vein</text><text class="t" x="352" y="215">breaks loose</text><text class="t" x="352" y="168">right heart</text><text class="t" x="40" y="160">Lodges in a</text><text class="t" x="40" y="178">pulmonary artery: PE</text><text class="tm" x="215" y="22" text-anchor="middle">lungs</text></svg>
+        <figcaption>A clot forms in a deep leg vein. If part breaks loose, it travels up the vena cava, through the right side of the heart, and lodges in a pulmonary artery. Lung tissue beyond the clot is still ventilated but no longer perfused.</figcaption>
+      </figure>
+      <h3>Recognizing DVT and PE</h3>
+      <div class="two">
+        <div class="panel"><span class="tag ven">DVT</span><h4>Usually one leg</h4><ul><li>Unilateral swelling (measure and compare calf circumference)</li><li>Pain or tenderness, warmth, redness</li><li>Many DVTs have no symptoms</li><li>Homans' sign is not reliable; don't use it</li><li>Diagnosed with D-dimer and venous duplex ultrasound</li></ul></div>
+        <div class="panel"><span class="tag art">PE</span><h4>Sudden, and an emergency</h4><ul><li>Sudden dyspnea and tachypnea (most common)</li><li>Pleuritic chest pain</li><li>Tachycardia, anxiety, sense of impending doom</li><li>Low SpO₂, cough, possibly hemoptysis</li><li>Diagnosed with CT pulmonary angiography</li></ul></div>
+      </div>
+      <div class="callout warn" style="margin-top:14px"><b class="lbl">Never massage the leg</b><p>Massaging or rubbing a leg with a suspected DVT can dislodge the clot and send it to the lungs. If PE is suspected: stay with the client, raise the head of the bed, give oxygen, and call a rapid response.</p></div>
+
+      <h3>Anticoagulants: what they do and don't do</h3>
+      <div class="prose"><p>Anticoagulants <strong>prevent the clot from growing and prevent new clots</strong>. They do not dissolve the existing clot; the body's own fibrinolytic system does that over time. Thrombolytics (alteplase) dissolve clots and are reserved for massive PE.</p></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Drug</th><th>Route</th><th>Monitoring</th><th>Antidote</th><th>Nursing points</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Unfractionated heparin</td><td>IV infusion, SubQ</td><td>aPTT (often 1.5–2.5× control) or anti-Xa; platelets</td><td>Protamine sulfate</td><td>Platelet drop of 50% suggests HIT: stop heparin</td></tr>
+          <tr><td class="k">Enoxaparin (LMWH)</td><td>SubQ</td><td>Platelets; usually no aPTT</td><td>Protamine (partial)</td><td>Abdomen, 2 inches from umbilicus; don't expel the air bubble; don't rub</td></tr>
+          <tr><td class="k">Warfarin</td><td>PO</td><td>PT/INR (target usually 2–3)</td><td>Vitamin K</td><td>Takes days to work, so it overlaps with heparin; keep vitamin K intake consistent</td></tr>
+          <tr><td class="k">Apixaban, rivaroxaban (DOACs)</td><td>PO</td><td>No routine lab</td><td>Andexanet alfa</td><td>Don't skip doses; short half-life means protection drops quickly</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose" style="margin-top:12px"><p><strong>Bleeding precautions for all anticoagulants:</strong> soft toothbrush, electric razor, watch for blood in urine or stool, bruising, bleeding gums; avoid NSAIDs and aspirin unless prescribed.</p>
+      <p><strong>Prevention:</strong> early ambulation, leg exercises, sequential compression devices, adequate hydration, and prophylactic anticoagulant (often enoxaparin or SubQ heparin) for at-risk clients.</p></div>
+      <div class="quiz" data-quiz="vte"></div>
+    </section>
+
+    <!-- 9 AAA -->
+    <section class="sec" id="sec-aaa" data-id="aaa" data-title="Abdominal aortic aneurysm" data-grp="Conditions">
+      <div class="eyebrow">Section 10 · Conditions</div>
+      <h2>Abdominal aortic aneurysm (AAA)</h2>
+      <p class="lede">An aneurysm is a permanent bulge where the arterial wall has weakened. Most aortic aneurysms form in the abdominal aorta below the renal arteries. They grow slowly and silently until they are found or they rupture.</p>
+
+      <h3>Who gets one</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="2" aria-haspopup="dialog" aria-expanded="false">Concept · Laplace's law</button><button type="button" class="ctag" data-c="5" aria-haspopup="dialog" aria-expanded="false">Concept · Turbulent flow</button></div>
+      <div class="prose"><ul>
+        <li>Men over 65, especially those who have ever smoked (smoking is the biggest risk factor)</li>
+        <li>Atherosclerosis and hypertension weaken the media</li>
+        <li>Family history; connective tissue disorders (Marfan syndrome)</li>
+        <li>Screening: a one-time abdominal ultrasound is recommended for men 65 to 75 who have ever smoked</li>
+      </ul></div>
+
+      
+      <figure class="anim" id="fig-aaa">
+        <div class="anim-h"><h4>An aneurysm under growing stress</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 310" role="img" aria-label="An abdominal aortic aneurysm widening while wall stress rises"><rect class="f-art" x="282" y="15" width="36" height="235" opacity=".8"/><rect class="f-art" x="200" y="74" width="82" height="12" opacity=".7"/><rect class="f-art" x="318" y="74" width="82" height="12" opacity=".7"/><path class="nf s-art" stroke-width="18" opacity=".8" d="M290 245 L240 300 M310 245 L360 300"/><ellipse class="f-art sc" cx="300" cy="170" rx="24" ry="48" style="animation:swell 6s ease-in-out infinite alternate"/><rect class="f-sunk" x="480" y="60" width="26" height="180" rx="6"/><rect class="f-bad scb" x="480" y="60" width="26" height="180" rx="6" style="animation:gauge 6s ease-in-out infinite alternate"/><text class="t" x="493" y="258" text-anchor="middle">Wall</text><text class="t" x="493" y="274" text-anchor="middle">stress</text><text class="t" x="70" y="85">Renal arteries</text><text class="t" x="40" y="175">Infrarenal</text><text class="t" x="40" y="193">aneurysm</text><text class="tm" x="372" y="300">iliac arteries</text><text class="t mono" x="40" y="30">Wall tension ∝ P × r</text></svg>
+        <figcaption>Most abdominal aortic aneurysms form below the renal arteries. As the bulge widens, wall stress rises with it (Laplace's law), so growth speeds up and rupture risk climbs. That is why repair is based on size and growth rate.</figcaption>
+      </figure>
+      <h3>Assessment</h3>
+      <div class="two">
+        <div class="panel"><h4>Intact AAA</h4><ul><li>Often no symptoms; found on imaging for something else</li><li>Pulsating mass near or slightly left of the umbilicus</li><li>Abdominal bruit</li><li>Vague abdominal or low back pain</li><li><strong>Do not palpate deeply</strong></li></ul></div>
+        <div class="panel"><span class="tag art">Rupture</span><h4>Surgical emergency</h4><ul><li>Sudden, severe back, flank, or abdominal pain</li><li>Hypotension, tachycardia, signs of shock</li><li>Flank bruising (retroperitoneal bleed)</li><li>Decreasing level of consciousness</li><li>High mortality: get help immediately</li></ul></div>
+      </div>
+
+      <h3>Management</h3>
+      <div class="prose"><ul>
+        <li><strong>Small aneurysms</strong>: monitor size with regular ultrasound or CT; control BP; stop smoking; statin.</li>
+        <li><strong>Repair</strong> is usually recommended around 5.5 cm in men (smaller in women), or if it grows quickly or causes symptoms.</li>
+        <li><strong>EVAR</strong> (endovascular aneurysm repair): a stent graft placed through the femoral arteries. Shorter recovery.</li>
+        <li><strong>Open repair</strong>: abdominal incision, aorta clamped, graft sewn in.</li>
+      </ul></div>
+      <div class="callout ven" style="margin-top:14px"><b class="lbl">Post-op priorities</b><p><strong>Graft patency and bleeding:</strong> peripheral pulses, color, warmth, and sensation of both legs; access site for bleeding or hematoma (EVAR); back pain or falling BP can mean graft leak. <strong>Kidneys:</strong> hourly urine output and creatinine, since the aorta was clamped near the renal arteries or contrast was used. <strong>BP control:</strong> high pressure stresses the suture lines; low pressure threatens graft flow.</p></div>
+      <div class="quiz" data-quiz="aaa"></div>
+    </section>
+
+    <!-- 10 DISSECTION -->
+    <section class="sec" id="sec-diss" data-id="diss" data-title="Aortic dissection" data-grp="Conditions">
+      <div class="eyebrow">Section 11 · Conditions</div>
+      <h2>Aortic dissection</h2>
+      <p class="lede">A tear in the intima lets blood surge into the wall of the aorta, splitting the layers apart and creating a false channel. Each heartbeat can push the tear further. It is not the same as an aneurysm, though the two can occur together.</p>
+
+      <h3>Risk factors</h3>
+      <div class="prose"><p>Hypertension (the most common), Marfan and other connective tissue disorders, bicuspid aortic valve, cocaine or amphetamine use, pregnancy, trauma, and prior heart surgery.</p></div>
+
+      <h3>Assessment</h3>
+      <div class="prose"><ul>
+        <li>Sudden, severe chest or back pain often described as tearing or ripping, at its worst right from the start</li>
+        <li>Pain may move as the dissection extends (chest to back to abdomen)</li>
+        <li><strong>Blood pressure difference of more than 20 mm Hg between arms</strong>; unequal pulses</li>
+        <li>Signs depend on which branches are cut off: stroke symptoms, MI, absent leg pulses, abdominal pain, decreased urine output</li>
+        <li>Type A can cause a new aortic regurgitation murmur or cardiac tamponade</li>
+        <li>Diagnosed with CT angiography or transesophageal echo</li>
+      </ul></div>
+
+      
+      <figure class="anim" id="fig-diss" data-mode="a">
+        <div class="anim-h"><h4>How a dissection spreads</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-mode" data-mode="a" aria-pressed="true">Uncontrolled HR and BP</button><button type="button" class="chipbtn anim-mode" data-mode="b" aria-pressed="false">HR and BP controlled</button><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 220" role="img" aria-label="Blood entering an intimal tear and splitting the aortic wall"><defs><clipPath id="cpDs"><rect x="30" y="66" width="540" height="88"/></clipPath></defs><rect class="f-sunk" x="30" y="66" width="540" height="88"/><rect class="f-line" x="30" y="30" width="540" height="12"/><rect class="f-art" x="30" y="42" width="540" height="18" opacity=".75"/><rect class="f-warn" x="30" y="60" width="540" height="6"/><rect class="f-warn" x="30" y="154" width="540" height="6"/><rect class="f-art" x="30" y="160" width="540" height="18" opacity=".75"/><rect class="f-line" x="30" y="178" width="540" height="12"/><rect class="f-sunk" x="128" y="58" width="18" height="10"/><path class="nf s-warn" stroke-width="5" d="M146 63 L164 84"/><g data-show="a"><rect class="f-bad scl" x="140" y="44" width="420" height="12" style="animation:extend 3s ease-in infinite"/><g clip-path="url(#cpDs)"><ellipse class="f-art" cx="10" cy="96.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 2.0s linear -0.00s infinite"/><ellipse class="f-art" cx="10" cy="105.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 2.0s linear -0.29s infinite"/><ellipse class="f-art" cx="10" cy="114.7" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 2.0s linear -0.57s infinite"/><ellipse class="f-art" cx="10" cy="124.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 2.0s linear -0.86s infinite"/><ellipse class="f-art" cx="10" cy="100.7" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 2.0s linear -1.14s infinite"/><ellipse class="f-art" cx="10" cy="110.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 2.0s linear -1.43s infinite"/><ellipse class="f-art" cx="10" cy="119.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 2.0s linear -1.71s infinite"/></g></g><g data-show="b"><rect class="f-bad scl" x="140" y="44" width="420" height="12" style="animation:extend 12s ease-in infinite"/><g clip-path="url(#cpDs)"><ellipse class="f-art" cx="10" cy="96.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -0.00s infinite"/><ellipse class="f-art" cx="10" cy="105.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -0.93s infinite"/><ellipse class="f-art" cx="10" cy="114.7" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -1.86s infinite"/><ellipse class="f-art" cx="10" cy="124.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -2.79s infinite"/><ellipse class="f-art" cx="10" cy="100.7" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -3.71s infinite"/><ellipse class="f-art" cx="10" cy="110.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -4.64s infinite"/><ellipse class="f-art" cx="10" cy="119.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 6.5s linear -5.57s infinite"/></g></g><text class="t" x="100" y="20">Intimal tear</text><text class="t" x="330" y="20">False lumen</text><text class="t" x="300" y="210" text-anchor="middle">True lumen carries blood forward</text></svg>
+        <figcaption>A tear in the intima lets blood force its way between the layers of the wall, creating a false lumen. Each forceful heartbeat drives it further. Switch to the controlled view to see why lowering heart rate and BP slows it.</figcaption>
+      </figure>
+      <h3>Stanford classification</h3>
+      <div class="two">
+        <div class="panel"><span class="tag art">Type A</span><h4>Involves the ascending aorta</h4><ul><li>Can tear into the coronary arteries, aortic valve, or pericardium</li><li>Emergency surgery</li><li>Highest mortality</li></ul></div>
+        <div class="panel"><span class="tag ven">Type B</span><h4>Descending aorta only</h4><ul><li>Usually managed medically: BP and HR control, pain control</li><li>Endovascular stent if complications develop (organ ischemia, rupture risk)</li></ul></div>
+      </div>
+
+      <h3>Priority actions</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="0" aria-haspopup="dialog" aria-expanded="false">Concept · Flow, pressure, and resistance</button><button type="button" class="ctag" data-c="2" aria-haspopup="dialog" aria-expanded="false">Concept · Laplace's law</button></div>
+      <div class="callout art"><b class="lbl">Lower heart rate first, then pressure</b><p>The goal is to reduce the force of each ejection against the torn wall. Give an <strong>IV beta blocker first</strong> (esmolol, labetalol) to bring heart rate to about 60 or below. Then lower systolic BP to roughly 100 to 120 mm Hg, adding a vasodilator such as nicardipine or nitroprusside if needed. A vasodilator given alone first causes reflex tachycardia, which makes the tear worse. Unlike other hypertensive emergencies, BP is lowered <strong>quickly</strong> here.</p></div>
+      <div class="prose" style="margin-top:12px"><ul>
+        <li>Pain control with IV opioids (pain drives up HR and BP)</li>
+        <li>Two large-bore IVs, arterial line, continuous monitoring, BP in both arms</li>
+        <li>Frequent neuro checks, pulses in all four extremities, urine output</li>
+        <li>Keep the client calm and on bed rest; prepare for surgery if Type A</li>
+      </ul></div>
+
+      <h3>AAA vs. dissection</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Feature</th><th>Abdominal aortic aneurysm</th><th>Aortic dissection</th></tr></thead>
+        <tbody>
+          <tr><td class="k">What it is</td><td>Weakened wall bulges outward</td><td>Tear in intima; blood splits the layers</td></tr>
+          <tr><td class="k">Onset</td><td>Develops over years; often silent</td><td>Sudden</td></tr>
+          <tr><td class="k">Pain</td><td>Usually none until rupture</td><td>Severe tearing chest or back pain</td></tr>
+          <tr><td class="k">Key finding</td><td>Pulsatile abdominal mass, bruit</td><td>BP difference between arms, pulse deficits</td></tr>
+          <tr><td class="k">Main danger</td><td>Rupture with hemorrhagic shock</td><td>Rupture, organ ischemia, tamponade</td></tr>
+        </tbody>
+      </table></div>
+      <div class="quiz" data-quiz="diss"></div>
+    </section>
+
+    <!-- 11 FINAL -->
+    <section class="sec" id="sec-final" data-id="final" data-title="Final test" data-grp="Finish">
+      <div class="eyebrow">Section 12 · Finish</div>
+      <h2>Final test</h2>
+      <p class="lede">Twenty NCLEX-RN style items at the understanding level. Answer every item, then submit. You will see your score and a rationale for each item. "Select all that apply" items are scored correct only when every correct option, and nothing else, is selected.</p>
+      <div class="final-head">
+        <div class="field"><label for="stuName">Your name</label><input id="stuName" type="text" autocomplete="name" placeholder="First and last name"></div>
+        <span style="font-size:14px;color:var(--muted);flex:1;min-width:180px">Shown on your score page in case your instructor asks for a screenshot.</span>
+      </div>
+      <div id="finalQs" style="display:flex;flex-direction:column;gap:16px;margin-top:18px"></div>
+      <div class="q-act" style="margin-top:18px"><button class="btn art" id="finalSubmit">Submit test</button><span class="unanswered" id="finalMsg" aria-live="polite"></span><button class="btn ghost" id="finalReset" hidden>Retake test</button></div>
+      <div id="finalResult" style="margin-top:18px" hidden></div>
+    </section>
+
+    <!-- 12 BRING -->
+    <section class="sec" id="sec-bring" data-id="bring" data-title="Come to class with" data-grp="Finish">
+      <div class="eyebrow">Section 13 · Finish</div>
+      <h2>Come to class with</h2>
+      <p class="lede">Class time is for applying this material to clients, not for hearing it the first time. Be ready to explain each item below without notes. Check them off as you feel confident.</p>
+      <ul class="bring" id="bringList"></ul>
+      <div class="callout ven" style="margin-top:18px"><b class="lbl">Bring one question</b><p>Write down one thing from this assignment that confused you or that you want to see applied to a real client. We will start class with these.</p></div>
+    </section>
+
+    <div class="pager" id="pager"></div>
+  </main>
+</div>
+
+<div id="cpop" class="cpop" role="dialog" aria-labelledby="cpopT" hidden>
+  <div class="cpop-top"><span class="eyebrow" style="margin:0">Key concept</span><button type="button" class="cpop-x" aria-label="Close">×</button></div>
+  <h4 id="cpopT"></h4><p class="c-rule" id="cpopR"></p><p class="c-eq mono" id="cpopE"></p><p class="c-ana" id="cpopA"></p>
+  <button type="button" class="btn ghost cpop-go">See all key concepts</button>
+</div>
+<script>
+(function(){
+/* ---------- storage ---------- */
+const KEY='vascular-pathways-v2';
+let store={};
+try{store=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){store={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+store.q=store.q||{}; store.bring=store.bring||{};
+
+/* ---------- terms ---------- */
+const TERMS=[
+ ['Afterload','The resistance the left ventricle must push against to eject blood. Hypertension raises afterload.'],
+ ['Aneurysm','A permanent, localized bulge in an artery wall caused by weakening of the wall.'],
+ ['Arteriosclerosis','Thickening and loss of elasticity of arterial walls ("hardening of the arteries").'],
+ ['Atherosclerosis','A type of arteriosclerosis in which fatty plaque builds up in the intima of an artery.'],
+ ['Bruit','A whooshing sound heard with a stethoscope over a vessel, caused by turbulent flow through narrowing or dilation.'],
+ ['Claudication','Cramping muscle pain caused by poor arterial blood flow during activity, relieved by rest.'],
+ ['Collateral circulation','New or enlarged small vessels that route blood around a blockage.'],
+ ['Dependent rubor','A reddish-purple color of the foot when the leg is lowered; a sign of arterial disease.'],
+ ['Dissection','A tear in the inner layer of an artery that lets blood flow between the layers of the wall.'],
+ ['Edema','Excess fluid in the interstitial tissue, causing swelling.'],
+ ['Embolus','A clot or other mass that travels through the bloodstream and lodges in a smaller vessel.'],
+ ['Endothelium','The single layer of cells lining the inside of all blood vessels.'],
+ ['Hemosiderin','An iron-storage pigment left when red blood cells break down in tissue; causes brown staining in venous insufficiency.'],
+ ['Ischemia','Inadequate blood supply to tissue, causing oxygen deprivation.'],
+ ['Lumen','The open channel inside a vessel through which blood flows.'],
+ ['Perfusion','The delivery of blood to tissues through the capillary beds.'],
+ ['Stenosis','Abnormal narrowing of a vessel or opening.'],
+ ['Thrombus','A blood clot that forms and stays attached to a vessel wall.'],
+ ['Vasoconstriction','Narrowing of a vessel by contraction of smooth muscle; raises resistance and BP.'],
+ ['Varicose veins','Dilated, twisted superficial veins caused by incompetent valves.']
+];
+try{const tg=document.getElementById('termGrid');
+TERMS.forEach(([t,d])=>{const b=document.createElement('button');b.className='term';b.setAttribute('aria-pressed','false');b.innerHTML='<b>'+t+'</b><span class="hint">Tap to check your definition</span>';b.addEventListener('click',()=>{const on=b.getAttribute('aria-pressed')==='true';b.setAttribute('aria-pressed',String(!on));b.innerHTML=on?'<b>'+t+'</b><span class="hint">Tap to check your definition</span>':'<b>'+t+'</b><span class="def">'+d+'</span>'});tg.appendChild(b)});}catch(e){}
+
+/* ---------- quiz data ---------- */
+const CONCEPTS=[{"name": "Flow, pressure, and resistance", "rule": "Blood pressure rises when the heart pumps more or the vessels resist more. Lower either one and pressure falls.", "eq": "BP = Cardiac output × Systemic vascular resistance", "ana": "A garden hose sprays harder when you open the faucet more (cardiac output) or squeeze the nozzle (resistance)."}, {"name": "Poiseuille's law: radius rules flow", "rule": "Flow through a tube depends on its radius raised to the fourth power. A small narrowing causes a large drop in flow.", "eq": "Flow ∝ radius⁴ · halve the radius → about 1/16 of the flow", "ana": "Pinch a drinking straw halfway closed and it becomes very hard to drink through."}, {"name": "Laplace's law: bigger vessels, more wall stress", "rule": "The tension on a vessel wall rises with both the pressure inside it and its radius. As a vessel widens, its wall is under more stress, so it widens further.", "eq": "Wall tension ∝ Pressure × Radius", "ana": "A balloon is hardest to blow up at the start. Once it's big, it stretches easily, and that's when it pops."}, {"name": "Gravity and hydrostatic pressure", "rule": "Gravity pulls blood toward the lowest part of the body. Positioning can help or hinder flow.", "eq": "", "ana": "Water flows downhill. Pumping it uphill takes valves and muscle."}, {"name": "Starling forces at the capillary", "rule": "Hydrostatic pressure pushes fluid out of capillaries. Oncotic pressure from plasma proteins (mainly albumin) pulls it back in. Edema forms when push beats pull.", "eq": "Push out: capillary hydrostatic pressure · Pull in: plasma oncotic pressure", "ana": "A soaker hose leaks more when you turn up the water pressure. A sponge (albumin) next to it soaks some of the water back up."}, {"name": "Turbulent flow", "rule": "Blood normally flows smoothly in layers. A narrowing or a bulge disrupts the layers, creating turbulence you can hear (bruit) or feel (thrill).", "eq": "", "ana": "A calm river is quiet. Where it narrows over rocks, the rapids roar."}, {"name": "Daily weight tracks fluid", "rule": "Daily weight is the most reliable indicator of fluid gain or loss. A change of 1 kg (2.2 lb) is about 1 liter of fluid.", "eq": "1 kg ≈ 1 L of fluid", "ana": "A liter bottle of water weighs about a kilogram. Gaining a kilogram overnight is like drinking that bottle and keeping it."}];
+const Q={"concepts": [{"s": "A client's heart rate and stroke volume are unchanged, but systemic vascular resistance doubles. The nurse expects blood pressure to:", "o": ["Stay the same", "Increase", "Decrease", "Become irregular"], "a": [1], "w": "BP = cardiac output × resistance. If output stays the same and resistance rises, pressure rises. This is why vasoconstriction raises BP and vasodilators lower it."}, {"s": "Why can a moderate narrowing of the femoral artery cause significant claudication?", "o": ["Plaque releases toxins that injure the calf muscle fibers", "Narrowed arteries carry less oxygen in each red cell", "The body stops forming collateral vessels around plaque", "A small loss of radius causes a much larger loss of flow"], "a": [3], "w": "By Poiseuille's law, halving the radius reduces flow to about one sixteenth. Even moderate narrowing can starve exercising muscle."}, {"s": "A client asks why his 5.8 cm aneurysm needs repair when his 4.0 cm aneurysm didn't. Which explanation reflects Laplace's law?", "o": ["\"A wider aneurysm puts more stress on its wall, so rupture is likelier.\"", "\"Size doesn't matter; the decision to repair is based only on your current age.\"", "\"Larger aneurysms contain more clot that can break loose.\"", "\"Larger aneurysms lower your blood pressure, which is dangerous.\""], "a": [0], "w": "Wall tension rises with radius. A wider aneurysm has a more stressed wall, which makes it more likely to keep growing and rupture."}, {"s": "A client with venous insufficiency is being taught about positioning. Which principle explains why elevating the leg helps?", "o": ["Elevation raises plasma oncotic pressure in the leg capillaries", "Elevation increases arterial blood flow to the feet and toes", "Gravity helps venous blood return, lowering pressure in leg veins", "Elevation strengthens the valves inside the damaged leg veins"], "a": [2], "w": "Gravity pulls blood downward. Raising the leg above the heart lets gravity help venous return, lowering venous pressure and edema. For arterial disease the opposite is true."}, {"s": "A client with liver cirrhosis has a low serum albumin and develops edema of both legs. The nurse understands the edema is caused by:", "o": ["Arterial narrowing that limits blood flow to the lower legs", "Decreased oncotic pressure, so less fluid returns to the capillaries", "A blood clot that is blocking venous return from both legs", "Increased capillary hydrostatic pressure from high venous pressure"], "a": [1], "w": "Albumin creates the oncotic pull that draws fluid back into capillaries. With low albumin, fluid that leaves the capillaries stays in the tissue."}, {"s": "The nurse hears a whooshing sound over a client's left carotid artery. This finding is caused by:", "o": ["Low blood pressure", "A blood clot that has completely blocked the artery", "Turbulent flow through a narrowed segment", "Normal, smooth blood flow"], "a": [2], "w": "Narrowing disrupts the normal smooth layers of flow, creating turbulence heard as a bruit. A completely blocked artery has no flow, so no bruit."}, {"s": "A client taking a diuretic for hypertension weighed 82.0 kg yesterday and 80.5 kg today. The nurse estimates the client has lost about:", "o": ["150 mL of fluid", "500 mL of fluid", "1.5 L of fluid", "3 L of fluid"], "a": [2], "w": "1 kg of weight is about 1 L of fluid. A 1.5 kg drop overnight is about 1.5 L, more than intake and output records usually capture."}], "terms": [{"s": "The term \"atherosclerosis\" is best described as:", "o": ["A clot that breaks loose and travels to the lungs", "Inflammation of a vein wall with clot formation", "Spasm of the small arteries in the fingers and toes", "Fatty plaque buildup in the inner lining of an artery"], "a": [3], "w": "Ather/o means fatty paste or plaque, and -sclerosis means hardening. The plaque forms in the intima of arteries."}, {"s": "A client reports calf cramping after walking two blocks that stops when they rest. This symptom is called:", "o": ["Claudication", "Paresthesia", "Rubor", "Stasis"], "a": [0], "w": "Intermittent claudication is muscle pain from inadequate arterial flow during activity, relieved by rest. It is the classic symptom of peripheral arterial disease."}, {"s": "What is the difference between a thrombus and an embolus?", "o": ["There is no difference; the terms mean the same thing", "A thrombus is made of fat; an embolus is made of blood", "A thrombus stays where it formed; an embolus has traveled", "A thrombus forms in an artery; an embolus forms in a vein"], "a": [2], "w": "A thrombus is a clot attached to a vessel wall. When it (or part of it) breaks free and travels, it becomes an embolus. A DVT that travels to the lungs becomes a pulmonary embolism."}, {"s": "The nurse hears a whooshing sound over a client's carotid artery. This is documented as a:", "o": ["Bruit", "Rub", "Thrill", "Murmur"], "a": [0], "w": "A bruit is the sound of turbulent blood flow through a narrowed or dilated vessel, heard with a stethoscope. A thrill is the same turbulence felt with the fingers. Murmurs are heard over the heart."}, {"s": "The word \"phlebitis\" means:", "o": ["Inflammation of an artery", "Hardening of a vein", "Clot in a capillary", "Inflammation of a vein"], "a": [3], "w": "Phleb/o means vein and -itis means inflammation."}, {"s": "Which term describes inadequate blood supply causing tissue to be deprived of oxygen?", "o": ["Collateral circulation", "Ischemia", "Edema", "Perfusion"], "a": [1], "w": "Ischemia literally means \"holding back blood.\" Perfusion is normal blood delivery; edema is excess fluid; collateral circulation is a workaround for blockages."}], "anp": [{"s": "Which layer of the blood vessel wall is made of endothelium and is where atherosclerosis begins?", "o": ["Tunica media", "Tunica intima", "Tunica externa", "Adventitia"], "a": [1], "w": "The tunica intima is the innermost layer, lined by endothelium. Injury to the endothelium starts the atherosclerotic process. The adventitia is another name for the externa."}, {"s": "Why do veins in the legs have valves?", "o": ["To prevent backflow so blood returns toward the heart", "To control the diameter of the vein during exercise", "To filter small clots out of the blood before it returns", "To raise blood pressure in the legs during standing"], "a": [0], "w": "Venous pressure is low, so one-way valves, along with the calf muscle pump, keep blood moving upward. When valves fail, blood pools (venous insufficiency)."}, {"s": "Constriction of arterioles throughout the body will have which effect?", "o": ["No change in resistance and no effect on BP", "Decreased heart rate and increased BP", "Increased systemic vascular resistance and increased BP", "Decreased systemic vascular resistance and decreased BP"], "a": [2], "w": "BP = cardiac output × systemic vascular resistance. Narrowing arterioles raises resistance, which raises BP."}, {"s": "Which statement about angiotensin II is correct?", "o": ["It is released by the heart when the atria are stretched", "It is the enzyme that converts angiotensin I in the lungs", "It dilates arteries and causes the kidneys to lose sodium", "It constricts arteries and triggers aldosterone, raising BP"], "a": [3], "w": "Angiotensin II is a strong vasoconstrictor and triggers aldosterone, which retains sodium and water. ACE (angiotensin-converting enzyme) is the enzyme that makes it, which is why ACE inhibitors lower BP."}, {"s": "A client's BP is 120/60 mm Hg. What is the mean arterial pressure (MAP)?", "o": ["60 mm Hg", "80 mm Hg", "90 mm Hg", "100 mm Hg"], "a": [1], "w": "MAP = (SBP + 2 × DBP) ÷ 3 = (120 + 120) ÷ 3 = 80 mm Hg. That is above 65, so organ perfusion should be adequate."}], "htnA": [{"s": "Quick check: A client's average reading is 134/78 mm Hg. How is this classified?", "o": ["Normal", "Elevated", "Stage 1 hypertension", "Stage 2 hypertension"], "a": [2], "w": "Systolic 130–139 or diastolic 80–89 is Stage 1. The systolic (134) puts this reading in Stage 1 even though the diastolic is normal. Always classify by the higher category."}], "htn": [{"s": "Why is hypertension called the \"silent killer\"?", "o": ["It usually causes no symptoms while it damages organs", "It causes sudden death without warning in most clients", "It can only be detected with blood and urine laboratory tests", "It mainly causes damage while people are asleep at night"], "a": [0], "w": "Most people with hypertension feel fine. Meanwhile, high pressure damages the heart, brain, kidneys, eyes, and vessels. That is why routine screening matters."}, {"s": "Two clients have a BP of 196/124 mm Hg. Which finding indicates that one client is in hypertensive emergency rather than urgency?", "o": ["Headache that began this morning", "History of missed medication doses", "Anxiety about the high reading", "New confusion and blurred vision"], "a": [3], "w": "The difference between urgency and emergency is acute target organ damage, not the number. New confusion and vision changes suggest hypertensive encephalopathy or stroke."}, {"s": "Why is BP lowered by no more than about 25% in the first hour of a hypertensive emergency?", "o": ["Rapid lowering causes fluid overload and pulmonary edema", "A slow decrease prevents rebound hypertension the next day", "Organs adapted to high pressure; a fast drop causes ischemia", "Antihypertensive drugs cannot safely work faster than that"], "a": [2], "w": "In chronic hypertension, autoregulation shifts so organs expect high pressure. A sudden drop can underperfuse the brain, heart, and kidneys even at a \"normal\" BP."}, {"s": "A client taking lisinopril reports a persistent dry cough. The nurse understands this is:", "o": ["An allergic reaction that requires epinephrine right away", "A common ACE inhibitor effect; an ARB may be substituted", "A sign of heart failure that needs immediate treatment", "Unrelated to the medication and likely a viral infection"], "a": [1], "w": "ACE inhibitors cause bradykinin to build up, producing a dry cough. ARBs work on the same system without this effect. Angioedema (swelling of lips, tongue, face) is different and is an emergency."}], "athero": [{"s": "Which statement correctly compares arteriosclerosis and atherosclerosis?", "o": ["They are two names for the same disease in the arteries", "Arteriosclerosis is caused by plaque; atherosclerosis is caused by aging", "Arteriosclerosis is stiffening; atherosclerosis is a plaque type of it", "Atherosclerosis affects veins; arteriosclerosis affects arteries"], "a": [2], "w": "Arteriosclerosis is the umbrella term for stiff, thick arterial walls. Atherosclerosis is a specific type defined by plaque buildup in the intima."}, {"s": "Why is a high HDL level protective?", "o": ["HDL dissolves existing plaque inside the inner artery wall over time", "HDL lowers blood pressure by relaxing the arteries", "HDL prevents platelets from sticking to the plaque", "HDL carries cholesterol from the arteries back to the liver"], "a": [3], "w": "HDL is \"healthy\" cholesterol because it transports cholesterol from tissues back to the liver for removal. LDL carries cholesterol into the artery wall."}, {"s": "A client with known atherosclerosis suddenly develops chest pain. The nurse understands the most likely mechanism is:", "o": ["A plaque ruptured, and a clot formed on top of it", "Cholesterol crystals broke off and traveled to the heart", "The plaque slowly grew until the artery closed completely", "The artery wall became inflamed and swelled shut"], "a": [0], "w": "Most acute events (MI, stroke) happen when a plaque's fibrous cap ruptures. The exposed core triggers platelets, and a thrombus forms within minutes."}, {"s": "A client started on atorvastatin asks what side effect to report. The nurse should emphasize:", "o": ["Increased appetite and thirst", "Unexplained muscle pain or weakness", "Mild flushing after each dose", "Dry mouth in the morning"], "a": [1], "w": "Statins can cause myopathy and, rarely, rhabdomyolysis. Unexplained muscle pain, tenderness, or weakness should be reported. Liver enzymes are also monitored."}], "pad": [{"s": "A client's ankle-brachial index is 0.68. The nurse interprets this as:", "o": ["Normal arterial flow", "Calcified, noncompressible arteries", "Borderline flow that needs no follow-up", "Peripheral arterial disease"], "a": [3], "w": "An ABI of 0.90 or less indicates PAD. At 0.68, ankle pressure is about two thirds of arm pressure, meaning significant narrowing."}, {"s": "A client with PAD says leg pain at night improves when they hang their legs over the side of the bed. The nurse explains this works because:", "o": ["Gravity helps arterial blood reach the feet", "It decreases venous congestion in the feet", "It prevents clots from forming in the legs", "It stretches the cramping calf muscles"], "a": [0], "w": "In PAD, arteries are narrowed. Lowering the legs uses gravity to improve arterial flow. This is why clients with PAD should not elevate their legs."}, {"s": "After a femoral artery stent, which finding should the nurse report immediately?", "o": ["Mild soreness at the catheter insertion site", "Foot warm and pink with brisk capillary refill", "New numbness, pallor, and a cool foot", "Pedal pulse present only by Doppler"], "a": [2], "w": "Pallor, coolness, and numbness are among the six P's of acute arterial occlusion and suggest the stent or graft has clotted. This needs immediate intervention."}], "cvi": [{"s": "The brown discoloration around the ankles of a client with chronic venous insufficiency is caused by:", "o": ["A chronic fungal infection of the skin", "Hemosiderin from red cells that leaked into tissue", "Decreased melanin production in the skin of the lower legs", "Poor arterial oxygen delivery to the skin"], "a": [1], "w": "High venous pressure pushes red cells out of capillaries. As they break down, iron is stored as hemosiderin, which stains the skin brown."}, {"s": "When should a client with venous insufficiency put on compression stockings?", "o": ["Only while sleeping", "In the morning, before getting out of bed", "After walking for 30 minutes", "In the evening, when swelling is worst"], "a": [1], "w": "Legs have the least edema after a night of elevation. Applying stockings before getting up prevents fluid from pooling as soon as the client stands."}, {"s": "Which position should the nurse encourage for a client with a venous stasis ulcer?", "o": ["Legs elevated above heart level", "Legs dependent, dangling over the side of the bed", "Standing as much as possible", "Legs crossed at the ankles"], "a": [0], "w": "Elevation above the heart uses gravity to help venous return, reducing pressure and edema. Dependent positioning is for arterial disease, not venous."}], "vte": [{"s": "A client is 2 days post hip replacement and has stayed in bed. Which part of Virchow's triad does the bed rest represent?", "o": ["Thrombocytopenia", "Hypercoagulability", "Vessel wall injury", "Venous stasis"], "a": [3], "w": "Immobility slows blood flow in the legs (stasis). This client also has vessel wall injury from surgery, making DVT risk very high."}, {"s": "A client receiving IV heparin has a platelet count that dropped from 260,000 to 110,000/mm³. The nurse suspects:", "o": ["Warfarin toxicity from the new dose", "Expected effect of heparin therapy", "Heparin-induced thrombocytopenia", "Vitamin K deficiency from the diet"], "a": [2], "w": "A drop of 50% or more in platelets after starting heparin suggests HIT, an immune reaction that paradoxically causes clotting. Heparin is stopped and the provider is notified."}, {"s": "Which statement by a client starting warfarin shows understanding?", "o": ["\"I won't need any more blood tests once my dose is steady.\"", "\"I'll keep my green vegetable intake about the same.\"", "\"I can take ibuprofen for my usual headaches.\"", "\"I'll stop eating all green leafy vegetables.\""], "a": [1], "w": "Vitamin K counteracts warfarin, so intake should stay consistent, not eliminated. NSAIDs raise bleeding risk, and INR must be checked regularly."}, {"s": "A client being treated for a DVT suddenly becomes short of breath and anxious, with a heart rate of 124. The nurse suspects:", "o": ["Anxiety about the diagnosis", "Heparin overdose", "Pulmonary embolism", "Pneumonia"], "a": [2], "w": "Sudden dyspnea, tachycardia, and anxiety in a client with DVT strongly suggest that part of the clot has traveled to the lungs. Stay with the client, raise the head of the bed, give oxygen, and call for help."}], "aaa": [{"s": "Why are most abdominal aortic aneurysms found by accident during imaging for another problem?", "o": ["They develop too quickly to cause any symptoms", "Their symptoms look exactly like indigestion", "They only form in people who have frequent imaging", "They usually cause no symptoms until very large"], "a": [3], "w": "An AAA grows slowly and usually causes no symptoms. That is why at-risk men are screened with ultrasound."}, {"s": "A client with a known AAA reports sudden, severe back pain. BP is 82/50 and heart rate is 128. The nurse recognizes this as:", "o": ["Probable aneurysm rupture with shock", "An obstructing kidney stone", "Muscle strain from lifting heavy objects", "Expected growth of the aneurysm"], "a": [0], "w": "Sudden severe back or flank pain with hypotension and tachycardia in a client with an AAA signals rupture. This is a surgical emergency."}, {"s": "After an open AAA repair, why does the nurse monitor hourly urine output?", "o": ["Because the bladder is often injured during open abdominal surgery", "To detect fluid overload from the IV fluids", "To assess whether pain control is adequate", "Clamping the aorta can reduce blood flow to the kidneys"], "a": [3], "w": "The aorta is clamped close to the renal arteries during repair. Reduced flow can cause acute kidney injury, so urine output below 30 mL/hr and rising creatinine are reported."}], "diss": [{"s": "Why is an IV beta blocker given before a vasodilator in aortic dissection?", "o": ["It reduces force on the torn wall and blocks reflex tachycardia", "Beta blockers dissolve the clot in the false channel", "Vasodilators are contraindicated in all aortic dissections", "Beta blockers relieve the tearing pain more effectively than opioids do"], "a": [0], "w": "Each forceful heartbeat pushes the tear further. Beta blockers slow and soften the beats. A vasodilator alone drops BP and triggers reflex tachycardia, which increases shear on the aortic wall."}, {"s": "Which assessment finding is most characteristic of aortic dissection?", "o": ["Swelling and warmth in one lower leg", "BP difference over 20 mm Hg between arms", "Chest pain that is relieved by rest", "Pulsatile mass near the umbilicus"], "a": [1], "w": "When the dissection cuts off or narrows a branch to one arm, the BP and pulse differ between arms. A pulsatile mass suggests AAA; unilateral leg swelling suggests DVT."}, {"s": "Why does a Stanford Type A dissection usually require emergency surgery while Type B is often managed medically?", "o": ["Type A dissections are always smaller and harder to reach surgically", "Type A dissections only occur in young, otherwise healthy people", "Type A involves the ascending aorta, near the coronaries and valve", "Type B dissections cannot be seen on a CT scan of the chest"], "a": [2], "w": "The ascending aorta sits next to the coronary arteries, aortic valve, and pericardium. A tear there can cause MI, acute aortic regurgitation, or tamponade, so it is repaired immediately."}]};
+const FINAL=[{"s": "A client newly diagnosed with stage 2 hypertension says, \"I feel fine, so I don't think I need medicine.\" Which response by the nurse shows understanding of hypertension?", "o": ["\"You're right. Medicine is only needed if you get headaches.\"", "\"Medicine is needed only when your pressure is above 180/120.\"", "\"Your blood pressure will return to normal on its own if you rest more.\"", "\"High blood pressure often has no symptoms while it damages organs.\""], "a": [3], "w": "Hypertension is usually asymptomatic while it causes target organ damage. Feeling fine does not mean the pressure is safe."}, {"s": "A client is admitted with a BP of 220/130 mm Hg, new chest pain, and crackles in both lungs. Nicardipine is started. The nurse understands the goal for the first hour is to:", "o": ["Lower the systolic BP below 100 mm Hg", "Return BP to 120/80 mm Hg as quickly as possible", "Lower the mean arterial pressure by no more than about 25%", "Avoid lowering the BP at all until the chest pain resolves"], "a": [2], "w": "In hypertensive emergency (other than dissection or certain strokes), MAP is reduced by no more than 25% in the first hour to avoid organ ischemia from a too-rapid drop."}, {"s": "Which statement best describes the relationship between arteriosclerosis and atherosclerosis?", "o": ["Arteriosclerosis develops only after atherosclerosis has caused a heart attack", "Atherosclerosis is a type of arteriosclerosis with plaque in the intima", "Arteriosclerosis is reversible with diet, but atherosclerosis is not", "Both terms describe clots that form in the deep veins of the legs"], "a": [1], "w": "Arteriosclerosis is the broad term for thickened, stiff arteries. Atherosclerosis is a specific type defined by plaque in the intima."}, {"s": "A nurse measures the BP of a client with a large upper arm using a standard adult cuff that is too small. The nurse understands the reading will most likely be:", "o": ["Falsely high", "Accurate, because cuff size does not affect the reading", "Accurate for systolic but not for diastolic", "Falsely low"], "a": [0], "w": "A cuff that is too small needs more pressure to compress the artery, so the reading is falsely high. The bladder should cover about 80% of the arm circumference."}, {"s": "A client with peripheral arterial disease asks why their calves hurt when walking but not when sitting. The nurse's best explanation is:", "o": ["\"Blood is pooling in your leg veins each time you walk.\"", "\"Working muscles need more oxygen than the narrow arteries supply.\"", "\"The pain is coming from arthritis in your knees, hips, and ankles.\"", "\"Walking is damaging the valves in your leg veins.\""], "a": [1], "w": "Claudication is a supply-and-demand problem. At rest, narrowed arteries supply enough; during exercise, muscle oxygen demand exceeds supply."}, {"s": "A client with long-standing diabetes has an ankle-brachial index of 1.52. The nurse understands this result most likely means:", "o": ["The arteries are calcified, so the result is unreliable", "The client has excellent circulation to both lower legs and feet", "The client has severe peripheral arterial disease", "The client has chronic venous insufficiency"], "a": [0], "w": "An ABI above 1.40 suggests stiff, calcified arteries that can't be compressed by the cuff, common in diabetes and CKD. Other testing (such as toe-brachial index) is needed."}, {"s": "Which assessment findings are consistent with peripheral arterial disease? Select all that apply.", "o": ["Brown pigmentation around the ankles", "Thin, shiny, hairless skin on the lower legs", "Thick, brittle toenails", "Edema that resolves with elevation", "Pain at rest relieved by dangling the legs", "Diminished pedal pulses"], "a": [1, 2, 4, 5], "m": true, "w": "Weak pulses, shiny hairless skin, rest pain relieved by dependency, and thick toenails reflect chronic arterial ischemia. Brown pigmentation and edema that improves with elevation are venous findings."}, {"s": "A client with chronic venous insufficiency asks why they should elevate their legs. The nurse explains that elevation:", "o": ["Strengthens the damaged valves in the veins", "Prevents the legs and feet from getting cold", "Increases arterial blood flow to the feet and toes", "Uses gravity to help venous blood return to the heart"], "a": [3], "w": "Elevation lowers venous pressure in the legs by helping venous return, which reduces edema and promotes ulcer healing. It does not repair valves."}, {"s": "The nurse is assessing a leg ulcer. Which characteristics indicate a venous ulcer rather than an arterial ulcer?", "o": ["On the toes; deep, pale base; minimal drainage", "On the lateral malleolus; very painful; punched-out", "Near the medial malleolus; shallow; heavy drainage", "On the heel; round; black necrotic tissue"], "a": [2], "w": "Venous ulcers form near the medial malleolus and are shallow with irregular borders and significant drainage. Deep, pale, punched-out ulcers on toes, heels, or the lateral malleolus are arterial."}, {"s": "Which client situations increase the risk of venous thromboembolism according to Virchow's triad? Select all that apply.", "o": ["Taking oral contraceptives while smoking", "Dehydration from vomiting", "Active cancer receiving chemotherapy", "A 14-hour international flight", "Total knee replacement yesterday", "Walking 30 minutes daily"], "a": [0, 1, 2, 3, 4], "m": true, "w": "Long flights cause stasis; estrogen plus smoking, dehydration, and cancer cause hypercoagulability; joint surgery causes vessel injury and stasis. Regular walking reduces risk."}, {"s": "A client with DVT is receiving IV heparin, and warfarin was started today. The client asks why both are needed. The nurse explains:", "o": ["\"Heparin prevents the bleeding that warfarin can cause.\"", "\"Warfarin takes days to work, so heparin protects you until then.\"", "\"Two anticoagulants are always given together to treat any DVT or PE.\"", "\"Heparin dissolves the clot, and warfarin prevents a new one.\""], "a": [1], "w": "Warfarin works by reducing vitamin K–dependent clotting factors, which takes several days. Heparin acts immediately, so the two overlap until the INR is therapeutic. Neither dissolves the existing clot."}, {"s": "A nursing student asks why a client with a suspected DVT should not have their calf massaged. The nurse's best response is:", "o": ["\"Massage is only harmful if the client is also receiving heparin.\"", "\"Massage will greatly increase the client's pain.\"", "\"Massage will cause the clot to grow larger.\"", "\"Massage could dislodge the clot and send it to the lungs.\""], "a": [3], "w": "Mechanical pressure can dislodge the thrombus, turning it into an embolus that can lodge in the pulmonary arteries."}, {"s": "Which finding in a client being treated for DVT best indicates the development of a pulmonary embolism?", "o": ["Sudden dyspnea, chest pain, and tachycardia", "Low-grade fever and mild fatigue", "Bruising at the heparin injection site", "Increased swelling in the affected calf"], "a": [0], "w": "Sudden shortness of breath, chest pain that worsens with breathing, and tachycardia are classic PE signs. The other findings relate to the DVT or the anticoagulant."}, {"s": "A 70-year-old man with a 40-pack-year smoking history is scheduled for AAA screening. He asks why. The nurse explains that smoking:", "o": ["Lowers the blood pressure inside the abdomen", "Causes clots to form in the arteries of the legs", "Damages and weakens the wall of the aorta", "Only affects the lungs and heart, not vessels"], "a": [2], "w": "Smoking is the strongest risk factor for AAA. It damages the elastic and muscular layers of the aortic wall, allowing it to bulge."}, {"s": "During assessment, the nurse feels a pulsating mass near the client's umbilicus. Why should the nurse avoid deep palpation?", "o": ["It may cause an abdominal hernia to form", "It interferes with auscultating bowel sounds", "Deep pressure could cause it to rupture", "It will cause the client to feel nauseated"], "a": [2], "w": "A pulsatile periumbilical mass suggests AAA. Deep palpation could stress the weakened wall. The nurse reports the finding and avoids further palpation."}, {"s": "A client is diagnosed with a Stanford Type A aortic dissection. The nurse understands that this client is prepared for emergency surgery because:", "o": ["Type A dissections only occur in the abdominal aorta", "The tear involves the ascending aorta, near the heart and valve", "Medications cannot lower blood pressure enough in a Type A dissection", "Type A dissections heal on their own if the client rests"], "a": [1], "w": "The ascending aorta is next to the coronary ostia, aortic valve, and pericardium. Extension can cause MI, acute aortic regurgitation, or cardiac tamponade."}, {"s": "A client with an aortic dissection is prescribed IV esmolol. The nurse understands the primary purpose of this drug is to:", "o": ["Increase cardiac output to perfuse the organs", "Dissolve the clot that forms in the false lumen", "Relieve the client's tearing chest and back pain", "Reduce heart rate and force to limit stress on the tear"], "a": [3], "w": "Beta blockers lower heart rate and contractility, reducing shear force on the aorta and slowing extension of the tear. They are started before any vasodilator."}, {"s": "A client's BP is 210/128 mm Hg. Which findings indicate acute target organ damage and hypertensive emergency? Select all that apply.", "o": ["Chest pain", "Blurred vision", "Urine output of 15 mL/hr", "The blood pressure reading alone", "New-onset confusion", "Mild anxiety about the reading"], "a": [0, 1, 2, 4], "m": true, "w": "Confusion and vision changes suggest brain injury; chest pain suggests cardiac injury; low urine output suggests kidney injury. The BP number alone does not make it an emergency, and mild anxiety is not organ damage."}, {"s": "A client is being taught to self-inject enoxaparin at home after a DVT. Which statement indicates understanding?", "o": ["\"I'll inject into my belly, 2 inches from my navel, and not rub it.\"", "\"I'll rub the site afterward so the medicine absorbs faster.\"", "\"I'll need a PT/INR drawn every week to check this dose.\"", "\"I'll push the air bubble out of the syringe before I inject.\""], "a": [0], "w": "Enoxaparin is given SubQ in the abdomen away from the umbilicus. The air bubble is left in to keep the drug in the tissue, and rubbing increases bruising. It does not require PT/INR monitoring; that is for warfarin."}, {"s": "Which statement by a client starting atorvastatin indicates understanding of the medication?", "o": ["\"I should report any unexplained muscle pain or weakness.\"", "\"Now that I take a statin, I can eat whatever I want.\"", "\"This medicine will dissolve the plaque in my arteries within a few weeks.\"", "\"I only need to take it when my cholesterol is high.\""], "a": [0], "w": "Statins can cause myopathy and rarely rhabdomyolysis, so muscle symptoms should be reported. Statins lower LDL and stabilize plaque but do not replace diet changes and must be taken consistently."}];
+
+/* ---------- navigation (runs first) ---------- */
+const secs=[...document.querySelectorAll('.sec')];
+const rail=document.getElementById('railList'),sel=document.getElementById('mnavSel'),pager=document.getElementById('pager');
+let cur=0;
+function sectionDone(s){
+  try{
+  const k=s.dataset.id;
+  if(k==='final') return !!store.final;
+  const keys=[...s.querySelectorAll('[data-quiz]')].map(h=>h.dataset.quiz);
+  if(!keys.length) return false;
+  return keys.every(key=>Q[key]&&Q[key].every((_,j)=>store.q[key+'-'+j]));
+  }catch(e){return false}
+}
+function go(i,scroll){
+  i=Math.max(0,Math.min(secs.length-1,i||0));cur=i;
+  secs.forEach((s,j)=>{s.hidden=j!==i});
+  rail.querySelectorAll('a[data-i]').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.i===i)));
+  sel.value=String(i);
+  const p=secs[i-1],n=secs[i+1];
+  pager.innerHTML='';
+  if(p){const b=document.createElement('button');b.type='button';b.className='btn ghost';b.innerHTML='<small>Previous</small><span></span>';b.lastChild.innerHTML=p.dataset.title;b.addEventListener('click',()=>go(i-1,true));pager.appendChild(b)}
+  if(n){const b=document.createElement('button');b.type='button';b.className='btn next';b.innerHTML='<small>Next</small><span></span>';b.lastChild.innerHTML=n.dataset.title;b.addEventListener('click',()=>go(i+1,true));pager.appendChild(b)}
+  store.at=i;save();
+  if(scroll){toTop();requestAnimationFrame(toTop);setTimeout(toTop,60)}
+}
+function toTop(){
+  const r=document.documentElement;const prev=r.style.scrollBehavior;r.style.scrollBehavior='auto';
+  try{window.scrollTo({top:0,left:0,behavior:'instant'})}catch(e){try{window.scrollTo(0,0)}catch(e2){}}
+  r.scrollTop=0;document.body.scrollTop=0;
+  try{document.getElementById('top-anchor').scrollIntoView({block:'start',behavior:'instant'})}catch(e){}
+  r.style.scrollBehavior=prev;
+}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a.navlink');if(!a)return;e.preventDefault();go(+a.dataset.i,true)});
+sel.addEventListener('change',()=>go(+sel.value,true));
+document.documentElement.classList.add('js');
+go(typeof store.at==='number'?store.at:0,false);
+function updateProgress(){
+  try{
+  const all=Object.values(Q).reduce((n,v)=>n+v.length,0)+1;
+  const done=Object.keys(store.q).filter(k=>Q[k.replace(/-\d+$/,'')]).length+(store.final?1:0);
+  document.getElementById('progFill').style.width=Math.round(done/all*100)+'%';
+  document.getElementById('progTxt').textContent=done+' / '+all+' checks';
+  rail.querySelectorAll('a[data-i]').forEach(b=>{b.querySelector('.ck').textContent=sectionDone(secs[+b.dataset.i])?'✓':''});
+  }catch(e){}
+}
+/* ---------- quiz rendering ---------- */
+const L='ABCDEF';
+function sameSet(a,b){return a.length===b.length&&a.every(x=>b.includes(x))}
+function buildQ(item,id,num,opts){
+  const card=document.createElement('div');card.className='q';
+  const multi=!!item.m;
+  card.innerHTML='<div class="q-top"><span class="q-num">'+num+'</span>'+(multi?'<span class="q-type">Select all that apply</span>':'')+'</div><p class="q-stem"></p><div class="opts" role="'+(multi?'group':'radiogroup')+'"></div>';
+  card.querySelector('.q-stem').textContent=item.s;
+  const box=card.querySelector('.opts');
+  item.o.forEach((t,i)=>{
+    const lab=document.createElement('label');lab.className='opt';
+    const inp=document.createElement('input');inp.type=multi?'checkbox':'radio';inp.name=id;inp.value=i;inp.id=id+'-'+i;
+    lab.htmlFor=inp.id;
+    lab.innerHTML='<span class="mk '+(multi?'c':'r')+'">'+L[i]+'</span><span></span>';
+    lab.prepend(inp);lab.lastChild.textContent=t;
+    box.appendChild(lab);
+  });
+  return card;
+}
+function selected(card){return [...card.querySelectorAll('input:checked')].map(i=>+i.value)}
+function reveal(card,item,sel){
+  const ok=sameSet(sel,item.a);
+  card.classList.add('done');
+  card.querySelectorAll('input').forEach(i=>i.disabled=true);
+  card.querySelectorAll('.opt').forEach((o,i)=>{
+    if(item.a.includes(i)) o.classList.add(sel.includes(i)?'is-correct':'missed');
+    else if(sel.includes(i)) o.classList.add('is-wrong');
+  });
+  let w=card.querySelector('.why');
+  if(!w){w=document.createElement('div');w.className='why';card.appendChild(w)}
+  w.innerHTML='<b>Rationale · correct answer'+(item.a.length>1?'s':'')+': '+item.a.map(i=>L[i]).join(', ')+'</b><p></p>';
+  w.querySelector('p').textContent=item.w;
+  return ok;
+}
+
+try{
+/* section quizzes */
+document.querySelectorAll('[data-quiz]').forEach(host=>{
+  const key=host.dataset.quiz;const items=Q[key];if(!items)return;
+  const inline=host.classList.contains('inline-q');
+  if(!inline){
+    const h=document.createElement('div');h.className='quiz-h';
+    h.innerHTML='<h3>Check your understanding</h3><span class="score" data-score="'+key+'"></span>';
+    host.appendChild(h);
+  }
+  items.forEach((item,idx)=>{
+    const id=key+'-'+idx;
+    const card=buildQ(item,id,(inline?'':'Question '+(idx+1)),{});
+    if(inline) card.querySelector('.q-num').textContent='Check';
+    const act=document.createElement('div');act.className='q-act';
+    act.innerHTML='<button class="btn">Check answer</button><span class="verdict" aria-live="polite"></span>';
+    card.appendChild(act);
+    const btn=act.querySelector('button'),v=act.querySelector('.verdict');
+    function finish(sel){
+      const ok=reveal(card,item,sel);
+      v.textContent=ok?'Correct':'Not quite';v.className='verdict '+(ok?'ok':'no');
+      btn.hidden=true;
+      store.q[id]={sel,ok};save();updateProgress();updateScores();
+      card.appendChild(card.querySelector('.why'));
+    }
+    btn.addEventListener('click',()=>{
+      const sel=selected(card);
+      if(!sel.length){v.textContent='Choose an answer first.';v.className='verdict no';return}
+      finish(sel);
+    });
+    if(store.q[id]){
+      store.q[id].sel.forEach(i=>{const el=card.querySelector('#'+CSS.escape(id+'-'+i));if(el)el.checked=true});
+      finish(store.q[id].sel);
+    }
+    host.appendChild(card);
+  });
+});
+}catch(err){console.error(err)}
+function updateScores(){try{
+  document.querySelectorAll('[data-score]').forEach(s=>{
+    const k=s.dataset.score,items=Q[k];
+    const done=items.filter((_,i)=>store.q[k+'-'+i]).length;
+    const right=items.filter((_,i)=>store.q[k+'-'+i]&&store.q[k+'-'+i].ok).length;
+    s.textContent=done?right+' of '+done+' correct':items.length+' questions';
+  });}catch(e){}
+}
+
+try{
+/* ---------- final test ---------- */
+const fq=document.getElementById('finalQs');
+const fCards=FINAL.map((item,idx)=>{const c=buildQ(item,'final-'+idx,'Item '+(idx+1)+' of '+FINAL.length);fq.appendChild(c);return c});
+const fSub=document.getElementById('finalSubmit'),fMsg=document.getElementById('finalMsg'),fRes=document.getElementById('finalResult'),fReset=document.getElementById('finalReset'),nameIn=document.getElementById('stuName');
+if(store.name) nameIn.value=store.name;
+nameIn.addEventListener('input',()=>{store.name=nameIn.value;save()});
+fCards.forEach((c,idx)=>c.addEventListener('change',()=>{store.fdraft=store.fdraft||{};store.fdraft[idx]=selected(c);save()}));
+function gradeFinal(sels){
+  let right=0;
+  fCards.forEach((c,i)=>{const ok=reveal(c,FINAL[i],sels[i]);if(ok)right++;
+    const v=document.createElement('span');v.className='verdict '+(ok?'ok':'no');v.textContent=ok?'Correct':'Incorrect';c.querySelector('.q-top').appendChild(v)});
+  const pct=Math.round(right/FINAL.length*100);
+  fRes.hidden=false;
+  const nm=(store.name||'').trim();
+  fRes.innerHTML='<div class="result"><p style="font:700 12px var(--f-body);letter-spacing:.1em;text-transform:uppercase">Vascular Pathways · Final test'+(nm?' · <span></span>':'')+'</p><div class="big mono">'+right+' / '+FINAL.length+'</div><p>'+pct+'% · '+(pct>=78?'You are ready for class. Review the rationales for any item you missed.':'Review the sections tied to the items you missed before class, then retake the test.')+'</p><p style="font-size:14px">Submitted '+new Date(store.fdone).toLocaleString()+'</p></div>';
+  if(nm) fRes.querySelector('.result span').textContent=nm;
+  fSub.hidden=true;fReset.hidden=false;fMsg.textContent='';
+  updateProgress();
+}
+fSub.addEventListener('click',()=>{
+  const sels=fCards.map(selected);
+  const missing=sels.map((s,i)=>s.length?null:i+1).filter(Boolean);
+  if(missing.length){fMsg.textContent='Answer every item first. Unanswered: '+missing.join(', ');return}
+  store.final=sels;store.fdone=Date.now();save();gradeFinal(sels);
+  fRes.scrollIntoView({behavior:'smooth',block:'center'});
+});
+fReset.addEventListener('click',()=>{
+  delete store.final;delete store.fdone;delete store.fdraft;save();
+  fCards.forEach(c=>{c.classList.remove('done');c.querySelectorAll('input').forEach(i=>{i.disabled=false;i.checked=false});c.querySelectorAll('.opt').forEach(o=>o.className='opt');c.querySelector('.why')?.remove();c.querySelector('.q-top .verdict')?.remove()});
+  fRes.hidden=true;fSub.hidden=false;fReset.hidden=true;updateProgress();
+  fq.scrollIntoView({behavior:'smooth'});
+});
+if(store.final){store.final.forEach((s,i)=>s.forEach(v=>{const el=document.getElementById('final-'+i+'-'+v);if(el)el.checked=true}));gradeFinal(store.final)}
+else if(store.fdraft){Object.entries(store.fdraft).forEach(([i,s])=>s.forEach(v=>{const el=document.getElementById('final-'+i+'-'+v);if(el)el.checked=true}))}
+
+}catch(err){console.error(err)}
+try{
+/* ---------- BP tool ---------- */
+const bpS=document.getElementById('bpS'),bpD=document.getElementById('bpD'),bpOut=document.getElementById('bpOut'),bpNote=document.getElementById('bpNote');
+function bpCat(s,d){
+  if(s>180||d>120) return ['Hypertensive crisis',3,'Above 180 and/or above 120. Assess right away for headache, confusion, vision changes, chest pain, dyspnea, and low urine output. Organ damage means emergency.'];
+  if(s>=140||d>=90) return ['Stage 2 hypertension',2,'Systolic 140 or more, or diastolic 90 or more.'];
+  if(s>=130||d>=80) return ['Stage 1 hypertension',2,'Systolic 130–139, or diastolic 80–89.'];
+  if(s>=120) return ['Elevated',1,'Systolic 120–129 with diastolic under 80. Lifestyle changes are recommended.'];
+  return ['Normal',0,'Under 120 and under 80.'];
+}
+function bp(){
+  const s=+bpS.value,d=+bpD.value;
+  if(!s||!d||s<40||d<20||d>=s){bpOut.innerHTML='';bpNote.textContent='Enter a systolic value higher than the diastolic value.';return}
+  const [c,l,n]=bpCat(s,d),map=Math.round((s+2*d)/3);
+  bpOut.innerHTML='<div class="chip lvl-'+l+'"><small>Category</small><b>'+c+'</b></div><div class="chip"><small>MAP</small><b>'+map+' mm Hg</b></div><div class="chip"><small>Pulse pressure</small><b>'+(s-d)+' mm Hg</b></div>';
+  bpNote.textContent=n+(map<65?' MAP is below 65, so organ perfusion may be inadequate.':'');
+}
+bpS.addEventListener('input',bp);bpD.addEventListener('input',bp);bp();
+
+}catch(err){console.error(err)}
+try{
+/* ---------- ABI tool ---------- */
+const abiA=document.getElementById('abiA'),abiB=document.getElementById('abiB'),abiOut=document.getElementById('abiOut'),abiNote=document.getElementById('abiNote');
+function abi(){
+  const a=+abiA.value,b=+abiB.value;
+  if(!a||!b){abiOut.innerHTML='';abiNote.textContent='Enter both pressures.';return}
+  const r=a/b;let c,l,n;
+  if(r>1.4){c='Noncompressible';l=1;n='Arteries are likely calcified. The result is unreliable; other testing is needed.'}
+  else if(r>=1.0){c='Normal';l=0;n='Ankle pressure equals or exceeds arm pressure, as expected.'}
+  else if(r>=0.91){c='Borderline';l=1;n='Watch risk factors and recheck.'}
+  else if(r>0.40){c='PAD';l=2;n='Arterial narrowing is reducing flow to the leg. Expect claudication.'}
+  else{c='Severe PAD';l=3;n='Critical limb ischemia is likely: rest pain, ulcers, risk of tissue loss.'}
+  abiOut.innerHTML='<div class="chip"><small>ABI</small><b>'+r.toFixed(2)+'</b></div><div class="chip lvl-'+l+'"><small>Interpretation</small><b>'+c+'</b></div>';
+  abiNote.textContent=n;
+}
+abiA.addEventListener('input',abi);abiB.addEventListener('input',abi);abi();
+
+}catch(err){console.error(err)}
+try{
+/* ---------- plaque stepper ---------- */
+const STEPS=[
+ ['Endothelial injury','High BP, smoking, high glucose, or high LDL damage the endothelium. The intima becomes leaky and sticky.',0],
+ ['LDL enters the wall','LDL cholesterol slips into the intima and becomes oxidized. The body treats it as an invader.',8],
+ ['Foam cells and fatty streak','Monocytes enter the wall and become macrophages. They swallow oxidized LDL and become foam cells. Together they form a fatty streak, which can start in childhood.',16],
+ ['Fibrous plaque','Smooth muscle cells migrate in and build a fibrous cap over a lipid core. The plaque bulges into the lumen and narrows it. Flow is reduced, especially when demand rises (angina, claudication).',34],
+ ['Complicated plaque','Calcium deposits, the core grows, and inflammation thins the cap. A thin-capped plaque is unstable even if it isn\'t very large.',44],
+ ['Rupture and thrombus','The cap tears. Platelets hit the exposed core and form a clot within minutes. The artery can close suddenly, causing MI, stroke, or acute limb ischemia.',44]
+];
+let st=0;
+const pl=document.getElementById('plaque'),ex=document.getElementById('extras'),stT=document.getElementById('stepTxt'),stC=document.getElementById('stepCount'),dots=document.getElementById('stepDots'),pv=document.getElementById('stepPrev'),nx=document.getElementById('stepNext'),fl=document.getElementById('flow');
+STEPS.forEach(()=>dots.appendChild(document.createElement('i')));
+function drawStep(){
+  const [t,d,h]=STEPS[st];
+  stT.innerHTML='<b></b><span></span>';stT.querySelector('b').textContent=t;stT.querySelector('span').textContent=d;
+  stC.textContent='Stage '+(st+1)+' of '+STEPS.length;
+  [...dots.children].forEach((x,i)=>x.classList.toggle('on',i<=st));
+  pv.disabled=st===0;nx.textContent=st===STEPS.length-1?'Start over':'Next stage';
+  pl.setAttribute('d',h?'M 190 126 Q 300 '+(126-h*2)+' 410 126 Z':'');
+  let s='';
+  if(st===0){for(let i=0;i<6;i++)s+='<line x1="'+(230+i*25)+'" y1="128" x2="'+(238+i*25)+'" y2="122" stroke="var(--bad)" stroke-width="2"/>'}
+  if(st===1||st===2){for(let i=0;i<7;i++)s+='<circle cx="'+(225+i*25)+'" cy="'+(st===1?118:114)+'" r="4" fill="var(--ven)"/>'}
+  if(st===2){for(let i=0;i<4;i++)s+='<circle cx="'+(250+i*33)+'" cy="104" r="7" fill="none" stroke="var(--ink)" stroke-width="1.5"/>'}
+  if(st>=3){s+='<path d="M 200 126 Q 300 '+(126-h*2+6)+' 400 126" fill="none" stroke="var(--ink)" stroke-width="3"/>'}
+  if(st===4){for(let i=0;i<5;i++)s+='<rect x="'+(250+i*22)+'" y="'+(108+(i%2)*6)+'" width="6" height="6" fill="var(--muted)"/>'}
+  if(st===5){s+='<path d="M 290 '+(126-h*2+4)+' l 10 8 l 10 -8" stroke="var(--bad)" stroke-width="3" fill="none"/><ellipse cx="300" cy="'+(126-h*2-12)+'" rx="38" ry="18" fill="var(--bad)" opacity=".9"/>'}
+  ex.innerHTML=s;
+  const gap=st===5?0:Math.max(0,88-h*2);
+  let f='';if(gap>12){for(let i=0;i<5;i++)f+='<circle cx="'+(40+i*25)+'" cy="85" r="5" opacity=".6"/>';for(let i=0;i<5;i++)f+='<circle cx="'+(470+i*25)+'" cy="85" r="5" opacity="'+(0.6*Math.min(1,gap/80))+'"/>'}
+  else{for(let i=0;i<5;i++)f+='<circle cx="'+(40+i*25)+'" cy="85" r="5" opacity=".6"/>'}
+  fl.innerHTML=f;
+}
+pv.addEventListener('click',()=>{if(st>0){st--;drawStep()}});
+nx.addEventListener('click',()=>{st=st===STEPS.length-1?0:st+1;drawStep()});
+drawStep();
+
+}catch(err){console.error(err)}
+try{
+/* ---------- sorter ---------- */
+const SORT=[
+ ['Pain in the calf after walking a block, relieved by rest','a','Claudication is caused by arterial insufficiency.'],
+ ['Brown staining around both ankles','v','Hemosiderin from leaked red cells, caused by venous hypertension.'],
+ ['Ulcer on the tip of the great toe, pale and deep','a','Arterial ulcers form at the farthest point from blood supply.'],
+ ['Legs feel heavy and achy by evening, better when propped up','v','Elevation helps venous return.'],
+ ['Pedal pulses absent; foot cool and hairless','a','Reduced arterial flow causes weak pulses and trophic skin changes.'],
+ ['Shallow, draining ulcer above the medial malleolus','v','The classic venous ulcer location and appearance.'],
+ ['Foot turns dusky red when lowered, pale when raised','a','Dependent rubor and elevation pallor are arterial signs.'],
+ ['Treatment includes compression stockings','v','Compression supports venous return; it is avoided in arterial disease.']
+];
+const sorter=document.getElementById('sorter'),sScore=document.getElementById('sortScore');
+store.sort=store.sort||{};
+SORT.forEach(([t,ans,why],i)=>{
+  const r=document.createElement('div');r.className='srow';
+  r.innerHTML='<span></span><div class="pick"><button data-s="a">Arterial</button><button data-s="v">Venous</button></div>';
+  r.firstChild.textContent=t;
+  function set(choice){
+    const ok=choice===ans;r.className='srow '+(ok?'right':'wrong');
+    let f=r.querySelector('.fb');if(!f){f=document.createElement('span');f.className='fb';r.appendChild(f)}
+    f.textContent=(ok?'Correct. ':'It\'s '+(ans==='a'?'arterial':'venous')+'. ')+why;
+    store.sort[i]=choice;save();
+    const n=Object.keys(store.sort).length,c=Object.entries(store.sort).filter(([k,v])=>SORT[k][1]===v).length;
+    sScore.textContent=c+' correct · '+n+' / '+SORT.length+' sorted';
+  }
+  r.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>set(b.dataset.s)));
+  if(store.sort[i])set(store.sort[i]);
+  sorter.appendChild(r);
+});
+
+}catch(err){console.error(err)}
+try{
+/* ---------- bring list ---------- */
+const BRING=[["Core concepts", "Explain each of the seven concepts in your own words and name one vascular condition where it applies."],
+ ['Blood pressure categories','Classify any reading (normal, elevated, stage 1, stage 2, crisis) and calculate MAP.'],
+ ['Urgency vs. emergency','Name the signs of target organ damage and explain the 25% first-hour rule and why it exists.'],
+ ['How plaque forms and ruptures','Walk through the stages from endothelial injury to thrombus, and name the lipid targets.'],
+ ['Arterial vs. venous comparison','Pain, pulses, skin, edema, ulcer location and appearance, positioning, and compression for each.'],
+ ['ABI interpretation','Calculate an ABI and interpret it, including why a value above 1.40 is unreliable.'],
+ ['Virchow\'s triad','Name the three factors and give two client examples of each.'],
+ ['Anticoagulant basics','For heparin, enoxaparin, warfarin, and DOACs: route, lab to monitor, antidote, and one teaching point each.'],
+ ['DVT and PE recognition','Signs of each, what to do first for suspected PE, and why you never massage the leg.'],
+ ['AAA vs. aortic dissection','Key assessment findings, signs of rupture, Type A vs. Type B, and why beta blockers come first in dissection.']
+];
+const bl=document.getElementById('bringList');
+BRING.forEach(([t,d],i)=>{
+  const li=document.createElement('li');
+  li.innerHTML='<input type="checkbox" id="bring-'+i+'"><label for="bring-'+i+'"><b></b><span></span></label>';
+  li.querySelector('b').textContent=t;li.querySelector('span').textContent=d;
+  const cb=li.querySelector('input');cb.checked=!!store.bring[i];
+  cb.addEventListener('change',()=>{store.bring[i]=cb.checked;save()});
+  bl.appendChild(li);
+});
+
+}catch(err){console.error(err)}
+
+try{
+/* ---------- animations ---------- */
+const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.querySelectorAll('.anim').forEach(f=>{
+  const svgEl=f.querySelector('svg'),pb=f.querySelector('.anim-pause');
+  function setPaused(p){f.classList.toggle('paused',p);pb.textContent=p?'Play':'Pause';pb.setAttribute('aria-pressed',String(p));try{p?svgEl.pauseAnimations():svgEl.unpauseAnimations()}catch(e){}}
+  pb.addEventListener('click',()=>setPaused(!f.classList.contains('paused')));
+  function setMode(m){f.dataset.mode=m;f.querySelectorAll('[data-show]').forEach(g=>{g.style.display=g.dataset.show===m?'':'none'});f.querySelectorAll('.anim-mode').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));try{svgEl.setCurrentTime(0)}catch(e){}}
+  f.querySelectorAll('.anim-mode').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  if(f.dataset.mode)setMode(f.dataset.mode);
+  if(rm)setPaused(true);
+});
+}catch(err){console.error(err)}
+
+try{
+/* ---------- concept pop-up ---------- */
+const pop=document.getElementById('cpop');let popFrom=null;
+const cIdx=secs.findIndex(s=>s.dataset.id==='concepts');
+function closePop(){if(pop.hidden)return;pop.hidden=true;if(popFrom){popFrom.setAttribute('aria-expanded','false');popFrom.focus({preventScroll:true})}popFrom=null}
+function openPop(t){
+  const c=CONCEPTS[+t.dataset.c];if(!c)return;
+  if(popFrom&&popFrom!==t)popFrom.setAttribute('aria-expanded','false');
+  popFrom=t;t.setAttribute('aria-expanded','true');
+  pop.querySelector('#cpopT').textContent=c.name;pop.querySelector('#cpopR').textContent=c.rule;
+  pop.querySelector('#cpopE').textContent=c.eq||'';
+  const a=pop.querySelector('#cpopA');a.innerHTML='<b>Picture it:</b> ';a.appendChild(document.createTextNode(c.ana));
+  pop.hidden=false;
+  const r=t.getBoundingClientRect(),w=pop.offsetWidth,docW=document.documentElement.clientWidth;
+  let left=r.left+window.scrollX;left=Math.max(16+window.scrollX,Math.min(left,window.scrollX+docW-w-16));
+  pop.style.left=left+'px';pop.style.top=(r.bottom+window.scrollY+8)+'px';
+  pop.querySelector('.cpop-x').focus({preventScroll:true});
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest&&e.target.closest('button.ctag');
+  if(t){e.preventDefault();if(popFrom===t&&!pop.hidden){closePop()}else openPop(t);return}
+  if(!pop.hidden&&!pop.contains(e.target))closePop();
+});
+pop.querySelector('.cpop-x').addEventListener('click',closePop);
+pop.querySelector('.cpop-go').addEventListener('click',()=>{popFrom=null;pop.hidden=true;if(cIdx>=0)go(cIdx,true)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePop()});
+window.addEventListener('resize',closePop);
+}catch(err){console.error(err)}
+try{updateScores()}catch(e){}
+updateProgress();
+})();
+</script>
+
+</body></html>

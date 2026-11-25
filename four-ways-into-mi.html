@@ -1,0 +1,854 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Four Ways Into MI</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: ECG-paper ground; a hub of four path cards, each path a single scrolling column of numbered stations. */
+:root{
+  --paper:#FBF6F3; --grid:rgba(200,70,80,.10); --grid-bold:rgba(200,70,80,.18);
+  --surface:#FFFFFF; --ink:#1A1E29; --ink-2:#4B5263; --line:#E6D8D3;
+  --ecg:#C2142B; --ecg-soft:#FBE3E5; --oxy:#2C6CA3; --oxy-soft:#E1ECF6;
+  --dead:#5E4F69; --dead-soft:#ECE6F0; --good:#22764A; --good-soft:#E0F2E7; --warn:#A86200; --warn-soft:#FBEEDA;
+  --display:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#14161B; --grid:rgba(255,95,105,.07); --grid-bold:rgba(255,95,105,.12);
+  --surface:#1C1F26; --ink:#EEE9E7; --ink-2:#AEA7AB; --line:#2E323B;
+  --ecg:#FF5D6C; --ecg-soft:#3A1D23; --oxy:#73AEE0; --oxy-soft:#1A2A3A;
+  --dead:#B9A5CC; --dead-soft:#2A2333; --good:#5CC48D; --good-soft:#16301F; --warn:#E8A84E; --warn-soft:#33260F;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#14161B; --grid:rgba(255,95,105,.07); --grid-bold:rgba(255,95,105,.12);
+  --surface:#1C1F26; --ink:#EEE9E7; --ink-2:#AEA7AB; --line:#2E323B;
+  --ecg:#FF5D6C; --ecg-soft:#3A1D23; --oxy:#73AEE0; --oxy-soft:#1A2A3A;
+  --dead:#B9A5CC; --dead-soft:#2A2333; --good:#5CC48D; --good-soft:#16301F; --warn:#E8A84E; --warn-soft:#33260F;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+  linear-gradient(var(--grid-bold) 1px,transparent 1px),linear-gradient(90deg,var(--grid-bold) 1px,transparent 1px);
+  background-size:8px 8px,8px 8px,40px 40px,40px 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--oxy);outline-offset:2px;border-radius:4px}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 64px}
+.mono{font-family:var(--mono)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ecg);font-weight:500}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar-in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:12px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.01em;text-decoration:none;color:var(--ink);display:flex;align-items:center;gap:8px}
+.brand svg{width:34px;height:16px}
+.bar .spacer{flex:1}
+.backlink{font-size:14px;color:var(--ink-2);text-decoration:none;border:1px solid var(--line);padding:6px 12px;border-radius:999px;background:var(--paper)}
+.backlink:hover{color:var(--ink);border-color:var(--ink-2)}
+
+/* hero */
+.hero{display:grid;gap:18px;padding-block:18px 8px}
+.hero h1{font-size:clamp(42px,10vw,84px);font-weight:800;line-height:1;letter-spacing:0;text-transform:uppercase}
+.hero h1 em{font-style:normal;color:var(--ecg)}
+.hero p.lede{font-size:18px;max-width:58ch;color:var(--ink-2)}
+.monitor{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);overflow:hidden}
+.monitor-top{display:flex;gap:14px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.monitor-top b{color:var(--ecg);font-weight:600}
+#heroEcg{display:block;width:100%;height:120px}
+
+.paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr));gap:14px;margin-top:22px}
+.pcard{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;align-items:start;text-align:left;text-decoration:none;color:var(--ink);
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;transition:border-color .15s,transform .15s}
+.pcard:hover{border-color:var(--ecg);transform:translateY(-2px)}
+.pcard .verb{font-family:var(--display);font-weight:800;font-size:48px;line-height:1;text-transform:uppercase;color:var(--ecg);padding-right:90px}
+.pcard h2{font-size:24px;font-weight:700}
+.pcard .style{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+.pcard p{font-size:15px;color:var(--ink-2)}
+.done-chip{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:var(--good-soft);color:var(--good);padding:3px 8px;border-radius:999px}
+.covers{margin-top:26px;display:grid;gap:10px}
+.covers ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+.covers li{font-size:14px;border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:999px}
+.note{font-size:14px;color:var(--ink-2);max-width:65ch}
+
+/* path pages */
+.phead{display:grid;gap:10px;padding-block:16px 6px}
+.phead h1{font-size:clamp(38px,8vw,64px);font-weight:800;line-height:1;text-transform:uppercase}
+.phead p{color:var(--ink-2);max-width:62ch}
+.station{margin-top:26px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:14px}
+.station > header{display:grid;gap:4px}
+.station h2{font-size:26px;font-weight:800;}
+.station .how{font-size:15px;color:var(--ink-2);max-width:65ch}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:8px;font-weight:600;font-size:15px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink-2)}
+.btn.red{background:var(--ecg);border-color:var(--ecg);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.callout{border-left:3px solid var(--ecg);background:var(--ecg-soft);padding:12px 14px;border-radius:0 8px 8px 0;font-size:15px}
+.callout.blue{border-color:var(--oxy);background:var(--oxy-soft)}
+.callout.good{border-color:var(--good);background:var(--good-soft)}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+.small{font-size:14px;color:var(--ink-2)}
+details.model{border:1px dashed var(--line);border-radius:8px;padding:10px 14px;background:var(--paper)}
+details.model summary{cursor:pointer;font-weight:600;font-size:15px}
+details.model[open] summary{margin-bottom:8px}
+details.model ul{margin:6px 0 0;padding-left:20px}
+ul.tight{margin:0;padding-left:20px}
+ul.tight li{margin:3px 0}
+
+/* visual: heart */
+.heart-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px;align-items:start}
+@media (max-width:640px){.heart-layout{grid-template-columns:1fr}}
+.heart-svg{width:100%;max-width:340px;margin:0 auto;display:block}
+.artery-btns{display:flex;flex-wrap:wrap;gap:8px}
+.artery-btns button{border:1px solid var(--line);background:var(--paper);padding:8px 12px;border-radius:8px;font-family:var(--mono);font-size:14px;font-weight:600}
+.artery-btns button[aria-pressed="true"]{background:var(--ecg);border-color:var(--ecg);color:#fff}
+.territory{fill:var(--ecg-soft);transition:fill .4s}
+.territory.hit{fill:var(--dead);opacity:.55;animation:throb 1.6s ease-in-out infinite}
+@keyframes throb{50%{opacity:.8}}
+.art{fill:none;stroke:var(--ecg);stroke-width:5;stroke-linecap:round;cursor:pointer}
+.art.blocked{stroke:var(--dead)}
+.leadgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--paper)}
+.lead{position:relative;border-radius:4px;padding:2px}
+.lead span{position:absolute;top:2px;left:4px;font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.lead svg{display:block;width:100%;height:auto}
+.lead path{fill:none;stroke:var(--ink);stroke-width:1.6}
+.lead.up{background:var(--ecg-soft)} .lead.up path{stroke:var(--ecg);stroke-width:2.2}
+.lead.down{background:var(--oxy-soft)} .lead.down path{stroke:var(--oxy)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--ink-2)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+.facts dt{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2)}
+.facts dd{margin:0 0 10px;font-weight:500}
+
+/* stage slider */
+.stage-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:center}
+@media (max-width:640px){.stage-layout{grid-template-columns:1fr}}
+.stage-ecg{width:100%;height:auto;background:var(--paper);border:1px solid var(--line);border-radius:8px}
+.stage-ecg path.trace{fill:none;stroke:var(--ecg);stroke-width:2.6;stroke-linejoin:round}
+input[type=range]{width:100%;accent-color:var(--ecg)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--ink-2)}
+.ticks span{flex:1;text-align:center}.ticks span:first-child{text-align:left}.ticks span:last-child{text-align:right}
+.zone-svg{width:120px;height:120px;flex:none}
+.stage-text{flex:1 1 200px}
+.stage-text h3{font-size:22px;margin-bottom:6px}
+
+/* chart */
+.chart-box{overflow-x:auto}
+.chart-box svg{width:100%;min-width:320px;height:auto;display:block}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:8px}
+.readout div{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--paper)}
+.readout b{display:block;font-family:var(--mono);font-size:12px;color:var(--ink-2);font-weight:500}
+.readout .val{font-weight:600}
+.readout .up{color:var(--ecg)}
+
+/* door timeline */
+.door{display:grid;gap:8px}
+.door .track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--good),var(--warn),var(--ecg))}
+.dsteps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.dsteps div{border-left:2px solid var(--ink);padding-left:8px;min-width:0}
+.dsteps b{display:block;font-family:var(--mono);font-size:14px}
+.dsteps span{display:block;font-size:13px;color:var(--ink-2);line-height:1.3}
+@media (max-width:520px){.dsteps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:12px}}
+
+/* complications timeline */
+.ctl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.ctl{grid-template-columns:1fr}}
+.ctl section{border-top:4px solid var(--ecg);background:var(--paper);border-radius:0 0 8px 8px;padding:12px}
+.ctl section:nth-child(2){border-color:var(--warn)} .ctl section:nth-child(3){border-color:var(--dead)}
+.ctl h3{font-size:18px;margin-bottom:8px}
+.ctl ul{margin:0;padding-left:18px;font-size:15px}
+.ctl li{margin:6px 0}
+
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.flow .step{flex:1 1 140px;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:10px;font-size:14px}
+.flow .step b{display:block;font-family:var(--mono);color:var(--ecg);font-size:12px}
+.flow .step.alarm{border-color:var(--ecg);background:var(--ecg-soft)}
+
+/* auditory */
+.clip{display:grid;gap:12px;border:1px solid var(--line);border-radius:var(--r);padding:16px;background:var(--paper)}
+.clip-head{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.speaker{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2)}
+.play{display:inline-flex;gap:8px;align-items:center}
+.play svg{width:14px;height:14px}
+.wave{display:flex;gap:3px;align-items:center;height:22px}
+.wave i{width:3px;background:var(--ecg);border-radius:2px;height:6px}
+.wave.on i{animation:wv 1s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.1s}.wave i:nth-child(3){animation-delay:.2s}.wave i:nth-child(4){animation-delay:.3s}.wave i:nth-child(5){animation-delay:.4s}
+@keyframes wv{50%{height:20px}}
+.transcript{font-size:15px;white-space:pre-line}
+.sayit{border:2px solid var(--ink);border-radius:var(--r);padding:14px;display:grid;gap:10px;background:var(--surface)}
+.sayit h3{font-size:18px;display:flex;gap:8px;align-items:center}
+.sayit ol{margin:0;padding-left:20px}
+
+/* reading */
+.chart-doc{border:1px solid var(--line);border-radius:var(--r);background:var(--paper);overflow:hidden}
+.chart-doc header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
+.chart-doc .body{padding:14px;display:grid;gap:14px}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);font-weight:500}
+td.flag{color:var(--ecg);font-weight:600}
+textarea{width:100%;min-height:130px;font:inherit;font-size:15px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);resize:vertical}
+.wordbank{display:flex;flex-wrap:wrap;gap:6px}
+.wordbank span{font-family:var(--mono);font-size:12px;border:1px solid var(--line);padding:3px 8px;border-radius:6px;background:var(--paper)}
+.checklist label{display:flex;gap:8px;align-items:flex-start;font-size:15px;margin:4px 0}
+.checklist input{margin-top:4px;accent-color:var(--good)}
+.cloze{display:grid;gap:10px}
+.cloze label{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:15px}
+.cloze input{font:inherit;font-family:var(--mono);width:9ch;padding:4px 6px;border:none;border-bottom:2px solid var(--ink-2);background:transparent;color:var(--ink)}
+.cloze input.ok{border-color:var(--good);color:var(--good)}
+.cloze input.no{border-color:var(--ecg);color:var(--ecg)}
+.saved{font-size:12px;color:var(--ink-2);font-family:var(--mono)}
+
+/* hands-on */
+.pool,.bin-items,.seq{display:flex;flex-wrap:wrap;gap:8px;min-height:44px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 12px;font-size:14px;text-align:left;line-height:1.3;max-width:100%}
+.chip.sel{border-color:var(--ecg);box-shadow:0 0 0 2px var(--ecg)}
+.chip.right{border-color:var(--good);background:var(--good-soft)}
+.chip.wrong{border-color:var(--ecg);background:var(--ecg-soft)}
+.pool{padding:10px;border:1px dashed var(--line);border-radius:8px;background:var(--paper)}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px}
+.bin{border:2px solid var(--line);border-radius:10px;padding:10px;background:var(--paper);display:grid;gap:8px;align-content:start;text-align:left;min-height:110px}
+.bin.armed{border-color:var(--ecg);border-style:dashed}
+.bin h3{font-size:17px;}
+.bin .sub{font-size:12px;color:var(--ink-2);font-family:var(--mono)}
+.seq{flex-direction:column;flex-wrap:nowrap;counter-reset:s;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.seq .chip{counter-increment:s;display:flex;gap:10px;align-items:center;width:100%}
+.seq .chip::before{content:counter(s);font-family:var(--mono);font-weight:600;color:var(--ecg);min-width:2ch}
+.fb{font-size:15px}
+.fb ul{margin:6px 0 0;padding-left:20px}
+.sim{display:grid;gap:12px}
+.sim-scene{border:1px solid var(--line);border-radius:var(--r);background:var(--paper);padding:14px;display:grid;gap:10px}
+.sim-status{display:flex;flex-wrap:wrap;gap:8px}
+.sim-status span{font-family:var(--mono);font-size:12px;border:1px solid var(--line);padding:3px 8px;border-radius:6px;background:var(--surface)}
+.choices{display:grid;gap:8px}
+.choices button{text-align:left;border:1px solid var(--line);background:var(--surface);padding:10px 12px;border-radius:8px;font-size:15px}
+.choices button:hover{border-color:var(--ink-2)}
+.choices button.no{border-color:var(--ecg);background:var(--ecg-soft)}
+.timer{font-family:var(--mono);font-size:34px;font-weight:600;color:var(--ecg)}
+
+/* exit check */
+.exit{border:2px solid var(--ecg)}
+.q{display:grid;gap:8px;padding-block:10px;border-top:1px solid var(--line)}
+.q:first-of-type{border-top:none}
+.q p.stem{font-weight:600}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;border:1px solid var(--line);background:var(--paper);padding:9px 12px;border-radius:8px;font-size:15px}
+.q .opts button.right{border-color:var(--good);background:var(--good-soft)}
+.q .opts button.wrong{border-color:var(--ecg);background:var(--ecg-soft)}
+.q .why{font-size:14px;color:var(--ink-2)}
+.score{font-family:var(--display);font-weight:800;font-size:28px}
+footer.foot{margin-top:40px;font-size:13px;color:var(--ink-2)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="#home"><svg viewBox="0 0 34 16" aria-hidden="true"><path d="M0 10 H9 L11 12 L14 1 L17 14 L19 6 H25 Q28 2 31 10 H34" fill="none" stroke-width="2" style="stroke:var(--ecg)"/></svg>Four Ways Into MI</a>
+  <span class="spacer"></span>
+  <a class="backlink" id="backLink" href="#home" hidden>All paths</a>
+</div></header>
+
+<!-- ============ HOME ============ -->
+<main class="wrap" id="v-home">
+  <section class="hero">
+    <span class="eyebrow">Myocardial infarction · ADN</span>
+    <h1>One heart attack.<br><em>Four ways</em> to learn it.</h1>
+    <p class="lede">Pick the path that fits how you think best. Every path covers the same four things, so you'll leave ready for the same exam questions.</p>
+    <div class="monitor" aria-label="Animated ECG showing ST-segment elevation">
+      <div class="monitor-top"><span>LEAD II</span><span>HR <b>52</b></span><span>BP <b>88/56</b></span><span>SpO₂ <b>96%</b></span><span>ST <b>↑ 3 mm</b></span></div>
+      <canvas id="heroEcg"></canvas>
+    </div>
+  </section>
+
+  <nav class="paths" aria-label="Choose a learning path">
+    <a class="pcard" href="#visual" data-path="visual"><span class="verb">See</span><span class="style">Visual</span><h2>Watch the artery close</h2><p>Block a coronary artery and see which wall dies, which leads light up, and how troponin climbs.</p></a>
+    <a class="pcard" href="#auditory" data-path="auditory"><span class="verb">Hear</span><span class="style">Auditory</span><h2>Listen to the shift</h2><p>Hear Frank's story from call light to discharge. Talk through each moment out loud with a partner.</p></a>
+    <a class="pcard" href="#reading" data-path="reading"><span class="verb">Write</span><span class="style">Reading / writing</span><h2>Work the chart</h2><p>Read Linda's chart, then write the cues, the SBAR, the priorities and a discharge sheet.</p></a>
+    <a class="pcard" href="#handson" data-path="handson"><span class="verb">Do</span><span class="style">Hands-on</span><h2>Sort, build, act it out</h2><p>Put the cascade in order, triage the orders, map the complications and run the nitro drill.</p></a>
+  </nav>
+
+  <section class="covers">
+    <span class="eyebrow">Every path covers</span>
+    <ul><li>Pathophysiology</li><li>Recognition &amp; diagnosis</li><li>Priority interventions</li><li>Complications &amp; teaching</li></ul>
+    <p class="note">Each path ends with the same 6-question exit check. Finished early? Try a second path. Seeing the same content a second way is one of the best ways to make it stick.</p>
+  </section>
+  <footer class="foot">Patients and cases are fictional. Content reflects common ADN-level references; follow your facility's protocols in practice.</footer>
+</main>
+
+<!-- ============ VISUAL ============ -->
+<main class="wrap" id="v-visual" hidden>
+  <div class="phead"><span class="eyebrow">Path 1 · Visual</span><h1>See it</h1><p>Four stations. Tap, slide and watch. Each picture answers one question nurses get asked about MI.</p></div>
+
+  <section class="station">
+    <header><span class="eyebrow">Station 1 · Recognition</span><h2>Block an artery. Which wall dies?</h2><p class="how">Tap an artery on the heart or a button below. Watch the territory, the 12-lead and the clinical clues change.</p></header>
+    <div class="artery-btns" role="group" aria-label="Choose an artery">
+      <button data-art="RCA" aria-pressed="false">RCA</button><button data-art="LAD" aria-pressed="false">LAD</button><button data-art="Cx" aria-pressed="false">Circumflex</button>
+    </div>
+    <div class="heart-layout">
+      <svg class="heart-svg" viewBox="0 0 320 300" role="img" aria-label="Front view of the heart with three coronary arteries">
+        <defs><clipPath id="hc"><path d="M160 62 C112 22 40 48 48 120 C56 182 118 232 168 276 C222 228 284 172 278 110 C272 52 206 34 160 62 Z"/></clipPath></defs>
+        <g clip-path="url(#hc)">
+          <polygon class="territory" id="t-RCA" points="30,80 122,80 136,182 168,290 30,290"/>
+          <polygon class="territory" id="t-LAD" points="122,40 212,40 206,150 176,290 168,290 136,182"/>
+          <polygon class="territory" id="t-Cx" points="212,40 310,40 310,290 176,290 206,150"/>
+        </g>
+        <path d="M160 62 C112 22 40 48 48 120 C56 182 118 232 168 276 C222 228 284 172 278 110 C272 52 206 34 160 62 Z" fill="none" stroke-width="2" style="stroke:var(--ink-2)"/>
+        <path d="M150 64 C148 40 150 22 168 12 C188 4 204 14 206 30" fill="none" stroke-width="10" stroke-linecap="round" opacity=".35" style="stroke:var(--ink-2)"/>
+        <path class="art" data-art="RCA" id="a-RCA" d="M154 70 C116 78 74 104 72 156 C72 200 116 240 166 266"/>
+        <path class="art" data-art="LAD" id="a-LAD" d="M172 70 C184 116 182 190 170 264"/>
+        <path class="art" data-art="Cx" id="a-Cx" d="M176 70 C218 66 260 92 268 140"/>
+        <circle id="clot" r="8" stroke-width="2" cx="-20" cy="-20" style="fill:var(--dead);stroke:var(--surface)"/>
+        <g font-family="var(--mono)" font-size="12" style="fill:var(--ink-2)"><text x="34" y="200">RCA</text><text x="150" y="292">LAD</text><text x="264" y="168">Cx</text></g>
+      </svg>
+      <div style="display:grid;gap:12px;min-width:0">
+        <div class="leadgrid" id="leadGrid" aria-label="12-lead ECG"></div>
+        <div class="legend"><span><i style="background:var(--ecg-soft);border:1px solid var(--ecg)"></i>ST elevation (injury)</span><span><i style="background:var(--oxy-soft);border:1px solid var(--oxy)"></i>Reciprocal ST depression</span></div>
+        <dl class="facts" id="artFacts"><dt>Pick an artery</dt><dd class="small">The 12-lead shows a normal tracing until something is blocked.</dd></dl>
+      </div>
+    </div>
+    <div class="callout" id="artNote" hidden></div>
+  </section>
+
+  <section class="station">
+    <header><span class="eyebrow">Station 2 · Pathophysiology</span><h2>Slide from ischemia to dead muscle</h2><p class="how">Drag the slider. The ECG complex and the cross-section of the heart wall change together.</p></header>
+    <div class="stage-layout">
+      <div style="display:grid;gap:10px">
+        <svg class="stage-ecg" viewBox="0 0 300 140" aria-hidden="true"><g id="stageGrid"></g><path class="trace" id="stageTrace"/></svg>
+        <input type="range" id="stage" min="0" max="3" step="1" value="0" aria-label="Stage of myocardial infarction">
+        <div class="ticks"><span>Normal</span><span>Ischemia</span><span>Injury</span><span>Infarct</span></div>
+      </div>
+      <div class="row" style="align-items:flex-start;gap:14px">
+        <svg class="zone-svg" viewBox="0 0 140 140" aria-hidden="true">
+          <circle cx="70" cy="70" r="64" stroke-width="2" style="fill:var(--paper);stroke:var(--line)"/>
+          <circle id="zIsch" cx="70" cy="70" r="58" stroke-width="2" opacity="0" style="fill:var(--oxy-soft);stroke:var(--oxy)"/>
+          <circle id="zInj" cx="70" cy="70" r="40" stroke-width="2" opacity="0" style="fill:var(--ecg-soft);stroke:var(--ecg)"/>
+          <circle id="zDead" cx="70" cy="70" r="22" opacity="0" style="fill:var(--dead)"/>
+        </svg>
+        <div class="stage-text" id="stageText" style="min-width:0"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="station">
+    <header><span class="eyebrow">Station 3 · Diagnosis &amp; interventions</span><h2>Read the clock: labs and door times</h2><p class="how">Slide through the first 4 days. Watch which cardiac markers are above normal.</p></header>
+    <div class="legend"><span><i style="background:var(--oxy)"></i>Myoglobin</span><span><i style="background:var(--warn)"></i>CK-MB</span><span><i style="background:var(--ecg)"></i>Troponin</span><span><i style="background:transparent;border:1px dashed var(--ink-2)"></i>Upper limit of normal</span></div>
+    <div class="chart-box"><svg id="bioChart" viewBox="0 0 360 210" role="img" aria-label="Cardiac biomarker levels over 96 hours"></svg></div>
+    <input type="range" id="hour" min="0" max="96" value="6" aria-label="Hours since symptom onset">
+    <div class="readout" id="bioRead"></div>
+    <p class="small">Troponin is the marker of choice. It stays elevated 10–14 days, so it still flags an MI from last week. Myoglobin rises first but is not heart-specific.</p>
+    <h3 style="font-size:20px;margin-top:6px">STEMI door times</h3>
+    <div class="door" aria-label="Door time goals">
+      <div class="track" aria-hidden="true"></div>
+      <div class="dsteps">
+        <div><b>0</b><span>Arrives</span></div>
+        <div><b>10 min</b><span>12-lead read</span></div>
+        <div><b>30 min</b><span>Fibrinolytic*</span></div>
+        <div><b>90 min</b><span>Balloon (PCI)</span></div>
+      </div>
+    </div>
+    <p class="small">*Fibrinolytics are used when PCI can't happen within 120 minutes. Don't wait for troponin to treat a STEMI. The ECG is enough.</p>
+  </section>
+
+  <section class="station">
+    <header><span class="eyebrow">Station 4 · Complications &amp; teaching</span><h2>What goes wrong, and when</h2><p class="how">Scan left to right. Damaged muscle is electrically unstable early, then mechanically weak, then inflamed and scarred.</p></header>
+    <div class="ctl">
+      <section><h3>First 24 hours</h3><ul><li><b>Dysrhythmias</b>: PVCs, VT, VF. VF is the top cause of early death.</li><li><b>Heart blocks</b>, especially with inferior MI.</li><li><b>Cardiogenic shock</b> when ~40% of LV is lost.</li></ul></section>
+      <section><h3>Days 1–7</h3><ul><li><b>Heart failure</b>: crackles, S3, JVD.</li><li><b>Pericarditis</b>: sharp pain worse lying flat, friction rub.</li><li><b>Papillary muscle rupture</b>: new murmur, sudden pulmonary edema.</li><li><b>Wall rupture</b>: sudden collapse, tamponade.</li></ul></section>
+      <section><h3>Weeks later</h3><ul><li><b>Dressler syndrome</b>: pericarditis, fever, 2–10 weeks out.</li><li><b>Ventricular aneurysm</b> in the scarred wall.</li><li><b>Mural thrombus</b>: stroke risk.</li></ul></section>
+    </div>
+    <h3 style="font-size:20px;">Home nitro, at a glance</h3>
+    <div class="flow">
+      <div class="step"><b>STEP 1</b>Stop. Sit or lie down.</div>
+      <div class="step"><b>STEP 2</b>1 tablet under the tongue.</div>
+      <div class="step alarm"><b>5 MIN</b>Not better? <strong>Call 911.</strong></div>
+      <div class="step"><b>STEP 3</b>May repeat every 5 min. Max 3 tablets.</div>
+    </div>
+    <p class="small">Keep tablets in the original dark glass bottle. Headache is expected. No sildenafil, tadalafil or vardenafil with nitrates.</p>
+  </section>
+
+  <section class="station exit" data-exit="visual"></section>
+</main>
+
+<!-- ============ AUDITORY ============ -->
+<main class="wrap" id="v-auditory" hidden>
+  <div class="phead"><span class="eyebrow">Path 2 · Auditory</span><h1>Hear it</h1><p>Work with a partner. Play each clip (or have one person read the transcript aloud), then answer the prompt out loud before you reveal the model answer. Trade who answers each round.</p></div>
+  <p class="callout blue" id="ttsNote" hidden>Audio playback isn't available in this browser. Open each transcript and have your partner read it aloud.</p>
+  <div id="clips"></div>
+  <section class="station exit" data-exit="auditory"></section>
+</main>
+
+<!-- ============ READING / WRITING ============ -->
+<main class="wrap" id="v-reading" hidden>
+  <div class="phead"><span class="eyebrow">Path 3 · Reading / writing</span><h1>Write it</h1><p>Read Linda's chart closely. Then write your answers in the boxes. Your writing saves in this browser as you type. When you finish a box, open the model answer and check yourself against the list.</p></div>
+
+  <section class="station">
+    <header><span class="eyebrow">The chart</span><h2>Linda Okafor, 71</h2></header>
+    <div class="chart-doc">
+      <header><span class="mono small">ED · Bed 14 · 1915</span><span class="mono small">Allergies: NKDA</span></header>
+      <div class="body">
+        <p><b>History:</b> Type 2 diabetes for 12 years, hypertension, high cholesterol. Home meds: metformin, lisinopril, atorvastatin.</p>
+        <p><b>Triage note:</b> Brought in by daughter, who says "Mom hasn't been herself." Pt reports 2 days of fatigue, nausea and "indigestion" that antacids did not help. Short of breath climbing the stairs to her apartment. <b>Denies chest pain.</b> Describes "pressure in my stomach," 4/10. Skin cool and diaphoretic. Anxious, keeps saying she feels "something is wrong."</p>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Vitals</th><th>BP</th><th>HR</th><th>RR</th><th>SpO₂</th><th>Temp</th></tr></thead>
+          <tbody><tr><td>1915</td><td class="flag">158/92</td><td class="flag">108</td><td class="flag">24</td><td class="flag">93% RA</td><td>98.4 °F</td></tr></tbody>
+        </table></div>
+        <p><b>Lungs:</b> fine crackles, bilateral bases.</p>
+        <p><b>12-lead (1922):</b> Sinus tachycardia 108. ST depression 1.5 mm in V4–V6. T-wave inversion in I and aVL. No ST elevation.</p>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Lab</th><th>Result</th><th>Reference</th></tr></thead>
+          <tbody>
+            <tr><td>hs-Troponin I, 0 h</td><td class="flag">52 ng/L</td><td>&lt; 16 ng/L</td></tr>
+            <tr><td>hs-Troponin I, 2 h</td><td class="flag">284 ng/L</td><td>&lt; 16 ng/L</td></tr>
+            <tr><td>Glucose</td><td class="flag">238 mg/dL</td><td>70–99</td></tr>
+            <tr><td>Potassium</td><td>4.2 mEq/L</td><td>3.5–5.0</td></tr>
+            <tr><td>Creatinine</td><td>1.0 mg/dL</td><td>0.6–1.1</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="writeTasks"></div>
+
+  <section class="station">
+    <header><span class="eyebrow">Recap · Recognition &amp; interventions</span><h2>Fill in the facts</h2><p class="how">Type the missing word or number, then check.</p></header>
+    <div class="cloze" id="cloze"></div>
+    <div class="row"><button class="btn" id="clozeCheck">Check answers</button><span class="small" id="clozeScore"></span></div>
+  </section>
+
+  <section class="station exit" data-exit="reading"></section>
+</main>
+
+<!-- ============ HANDS-ON ============ -->
+<main class="wrap" id="v-handson" hidden>
+  <div class="phead"><span class="eyebrow">Path 4 · Hands-on</span><h1>Do it</h1><p>Tap a card, then tap where it goes. Tap a placed card to send it back. Check your work at the end of each station.</p></div>
+
+  <section class="station">
+    <header><span class="eyebrow">Station 1 · Pathophysiology</span><h2>Build the cascade</h2><p class="how">Tap the cards in the order they happen, from plaque to dead muscle.</p></header>
+    <div class="pool" id="seqPool"></div>
+    <div class="seq" id="seqList" aria-label="Your order"></div>
+    <div class="row"><button class="btn" id="seqCheck">Check order</button><button class="btn ghost" id="seqReset">Start over</button></div>
+    <div class="fb" id="seqFb"></div>
+  </section>
+
+  <section class="station" data-sort="artery"></section>
+  <section class="station" data-sort="markers"></section>
+  <section class="station" data-sort="orders"></section>
+  <section class="station" data-sort="comps"></section>
+
+  <section class="station">
+    <header><span class="eyebrow">Station 6 · Teaching</span><h2>Nitro drill: act it out</h2><p class="how">One partner plays Frank and taps the choices. The other plays the nurse and coaches. Then switch.</p></header>
+    <div class="sim" id="sim"></div>
+  </section>
+
+  <section class="station exit" data-exit="handson"></section>
+</main>
+
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('mi4.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('mi4.'+k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- router ---------- */
+const views=['home','visual','auditory','reading','handson'];
+function route(){
+  let h=location.hash.slice(1); if(!views.includes(h)) h='home';
+  views.forEach(v=>$('#v-'+v).hidden=v!==h);
+  $('#backLink').hidden=h==='home';
+  try{speechSynthesis.cancel()}catch(e){}
+  window.scrollTo(0,0);
+  if(h==='home') markDone();
+}
+function markDone(){
+  const done=store.get('done',{});
+  $$('.pcard').forEach(c=>{const p=c.dataset.path;let chip=$('.done-chip',c);
+    if(done[p]!=null){if(!chip){chip=document.createElement('span');chip.className='done-chip';c.appendChild(chip)}chip.textContent='Done · '+done[p]+'/6'}});
+}
+addEventListener('hashchange',route);
+
+/* ---------- ECG complex path ---------- */
+function cx(o,x0=0,b=30,sx=1,sy=1){
+  const st=(o.st||0), t=(o.t??14), X=v=>(x0+v*sx).toFixed(1), Y=v=>(b+v*sy).toFixed(1);
+  let d=`M${X(0)} ${Y(0)} L${X(8)} ${Y(0)} Q${X(12)} ${Y(-6)} ${X(16)} ${Y(0)} L${X(22)} ${Y(0)}`;
+  if(o.q) d+=` L${X(25)} ${Y(11)} L${X(28)} ${Y(-12)} L${X(31)} ${Y(5)}`;
+  else d+=` L${X(24)} ${Y(3)} L${X(27)} ${Y(-22)} L${X(30)} ${Y(8)}`;
+  d+=` L${X(33)} ${Y(-st)} L${X(42)} ${Y(-st)} Q${X(49)} ${Y(-st-t)} ${X(56)} ${Y(0)} L${X(72)} ${Y(0)}`;
+  return d;
+}
+
+/* ---------- hero ECG ---------- */
+(function(){
+  const cv=$('#heroEcg'),ctx=cv.getContext('2d');let w,h,dpr,off=0,last=0;
+  function size(){dpr=Math.min(devicePixelRatio||1,2);w=cv.clientWidth;h=cv.clientHeight;cv.width=w*dpr;cv.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+  function yAt(x){ // one beat every 150px
+    const p=((x%150)+150)%150, b=h*.62, s=h/60;
+    if(p<12) return b; if(p<24) return b-Math.sin((p-12)/12*Math.PI)*3*s;
+    if(p<32) return b; if(p<35) return b+3*s; if(p<39) return b-(p-35)/4*22*s;
+    if(p<43) return b-22*s+(p-39)/4*30*s; if(p<46) return b+8*s-(p-43)/3*(8+9)*s;
+    if(p<58) return b-9*s; if(p<78) return b-9*s-Math.sin((p-58)/20*Math.PI)*6*s+(p-58)/20*9*s;
+    return b;
+  }
+  function draw(){
+    ctx.clearRect(0,0,w,h);ctx.strokeStyle=css('--ecg');ctx.lineWidth=2;ctx.lineJoin='round';ctx.beginPath();
+    const head=reduce?w:(off%(w+60));
+    for(let x=0;x<=w;x++){const y=yAt(x);if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+    ctx.stroke();
+    if(!reduce){ctx.fillStyle=css('--surface');ctx.fillRect(head,0,40,h);ctx.fillStyle=css('--ecg');ctx.beginPath();ctx.arc(head,yAt(head),3.5,0,7);ctx.fill()}
+  }
+  function loop(t){if(!$('#v-home').hidden){off+=(t-last)*.09}last=t;draw();requestAnimationFrame(loop)}
+  addEventListener('resize',()=>{size();draw()});size();
+  if(reduce) draw(); else requestAnimationFrame(loop);
+})();
+
+/* ---------- VISUAL: arteries ---------- */
+const LEADS=['I','aVR','V1','V4','II','aVL','V2','V5','III','aVF','V3','V6'];
+const ART={
+  RCA:{name:'Right coronary artery (RCA)',wall:'Inferior wall, often with the right ventricle',leads:['II','III','aVF'],recip:['I','aVL'],clot:[96,92],
+    note:'<b>Watch the rate and the pressure.</b> The RCA feeds the SA node in about 60% of people and the AV node in about 90%, so expect bradycardia and heart blocks. If the right ventricle is involved (hypotension with clear lungs, ST elevation in V4R), the heart depends on preload: avoid nitrates, morphine and diuretics, and expect IV fluids.'},
+  LAD:{name:'Left anterior descending (LAD)',wall:'Anterior and septal wall of the left ventricle',leads:['V1','V2','V3','V4'],recip:['II','III','aVF'],clot:[176,98],
+    note:'<b>Biggest pump loss.</b> The LAD feeds the largest share of the left ventricle, so anterior MI carries the highest risk of heart failure and cardiogenic shock. A proximal LAD clot is nicknamed the "widow-maker." Septal damage can cause bundle branch blocks.'},
+  Cx:{name:'Left circumflex (Cx)',wall:'Lateral wall, sometimes posterior',leads:['I','aVL','V5','V6'],recip:['III','aVF'],clot:[226,74],
+    note:'<b>The quiet one.</b> Circumflex MIs are often subtle on a standard 12-lead. ST depression in V1–V3 can be a posterior MI in disguise, so the provider may order posterior leads V7–V9.'}
+};
+function drawLeads(a){
+  const g=$('#leadGrid');g.innerHTML='';
+  LEADS.forEach(L=>{
+    const up=a&&ART[a].leads.includes(L), dn=a&&ART[a].recip.includes(L), inv=L==='aVR';
+    let o={st:0,t:14}; if(up)o={st:9,t:14}; if(dn)o={st:-5,t:-8};
+    const d=(inv&&!up&&!dn)?cx({st:0,t:14},4,32,1,-1):cx(o,4,32,1,1);
+    const div=document.createElement('div');div.className='lead'+(up?' up':dn?' down':'');
+    div.innerHTML=`<span>${L}</span><svg viewBox="0 0 80 56" aria-hidden="true"><path d="${d}"/></svg>`;
+    g.appendChild(div);
+  });
+}
+function pickArtery(a){
+  $$('.artery-btns button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.art===a));
+  ['RCA','LAD','Cx'].forEach(k=>{$('#t-'+k).classList.toggle('hit',k===a);$('#a-'+k).classList.toggle('blocked',k===a)});
+  const c=$('#clot');c.setAttribute('cx',ART[a].clot[0]);c.setAttribute('cy',ART[a].clot[1]);
+  drawLeads(a);
+  const A=ART[a];
+  $('#artFacts').innerHTML=`<dt>Artery</dt><dd>${A.name}</dd><dt>Wall</dt><dd>${A.wall}</dd><dt>ST elevation in</dt><dd class="mono">${A.leads.join(', ')}</dd><dt>Reciprocal depression</dt><dd class="mono">${A.recip.join(', ')}</dd>`;
+  const n=$('#artNote');n.hidden=false;n.innerHTML=A.note;
+}
+$$('.artery-btns button').forEach(b=>b.addEventListener('click',()=>pickArtery(b.dataset.art)));
+$$('.art').forEach(p=>p.addEventListener('click',()=>pickArtery(p.dataset.art)));
+drawLeads(null);
+
+/* ---------- VISUAL: stages ---------- */
+(function(){
+  let g='';for(let x=0;x<=300;x+=10)g+=`<line x1="${x}" y1="0" x2="${x}" y2="140" style="stroke:var(--grid${x%50?'':'-bold'})"/>`;
+  for(let y=0;y<=140;y+=10)g+=`<line x1="0" y1="${y}" x2="300" y2="${y}" style="stroke:var(--grid${y%50?'':'-bold'})"/>`;
+  $('#stageGrid').innerHTML=g;
+})();
+const STAGES=[
+  {o:{st:0,t:14},z:[0,0,0],h:'Normal',p:'Blood flows freely through the coronary artery. Oxygen supply meets the heart muscle\'s demand. The ST segment sits flat on the baseline.'},
+  {o:{st:-5,t:-10},z:[1,0,0],h:'Ischemia · first minutes',p:'A clot narrows or blocks the artery. Oxygen demand outruns supply, cells switch to anaerobic metabolism, and lactic acid builds up. That causes the pain. <b>ECG:</b> ST depression or T-wave inversion. <b>Reversible</b> if flow returns.'},
+  {o:{st:12,t:16},z:[1,1,0],h:'Injury · minutes to hours',p:'Cells are damaged but not yet dead. <b>ECG:</b> ST elevation of 1 mm or more in 2 contiguous leads means STEMI. Still salvageable if the artery is opened fast. Time is muscle.'},
+  {o:{st:9,t:12,q:true},z:[1,1,1],h:'Infarction · necrosis',p:'Without reperfusion, cells start dying in about 20–40 minutes, and necrosis is largely complete in 4–6 hours. Dead cells leak troponin. <b>ECG:</b> pathologic Q waves, which are permanent. Scar replaces muscle over 6–8 weeks.'}
+];
+function setStage(i){
+  const s=STAGES[i];$('#stageTrace').setAttribute('d',[0,72,144,216].map(x=>cx(s.o,x+4,82,1,2.2)).join(' ').replace(/ M/g,' L'));
+  [['#zIsch',0],['#zInj',1],['#zDead',2]].forEach(([id,k])=>$(id).setAttribute('opacity',s.z[k]?1:0));
+  $('#stageText').innerHTML=`<h3>${s.h}</h3><p>${s.p}</p>`;
+}
+$('#stage').addEventListener('input',e=>setStage(+e.target.value));setStage(0);
+
+/* ---------- VISUAL: biomarkers ---------- */
+const MK=[
+  {k:'Myoglobin',t0:1,tp:8,kk:2.5,A:.7,col:'--oxy',when:'Rises 1–3 h, normal by ~24–36 h'},
+  {k:'CK-MB',t0:3,tp:18,kk:3,A:.8,col:'--warn',when:'Rises 3–6 h, normal by 48–72 h'},
+  {k:'Troponin',t0:3,tp:30,kk:1.2,A:1,col:'--ecg',when:'Rises 3–6 h, elevated 10–14 days'}
+];
+const lvl=(m,t)=>{if(t<=m.t0)return 0;const x=(t-m.t0)/m.tp;return m.A*Math.pow(x,m.kk)*Math.exp(m.kk*(1-x))};
+const ULN=.1;
+const CH={x0:34,x1:336,y0:12,y1:180}, px=t=>CH.x0+t/96*(CH.x1-CH.x0), py=v=>CH.y1-v/1.05*(CH.y1-CH.y0);
+function drawBio(){
+  let s='';
+  [0,24,48,72,96].forEach(t=>{s+=`<line x1="${px(t)}" y1="${CH.y0}" x2="${px(t)}" y2="${CH.y1}" style="stroke:var(--line)"/><text x="${px(t)}" y="${CH.y1+16}" text-anchor="${t===96?'end':t===0?'start':'middle'}" font-size="11" font-family="var(--mono)" style="fill:var(--ink-2)">${t} h</text>`});
+  s+=`<line x1="${CH.x0}" y1="${py(ULN)}" x2="${CH.x1}" y2="${py(ULN)}" style="stroke:var(--ink-2)" stroke-dasharray="4 4"/>`;
+  s+=`<text transform="translate(14 ${(CH.y0+CH.y1)/2}) rotate(-90)" text-anchor="middle" font-size="10" style="font-family:var(--mono);fill:var(--ink-2)">relative level</text>`;
+  MK.forEach(m=>{let d='';for(let t=0;t<=96;t+=1)d+=(t?'L':'M')+px(t).toFixed(1)+' '+py(lvl(m,t)).toFixed(1)+' ';
+    s+=`<path d="${d}" fill="none" stroke-width="2.5" style="stroke:var(${m.col})"/>`});
+  s+=`<line id="hourLine" y1="${CH.y0}" y2="${CH.y1}" stroke-width="1.5" style="stroke:var(--ink)"/>`;
+  $('#bioChart').innerHTML=s;
+}
+function setHour(t){
+  const l=$('#hourLine');l.setAttribute('x1',px(t));l.setAttribute('x2',px(t));
+  $('#bioRead').innerHTML=MK.map(m=>{const up=lvl(m,t)>ULN;return `<div><b>${m.k}</b><span class="val ${up?'up':''}">${up?'Elevated':'Normal'}</span><br><span class="small">${m.when}</span></div>`}).join('')
+  +'';
+  $('#hour').setAttribute('aria-valuetext',t+' hours');
+}
+drawBio();setHour(6);$('#hour').addEventListener('input',e=>setHour(+e.target.value));
+
+/* ---------- AUDITORY ---------- */
+const CLIPS=[
+  {tag:'Recognition',title:'0300: The call light',who:'Frank Delgado, 62, then triage nurse',
+   text:`FRANK: It's three in the morning and I woke up with this pressure in my chest, like somebody's sitting on me. It goes up into my jaw and down my left arm. I'm sweating, I feel sick to my stomach, and I can't catch my breath. I figured it was the chili from dinner, so I took an antacid an hour ago. It didn't do a thing. My wife made me come in.
+
+TRIAGE NURSE: Mr. Delgado is sixty-two. Smokes a pack a day. History of high blood pressure and high cholesterol. Pain started about seventy minutes ago.`,
+   prompts:['Which cues point to the heart and not the stomach?','What has to happen in the first 10 minutes?'],
+   model:`Cardiac cues: pressure-type pain lasting more than 20 minutes at rest, radiation to the jaw and left arm, diaphoresis, nausea, shortness of breath, no relief from an antacid, plus risk factors (male, 62, smoker, hypertension, high cholesterol).
+First 10 minutes: 12-lead ECG read within 10 minutes of arrival. Aspirin 162 to 325 milligrams chewed if no allergy. Cardiac monitor, IV access, draw troponin. Oxygen only if SpO2 is below 90 percent.`},
+  {tag:'Recognition',title:'The 12-lead comes back',who:'ED nurse',
+   text:`ED NURSE: Twelve-lead is back. ST elevation in two, three, and aVF, with ST depression in one and aVL. Rate is fifty, sinus brady. Blood pressure eighty-eight over fifty-six. Sat ninety-six percent on room air. Lungs are clear. The doc ordered right-sided leads, and there's ST elevation in V4R too. Troponin is still pending.`,
+   prompts:['Which artery is blocked, and which wall is affected?','Why is the heart rate slow?','What does V4R tell you, and why does it change your meds?','Do you wait for the troponin?'],
+   model:`II, III and aVF mean an inferior STEMI, usually the right coronary artery. The RCA supplies the SA node in most people and the AV node in about 90 percent, so bradycardia and heart blocks are common.
+ST elevation in V4R means right ventricular infarction. With hypotension and clear lungs, the right ventricle depends on preload. Avoid nitroglycerin, morphine and diuretics. Expect IV fluids.
+No. A STEMI is diagnosed on the ECG. Do not delay reperfusion waiting for troponin.`},
+  {tag:'Interventions',title:'The orders come fast',who:'ED provider',
+   text:`PROVIDER: Okay, let's move. Aspirin three twenty-four, chewed. Nitroglycerin point four sublingual, repeat every five minutes, times three. Oxygen at four liters nasal cannula. Heparin bolus and drip per protocol. Metoprolol five milligrams IV. And activate the cath lab.`,
+   prompts:['Which orders do you carry out right away?','Which do you question, and what exactly do you say?'],
+   model:`Carry out now: aspirin chewed, heparin per protocol, activate the cath lab. The goal is door-to-balloon in 90 minutes or less.
+Question nitroglycerin: systolic BP is 88 and there is RV involvement, so nitro could crash his pressure.
+Question oxygen: SpO2 is 96 percent. Oxygen is indicated only below 90 percent.
+Question metoprolol: heart rate is 50 and he is hypotensive.
+Say it with closed-loop communication: "Doctor, his pressure is 88 over 56 with an RV infarct and a rate of 50. I'm holding the nitro and metoprolol. Do you want a fluid bolus instead? And his sat is 96 on room air. OK to hold the oxygen?"`},
+  {tag:'Pathophysiology',title:'"What is happening to his heart?"',who:'Frank\'s wife, Rosa',
+   text:`ROSA: Nobody is telling me anything. Everybody's running. What is actually happening to his heart? Is he dying?`,
+   prompts:['Explain the pathophysiology to Rosa in plain words. You have 30 seconds.'],
+   model:`"One of the arteries that feeds Frank's heart muscle got blocked. Over the years, fatty buildup forms in the artery wall. Tonight a piece of it cracked open, and his body formed a clot on it, like a scab. That clot is blocking blood flow. Without blood, that part of his heart isn't getting oxygen and is starting to get damaged. That's why everyone is moving fast. The team is taking him to open the artery with a small balloon and a stent. The sooner it's open, the more heart muscle they save."`},
+  {tag:'Complications',title:'Day 2, 0200: Something changed',who:'Night shift nurse',
+   text:`NIGHT NURSE: Room six, Frank Delgado, day two after a stent to the right coronary. At two a.m. he got short of breath. Crackles halfway up both lungs. I hear a new, loud murmur, loudest at the apex. His pressure dropped from one-eighteen to eighty-four systolic. He's cool and clammy, and his urine output has been fifteen an hour for two hours.`,
+   prompts:['What complication do you suspect, and why does it fit an RCA infarct?','Give the SBAR to the provider out loud.'],
+   model:`Suspect papillary muscle rupture causing acute mitral regurgitation, leading to pulmonary edema and cardiogenic shock. The RCA supplies the posteromedial papillary muscle, and rupture typically occurs days 2 to 7.
+S: "This is the nurse caring for Frank Delgado in room 6. He has a new loud murmur, sudden pulmonary edema and his BP dropped to 84 systolic."
+B: "He's 62, day 2 after a stent to the RCA for an inferior STEMI."
+A: "Crackles halfway up, cool and clammy, urine output 15 an hour for 2 hours. I'm concerned about papillary muscle rupture and cardiogenic shock."
+R: "I need you at the bedside now. Can I get a stat echo, a 12-lead and a chest x-ray? I've raised the head of the bed and he's on continuous monitoring."`},
+  {tag:'Teaching',title:'Discharge teach-back',who:'Frank, repeating his instructions',
+   text:`FRANK: Okay, so if I get chest pain at home, I take one of these nitro pills. If it doesn't help, I keep taking one every five minutes until the pain goes away, and if it's still there after half the bottle, I'll call somebody. I'm gonna keep them in my weekly pill box in the truck so they're handy. Oh, and if I get a headache, that means they're too strong, so I'll cut them in half.`,
+   prompts:['Catch every error out loud, then re-teach it the right way.'],
+   model:`Errors and corrections:
+Call 911 if the pain is not better 5 minutes after the first tablet. Don't wait.
+Maximum of 3 tablets, 5 minutes apart.
+Sit or lie down before taking it.
+Keep tablets in the original dark glass bottle, away from heat, light and moisture. A pill box in a hot truck ruins them.
+Headache is an expected side effect. Don't split tablets. Acetaminophen can help.
+Also teach: no sildenafil, tadalafil or vardenafil with nitrates. Take aspirin and the antiplatelet every day and never stop without the cardiologist. Go to cardiac rehab. Use a stool softener and avoid straining.`}
+];
+const hasTTS=('speechSynthesis' in window)&&typeof SpeechSynthesisUtterance!=='undefined';
+if(!hasTTS) $('#ttsNote').hidden=false;
+let playing=null;
+function stopTTS(){try{speechSynthesis.cancel()}catch(e){} if(playing){playing.btn.innerHTML=playing.label;playing.wave&&playing.wave.classList.remove('on');playing=null}}
+function speak(text,btn,wave){
+  if(playing&&playing.btn===btn){stopTTS();return}
+  stopTTS();
+  try{
+    const u=new SpeechSynthesisUtterance(text.replace(/^[A-Z ]+:/gm,''));u.rate=.95;
+    u.onend=u.onerror=()=>{if(playing&&playing.btn===btn)stopTTS()};
+    playing={btn,label:btn.innerHTML,wave};btn.innerHTML=ICON.stop+'Stop';wave&&wave.classList.add('on');
+    speechSynthesis.speak(u);
+  }catch(e){$('#ttsNote').hidden=false;stopTTS()}
+}
+const ICON={play:'<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg>',stop:'<svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2.5" y="2.5" width="9" height="9" fill="currentColor"/></svg>'};
+$('#clips').innerHTML=CLIPS.map((c,i)=>`
+ <section class="station">
+  <header><span class="eyebrow">Clip ${i+1} of ${CLIPS.length} · ${c.tag}</span><h2>${esc(c.title)}</h2></header>
+  <div class="clip">
+    <div class="clip-head"><button class="btn red play" data-clip="${i}" ${hasTTS?'':'disabled'}>${ICON.play}Play clip</button><span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="speaker">${esc(c.who)}</span></div>
+    <details class="model"><summary>Read transcript</summary><p class="transcript">${esc(c.text)}</p></details>
+  </div>
+  <div class="sayit"><h3>Say it out loud</h3><ol>${c.prompts.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>
+    <div class="row"><button class="btn ghost play" data-model="${i}" ${hasTTS?'':'disabled'}>${ICON.play}Hear a strong answer</button></div>
+    <details class="model"><summary>Show the model answer</summary><p class="transcript">${esc(c.model)}</p></details>
+  </div>
+ </section>`).join('');
+$('#clips').addEventListener('click',e=>{
+  const b=e.target.closest('button.play');if(!b)return;
+  if(b.dataset.clip!=null){const i=+b.dataset.clip;speak(CLIPS[i].text,b,$('.wave',b.parentNode))}
+  else{const i=+b.dataset.model;speak(CLIPS[i].model,b,null)}
+});
+
+/* ---------- READING ---------- */
+const TASKS=[
+  {id:'cues',tag:'Recognition',h:'Pull the cues',ask:'List every abnormal finding in Linda\'s chart. Then explain in 2–3 sentences why her MI looks different from the "classic" picture.',
+   model:['Fatigue, nausea, "indigestion," epigastric pressure 4/10 unrelieved by antacids','Dyspnea on exertion; RR 24; SpO₂ 93%; fine crackles at bases','Diaphoresis, cool skin, anxiety, sense of doom','HR 108, BP 158/92','ST depression V4–V6, T-wave inversion I and aVL','Troponin 52 → 284 ng/L (rising, far above 16)','Glucose 238 mg/dL','Why atypical: women, older adults and people with diabetes often have no classic chest pain. Diabetic neuropathy can blunt cardiac pain, so fatigue, nausea and dyspnea may be the main clues.'],
+   check:['Named the rising troponin as the key finding','Named the ECG changes','Linked "no chest pain" to her age, sex and diabetes','Noticed the crackles and SpO₂']},
+  {id:'patho',tag:'Pathophysiology',h:'Write the patho chain',ask:'In 4–6 sentences, explain what is happening inside Linda\'s coronary artery and heart muscle. Use at least five words from the bank.',
+   bank:['atherosclerotic plaque','rupture','platelet aggregation','thrombus','partial occlusion','supply < demand','anaerobic metabolism','lactic acid','subendocardial','troponin','necrosis'],
+   model:['Atherosclerotic plaque in a coronary artery ruptured or eroded.','Platelets aggregated at the site and formed a thrombus that only partly blocks the artery (that\'s why there\'s no ST elevation).','Oxygen supply fell below the muscle\'s demand. Cells switched to anaerobic metabolism and lactic acid built up, which causes pain or pressure.','The damage is mostly subendocardial (the inner layer), not through the full wall, which fits NSTEMI.','Cells that died (necrosis) released troponin into the blood, which is why her troponin is rising.'],
+   check:['Plaque rupture → clot in correct order','Explained supply vs demand','Explained why NSTEMI vs STEMI','Linked troponin to dead cells']},
+  {id:'sbar',tag:'Recognition & interventions',h:'Write the SBAR',ask:'Write an SBAR call to the ED provider about Linda\'s 2-hour troponin result.',
+   model:['S: Linda Okafor, 71, bed 14. Her 2-hour hs-troponin is 284, up from 52. I\'m concerned she\'s having an NSTEMI.','B: Type 2 diabetes, hypertension, high cholesterol. Two days of fatigue, nausea and dyspnea. No chest pain.','A: HR 108, BP 158/92, RR 24, SpO₂ 93% RA, fine crackles at bases. ECG: ST depression V4–V6, T inversion I and aVL. Glucose 238.','R: Can I give aspirin now? Do you want anticoagulation started? Oxygen isn\'t indicated unless SpO₂ drops below 90; I\'ll keep monitoring. Should I hold her metformin before possible cath with contrast? Cardiology consult?'],
+   check:['Led with the troponin trend','Included vitals and ECG','Gave a clear request (R)','Under 60 seconds to read aloud']},
+  {id:'priority',tag:'Interventions',h:'Prioritize three actions',ask:'Write your top three nursing actions in order, each with a one-line rationale.',
+   model:['1. Give aspirin 162–325 mg chewed (if ordered, no allergy): blocks further platelet aggregation on the clot.','2. Continuous cardiac monitoring, IV access, serial ECGs and troponins: dysrhythmias are the top early killer and the picture can evolve to STEMI.','3. Reduce O₂ demand: rest in semi-Fowler\'s, treat pain (nitro if SBP ≥ 90 and no PDE5 use), give anticoagulant and beta blocker as ordered (her BP and HR allow it; reassess for HF given her crackles).','Also acceptable: oxygen only if SpO₂ < 90%; treat glucose; prepare for cath within 24–48 h.'],
+   check:['Antiplatelet first','Monitoring for dysrhythmias','Reduce oxygen demand','Rationale for each']},
+  {id:'comp',tag:'Complications',h:'Write your watch list',ask:'For the next 72 hours, write three complications you will watch for and the finding that would signal each one.',
+   model:['Dysrhythmias / VF: irregular rhythm, runs of PVCs, VT on monitor.','Heart failure / pulmonary edema: worsening crackles, S3, falling SpO₂, pink frothy sputum, rising RR. (She already has basilar crackles.)','Cardiogenic shock: SBP < 90, cool clammy skin, urine output < 30 mL/h, confusion.','Pericarditis: sharp pain worse lying down and better leaning forward, friction rub.','Papillary muscle rupture: new holosystolic murmur with sudden pulmonary edema.'],
+   check:['Named three complications','Gave a specific assessment finding for each','Connected HF risk to her crackles']},
+  {id:'teach',tag:'Teaching',h:'Write Linda\'s discharge sheet',ask:'Write a half-page discharge sheet for Linda at about a 6th-grade reading level. Cover nitro, daily meds, activity and when to call 911.',
+   model:['Chest pain, pressure, or your "indigestion" feeling comes back: stop and sit down. Put 1 nitro under your tongue. If you are not better in 5 minutes, call 911. You can take up to 3 tablets, 5 minutes apart.','Keep nitro in its brown glass bottle. Carry it with you. A headache is normal.','Take aspirin and your blood thinner every day. Do not stop them unless your heart doctor says so.','Take your statin, beta blocker and ACE inhibitor every day. Check your blood sugar as taught.','Go to cardiac rehab. Walk a little more each day. Ask before lifting heavy things.','You can usually return to sex when you can climb 2 flights of stairs without symptoms. Do not take erectile or sexual-health pills like sildenafil with nitro.','Call 911 for: chest pressure, bad shortness of breath, fainting, or your "something is wrong" feeling.'],
+   check:['Short sentences, no jargon','Correct nitro steps (911 at 5 minutes, max 3)','Named her atypical warning signs','Covered meds, activity and rehab']}
+];
+const drafts=store.get('drafts',{});
+$('#writeTasks').innerHTML=TASKS.map((t,i)=>`
+ <section class="station">
+  <header><span class="eyebrow">Task ${i+1} · ${t.tag}</span><h2>${esc(t.h)}</h2><p class="how">${esc(t.ask)}</p></header>
+  ${t.bank?`<div class="wordbank">${t.bank.map(w=>`<span>${esc(w)}</span>`).join('')}</div>`:''}
+  <textarea id="w-${t.id}" data-id="${t.id}" aria-label="${esc(t.h)}" placeholder="Write your answer here…">${esc(drafts[t.id]||'')}</textarea>
+  <span class="saved" id="s-${t.id}"></span>
+  <details class="model"><summary>Compare with a model answer</summary><ul>${t.model.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>
+   <div class="checklist" style="margin-top:10px"><p class="small"><b>Check yourself. Did you…</b></p>${t.check.map((c,j)=>`<label><input type="checkbox" id="c-${t.id}-${j}">${esc(c)}</label>`).join('')}</div>
+  </details>
+ </section>`).join('');
+let saveT;
+$('#writeTasks').addEventListener('input',e=>{
+  const ta=e.target.closest('textarea');if(!ta)return;drafts[ta.dataset.id]=ta.value;
+  clearTimeout(saveT);saveT=setTimeout(()=>{store.set('drafts',drafts);const s=$('#s-'+ta.dataset.id);s.textContent='Saved in this browser';},400);
+});
+const CLOZE=[
+  ['ST elevation in II, III and aVF points to the','artery.',['rca','right coronary','right','right coronary artery']],
+  ['Get a 12-lead ECG within','minutes of arrival.',['10','ten']],
+  ['Aspirin for suspected MI is',', not swallowed whole.',['chewed','chew']],
+  ['Hold nitroglycerin if systolic BP is below','mm Hg.',['90']],
+  ['Give oxygen only if SpO₂ is below','%.',['90']],
+  ['Troponin can stay elevated for 10 to','days.',['14','fourteen']],
+  ['Door-to-balloon goal for PCI:','minutes.',['90','ninety']],
+  ['A STEMI needs ST elevation in at least','contiguous leads.',['2','two']]
+];
+$('#cloze').innerHTML=CLOZE.map((c,i)=>`<label>${esc(c[0])} <input id="cz${i}" autocomplete="off" aria-label="blank ${i+1}"> ${esc(c[1])}</label>`).join('');
+$('#clozeCheck').addEventListener('click',()=>{
+  let n=0;CLOZE.forEach((c,i)=>{const inp=$('#cz'+i),v=inp.value.trim().toLowerCase();const ok=c[2].includes(v);inp.classList.toggle('ok',ok);inp.classList.toggle('no',!ok);if(ok)n++;else if(v==='')inp.placeholder=c[2][0]});
+  $('#clozeScore').textContent=`${n} of ${CLOZE.length} correct.`+(n<CLOZE.length?' Red blanks are wrong; empty ones now show the answer.':'');
+});
+
+/* ---------- HANDS-ON: sequence ---------- */
+const SEQ=['Fatty plaque builds in the coronary artery wall','The plaque ruptures','Platelets aggregate and a thrombus forms','The artery is blocked and flow stops','O₂ demand exceeds supply; cells go anaerobic','Lactic acid builds up and causes chest pain','Injured cells show ST elevation on the ECG','After ~20–40 minutes cells die; troponin leaks, Q waves form'];
+let seqPool,seqOrder;
+function seqRender(){
+  $('#seqPool').innerHTML=seqPool.length?seqPool.map(i=>`<button class="chip" data-i="${i}">${esc(SEQ[i])}</button>`).join(''):'<span class="small">All cards placed. Check your order.</span>';
+  $('#seqList').innerHTML=seqOrder.length?seqOrder.map(i=>`<button class="chip" data-i="${i}">${esc(SEQ[i])}</button>`).join(''):'<span class="small">Your order appears here.</span>';
+}
+function seqReset(){seqPool=shuffle(SEQ.map((_,i)=>i));seqOrder=[];$('#seqFb').innerHTML='';seqRender()}
+$('#seqPool').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const i=+b.dataset.i;seqPool=seqPool.filter(x=>x!==i);seqOrder.push(i);seqRender()});
+$('#seqList').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const i=+b.dataset.i;seqOrder=seqOrder.filter(x=>x!==i);seqPool.push(i);seqRender()});
+$('#seqReset').addEventListener('click',seqReset);
+$('#seqCheck').addEventListener('click',()=>{
+  if(seqOrder.length<SEQ.length){$('#seqFb').innerHTML='<p class="callout warn">Place all 8 cards first.</p>';return}
+  let n=0;$$('#seqList .chip').forEach((b,k)=>{const ok=+b.dataset.i===k;b.classList.add(ok?'right':'wrong');if(ok)n++});
+  $('#seqFb').innerHTML=n===SEQ.length?'<p class="callout good"><b>8 of 8.</b> Ischemia and injury are reversible. Necrosis is not. That is why "time is muscle."</p>'
+   :`<p class="callout warn"><b>${n} of 8 in the right spot.</b> Red cards are out of place. Tap them to send them back and try again.</p>`;
+});
+seqReset();
+
+/* ---------- HANDS-ON: sorts ---------- */
+const SORTS={
+ artery:{n:2,tag:'Recognition',h:'Match it to the artery',how:'Sort each lead group and clinical clue to the artery that causes it.',
+  bins:[['RCA','Right coronary'],['LAD','Left anterior descending'],['Cx','Left circumflex']],
+  items:[['ST elevation in II, III, aVF','RCA'],['ST elevation in V1–V4','LAD'],['ST elevation in I, aVL, V5–V6','Cx'],['Bradycardia and heart blocks','RCA'],['Hypotension with clear lungs; check V4R','RCA'],['Highest risk of heart failure and cardiogenic shock','LAD'],['"Widow-maker" when blocked proximally','LAD'],['Often subtle on a 12-lead; posterior leads V7–V9 may help','Cx']],
+  why:{RCA:'RCA feeds the inferior wall, the RV, and usually the SA and AV nodes.',LAD:'LAD feeds the anterior wall and septum, the largest part of the LV.',Cx:'Circumflex feeds the lateral and posterior wall.'}},
+ markers:{n:3,tag:'Diagnosis',h:'Sort the cardiac markers',how:'Match each fact to the biomarker it describes.',
+  bins:[['Myoglobin',''],['CK-MB',''],['Troponin','']],
+  items:[['First to rise (1–3 h), but not heart-specific','Myoglobin'],['Back to normal by 24–36 h','Myoglobin'],['Back to normal by 48–72 h, so it can detect a re-infarction','CK-MB'],['Peaks about 12–24 h','CK-MB'],['Most specific and sensitive marker of heart damage','Troponin'],['Stays elevated 10–14 days','Troponin'],['Drawn serially (e.g., 0 h and 1–3 h) to see a rise','Troponin']],
+  why:{Myoglobin:'Myoglobin is in all muscle, so it is fast but nonspecific.',['CK-MB']:'CK-MB clears quickly, which makes it useful for spotting a new infarct.',Troponin:'Troponin is the marker of choice for diagnosing MI.'}},
+ orders:{n:4,tag:'Interventions',h:'Triage Frank\'s orders',how:'Frank: inferior STEMI with RV involvement. BP 88/56, HR 50, SpO₂ 96% on room air, lungs clear. Sort each order.',
+  bins:[['Do now','Safe and indicated'],['Hold & question','Call the provider first'],['Not indicated','Wrong for this patient']],
+  items:[['Aspirin 324 mg chewed','Do now'],['Activate the cath lab','Do now'],['Heparin per protocol','Do now'],['Continuous monitoring, 2 IVs, draw troponin','Do now'],['Nitroglycerin 0.4 mg SL','Hold & question'],['Metoprolol 5 mg IV','Hold & question'],['Morphine 4 mg IV for pain','Hold & question'],['Oxygen 4 L nasal cannula','Not indicated'],['Walk to the bathroom as needed','Not indicated'],['Wait for troponin before calling cardiology','Not indicated']],
+  why:{'Do now':'Antiplatelet, anticoagulant and fast reperfusion save muscle.','Hold & question':'Nitro and morphine drop preload in an RV infarct; metoprolol worsens HR 50 and hypotension.','Not indicated':'O₂ only if SpO₂ < 90%; bed rest or bedside commode; STEMI is diagnosed on ECG.'}},
+ comps:{n:5,tag:'Complications',h:'Put complications on the clock',how:'When does each complication most often show up?',
+  bins:[['First 24 hours',''],['Days 1–7',''],['Weeks later','']],
+  items:[['Ventricular fibrillation','First 24 hours'],['PVCs and other dysrhythmias','First 24 hours'],['Papillary muscle rupture','Days 1–7'],['Ventricular free wall rupture','Days 1–7'],['Acute pericarditis','Days 1–7'],['Dressler syndrome','Weeks later'],['Ventricular aneurysm','Weeks later']],
+  why:{'First 24 hours':'Injured muscle is electrically irritable early.','Days 1–7':'Necrotic tissue is softest about days 3–7, so walls and muscles can tear.','Weeks later':'Immune reaction (Dressler) and scar remodeling (aneurysm) take weeks.'}}
+};
+$$('[data-sort]').forEach(sec=>{
+  const S=SORTS[sec.dataset.sort];let sel=null;const place={};
+  sec.innerHTML=`<header><span class="eyebrow">Station ${S.n} · ${S.tag}</span><h2>${esc(S.h)}</h2><p class="how">${esc(S.how)}</p></header>
+   <div class="pool"></div><div class="bins">${S.bins.map(([b,sub])=>`<div class="bin" data-bin="${esc(b)}" role="button" tabindex="0" aria-label="Place in ${esc(b)}"><h3>${esc(b)}</h3>${sub?`<span class="sub">${esc(sub)}</span>`:''}<div class="bin-items"></div></div>`).join('')}</div>
+   <div class="row"><button class="btn chk">Check</button><button class="btn ghost rst">Start over</button></div><div class="fb"></div>`;
+  let order=shuffle(S.items.map((_,i)=>i));
+  function render(){
+    $('.pool',sec).innerHTML=order.filter(i=>place[i]==null).map(i=>`<button class="chip${sel===i?' sel':''}" data-i="${i}">${esc(S.items[i][0])}</button>`).join('')||'<span class="small">All placed. Check your sort.</span>';
+    $$('.bin',sec).forEach(b=>{b.classList.toggle('armed',sel!=null);$('.bin-items',b).innerHTML=order.filter(i=>place[i]===b.dataset.bin).map(i=>`<button class="chip" data-i="${i}" data-placed="1">${esc(S.items[i][0])}</button>`).join('')});
+  }
+  function drop(bin){if(sel==null)return;place[sel]=bin;sel=null;$('.fb',sec).innerHTML='';render()}
+  sec.addEventListener('click',e=>{
+    const c=e.target.closest('.chip');
+    if(c){e.stopPropagation();const i=+c.dataset.i;if(c.dataset.placed){delete place[i];sel=null}else sel=(sel===i?null:i);render();return}
+    const b=e.target.closest('.bin');if(b)drop(b.dataset.bin);
+  });
+  sec.addEventListener('keydown',e=>{const b=e.target.closest('.bin');if(b&&(e.key==='Enter'||e.key===' ')){e.preventDefault();drop(b.dataset.bin)}});
+  $('.rst',sec).addEventListener('click',e=>{e.stopPropagation();Object.keys(place).forEach(k=>delete place[k]);sel=null;order=shuffle(order);$('.fb',sec).innerHTML='';render()});
+  $('.chk',sec).addEventListener('click',e=>{
+    e.stopPropagation();
+    if(Object.keys(place).length<S.items.length){$('.fb',sec).innerHTML='<p class="callout warn">Place every card first.</p>';return}
+    let n=0;$$('.bin .chip',sec).forEach(c=>{const i=+c.dataset.i,ok=S.items[i][1]===place[i];c.classList.add(ok?'right':'wrong');if(ok)n++});
+    $('.fb',sec).innerHTML=`<div class="callout ${n===S.items.length?'good':'warn'}"><b>${n} of ${S.items.length} correct.</b>${n<S.items.length?' Red cards are in the wrong bin. Tap to send them back.':''}<ul>${Object.entries(S.why).map(([k,v])=>`<li><b>${esc(k)}:</b> ${esc(v)}</li>`).join('')}</ul></div>`;
+  });
+  render();
+});
+
+/* ---------- HANDS-ON: nitro sim ---------- */
+const SIM=[
+  {scene:'Three weeks after discharge. Frank is mowing the lawn and feels chest pressure, 6/10, like before.',pain:'6/10',q:'What does Frank do first?',
+   opts:[['Stop and sit down',1,'Right. Rest lowers the heart\'s oxygen demand and prevents a fall if nitro drops his BP.'],['Finish the last strip of lawn, then rest',0,'Every minute of exertion raises O₂ demand. Stop now.'],['Take two tablets at once to be safe',0,'One tablet at a time. Doubling up can drop BP sharply.']]},
+  {scene:'He takes the bottle out of his pocket.',pain:'6/10',q:'How does he take the tablet?',
+   opts:[['Under the tongue, let it dissolve, don\'t swallow',1,'Right. Sublingual absorption works in 1–3 minutes.'],['Swallow it with water',0,'Swallowed nitro is broken down by the liver and won\'t work fast.'],['Chew it like aspirin',0,'Aspirin is chewed. Nitro dissolves under the tongue.']]},
+  {wait:5,scene:'Tablet is under his tongue. Wait 5 minutes.',pain:'6/10'},
+  {scene:'Five minutes later. Pain is still 6/10. He has a pounding headache.',pain:'6/10',q:'What now?',
+   opts:[['Call 911 now',1,'Right. If pain is not better 5 minutes after the first tablet, call 911. Don\'t drive.'],['Wait 15 more minutes to see if it passes',0,'Waiting costs heart muscle. Call 911 at 5 minutes.'],['Have his wife drive him to the ER',0,'EMS can start treatment and transmit a 12-lead on the way. Call 911.']]},
+  {scene:'911 is on the way. Pain is still there.',pain:'5/10',q:'Can he take more nitro while he waits?',
+   opts:[['Yes, a 2nd tablet now and a 3rd in 5 minutes if needed. Max 3.',1,'Right. Up to 3 tablets, 5 minutes apart. The dispatcher may also tell him to chew aspirin.'],['Yes, one every minute until the pain stops',0,'Maximum is 3 tablets, 5 minutes apart. More risks severe hypotension.'],['No, never take more than one',0,'He can take up to 3 tablets, 5 minutes apart, while waiting for EMS.']]},
+  {scene:'At the hospital, Frank asks about the headache.',pain:'2/10',q:'What does the nurse say about the headache?',
+   opts:[['It\'s an expected side effect. Keep using nitro as taught.',1,'Right. Nitro dilates blood vessels in the head too. Acetaminophen can help.'],['It means the dose is too strong. Cut tablets in half.',0,'Headache is expected. Don\'t split tablets.'],['Stop nitro forever if it causes headaches',0,'Headache is common and not a reason to stop.']]},
+  {scene:'Last teaching point before he goes home again.',pain:'0/10',q:'Where should Frank keep his nitro?',
+   opts:[['In the original dark glass bottle, carried with him',1,'Right. Light, heat and moisture break nitro down. Check the expiration date.'],['In a weekly pill box in his truck',0,'Heat and light ruin it, and a pill box isn\'t airtight.'],['In the bathroom medicine cabinet',0,'Humidity degrades it, and it needs to be with him, not at home.']]}
+];
+let simStep=0,simTries=0,simMiss=0,simTimer=null;
+function simRender(){
+  clearInterval(simTimer);const el=$('#sim');
+  if(simStep>=SIM.length){el.innerHTML=`<div class="callout good"><b>Drill complete.</b> ${simMiss===0?'No wrong turns. Switch roles and run it again.':simMiss+' wrong turn'+(simMiss>1?'s':'')+'. Switch roles and run it again.'}</div><div class="row"><button class="btn" id="simAgain">Run it again</button></div>`;
+    $('#simAgain').onclick=()=>{simStep=0;simMiss=0;simRender()};return}
+  const s=SIM[simStep];
+  let h=`<div class="sim-scene"><div class="sim-status"><span>Step ${simStep+1}/${SIM.length}</span><span>Pain ${s.pain}</span></div><p>${esc(s.scene)}</p>`;
+  if(s.wait){h+=`<div class="row"><span class="timer" id="simT">5:00</span><button class="btn red" id="simGo">Start the 5-minute wait</button></div><p class="small">Sped up for practice. In real life, it's a full 5 minutes.</p></div>`;el.innerHTML=h;
+    $('#simGo').onclick=e=>{e.target.disabled=true;let sec=300;const step=reduce?300:10;simTimer=setInterval(()=>{sec-=step;if(sec<=0){clearInterval(simTimer);simStep++;simRender();return}$('#simT').textContent=Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')},100)};return}
+  h+=`<p><b>${esc(s.q)}</b></p><div class="choices">${s.opts.map((o,i)=>`<button data-o="${i}">${esc(o[0])}</button>`).join('')}</div><div class="fb" id="simFb"></div></div>`;
+  el.innerHTML=h;simTries=0;
+  $$('.choices button',el).forEach(b=>b.onclick=()=>{
+    const o=s.opts[+b.dataset.o];
+    if(o[1]){$('#simFb').innerHTML=`<p class="callout good">${esc(o[2])}</p><div class="row" style="margin-top:8px"><button class="btn" id="simNext">Next</button></div>`;$$('.choices button',el).forEach(x=>x.disabled=true);$('#simNext').onclick=()=>{simStep++;simRender()};$('#simNext').focus()}
+    else{if(!simTries++)simMiss++;b.classList.add('no');$('#simFb').innerHTML=`<p class="callout">${esc(o[2])}</p>`}
+  });
+}
+simRender();
+
+/* ---------- EXIT CHECK ---------- */
+const EXIT=[
+  {s:'A client\'s 12-lead shows ST elevation in II, III and aVF. Which artery is most likely blocked?',o:['Left anterior descending','Right coronary','Left circumflex','Left main'],a:1,w:'II, III and aVF view the inferior wall, which the RCA usually supplies.'},
+  {s:'Which lab result best confirms an MI that started 5 days ago?',o:['Myoglobin','CK-MB','Troponin','BNP'],a:2,w:'Troponin stays elevated 10–14 days. Myoglobin and CK-MB are back to normal by then.'},
+  {s:'A client arrives with chest pressure. SpO₂ is 95%. What does the nurse do first?',o:['Apply oxygen at 4 L/min','Obtain a 12-lead ECG','Wait for troponin results','Give morphine IV'],a:1,w:'The 12-lead should be done and read within 10 minutes of arrival. Oxygen is only indicated below 90%.'},
+  {s:'Before giving SL nitroglycerin, which finding should make the nurse hold it?',o:['HR 96','BP 132/84','Took sildenafil 12 hours ago','Pain rated 8/10'],a:2,w:'PDE5 inhibitors with nitrates can cause profound hypotension. Also hold for SBP < 90 or RV infarct.'},
+  {s:'Day 3 after an inferior MI, a client develops a new loud murmur, crackles and BP 82/50. What does the nurse suspect?',o:['Dressler syndrome','Papillary muscle rupture','Pericarditis','Stable angina'],a:1,w:'Rupture causes acute mitral regurgitation, leading to pulmonary edema and shock. It peaks days 2–7.'},
+  {s:'Which discharge statement shows the client understands nitroglycerin?',o:['"I\'ll take one every 5 minutes until the pain is gone."','"If I\'m not better 5 minutes after the first tablet, I\'ll call 911."','"I\'ll keep them in my pill box in the car."','"A headache means I should cut the tablet in half."'],a:1,w:'Call 911 if no relief 5 minutes after the first dose. Max 3 tablets. Original bottle. Headache is expected.'}
+];
+$$('[data-exit]').forEach(sec=>{
+  const key=sec.dataset.exit;const ans={};
+  sec.innerHTML=`<header><span class="eyebrow">Exit check · all four areas</span><h2>Six questions before you go</h2><p class="how">Same questions on every path. Tap your answer.</p></header>`+
+   EXIT.map((q,i)=>`<div class="q" data-q="${i}"><p class="stem">${i+1}. ${esc(q.s)}</p><div class="opts">${q.o.map((o,j)=>`<button data-j="${j}">${esc(o)}</button>`).join('')}</div><p class="why" hidden></p></div>`).join('')+
+   `<p class="score" aria-live="polite"></p>`;
+  sec.addEventListener('click',e=>{
+    const b=e.target.closest('.opts button');if(!b)return;const qd=b.closest('.q'),i=+qd.dataset.q;if(ans[i]!=null)return;
+    const j=+b.dataset.j;ans[i]=j===EXIT[i].a;
+    $$('button',qd).forEach((x,k)=>{x.disabled=true;if(k===EXIT[i].a)x.classList.add('right');else if(k===j)x.classList.add('wrong')});
+    const w=$('.why',qd);w.hidden=false;w.textContent=(ans[i]?'Correct. ':'Not quite. ')+EXIT[i].w;
+    if(Object.keys(ans).length===EXIT.length){const n=Object.values(ans).filter(Boolean).length;$('.score',sec).textContent=`${n} / 6`+(n===6?' · Nicely done.':' · Review the explanations above.');const d=store.get('done',{});d[key]=n;store.set('done',d)}
+  });
+});
+
+route();
+})();
+</script>
+
+</body></html>

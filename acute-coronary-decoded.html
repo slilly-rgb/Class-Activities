@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Acute Coronary Decoded</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#f3eff0; --surface:#ffffff; --ink:#24161a; --muted:#6e5a60; --line:#e2d6d9;
+  --accent:#a3263f; --accent-soft:#f7e4e8; --ok:#1d7a4f; --ok-soft:#e3f3ea; --bad:#b23a3a; --bad-soft:#f8e6e6;
+  --core:#7a4fb0; --core-soft:#efe8f8; --apply:#1f6f9a; --apply-soft:#e2eff6;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#1a1214; --surface:#24191c; --ink:#f0e6e8; --muted:#b09ca1; --line:#3a2b2f;
+  --accent:#ef7a91; --accent-soft:#3d1d25; --ok:#5ec993; --ok-soft:#163327; --bad:#ee8686; --bad-soft:#3a1d1f;
+  --core:#b99be6; --core-soft:#2a2140; --apply:#62b2dd; --apply-soft:#1a3242; color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
+  padding-top:max(24px,env(safe-area-inset-top,0px));padding-bottom:max(48px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:700;font-size:1.55rem;margin:0;letter-spacing:-.01em}
+.tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.reset{font:inherit;font-size:.82rem;font-weight:600;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer}
+.reset:hover{color:var(--accent);border-color:var(--accent)}
+.reset.arm{color:var(--surface);background:var(--bad);border-color:var(--bad)}
+.score{font-family:var(--mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rail{display:grid;grid-template-columns:repeat(20,1fr);gap:4px}
+.rail button{height:8px;border:0;border-radius:4px;background:var(--line);padding:0;cursor:pointer}
+.rail button.done-ok{background:var(--ok)} .rail button.done-bad{background:var(--bad)}
+.rail button.cur{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.chip.core{background:var(--core-soft);color:var(--core)} .chip.apply{background:var(--apply-soft);color:var(--apply)}
+.chip.plain{background:transparent;color:var(--muted);padding-inline:0}
+.steps{display:flex;gap:6px;margin-left:auto}
+.steps span{font-family:var(--mono);font-size:.72rem;color:var(--muted)} .steps span.on{color:var(--ink);font-weight:700}
+.coreq{font-family:var(--display);font-weight:500;font-size:clamp(1.45rem,4.3vw,2rem);line-height:1.2;margin:0;text-wrap:balance}
+.hint{color:var(--muted);margin:0}
+label.notes{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:.9rem;color:var(--muted)}
+textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:96px;resize:vertical}
+textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.recall{border-left:3px solid var(--core);background:var(--core-soft);border-radius:0 10px 10px 0;padding:10px 14px;font-size:.95rem;display:flex;flex-direction:column;gap:4px}
+.recall.ap{border-color:var(--apply);background:var(--apply-soft)}
+.recall b{color:var(--core)} .recall.ap b{color:var(--apply)}
+.reveal{display:flex;flex-direction:column;gap:10px}
+.stem{font-size:1.12rem;margin:0;font-weight:600;line-height:1.45}
+.sata{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.05em;text-transform:uppercase}
+.opts{display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:0}
+.opt{border:1.5px solid var(--line);border-radius:11px;background:var(--surface);transition:border-color .15s,background .15s}
+.opt label{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:12px 14px;cursor:pointer;position:relative}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.mark{width:24px;height:24px;border:2px solid var(--muted);display:grid;place-items:center;font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-top:1px}
+.radio .mark{border-radius:50%} .check .mark{border-radius:6px}
+.opt:hover:not(.locked){border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .mark{border-color:var(--accent);background:var(--accent);color:var(--surface)}
+.opt.locked label{cursor:default}
+.opt.is-ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.is-ok .mark{border-color:var(--ok);background:var(--ok);color:var(--surface)}
+.opt.is-bad.sel{border-color:var(--bad);background:var(--bad-soft)}
+.opt.is-bad.sel .mark{border-color:var(--bad);background:var(--bad);color:var(--surface)}
+.why{font-size:.94rem;margin-top:6px;padding-top:8px;border-top:1px dashed var(--line)}
+.why .tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;margin-right:6px}
+.is-ok .why .tag{color:var(--ok)} .is-bad .why .tag{color:var(--bad)}
+.miss{font-family:var(--mono);font-size:.7rem;color:var(--ok);letter-spacing:.05em;text-transform:uppercase;margin-left:6px}
+.verdict{border-radius:11px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.verdict.ok{background:var(--ok-soft)} .verdict.bad{background:var(--bad-soft)}
+.verdict strong{font-family:var(--display);font-size:1.15rem}
+.verdict.ok strong{color:var(--ok)} .verdict.bad strong{color:var(--bad)}
+.actions{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+button.btn{font:inherit;font-weight:700;border-radius:10px;padding:11px 20px;cursor:pointer;border:1.5px solid var(--accent);background:var(--accent);color:var(--surface)}
+button.btn.ghost{background:transparent;color:var(--accent)}
+button.btn.soft{background:transparent;color:var(--muted);border-color:var(--line)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+.results h2{font-family:var(--display);font-size:2rem;margin:0}
+.rlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rlist li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
+.rlist .n{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.rlist .r{font-family:var(--mono);font-size:.75rem;letter-spacing:.05em}
+.rlist .r.ok{color:var(--ok)} .rlist .r.bad{color:var(--bad)}
+.rlist button{all:unset;cursor:pointer} .rlist button:hover{color:var(--accent);text-decoration:underline}
+.foot{color:var(--muted);font-size:.85rem;text-align:center}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style></head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Acute Coronary Decoded</h1>
+      <div class="tools"><span class="score" id="score">0 correct · 0 of 20 answered</span><button class="reset" id="reset" type="button">Reset all answers</button></div>
+    </div>
+    <div class="rail" id="rail" aria-label="Question progress"></div>
+  </header>
+  <main class="card" id="card" aria-live="polite"></main>
+  <p class="foot">Angina · ACS · diagnostics · reperfusion · post-MI and post-procedure care. Notes stay on this screen and are not saved. Set numbers match the Acute Coronary Decoded crosswalk.</p>
+</div>
+
+<script>
+/* t topic · u understand core · ua answer · a apply core · aa answer · q NCLEX stem · o [text, correct, rationale] */
+const Q=[
+{t:"Reperfusion",
+ u:"Why can a clot-busting drug be dangerous for some clients?",ua:"It dissolves clots everywhere, not just in the heart. Anyone with recent bleeding, surgery or a brain bleed can hemorrhage.",
+ a:"STEMI and no cath lab nearby. What in the history would stop you from giving a clot-buster?",aa:"Active bleeding, recent surgery or trauma, any past brain bleed, a recent ischemic stroke, or a severely high BP.",
+ q:"A client with a STEMI at a rural hospital is being considered for fibrinolytic therapy. Which findings are contraindications the nurse should report? Select all that apply.",o:[
+ ["Age of 68",0,"Age alone isn't a contraindication. Bleeding risk rises with age, but 68 doesn't rule out fibrinolytics."],
+ ["Abdominal surgery 1 week ago",1,"Fresh clots are holding the surgical site closed. Dissolving them can cause serious bleeding."],
+ ["Chest pain that began 2 hours ago",0,"This is good timing. Fibrinolytics work best early and are generally given within 12 hours of symptom onset."],
+ ["BP of 205/118",1,"Severe uncontrolled hypertension (above about 180/110) raises the risk of bleeding into the brain."],
+ ["Active GI bleeding",1,"Active internal bleeding is an absolute contraindication. The drug would make it much worse."],
+ ["Hemorrhagic stroke 2 years ago",1,"Any prior intracranial hemorrhage is an absolute contraindication, no matter how long ago."]]},
+{t:"Coronary artery disease",
+ u:"Why does smoking speed up coronary artery disease?",ua:"Nicotine and carbon monoxide damage the artery lining, tighten the vessels and make the blood clot more easily.",
+ a:"A client with coronary disease asks what they can actually change. What do you focus on?",aa:"The modifiable factors: smoking, BP, cholesterol, blood sugar, activity, weight and diet. Age, sex and family history can't be changed.",
+ q:"The nurse is teaching a client with coronary artery disease about lowering risk. Which client goals show understanding of modifiable risk factors? Select all that apply.",o:[
+ ["“I'll keep my BP and diabetes under control.”",1,"Hypertension and diabetes both damage artery walls. Controlling them slows plaque buildup."],
+ ["“I'll quit smoking.”",1,"Quitting is one of the most powerful changes a client can make, and risk starts falling within the first year."],
+ ["“I'll walk 30 minutes most days.”",1,"Regular activity lowers BP, LDL and weight and raises HDL."],
+ ["“Since I'm over 65, nothing I do will help.”",0,"Age can't be changed, but managing modifiable factors lowers risk at any age. This client needs more teaching."],
+ ["“I'll limit saturated fat in my diet.”",1,"Less saturated fat lowers LDL cholesterol."],
+ ["“I'll change my family history by eating better.”",0,"Family history is nonmodifiable. Diet helps, but it doesn't change genetics."]]},
+{t:"Diagnostics",
+ u:"Why are the kidneys checked before a heart catheterization?",ua:"The kidneys clear the contrast dye, and the dye can injure them, especially if they already work poorly.",
+ a:"A client with diabetes has a heart cath tomorrow. What do you check and teach?",aa:"Check creatinine and allergies, make sure they're hydrated, and hold metformin as prescribed.",
+ q:"A client with type 2 diabetes is scheduled for a cardiac catheterization. Which actions should the nurse take before the procedure? Select all that apply.",o:[
+ ["Encourage fluids or give IV hydration as prescribed",1,"Hydration helps the kidneys flush the contrast and lowers the risk of contrast-induced kidney injury."],
+ ["Hold metformin as prescribed",1,"Metformin plus contrast-related kidney injury can lead to lactic acidosis, so it's usually held around the procedure."],
+ ["Give a high-protein meal right before the procedure",0,"Clients are usually NPO or limited before the cath per protocol, because sedation raises aspiration risk."],
+ ["Check the serum creatinine",1,"Creatinine shows baseline kidney function before contrast is given."],
+ ["Ask about allergies, including past reactions to contrast",1,"A prior contrast reaction may call for premedication or a different plan."],
+ ["Apply a heating pad to the groin",0,"Heat isn't part of pre-procedure care and could hide or worsen bleeding at the site afterward."]]},
+{t:"Diagnostics",
+ u:"How does the ECG show the difference between heart muscle that's starving and muscle that's dying?",ua:"Starving (ischemia): ST depression or T-wave inversion. Injury: ST elevation. Dead (infarction): Q waves.",
+ a:"Chest pain with ST depression in V4–V6 and a rising troponin. What is it, and what comes next?",aa:"NSTEMI: muscle damage without ST elevation. Treat with antiplatelets and anticoagulation, with early cath based on risk.",
+ q:"A client with chest pain has ST depression in V4–V6, no ST elevation, and a troponin that rose from normal to 0.9 ng/mL. Which diagnosis and treatment does the nurse anticipate?",o:[
+ ["Stable angina; discharge with outpatient stress test",0,"Stable angina doesn't raise troponin. A rising troponin means heart muscle is being damaged."],
+ ["STEMI; prepare for immediate fibrinolytic therapy",0,"There's no ST elevation. Fibrinolytics aren't used for NSTEMI and add bleeding risk without benefit."],
+ ["Pericarditis; treat with NSAIDs and colchicine",0,"Pericarditis causes widespread ST elevation and pain that changes with position, not regional ST depression with a rising troponin."],
+ ["NSTEMI; antiplatelets, anticoagulant and early cath",1,"ST depression plus a rising troponin is an NSTEMI. Treatment stops the clot from growing, and catheterization follows based on risk."]]},
+{t:"Post-MI care",
+ u:"Why is climbing stairs used to judge readiness for sex after a heart attack?",ua:"Both take about the same energy and heart work. If the heart tolerates one, it can likely handle the other.",
+ a:"Three weeks after an MI, a client asks when sex is safe again. What do you tell them?",aa:"Usually once they can climb two flights of stairs without symptoms. Pick a rested time, stop for chest pain, and never mix ED drugs with nitrates.",
+ q:"A client recovering from an MI asks about resuming sexual activity. Which statements by the nurse are appropriate? Select all that apply.",o:[
+ ["“Ask your provider whether to take nitroglycerin before sex if it has caused chest pain.”",1,"Taking nitroglycerin ahead of time can prevent angina during exertion, if the provider approves."],
+ ["“Choose a time when you're rested, not right after a heavy meal.”",1,"Fatigue and digestion both add to the heart's workload."],
+ ["“Being able to climb two flights of stairs without symptoms is a good sign you're ready.”",1,"Stair climbing takes about the same energy as sexual activity."],
+ ["“Stop and rest if you have chest pain or shortness of breath.”",1,"These are warning signs of ischemia. Stop, rest and use nitroglycerin as prescribed."],
+ ["“You should avoid sex for at least a year.”",0,"Most clients can resume within a few weeks once they tolerate moderate activity. A year is unnecessary."],
+ ["“You can use erectile dysfunction drugs along with your nitroglycerin.”",0,"PDE-5 inhibitors taken with nitrates can cause severe, life-threatening hypotension."]]},
+{t:"Post-cardiac surgery",
+ u:"Why can heavy chest tube drainage that suddenly stops be a bad sign after heart surgery?",ua:"A clot may be blocking the tube. Blood keeps collecting around the heart and squeezes it (cardiac tamponade).",
+ a:"Six hours after CABG, chest tube output stops, BP falls and neck veins bulge. What's going on?",aa:"Cardiac tamponade. Notify the surgeon right away; the client may need to go back to the OR.",
+ q:"Six hours after CABG, a client's chest tube output drops from 120 mL/hr to almost nothing. BP falls from 118/70 to 84/60, CVP rises, and heart sounds are muffled. Which action is the priority?",o:[
+ ["Give a fluid bolus and recheck vital signs in 1 hour",0,"Fluid may support BP briefly, but waiting an hour delays treatment of tamponade, which needs surgical decompression."],
+ ["Document the decrease in drainage as an improvement",0,"A sudden stop with falling BP isn't improvement. It suggests the tube is clotted and blood is trapped around the heart."],
+ ["Notify the surgeon now of suspected cardiac tamponade",1,"Falling BP, rising CVP and muffled heart sounds (Beck's triad) right after drainage stops point to tamponade, a surgical emergency."],
+ ["Strip the chest tube vigorously every 15 minutes to clear it",0,"Vigorous stripping creates dangerous negative pressure. Gentle milking per policy may be tried, but it doesn't come before notifying the surgeon."]]},
+{t:"Post-MI complications",
+ u:"Why would a heart attack suddenly make the mitral valve leak?",ua:"The MI can damage or rupture a papillary muscle, so the valve can't close and blood rushes back into the atrium and lungs.",
+ a:"Day 3 after an MI: a new loud murmur and sudden pulmonary edema. What's happened?",aa:"Likely papillary muscle rupture with acute mitral regurgitation. It's an emergency: notify the provider now.",
+ q:"Three days after an inferior MI, a client suddenly develops severe dyspnea, crackles throughout both lungs, BP 86/50 and a new loud holosystolic murmur at the apex. Which action is the priority?",o:[
+ ["Document the murmur and reassess at the next shift",0,"A new murmur with hypotension and pulmonary edema is life-threatening and can't wait."],
+ ["Give a 1 L IV fluid bolus to bring the blood pressure up",0,"The lungs are already flooded. A large bolus would worsen the pulmonary edema."],
+ ["Encourage coughing and deep breathing exercises",0,"The crackles come from blood backing up into the lungs, not secretions. Coughing won't help."],
+ ["Notify the provider now and prepare for emergency care",1,"A new apical holosystolic murmur with sudden pulmonary edema and hypotension suggests papillary muscle rupture, which often needs emergency surgery."]]},
+{t:"Diagnostics",
+ u:"Why does the hand need a backup blood supply before the radial artery is used?",ua:"If the radial artery clots afterward, the ulnar artery has to keep blood flowing to the hand.",
+ a:"After a radial heart cath, the fingers are pale, cool and numb. What do you do?",aa:"The band may be too tight or the artery blocked. Notify the provider and loosen the band per protocol.",
+ q:"Two hours after a cardiac catheterization through the right radial artery, the client's right fingers are pale and cool with delayed capillary refill and numbness. The compression band is in place. Which action is most appropriate?",o:[
+ ["Elevate the arm on two pillows and recheck in 2 hours",0,"Waiting 2 hours with signs of poor perfusion risks permanent injury to the hand."],
+ ["Notify the provider and loosen the band per protocol",1,"Pallor, coolness, slow refill and numbness mean poor perfusion from a band that's too tight or a blocked radial artery. Flow must be restored."],
+ ["Apply a warm compress and document the findings",0,"Warmth doesn't fix the cause, and numb skin can be burned."],
+ ["Have the client squeeze a ball every 5 minutes",0,"Hand exercise won't restore flow past a compressed or blocked artery."]]},
+{t:"Acute coronary syndrome",
+ u:"How can someone be bleeding with a clean, dry dressing?",ua:"Blood can collect in the retroperitoneal space behind the abdomen, where you can't see it.",
+ a:"After a groin catheterization: back pain, falling BP, rising pulse. What's happening?",aa:"Retroperitoneal bleeding. Notify the provider immediately.",
+ q:"Two hours after a femoral cardiac catheterization, the client reports new low back pain. BP has dropped from 128/76 to 96/58 and heart rate has risen from 78 to 112/min. The groin dressing is dry. Which action is most appropriate?",o:[
+ ["Give the PRN analgesic and reassess in 1 hour",0,"Treating the pain hides a key sign of bleeding while the client keeps losing blood."],
+ ["Notify the provider now of suspected internal bleeding",1,"New back or flank pain with falling BP and rising heart rate after femoral access is classic for retroperitoneal bleeding, even with a dry dressing."],
+ ["Increase the IV rate and recheck vital signs in 30 minutes",0,"More fluid may help briefly, but waiting 30 minutes delays care for active bleeding."],
+ ["Turn the client onto one side to relieve back pain",0,"Turning can disturb the femoral site, and it ignores the signs of shock."]]},
+{t:"Post-MI care",
+ u:"Why does someone with a new stent need to stay on both antiplatelet drugs?",ua:"Platelets stick to the stent's metal until new tissue covers it. Stopping early can cause a sudden clot in the stent.",
+ a:"A client with a 2-month-old stent wants to stop clopidogrel before a dental cleaning. What do you say?",aa:"Don't stop it without talking to the cardiologist; stopping early can clot the stent and cause an MI.",
+ q:"A client who had a drug-eluting stent placed 2 months ago says, “My dentist told me to stop my clopidogrel for a week before a cleaning.” Which response by the nurse is best?",o:[
+ ["“Stop both clopidogrel and aspirin a week before to prevent any bleeding.”",0,"Stopping both drugs leaves the stent unprotected. This is the highest-risk choice."],
+ ["“Talk with your cardiologist first; stopping early can clot the stent.”",1,"Stopping dual antiplatelet therapy early is the biggest risk factor for stent thrombosis. The cardiologist and dentist decide together."],
+ ["“You can stop it; a stent is fully healed after just 1 month.”",0,"Drug-eluting stents heal slowly. Dual therapy usually continues 6 to 12 months."],
+ ["“That's fine as long as you keep taking your daily aspirin.”",0,"Aspirin alone isn't enough protection this soon after a drug-eluting stent."]]},
+{t:"Diagnostics",
+ u:"Why might a client be told to skip caffeine and some heart medicines before a stress test?",ua:"Caffeine blocks the drug used in a chemical stress test, and beta blockers blunt the heart's response, so ischemia can be missed.",
+ a:"A client has a regadenoson stress test tomorrow. What prep do you teach?",aa:"No caffeine for at least 12 hours, ask about holding the beta blocker, wear comfortable clothes, and report symptoms during the test.",
+ q:"A client is scheduled for a pharmacologic stress test with regadenoson. Which instructions should the nurse give? Select all that apply.",o:[
+ ["Wear comfortable clothes and shoes",1,"Electrodes go on the chest, and low-level walking is sometimes added to the test."],
+ ["Report chest pain or shortness of breath during the test",1,"Symptoms during the test help identify ischemia and tell staff when to intervene."],
+ ["Avoid caffeine, including coffee, tea and chocolate, for at least 12 hours before the test",1,"Caffeine blocks the receptors regadenoson acts on and can cause a false-negative test."],
+ ["Drink an energy drink before arriving to stay alert",0,"Energy drinks are loaded with caffeine, which would interfere with the test."],
+ ["Expect to have general anesthesia",0,"Stress tests are done with the client awake so they can report symptoms."],
+ ["Ask your provider whether to hold your beta blocker",1,"Beta blockers blunt the heart-rate response and can hide ischemia. The provider decides whether to hold them."]]},
+{t:"Angina",
+ u:"Why do calcium channel blockers work so well for spasm-type angina?",ua:"They relax the smooth muscle in the coronary arteries, so the arteries don't clamp down.",
+ a:"Early-morning chest pain at rest, ST elevation that goes away, and clean coronaries. Which drug fits?",aa:"A calcium channel blocker, such as amlodipine or diltiazem, to prevent coronary spasm.",
+ q:"A client has recurrent chest pain at rest early in the morning with temporary ST elevation that resolves. Cardiac catheterization shows no significant blockages. Which medication does the nurse anticipate for long-term prevention?",o:[
+ ["Propranolol",0,"A nonselective beta blocker can worsen coronary spasm by leaving alpha-mediated constriction unopposed."],
+ ["Amlodipine",1,"A calcium channel blocker relaxes coronary smooth muscle and is first-line prevention for variant (Prinzmetal's) angina."],
+ ["Furosemide",0,"A diuretic treats fluid overload, not coronary spasm."],
+ ["Warfarin",0,"There's no clot to prevent. The problem is spasm in otherwise clear arteries."]]},
+{t:"Acute coronary syndrome",
+ u:"Why do the ECG and aspirin come before oxygen in chest pain?",ua:"The ECG finds a STEMI that needs fast reperfusion, and aspirin stops the clot from growing. Oxygen helps only if SpO2 is low.",
+ a:"Chest pain comes through the door. What happens in the first 10 minutes?",aa:"12-lead ECG, aspirin to chew, IV access, troponin, nitroglycerin if BP allows, and oxygen only if SpO2 is under 90%.",
+ q:"A client arrives with suspected acute coronary syndrome. Which actions should the nurse take within the first 10 minutes? Select all that apply.",o:[
+ ["Obtain a 12-lead ECG",1,"The goal is an ECG within 10 minutes of arrival, to find a STEMI fast."],
+ ["Give sublingual nitroglycerin after confirming systolic BP above 90 and no recent PDE-5 inhibitor use",1,"Nitroglycerin relieves ischemic pain, but hypotension or a recent PDE-5 inhibitor makes it dangerous."],
+ ["Draw a troponin level",1,"A baseline troponin starts the serial trend used to diagnose MI."],
+ ["Give aspirin 162–325 mg to chew unless contraindicated",1,"Chewing speeds absorption. Aspirin blocks platelets and keeps the clot from growing."],
+ ["Apply oxygen at 4 L/min to every client regardless of SpO2",0,"Routine oxygen doesn't help clients with normal saturation. Give it when SpO2 is below 90%."],
+ ["Establish IV access",1,"IV access is needed for medications and emergency treatment."]]},
+{t:"Acute coronary syndrome",
+ u:"Why sit down before taking nitroglycerin?",ua:"Nitroglycerin widens blood vessels and can drop BP suddenly, causing dizziness or fainting.",
+ a:"What should someone know about carrying and using nitroglycerin?",aa:"Sit first; 1 tablet every 5 minutes, up to 3; call 911 if pain isn't better 5 minutes after the first; keep it in the original dark bottle; never with ED drugs.",
+ q:"The nurse teaches a client about sublingual nitroglycerin. Which client statement indicates understanding?",o:[
+ ["“I'll sit down before I take a tablet in case I get dizzy.”",1,"Sitting protects against falls from a sudden drop in BP."],
+ ["“I can take it on the same day as my sildenafil.”",0,"Nitrates with PDE-5 inhibitors can cause severe hypotension."],
+ ["“I'll keep the tablets in my weekly pill organizer.”",0,"Light, heat and moisture break nitroglycerin down. It stays in the original dark glass bottle."],
+ ["“A headache after a dose means the medicine isn't working at all.”",0,"Headache is a common side effect of vasodilation and usually means the drug is working."]]},
+{t:"Acute coronary syndrome",
+ u:"Why trust the ECG over a normal first troponin?",ua:"Troponin takes hours to rise. ST elevation shows an artery is blocked right now.",
+ a:"ST elevation but a normal troponin. Wait or act?",aa:"Act. ST elevation is a STEMI; get the client to the cath lab without waiting on troponin.",
+ q:"A client arrives in the ED with 30 minutes of crushing substernal pressure radiating to the jaw and is diaphoretic. The first troponin is normal. The 12-lead ECG shows ST elevation in leads II, III and aVF. Which action is the priority?",o:[
+ ["Arrange discharge home with an outpatient stress test",0,"This is an active STEMI. Discharge could be fatal."],
+ ["Prepare the client for emergent PCI in the cath lab",1,"ST elevation in II, III and aVF is an inferior STEMI. A normal early troponin doesn't change the need for immediate reperfusion."],
+ ["Give IV furosemide as prescribed and monitor output",0,"There are no signs of fluid overload, and a diuretic doesn't open the artery."],
+ ["Repeat the troponin in 3 hours before deciding",0,"Waiting for troponin lets heart muscle die. The ECG already makes the diagnosis."]]},
+{t:"Acute coronary syndrome",
+ u:"Why is lowering preload dangerous for a damaged right ventricle?",ua:"A damaged right ventricle depends on preload to pump. Nitrates dilate veins and drop preload, so the BP crashes.",
+ a:"Right ventricular heart attack with low BP. Which order would you question?",aa:"Nitroglycerin (and other preload reducers like morphine or diuretics). These clients need fluids.",
+ q:"A client with an inferior wall MI and right ventricular involvement has BP 84/50, clear lungs and jugular venous distention. Which prescription should the nurse question?",o:[
+ ["Nitroglycerin 0.4 mg sublingual",1,"Nitrates drop preload and can cause profound hypotension in RV infarction, especially with BP already 84/50."],
+ ["Aspirin 324 mg chewed",0,"Aspirin is indicated for any MI and doesn't lower BP."],
+ ["Normal saline 500 mL IV bolus now",0,"Fluids support RV preload. Hypotension with clear lungs and JVD calls for volume."],
+ ["Continuous cardiac monitoring",0,"Inferior MIs often cause bradycardia and heart blocks, so monitoring is essential."]]},
+{t:"Labs and diagnostics",
+ u:"Which cholesterol numbers spell trouble for the arteries?",ua:"High LDL and triglycerides with low HDL: more cholesterol is deposited in the arteries and less is carried away.",
+ a:"Four lipid panels. How do you spot the riskiest one?",aa:"Look for the highest LDL, the lowest HDL and the highest triglycerides together.",
+ q:"The nurse reviews lipid panels (mg/dL) for four clients. Which client has the highest risk for coronary artery disease?",o:[
+ ["LDL 120, HDL 55, triglycerides 140",0,"LDL is above optimal, but HDL and triglycerides are favorable."],
+ ["LDL 105, HDL 48, triglycerides 150",0,"All three values are near goal."],
+ ["LDL 190, HDL 32, triglycerides 260",1,"Very high LDL, low HDL and high triglycerides together is the most atherogenic pattern."],
+ ["LDL 95, HDL 62, triglycerides 110",0,"These are optimal values across the panel."]]},
+{t:"Cardiac medications",
+ u:"Why should muscle aches on a statin be reported?",ua:"They may be the start of muscle breakdown (rhabdomyolysis), which releases myoglobin that can damage the kidneys.",
+ a:"What should someone starting a cholesterol pill know?",aa:"Report muscle pain or dark urine, limit grapefruit, keep lab appointments, and keep up diet and exercise.",
+ q:"The nurse teaches a client who is starting atorvastatin. Which points should the nurse include? Select all that apply.",o:[
+ ["Avoid drinking large amounts of grapefruit juice",1,"Grapefruit raises atorvastatin levels and the risk of muscle toxicity."],
+ ["Report dark brown urine",1,"Tea- or cola-colored urine can mean myoglobin from rhabdomyolysis."],
+ ["Expect your cholesterol to drop after the first dose",0,"Lipids improve over weeks, and labs are usually rechecked in 4 to 12 weeks."],
+ ["You can stop your low-fat diet now that you're on medicine",0,"Statins work alongside diet and exercise, not instead of them."],
+ ["Keep appointments for lipid and liver lab tests",1,"Labs show how well the drug works and watch for liver enzyme elevation."],
+ ["Report unexplained muscle pain or weakness",1,"This can be an early sign of myopathy."]]},
+{t:"Angina",
+ u:"Why is chest pain at rest more worrying than chest pain during exercise?",ua:"Pain at rest suggests a plaque has ruptured and a clot is narrowing the artery. An MI may follow.",
+ a:"A client's usual chest pain now wakes them at night and lasts longer. What does that tell you?",aa:"The angina has become unstable. This needs emergency evaluation now.",
+ q:"A client with a history of stable angina calls the clinic. Which statement requires the most immediate follow-up?",o:[
+ ["“I sometimes get a headache after taking nitroglycerin.”",0,"Headache is an expected side effect of nitroglycerin."],
+ ["“My chest pain woke me up last night and lasted 20 minutes.”",1,"New pain at rest lasting 20 minutes is a change in pattern that signals unstable angina and needs emergency evaluation."],
+ ["“One nitroglycerin tablet relieves my pain within 5 minutes.”",0,"Quick relief from one tablet fits stable angina."],
+ ["“I get chest tightness when I climb two flights of stairs.”",0,"Predictable pain with exertion is stable angina, the client's known baseline."]]},
+{t:"Acute coronary syndrome",
+ u:"Why might someone with diabetes have a heart attack without chest pain?",ua:"Diabetic nerve damage can blunt pain signals, so the MI shows up as fatigue, nausea or shortness of breath.",
+ a:"A 72-year-old with diabetes is suddenly exhausted, nauseated and short of breath. What do you do?",aa:"Treat it as possible ACS: 12-lead ECG, troponin, and notify the provider.",
+ q:"A 72-year-old client with diabetes reports sudden fatigue, nausea, shortness of breath and pain between the shoulder blades, but no chest pain. Which actions should the nurse take? Select all that apply.",o:[
+ ["Obtain a 12-lead ECG",1,"An ECG is the first test for any suspected ACS, typical or not."],
+ ["Recognize these may be signs of acute coronary syndrome",1,"Older adults, women and people with diabetes often present with fatigue, nausea, dyspnea or back pain instead of chest pain."],
+ ["Tell the client it's probably indigestion",0,"Dismissing atypical symptoms is a common reason MIs are missed."],
+ ["Notify the provider",1,"Suspected ACS needs prompt provider evaluation."],
+ ["Draw a troponin level as prescribed",1,"Serial troponins confirm or rule out heart muscle damage."],
+ ["Have the client walk to see if the symptoms improve",0,"Exertion raises oxygen demand and could worsen ischemia."]]}
+];
+
+const N=Q.length;
+const st={i:0,stage:1,nu:Q.map(()=>""),na:Q.map(()=>""),picks:Q.map(()=>new Set()),done:Q.map(()=>null)};
+const card=document.getElementById('card'),rail=document.getElementById('rail'),score=document.getElementById('score');
+const L="ABCDEF";
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const isSata=q=>q.o.filter(o=>o[1]).length>1;
+
+Q.forEach((q,n)=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',`Set ${n+1}`);b.onclick=()=>go(n);rail.appendChild(b)});
+
+function paintTop(){
+  [...rail.children].forEach((b,n)=>{b.className=(st.done[n]===true?'done-ok':st.done[n]===false?'done-bad':'')+(n===st.i&&st.stage?' cur':'')});
+  const a=st.done.filter(d=>d!==null).length,c=st.done.filter(d=>d===true).length;
+  score.textContent=`${c} correct · ${a} of ${N} answered`;
+}
+function go(n){st.i=n;st.stage=st.done[n]===null?1:3;render();window.scrollTo({top:0})}
+
+function head(){
+  const q=Q[st.i];
+  return `<div class="meta"><span class="chip">${q.t}</span><span class="chip plain">Set ${st.i+1} of ${N}</span>
+    <div class="steps"><span class="${st.stage===1?'on':''}">1 Why</span><span>·</span><span class="${st.stage===2?'on':''}">2 Apply</span><span>·</span><span class="${st.stage===3?'on':''}">3 NCLEX</span></div></div>`;
+}
+
+function openStage(kind){
+  const q=Q[st.i],isU=kind==='u';
+  const key=isU?'nu':'na';
+  card.innerHTML=`${head()}
+    <span class="chip ${isU?'core':'apply'}" style="align-self:flex-start">${isU?'Core question: why':'Core question: apply it'}</span>
+    ${!isU?`<div class="recall"><b>Why:</b> ${q.u}<span><b>Answer:</b> ${q.ua}</span></div>`:''}
+    <p class="coreq">${isU?q.u:q.a}</p>
+    <p class="hint">${isU?'Explain it in your own words first.':'Now use that idea on a client. What would you do or look for?'}</p>
+    <label class="notes" for="note">Your answer<textarea id="note" placeholder="Type your answer here...">${esc(st[key][st.i])}</textarea></label>
+    <div class="reveal" id="rev"></div>
+    <div class="actions"><button class="btn ghost" id="prev" type="button" ${isU&&st.i===0?'disabled':''}>${isU?'Previous set':'Back'}</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${isU?'<button class="btn soft" id="show" type="button">Check the answer</button>':''}
+        <button class="btn" id="next" type="button">${isU?'Next: apply it':'Show the NCLEX question'}</button></div></div>`;
+  const t=document.getElementById('note');t.oninput=()=>st[key][st.i]=t.value;
+  if(isU)document.getElementById('show').onclick=()=>{document.getElementById('rev').innerHTML=`<div class="recall"><b>Answer:</b> ${q.ua}</div>`};
+  document.getElementById('prev').onclick=()=>{
+    if(!isU){st.stage=1;return render()}
+    st.i--;st.stage=st.done[st.i]===null?1:3;render()};
+  document.getElementById('next').onclick=()=>{st.stage=isU?2:3;render();window.scrollTo({top:0})};
+}
+
+function render(){
+  paintTop();
+  if(st.stage===0)return results();
+  if(st.stage===1)return openStage('u');
+  if(st.stage===2)return openStage('a');
+  const q=Q[st.i],sata=isSata(q),done=st.done[st.i]!==null,picks=st.picks[st.i];
+  const myA=st.na[st.i].trim(),myU=st.nu[st.i].trim();
+  const opts=q.o.map((o,k)=>{
+    const sel=picks.has(k),cls=['opt',sel?'sel':'',done?'locked':'',done?(o[1]?'is-ok':'is-bad'):''].join(' ');
+    const why=done?`<div class="why"><span class="tag">${o[1]?'Correct':'Incorrect'}</span>${o[2]}</div>`:'';
+    const missed=done&&o[1]&&!sel?'<span class="miss">Missed</span>':'';
+    return `<li class="${cls}"><label class="${sata?'check':'radio'}"><input type="${sata?'checkbox':'radio'}" name="o" value="${k}" ${sel?'checked':''} ${done?'disabled':''}>
+      <span class="mark">${L[k]}</span><span>${o[0]}${missed}${why}</span></label></li>`}).join('');
+  let after='';
+  if(done){const ok=st.done[st.i];
+    after=`<div class="verdict ${ok?'ok':'bad'}"><strong>${ok?'Correct':'Not quite'}</strong>
+      <span>Answer: ${q.o.map((o,k)=>o[1]?L[k]:null).filter(Boolean).join(', ')}. ${sata&&!ok?'Select-all items need every correct choice and no incorrect ones.':''}</span></div>
+      <div class="recall"><b>Why:</b> ${q.u}<span><b>Answer:</b> ${q.ua}</span>${myU?`<span><b>You wrote:</b> ${esc(myU)}</span>`:''}</div>
+      <div class="recall ap"><b>Apply:</b> ${q.a}<span><b>Answer:</b> ${q.aa}</span>${myA?`<span><b>You wrote:</b> ${esc(myA)}</span>`:''}</div>`}
+  card.innerHTML=`${head()}
+    ${!done&&myA?`<div class="recall ap"><b>Your apply answer:</b> ${esc(myA)}</div>`:''}
+    <span class="chip" style="align-self:flex-start">NCLEX-RN question</span>
+    <p class="stem" tabindex="-1">${q.q}</p>
+    ${sata?'<span class="sata">Select all that apply</span>':''}
+    <ul class="opts">${opts}</ul>
+    ${after}
+    <div class="actions"><button class="btn ghost" id="back" type="button">${done?'Previous set':'Back to apply question'}</button>
+    ${done?`<button class="btn" id="nxt" type="button">${st.done.every(d=>d!==null)?'See results':'Next set'}</button>`
+          :`<button class="btn" id="chk" type="button" ${picks.size?'':'disabled'}>Check answer</button>`}</div>`;
+  if(!done){
+    card.querySelectorAll('input').forEach(inp=>inp.onchange=()=>{const k=+inp.value;
+      if(sata){inp.checked?picks.add(k):picks.delete(k)}else{picks.clear();picks.add(k)}
+      card.querySelectorAll('.opt').forEach((li,j)=>li.classList.toggle('sel',picks.has(j)));
+      document.getElementById('chk').disabled=!picks.size});
+    document.getElementById('chk').onclick=()=>{st.done[st.i]=q.o.every((o,k)=>!!o[1]===picks.has(k));render()};
+    document.getElementById('back').onclick=()=>{st.stage=2;render()};
+  }else{
+    document.getElementById('back').onclick=()=>{if(st.i>0){st.i--;st.stage=st.done[st.i]===null?1:3}else{st.stage=1}render()};
+    document.getElementById('nxt').onclick=()=>{
+      if(st.done.every(d=>d!==null)){st.stage=0;return render()}
+      let n=st.i+1;while(n<N&&st.done[n]!==null)n++;
+      if(n>=N)n=st.done.findIndex(d=>d===null);
+      st.i=n;st.stage=1;render();window.scrollTo({top:0})};
+  }
+}
+
+function results(){
+  const c=st.done.filter(Boolean).length;
+  card.innerHTML=`<div class="results" style="display:flex;flex-direction:column;gap:16px">
+    <span class="chip core" style="align-self:flex-start">Results</span>
+    <h2>${c} of ${N} correct</h2>
+    <p class="hint">Select any set to review its core answers and rationales.</p>
+    <ul class="rlist">${Q.map((q,n)=>`<li><span class="n">${String(n+1).padStart(2,'0')}</span>
+      <span><button type="button" data-n="${n}">${q.u}</button></span>
+      <span class="r ${st.done[n]?'ok':'bad'}">${st.done[n]?'Correct':'Missed'}</span></li>`).join('')}</ul>
+    <div class="actions"><span></span><button class="btn" id="again" type="button">Start over</button></div></div>`;
+  card.querySelectorAll('.rlist button').forEach(b=>b.onclick=()=>{st.i=+b.dataset.n;st.stage=3;render()});
+  document.getElementById('again').onclick=resetAll;
+}
+function resetAll(){st.i=0;st.stage=1;st.nu=Q.map(()=>"");st.na=Q.map(()=>"");st.picks=Q.map(()=>new Set());st.done=Q.map(()=>null);render();window.scrollTo({top:0})}
+/* Two-step reset: first click arms the button, second click within 4 s clears everything */
+const rb=document.getElementById('reset');let armT=null;
+function disarm(){rb.classList.remove('arm');rb.textContent='Reset all answers';clearTimeout(armT);armT=null}
+rb.onclick=()=>{if(!armT){rb.classList.add('arm');rb.textContent='Click again to erase everything';armT=setTimeout(disarm,4000);return}
+  disarm();resetAll()};
+render();
+</script>
+</body></html>

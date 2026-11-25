@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab Values to Memorize</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;800&family=Red+Hat+Text:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday learning: clear, calm, clinical
+   IDEA a phlebotomy tube rack: each panel is a tube you pick up, fill, and read like a lab report
+   PICTURE the rack of six tubes (cap colours = real collection tubes) whose fill shows progress
+   COLOUR blood crimson band, white ground, cap colours as per-module accents
+   TYPE Red Hat Display + Red Hat Text
+   LAYOUT title + rack in the crimson band; module report below; final test as its own view */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#140a0c);--ink:light-dark(#1a1216,#f5eef0);--soft:light-dark(#5e5258,#c4b5ba);--line:light-dark(#e6dde0,#3a2a2f);--panel:light-dark(#fbf7f8,#1e1215);--band:light-dark(#8e1b2c,#4e0f19);--bandink:#fff;--ok:light-dark(#137a4a,#5fd49a);--bad:light-dark(#b3261e,#ff8a80);--acc:#8e1b2c}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Red Hat Text",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Red Hat Display",system-ui,sans-serif;line-height:1.05;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1{font-size:clamp(32px,5vw,50px);font-weight:800}
+h2{font-size:clamp(26px,3.4vw,36px);font-weight:800}
+h3{font-size:20px;font-weight:700}
+.band{padding-block:clamp(24px,4vw,52px);padding-inline:max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto}
+header{background:var(--band);color:var(--bandink)}
+header p{margin:10px 0 0;max-width:62ch;opacity:.9}
+.rack{margin-top:28px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:end;position:relative;padding-bottom:16px}
+.rack::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;border-radius:6px;background:rgba(0,0,0,.28)}
+.tube{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px 0;border-radius:12px;text-align:center;color:#fff;transition:transform .2s}
+.tube:hover{transform:translateY(-4px)}
+.tube:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.tube[aria-current=true]{background:rgba(255,255,255,.14)}
+.tube svg{width:46px;height:120px;overflow:visible}
+.tube b{font:700 14px/1.2 "Red Hat Display",sans-serif}
+.tube small{font-size:13px;opacity:.85;line-height:1.2}
+main{min-height:50vh}
+.mhead{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between;border-bottom:3px solid var(--acc);padding-bottom:14px}
+.mhead p{margin:6px 0 0;color:var(--soft)}
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--soft)}
+.tag i{width:16px;height:16px;border-radius:4px;background:var(--acc);display:inline-block}
+.labs{display:grid;gap:18px;margin-top:22px}
+.lab{border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--panel)}
+.lab-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 18px;align-items:baseline}
+.range{font:700 18px/1.3 "Red Hat Display",sans-serif;font-variant-numeric:tabular-nums}
+.range span{display:block;font-size:14px;font-weight:500;color:var(--soft);text-align:right}
+.what{margin:8px 0 14px}
+.strip{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.strip>div{padding:12px 14px;font-size:15px}
+.lo{background:light-dark(#eef4fc,#132033)}
+.hi{background:light-dark(#fdf0ee,#33171a)}
+.mid{background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;padding-inline:16px!important;writing-mode:vertical-rl;transform:rotate(180deg)}
+.strip strong{display:block;font-family:"Red Hat Display",sans-serif;margin-bottom:2px}
+.tip{margin:12px 0 0;font-size:15px;color:var(--soft)}
+.tip b{color:var(--ink)}
+.qbox{margin-top:30px;border:2px solid var(--acc);border-radius:16px;padding:20px;background:var(--bg)}
+.qbox h3{margin-bottom:4px}
+.qmeta{color:var(--soft);font-size:14px;margin:0 0 12px}
+.qtext{font:700 19px/1.35 "Red Hat Display",sans-serif;margin:6px 0 14px}
+.opts{display:grid;gap:10px}
+.opt{all:unset;box-sizing:border-box;cursor:pointer;min-height:48px;padding:12px 16px;border:1.5px solid var(--line);border-radius:10px;background:var(--panel);font-size:16px;display:flex;align-items:center;gap:12px}
+.opt:hover:not([disabled]){border-color:var(--acc)}
+.opt:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:14px}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--panel))}
+.opt[disabled]{cursor:default}
+.fb{margin:14px 0 0;padding:12px 14px;border-radius:10px;background:var(--panel);font-size:15px}
+.fb b.g{color:var(--ok)}.fb b.r{color:var(--bad)}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;min-height:46px;padding:11px 20px;border-radius:10px;background:var(--acc);color:#fff;font:700 16px "Red Hat Display",sans-serif}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:6px}
+.bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.score{font:800 clamp(48px,9vw,80px)/1 "Red Hat Display",sans-serif;color:var(--acc)}
+.review{display:grid;gap:10px;margin-top:16px;padding:0;list-style:none}
+.review li{padding:12px 14px;border-radius:10px;background:var(--panel);border-left:4px solid var(--bad);font-size:15px}
+.intro{display:grid;grid-template-columns:repeat(auto-fit,minmax(15em,1fr));gap:16px;margin-top:20px}
+.intro div{padding:16px 18px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.note{font-size:14px;color:var(--soft);margin-top:18px}
+@media(max-width:760px){.rack{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:18px}.rack::after{display:none}}
+@media(max-width:600px){.strip{grid-template-columns:1fr}.mid{writing-mode:horizontal-tb;transform:none;padding:8px!important}.range span{text-align:left}.tube svg{width:38px;height:96px}}
+@media(prefers-reduced-motion:reduce){.tube,.bar i{transition:none}.tube:hover{transform:none}}
+
+.vals{display:grid;gap:8px;margin:10px 0 6px}
+.vr{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;padding:10px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.vr span{color:var(--soft);font-size:15px}
+.val{font:800 clamp(22px,3vw,28px)/1.15 "Red Hat Display",sans-serif;font-variant-numeric:tabular-nums;color:var(--acc);border-radius:6px;padding:0 6px;white-space:nowrap}
+.covered .val:not(.shown){color:transparent;background:repeating-linear-gradient(-45deg,var(--line) 0 8px,color-mix(in srgb,var(--line) 55%,var(--bg)) 8px 16px);cursor:pointer;min-width:7em}
+.hook{margin:8px 0 0;font-size:15px}
+.hook b{color:var(--acc)}
+details{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:700;color:var(--soft);min-height:32px}
+summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ty{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:17px;margin-bottom:6px}
+.ty input{font:600 18px "Red Hat Text",sans-serif;width:7.5em;min-height:48px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink)}
+.ty input:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.ty input.right{border-color:var(--ok)}.ty input.wrong{border-color:var(--bad)}
+.lab-top h3{margin-bottom:2px}
+</style>
+</head>
+<body>
+<header class="band"><div class="wrap">
+<h1>Lab Values to Memorize</h1>
+<p>Pick a tube to study each panel's normal ranges. Hide the numbers to quiz yourself, then finish the practice round to fill the tube. When the rack is full, take the final test.</p>
+<nav class="rack" id="rack" aria-label="Lab panels"></nav>
+</div></header>
+<main class="band"><div class="wrap" id="view"></div></main>
+<script>
+{
+const P=[
+{id:"abg",name:"ABG",full:"Arterial blood gas",cap:"#d6324a",liq:"#b0152b",acc:"#b0152b",tube:"Arterial (heparinized) syringe"},
+{id:"cmp",name:"CMP",full:"Comprehensive metabolic panel",cap:"#e3a82b",liq:"#c9a646",acc:"#a4720f",tube:"Gold or light-green top"},
+{id:"lipid",name:"Lipid",full:"Lipid panel",cap:"#5fb877",liq:"#c9a646",acc:"#2f7d46",tube:"Gold or light-green top"},
+{id:"coag",name:"Coag",full:"Coagulation studies",cap:"#5fb6e0",liq:"#b0152b",acc:"#1f7aa8",tube:"Light-blue top (fill completely)"},
+{id:"cbc",name:"CBC",full:"Complete blood count",cap:"#9a80d6",liq:"#b0152b",acc:"#6a4fb3",tube:"Lavender top"},
+{id:"ua",name:"UA",full:"Urinalysis",cap:"#f4f1ea",liq:"#e7b923",acc:"#a77d00",tube:"Clean-catch urine cup"}];
+/* Cards: memory hook (h) shown; nice-to-know (w, hi, lo, t) folded */
+const L=[
+{p:"abg",id:"ph",n:"pH",h:"Picture <b>7.40</b> in the middle, with 0.05 on either side.",w:"Overall acid–base balance of the blood.",hi:"Alkalosis: too little acid or too much base.",lo:"Acidosis: too much acid or too little base.",t:"Read pH first, then PaCO₂ and HCO₃⁻ to find the cause."},
+{p:"abg",id:"pco2",n:"PaCO₂",h:"Same digits as pH: pH 7.<b>35</b>–7.<b>45</b>, PaCO₂ <b>35</b>–<b>45</b>.",w:"Carbon dioxide, the respiratory acid controlled by the lungs.",hi:"Respiratory acidosis: hypoventilation (COPD, oversedation).",lo:"Respiratory alkalosis: hyperventilation (anxiety, pain).",t:"Moves opposite to pH when the cause is respiratory."},
+{p:"abg",id:"pao2",n:"PaO₂",h:"Like a test score: <b>80 to 100</b> passes.",w:"Oxygen dissolved in arterial blood.",hi:"Usually from too much supplemental oxygen.",lo:"Hypoxemia: poor gas exchange (pneumonia, PE, ARDS).",t:"PaO₂ is about oxygenation, not acid–base."},
+{p:"abg",id:"sao2",n:"SaO₂",h:"<b>95 to 100%</b>. Anything under 95 gets your attention.",w:"Percent of hemoglobin carrying oxygen.",hi:"Can’t go above 100%.",lo:"Hypoxemia: raise the head of the bed, give O₂ as ordered.",t:"Pulse oximetry (SpO₂) estimates it at the bedside."},
+{p:"abg",id:"hco3",n:"HCO₃⁻ (bicarbonate)",h:"<b>21–28</b>, like 21–28 days: three to four weeks.",w:"Bicarbonate, the base controlled by the kidneys.",hi:"Metabolic alkalosis: vomiting, NG suction, antacids.",lo:"Metabolic acidosis: DKA, diarrhea, kidney failure.",t:"Moves the same direction as pH when the cause is metabolic."},
+{p:"cmp",id:"na",n:"Sodium (Na⁺)",h:"Think <b>140</b> in the middle: 136 to 145.",w:"Main electrolyte outside cells; controls fluid balance.",hi:"Hypernatremia: dehydration, thirst, confusion.",lo:"Hyponatremia: fluid excess or SIADH, confusion, seizures.",t:"Where sodium goes, water follows."},
+{p:"cmp",id:"k",n:"Potassium (K⁺)",h:"<b>3.5 to 5.0</b>. A narrow range, because both ends affect the heart.",w:"Main electrolyte inside cells; heart and muscle function.",hi:"Hyperkalemia: peaked T waves, dysrhythmias.",lo:"Hypokalemia: muscle weakness, dysrhythmias.",t:"Never give IV potassium by push."},
+{p:"cmp",id:"ca",n:"Calcium (Ca²⁺)",h:"Starts at <b>9</b> and goes just past 10: 9.0 to 10.5.",w:"Bones, muscle contraction, nerve signals, and clotting.",hi:"Hypercalcemia: weakness, decreased reflexes, kidney stones.",lo:"Hypocalcemia: tetany, Chvostek’s and Trousseau’s signs.",t:"Low calcium makes nerves twitchy."},
+{p:"cmp",id:"bun",n:"Blood urea nitrogen (BUN)",h:"<b>10–20</b>. A normal BUN-to-creatinine ratio is also about 10–20 to 1.",w:"Waste from protein breakdown, cleared by the kidneys.",hi:"Kidney dysfunction, dehydration, GI bleeding.",lo:"Liver disease, malnutrition, overhydration.",t:"BUN goes up with dehydration even when the kidneys are fine."},
+{p:"cmp",id:"glu",n:"Glucose",h:"<b>70 to 110</b>. Under 70 is hypoglycemia.",w:"Amount of sugar in the blood at the time of the draw.",hi:"Hyperglycemia: diabetes, stress, steroids.",lo:"Hypoglycemia: shaky, sweaty, confused. Treat right away.",t:"HbA1c shows the long-term picture."},
+{p:"cmp",id:"cr",n:"Serum creatinine",h:"About <b>1</b>: 0.6 to 1.2.",w:"Muscle waste product; the best single sign of kidney function.",hi:"Kidney damage or failure.",lo:"Low muscle mass. Rarely a concern.",t:"Check it before contrast dye and metformin."},
+{p:"cmp",id:"gfr",n:"GFR / eGFR",h:"Both are “greater than” values: GFR over <b>60</b>, eGFR over <b>90</b>.",w:"How much blood the kidneys filter each minute.",hi:"Above normal is not usually a concern.",lo:"Reduced kidney function (CKD). Drug doses may need adjusting.",t:"As creatinine goes up, GFR goes down."},
+{p:"cmp",id:"a1c",n:"Hemoglobin A1C (HbA1c)",h:"<b>4 to 6%</b>. Above 6 means glucose has been running high.",w:"Average blood sugar over the past 2–3 months.",hi:"Poor glucose control over time.",lo:"Rarely a concern.",t:"Reflects the roughly 3-month life of a red blood cell."},
+{p:"lipid",id:"chol",n:"Total cholesterol",h:"Keep it <b>under 200</b>.",w:"Fats in the blood linked to heart disease.",hi:"Higher risk of atherosclerosis, MI, and stroke.",lo:"Low is generally desirable.",t:"Diet, exercise, and statins as ordered."},
+{p:"coag",id:"pt",n:"Prothrombin time (PT)",h:"Normal is <b>11–12.5</b> sec. On warfarin, the goal is up to <b>2×</b> control.",w:"Clotting time through the extrinsic pathway; monitors warfarin.",hi:"Prolonged: bleeding risk.",lo:"Shortened: clot risk.",t:"Warfarin antidote: vitamin K."},
+{p:"coag",id:"inr",n:"International normalized ratio (INR)",h:"Normal is about <b>1</b>. On warfarin, aim for <b>2 to 3</b>.",w:"Standardized PT result used to dose warfarin.",hi:"Above goal: bleeding risk.",lo:"Below goal on warfarin: clot risk.",t:"Hold warfarin and notify the provider if INR is above goal."},
+{p:"coag",id:"ptt",n:"Partial thromboplastin time (PTT)",h:"PTT (<b>60–70</b>) is double the aPTT (30–40).",w:"Clotting time through the intrinsic pathway; monitors heparin.",hi:"Prolonged: bleeding risk.",lo:"Shortened: clot risk.",t:"Heparin antidote: protamine sulfate."},
+{p:"coag",id:"aptt",n:"Activated PTT (aPTT)",h:"aPTT (<b>30–40</b>) is half the PTT. On heparin, the goal is up to <b>2.5×</b> control.",w:"Faster, more precise PTT; monitors heparin drips.",hi:"Prolonged: bleeding risk.",lo:"Shortened: clot risk.",t:"The activator is why its range is shorter than the PTT’s."},
+{p:"cbc",id:"wbc",n:"White blood cells (WBC)",h:"<b>5 to 10 thousand</b>.",w:"White cells that fight infection.",hi:"Infection, inflammation, steroids, leukemia.",lo:"High infection risk; neutropenic precautions.",t:"In chemotherapy patients, even a low-grade fever matters."},
+{p:"cbc",id:"rbc",n:"Red blood cells (RBC)",h:"Men run higher: <b>4.7–6.1</b> vs. <b>4.2–5.4</b> million.",w:"Red cells that carry oxygen.",hi:"Polycythemia, dehydration, chronic hypoxia.",lo:"Anemia or blood loss.",t:"RBC, Hgb, and Hct usually move together."},
+{p:"cbc",id:"hgb",n:"Hemoglobin (Hgb)",h:"Women <b>12–16</b>, men <b>14–18</b>: men run 2 higher.",w:"Oxygen-carrying protein inside red cells.",hi:"Dehydration, polycythemia.",lo:"Anemia or bleeding: fatigue, pallor, tachycardia.",t:"Often used to decide whether a patient needs a transfusion."},
+{p:"cbc",id:"hct",n:"Hematocrit (Hct)",h:"About <b>3 × Hgb</b>: women 37–47%, men 42–52%.",w:"Percent of blood volume made up of red cells.",hi:"Dehydration (hemoconcentration).",lo:"Anemia, bleeding, fluid overload.",t:"Changes with fluid status."},
+{p:"cbc",id:"plt",n:"Platelets",h:"<b>150 to 400 thousand</b>.",w:"Cell fragments that help blood clot.",hi:"Increased clotting risk.",lo:"Bleeding risk: bleeding precautions, no IM injections.",t:"Watch for HIT after starting heparin."},
+{p:"ua",id:"usg",n:"Urine specific gravity",h:"Always <b>1.0-something</b>: 1.005 to 1.030.",w:"How concentrated the urine is.",hi:"Concentrated urine: dehydration, SIADH.",lo:"Dilute urine: overhydration, diabetes insipidus.",t:"Dark, low-volume urine with a high specific gravity points to dehydration."}];
+/* Values to memorize. k: r=range, lt=less than, gt=greater than, x=times control (no classify) */
+const V=[
+{c:"ph",n:"pH",lab:"Normal",k:"r",lo:7.35,hi:7.45,dp:2,u:"",d:[[7.25,7.35],[7.45,7.55],[7.30,7.40]]},
+{c:"pco2",n:"PaCO₂",lab:"Normal",k:"r",lo:35,hi:45,dp:0,u:" mmHg",d:[[21,28],[40,50],[30,40]]},
+{c:"pao2",n:"PaO₂",lab:"Normal",k:"r",lo:80,hi:100,dp:0,u:" mmHg",d:[[60,80],[90,110],[70,90]]},
+{c:"sao2",n:"SaO₂",lab:"Normal",k:"r",lo:95,hi:100,dp:0,u:"%",nohigh:1,d:[[90,95],[85,100],[92,98]]},
+{c:"hco3",n:"HCO₃⁻",lab:"Normal",k:"r",lo:21,hi:28,dp:0,u:" mmol/L",d:[[35,45],[18,24],[24,32]]},
+{c:"na",n:"Sodium (Na⁺)",lab:"Normal",k:"r",lo:136,hi:145,dp:0,u:" mEq/L",d:[[135,150],[130,140],[140,155]]},
+{c:"k",n:"Potassium (K⁺)",lab:"Normal",k:"r",lo:3.5,hi:5.0,dp:1,u:" mEq/L",d:[[3.0,4.5],[4.0,5.5],[2.5,4.0]]},
+{c:"ca",n:"Calcium (Ca²⁺)",lab:"Normal",k:"r",lo:9.0,hi:10.5,dp:1,u:" mg/dL",d:[[8.0,9.5],[10.5,12.0],[7.5,9.0]]},
+{c:"bun",n:"BUN",lab:"Normal",k:"r",lo:10,hi:20,dp:0,u:" mg/dL",d:[[0.6,1.2],[20,30],[5,15]]},
+{c:"glu",n:"Glucose",lab:"Normal",k:"r",lo:70,hi:110,dp:0,u:" mg/dL",d:[[60,100],[80,120],[90,130]]},
+{c:"cr",n:"Serum creatinine",lab:"Normal",k:"r",lo:0.6,hi:1.2,dp:1,u:" mg/dL",d:[[10,20],[1.2,2.0],[0.2,0.6]]},
+{c:"gfr",n:"GFR",lab:"GFR",k:"gt",lo:60,dp:0,u:" mL/min/1.73 m²",d:[90,30,120]},
+{c:"gfr",n:"eGFR",lab:"eGFR",k:"gt",lo:90,dp:0,u:" mL/min/1.73 m²",d:[60,45,120]},
+{c:"a1c",n:"HbA1c",lab:"Normal",k:"r",lo:4.0,hi:6.0,dp:1,u:"%",d:[[6.0,7.0],[3.0,5.0],[5.0,8.0]]},
+{c:"chol",n:"Total cholesterol",lab:"Normal",k:"lt",hi:200,dp:0,u:" mg/dL",d:[150,250,300]},
+{c:"pt",n:"PT",lab:"Normal",k:"r",lo:11,hi:12.5,dp:1,u:" sec",d:[[30,40],[60,70],[8,10]]},
+{c:"pt",n:"PT on therapy (warfarin)",lab:"On therapy",k:"x",lo:1.5,hi:2.0,dp:1,u:" × control",d:[[1.5,2.5],[2.0,3.0],[1.0,1.5]]},
+{c:"inr",n:"INR",lab:"Normal",k:"r",lo:0.8,hi:1.1,dp:1,u:"",d:[[2.0,3.0],[1.5,2.0],[0.5,0.8]]},
+{c:"inr",n:"INR on therapy (warfarin)",lab:"On therapy",k:"r",tx:1,lo:2.0,hi:3.0,dp:1,u:"",d:[[0.8,1.1],[1.5,2.0],[3.0,4.0]]},
+{c:"ptt",n:"PTT",lab:"Normal",k:"r",lo:60,hi:70,dp:0,u:" sec",d:[[30,40],[11,12.5],[45,55]]},
+{c:"ptt",n:"PTT on therapy (heparin)",lab:"On therapy",k:"x",lo:1.5,hi:2.5,dp:1,u:" × control",d:[[1.5,2.0],[2.0,3.0],[2.5,3.5]]},
+{c:"aptt",n:"aPTT",lab:"Normal",k:"r",lo:30,hi:40,dp:0,u:" sec",d:[[60,70],[11,12.5],[20,30]]},
+{c:"aptt",n:"aPTT on therapy (heparin)",lab:"On therapy",k:"x",lo:1.5,hi:2.5,dp:1,u:" × control",d:[[1.5,2.0],[2.0,3.0],[2.5,3.5]]},
+{c:"wbc",n:"WBC",lab:"Normal",k:"r",lo:5000,hi:10000,dp:0,rd:100,u:"/mm³",d:[[4000,8000],[10000,15000],[3000,6000]]},
+{c:"rbc",n:"RBC (male)",lab:"Male",k:"r",lo:4.7,hi:6.1,dp:1,u:" million/mcL",d:[[4.2,5.4],[3.5,5.0],[5.0,7.0]]},
+{c:"rbc",n:"RBC (female)",lab:"Female",k:"r",lo:4.2,hi:5.4,dp:1,u:" million/mcL",d:[[4.7,6.1],[3.5,4.5],[5.0,6.5]]},
+{c:"hgb",n:"Hemoglobin (women)",lab:"Women",k:"r",lo:12,hi:16,dp:1,u:" g/dL",d:[[14,18],[10,14],[37,47]]},
+{c:"hgb",n:"Hemoglobin (men)",lab:"Men",k:"r",lo:14,hi:18,dp:1,u:" g/dL",d:[[12,16],[16,20],[42,52]]},
+{c:"hct",n:"Hematocrit (women)",lab:"Women",k:"r",lo:37,hi:47,dp:0,u:"%",d:[[42,52],[12,16],[32,42]]},
+{c:"hct",n:"Hematocrit (men)",lab:"Men",k:"r",lo:42,hi:52,dp:0,u:"%",d:[[37,47],[47,57],[14,18]]},
+{c:"plt",n:"Platelets",lab:"Normal",k:"r",lo:150000,hi:400000,dp:0,rd:1000,u:"/mm³",d:[[50000,150000],[100000,300000],[200000,500000]]},
+{c:"usg",n:"Urine specific gravity",lab:"Normal",k:"r",lo:1.005,hi:1.030,dp:3,min:1.001,u:"",d:[[1.000,1.010],[1.010,1.040],[1.030,1.050]]}];
+V.forEach((v,i)=>{v.i=i;v.p=L.find(l=>l.id===v.c).p});
+const decs=n=>{const s=String(n);return s.includes(".")?s.split(".")[1].length:0};
+const f=(n,dp)=>n.toLocaleString("en-US",{minimumFractionDigits:Math.max(dp,decs(n)),maximumFractionDigits:Math.max(dp,decs(n))});
+const rs=(v,a)=>v.k==="lt"?`Less than ${f(a,v.dp)}${v.u}`:v.k==="gt"?`Greater than ${f(a,v.dp)}${v.u}`:`${f(a[0],v.dp)} – ${f(a[1],v.dp)}${v.u}`;
+const txt=v=>rs(v,v.k==="lt"?v.hi:v.k==="gt"?v.lo:[v.lo,v.hi]);
+const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const U=(a,b)=>a+Math.random()*(b-a);
+let done={};try{done=JSON.parse(localStorage.getItem("labdone2")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("labdone2",JSON.stringify(done))}catch(e){}};
+const rack=document.getElementById("rack"),view=document.getElementById("view");
+let cur=null,cover=false;
+/* ---------- question builders ---------- */
+function rangeQ(v){const c=txt(v),o=sh([c,...v.d.map(d=>rs(v,d))]);
+ return{q:`What is the ${v.tx||v.k==="x"?"therapeutic":"normal"} range for ${v.n}?`,o,a:o.indexOf(c),why:`${v.n}: ${c}.`}}
+const canClass=v=>v.k!=="x";
+function classQ(v){
+ const cats=v.k==="lt"?["normal","high"]:v.k==="gt"?["low","normal"]:v.nohigh?["low","normal"]:["low","normal","high"];
+ const cat=cats[Math.floor(Math.random()*cats.length)];
+ const span=v.k==="r"?v.hi-v.lo:v.k==="lt"?v.hi*.4:v.lo*.5;
+ const rnd=x=>v.rd?Math.round(x/v.rd)*v.rd:+x.toFixed(v.dp);
+ let x=null;
+ for(let t=0;t<80&&x===null;t++){let y;
+  if(cat==="normal")y=v.k==="r"?v.lo+span*U(.1,.9):v.k==="lt"?v.hi-span*U(.05,1):v.lo+span*U(.05,1);
+  else if(cat==="low")y=v.min?v.min+(v.lo-v.min)*U(0,.9):v.k==="gt"?v.lo-span*U(.1,.9):v.lo-span*U(.15,.8);
+  else y=v.hi+span*U(.15,.8);
+  y=rnd(y);
+  const ok=cat==="normal"?(v.k==="r"?y>v.lo&&y<v.hi:v.k==="lt"?y<v.hi:y>v.lo):cat==="low"?y<v.lo&&y>=(v.min||0)&&y>0:y>v.hi;
+  if(ok)x=y}
+ const lbl=v.tx?{low:"Below goal",normal:"Therapeutic",high:"Above goal"}:{low:"Low",normal:"Normal",high:"High"};
+ const o=cats.map(c=>lbl[c]),val=f(x,v.dp)+v.u;
+ return{q:v.tx?`A patient on warfarin has an INR of ${val}. This result is:`:`${v.n}: ${val}. This result is:`,o,a:cats.indexOf(cat),why:`${v.tx?"Therapeutic range":"Normal range"} for ${v.n}: ${txt(v)}.`}}
+function typeQ(v){return{type:1,v,q:`Type the ${v.tx||v.k==="x"?"therapeutic":"normal"} range for ${v.n}.`,why:`${v.n}: ${txt(v)}.`}}
+function anyQ(v,pref){const t=pref||sh(["r","r","c","t"])[0];return t==="c"&&canClass(v)?classQ(v):t==="t"?typeQ(v):rangeQ(v)}
+const num=s=>parseFloat(String(s).replace(/[,%\s]/g,""));
+/* ---------- quiz engine ---------- */
+function quiz(box,qs,title,onEnd){
+ let i=0,score=0;const miss=[];
+ const finish=(ok,yours)=>{if(ok)score++;else miss.push({Q:qs[i],yours});
+  const Q=qs[i];box.querySelector("#fbx").innerHTML=`<p class="fb"><b class="${ok?"g":"r"}">${ok?"Correct.":"Not quite."}</b> ${Q.why}</p><div class="row"><button class="btn" id="nx">${i+1<qs.length?"Next question":"See results"}</button></div>`;
+  const nx=box.querySelector("#nx");nx.focus();nx.onclick=()=>{i++;i<qs.length?show():onEnd(score,miss)}};
+ const show=()=>{const Q=qs[i];
+  let inner;
+  if(Q.type){const v=Q.v;
+   const ins=v.k==="lt"?`Less than <input id="a1" inputmode="decimal" autocomplete="off" aria-label="Upper limit">${v.u}`:v.k==="gt"?`Greater than <input id="a1" inputmode="decimal" autocomplete="off" aria-label="Lower limit">${v.u}`:`<input id="a1" inputmode="decimal" autocomplete="off" aria-label="Low end"> – <input id="a2" inputmode="decimal" autocomplete="off" aria-label="High end">${v.u}`;
+   inner=`<form id="tf"><div class="ty">${ins}</div><div class="row"><button class="btn" type="submit">Check</button></div></form>`}
+  else inner=`<div class="opts">${Q.o.map((t,k)=>`<button class="opt" data-k="${k}"><span class="k">${"ABCD"[k]}</span><span>${t}</span></button>`).join("")}</div>`;
+  box.innerHTML=`<div class="bar"><i style="width:${i/qs.length*100}%"></i></div><p class="qmeta">${title} · Question ${i+1} of ${qs.length}</p><p class="qtext">${Q.q}</p>${inner}<div id="fbx"></div>`;
+  if(Q.type){const v=Q.v,a1=box.querySelector("#a1"),a2=box.querySelector("#a2");a1.focus();
+   box.querySelector("#tf").onsubmit=e=>{e.preventDefault();
+    const want=v.k==="lt"?[v.hi]:v.k==="gt"?[v.lo]:[v.lo,v.hi],got=[a1,a2].filter(Boolean);
+    if(got.some(g=>g.value.trim()===""))return;
+    let all=true;got.forEach((g,j)=>{const ok=Math.abs(num(g.value)-want[j])<1e-9;g.classList.add(ok?"right":"wrong");g.disabled=true;if(!ok)all=false});
+    box.querySelector("#tf button").remove();
+    finish(all,got.map(g=>g.value).join(" – "))}}
+  else box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;
+   box.querySelectorAll(".opt").forEach((x,j)=>{x.disabled=true;if(j===Q.a)x.classList.add("right");else if(j===k)x.classList.add("wrong")});
+   finish(k===Q.a,Q.o[k])})};
+ show()}
+/* ---------- views ---------- */
+function tubeSVG(p,full){const h=full?62:10;return `<svg viewBox="0 0 46 120" aria-hidden="true"><rect x="9" y="22" width="28" height="92" rx="14" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.7)" stroke-width="1.5"/><clipPath id="c${p.id}"><rect x="9" y="22" width="28" height="92" rx="14"/></clipPath><rect clip-path="url(#c${p.id})" x="9" y="${114-h}" width="28" height="${h}" fill="${p.liq}"/><rect x="14" y="26" width="4" height="80" rx="2" fill="rgba(255,255,255,.35)"/><rect x="5" y="4" width="36" height="24" rx="6" fill="${p.cap}"/><rect x="5" y="20" width="36" height="5" fill="rgba(0,0,0,.18)"/><rect x="10" y="7" width="8" height="10" rx="3" fill="rgba(255,255,255,.35)"/></svg>`}
+function drawRack(){const n=P.filter(p=>done[p.id]).length;
+ rack.innerHTML=P.map(p=>`<button class="tube" data-go="${p.id}" aria-current="${cur===p.id}">${tubeSVG(p,done[p.id])}<b>${p.name}</b><small>${done[p.id]?"Practiced":V.filter(v=>v.p===p.id).length+" values"}</small></button>`).join("")+
+ `<button class="tube" data-go="test" aria-current="${cur==="test"}"><svg viewBox="0 0 46 120" aria-hidden="true"><rect x="5" y="12" width="36" height="102" rx="6" fill="#fff"/><rect x="13" y="4" width="20" height="14" rx="4" fill="rgba(255,255,255,.7)"/>${[34,50,66,82,98].map((y,i)=>`<rect x="11" y="${y}" width="6" height="6" rx="1.5" fill="${i<Math.round(n*5/6)?"#137a4a":"#d8cfd2"}"/><rect x="20" y="${y+1}" width="15" height="4" rx="2" fill="#d8cfd2"/>`).join("")}</svg><b>Final test</b><small>${n}/6 panels</small></button>`}
+const setAcc=c=>document.documentElement.style.setProperty("--acc",c);
+function home(){cur=null;drawRack();setAcc("#8e1b2c");
+ view.innerHTML=`<h2>How this works</h2><div class="intro"><div><h3>1. Study the numbers</h3><p>Each panel lists its normal ranges with a memory hook. Turn on <b>Hide the numbers</b> and tap each one to test yourself.</p></div><div><h3>2. Practice round</h3><p>One question for every value in the panel: pick the range, call a result low, normal, or high, or type the range from memory. Finishing fills the tube.</p></div><div><h3>3. Final test</h3><p>20 questions drawn from all ${V.length} values, with a new mix every time.</p></div></div><div class="row"><button class="btn" data-go="abg">Start with ABG</button><button class="btn ghost" data-go="test">Go to the final test</button></div><p class="note">These are adult values from the course lab values sheet (adopted from ATI). “Normal” ranges can differ slightly between sources and labs.</p>`}
+function module(id){
+ cur=id;const p=P.find(x=>x.id===id),labs=L.filter(l=>l.p===id),vals=V.filter(v=>v.p===id);setAcc(p.acc);drawRack();
+ const nxt=P[P.indexOf(p)+1];
+ view.innerHTML=`<div class="mhead"><div><h2>${p.full} (${p.name})</h2><p>${vals.length} value${vals.length>1?"s":""} to memorize.</p></div><div class="tools"><span class="tag"><i></i>${p.tube}</span><button class="btn ghost" id="cv" aria-pressed="${cover}">${cover?"Show the numbers":"Hide the numbers"}</button></div></div>
+ <div class="labs${cover?" covered":""}" id="labs">${labs.map(l=>`<article class="lab"><div class="lab-top"><h3>${l.n}</h3></div><div class="vals">${V.filter(v=>v.c===l.id).map(v=>`<div class="vr"><span>${v.lab}</span><b class="val" tabindex="0" title="Tap to reveal">${txt(v)}</b></div>`).join("")}</div><p class="hook">${l.h}</p><details><summary>Nice to know</summary><p class="what">${l.w}</p><div class="strip"><div class="lo"><strong>↓ Low</strong>${l.lo}</div><div class="mid">Normal</div><div class="hi"><strong>↑ High</strong>${l.hi}</div></div><p class="tip"><b>Nurse tip:</b> ${l.t}</p></details></article>`).join("")}</div>
+ <section class="qbox" id="qb"><h3>Practice round: ${p.name}</h3><p class="qmeta">${done[id]?"You’ve finished this round. Practice again anytime for a new mix.":"One question per value. Finish to fill the "+p.name+" tube."}</p><button class="btn" id="qs">Start practice (${vals.length} questions)</button></section>`;
+ const labsEl=document.getElementById("labs");
+ document.getElementById("cv").onclick=()=>{cover=!cover;module(id)};
+ labsEl.addEventListener("click",e=>{const v=e.target.closest(".val");if(v&&cover)v.classList.toggle("shown")});
+ labsEl.addEventListener("keydown",e=>{const v=e.target.closest(".val");if(v&&cover&&(e.key==="Enter"||e.key===" ")){e.preventDefault();v.classList.toggle("shown")}});
+ document.getElementById("qs").onclick=()=>{const qb=document.getElementById("qb");
+  quiz(qb,sh(vals).map(v=>anyQ(v)),"Practice: "+p.name,(s,miss)=>{done[id]=true;save();drawRack();
+   qb.innerHTML=`<h3>Practice complete</h3><p class="qtext">${s} of ${s+miss.length} correct</p>${miss.length?`<ul class="review">${miss.map(m=>`<li>${m.Q.why}</li>`).join("")}</ul>`:`<p class="qmeta">Every value correct. The ${p.name} tube is full.</p>`}<div class="row">${nxt?`<button class="btn" data-go="${nxt.id}">Next: ${nxt.full}</button>`:`<button class="btn" data-go="test">Take the final test</button>`}<button class="btn ghost" id="again">Practice again</button></div>`;
+   qb.querySelector("#again").onclick=()=>{module(id);document.getElementById("qs").click()}})};
+ window.scrollTo({top:0,behavior:"smooth"})}
+function test(){
+ cur="test";setAcc("#8e1b2c");drawRack();const n=P.filter(p=>done[p.id]).length;
+ view.innerHTML=`<div class="mhead"><div><h2>Final test</h2><p>20 questions on normal ranges: pick the range, call a result low, normal, or high, or type the range from memory.${n<6?` You’ve practiced ${n} of 6 panels, but you can take the test now.`:""}</p></div></div><section class="qbox" id="tb"><button class="btn" id="go">Begin the test</button></section>`;
+ document.getElementById("go").onclick=()=>{
+  const pick=sh(V).slice(0,20),cl=pick.filter(canClass);
+  const cset=new Set(cl.slice(0,7).map(v=>v.i)),rest=pick.filter(v=>!cset.has(v.i));
+  const qs=sh([...pick.filter(v=>cset.has(v.i)).map(classQ),...rest.slice(0,8).map(rangeQ),...rest.slice(8).map(typeQ)]);
+  const tb=document.getElementById("tb");
+  quiz(tb,qs,"Final test",(s,miss)=>{const pct=Math.round(s/qs.length*100);
+   tb.innerHTML=`<p class="qmeta">Your score</p><div class="score">${s}/${qs.length}</div><p class="qtext">${pct}%: ${pct>=80?"Strong work.":"Go back to the panels and try again."}</p>${miss.length?`<h3>Ranges to review</h3><ul class="review">${miss.map(m=>`<li><b>${m.Q.q}</b><br>Your answer: ${m.yours}<br><span style="color:var(--soft)">${m.Q.why}</span></li>`).join("")}</ul>`:""}<div class="row"><button class="btn" id="re">Retake with new questions</button><button class="btn ghost" data-go="home">Back to panels</button></div>`;
+   tb.querySelector("#re").onclick=()=>{test();document.getElementById("go").click()}})};
+ window.scrollTo({top:0,behavior:"smooth"})}
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(!g)return;const v=g.dataset.go;v==="test"?test():v==="home"?home():module(v)});
+home();
+}
+</script>
+</body>
+</html>

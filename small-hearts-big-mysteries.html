@@ -1,0 +1,710 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Small Hearts, Big Mysteries</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: full-height projector deck; header with 7 mystery chips, slide stage (question left, schematic heart right), footer nav */
+:root{
+  --bg:#eef1f6; --paper:#ffffff; --ink:#131a2a; --muted:#596379; --line:#d3d9e4;
+  --art:#c8102e; --art-soft:#fbe4e8; --vein:#2d5bc4; --vein-soft:#e3eafb;
+  --ok:#1d7a4c; --ok-soft:#bfe9cf; --warn:#9a5b00; --warn-soft:#fdf0d6; --fluid:#7fb2e8; --tissue:#f4d6da; --tissue2:#ecc3c9;
+  --f-display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", Verdana, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1320; --paper:#172033; --ink:#e7ecf5; --muted:#9aa5bb; --line:#2a3650;
+  --art:#ff5c74; --art-soft:#3b1a24; --vein:#79a2ff; --vein-soft:#1b2848;
+  --ok:#5ed39a; --ok-soft:#1c4d34; --warn:#f0b34f; --warn-soft:#3a2a10; --fluid:#3f78b8; --tissue:#4a2b34; --tissue2:#5a3440; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1320; --paper:#172033; --ink:#e7ecf5; --muted:#9aa5bb; --line:#2a3650;
+  --art:#ff5c74; --art-soft:#3b1a24; --vein:#79a2ff; --vein-soft:#1b2848;
+  --ok:#5ed39a; --ok-soft:#1c4d34; --warn:#f0b34f; --warn-soft:#3a2a10; --fluid:#3f78b8; --tissue:#4a2b34; --tissue2:#5a3440; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:clamp(15px,1.15vw + 6px,20px);line-height:1.5;overflow:hidden}
+.deck{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr)}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-block:10px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));border-bottom:1px solid var(--line);background:var(--paper)}
+.logo{font-family:var(--f-display);font-weight:900;font-size:1.35rem;letter-spacing:.01em;text-transform:uppercase;white-space:nowrap}
+.logo span{color:var(--art)}
+.chips{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+@media (max-width:820px){.chips{order:3;flex-basis:100%}.bar{row-gap:8px}.logo{font-size:1.1rem}}
+.qh{font-size:clamp(1.7rem,3.2vw,2.8rem)}
+.chip{font-family:var(--f-mono);font-size:.68rem;font-weight:700;letter-spacing:.04em;border:1.5px solid var(--line);background:transparent;color:var(--muted);border-radius:99px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.chip.solved{color:var(--ok);border-color:var(--ok)}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.count{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.stage{overflow-y:auto;padding-block:clamp(16px,3vh,36px);padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.slide{max-width:1320px;margin:0 auto;min-height:100%;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:clamp(20px,4vw,56px);align-items:center}
+.slide.full{grid-template-columns:minmax(0,1fr)}
+@media (max-width:820px){.slide{grid-template-columns:minmax(0,1fr);align-items:start}.fig{order:-1;max-width:240px;margin:0 auto}}
+.main{min-width:0;display:flex;flex-direction:column;gap:14px}
+.kicker{font-family:var(--f-mono);font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--art)}
+.kicker .ph{color:var(--muted)}
+h1,h2{font-family:var(--f-display);font-weight:800;line-height:.95;margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:clamp(3rem,8vw,6.5rem);text-transform:uppercase}
+h2{font-size:clamp(2rem,4.2vw,3.6rem)}
+.lede{font-size:1.15em;max-width:62ch;margin:0}
+.lede b{color:var(--art)}
+.small{color:var(--muted);font-size:.9em;margin:0}
+
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:980px){.opts{grid-template-columns:minmax(0,1fr)}}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;font:inherit;color:inherit;background:var(--paper);border:2px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;min-width:0}
+.opt:hover:not([disabled]){border-color:var(--vein)}
+.box{flex:0 0 auto;width:22px;height:22px;margin-top:2px;border:2px solid var(--muted);border-radius:4px;display:grid;place-items:center;font-family:var(--f-mono);font-size:.8rem;font-weight:700;line-height:1}
+.opt.sel{border-color:var(--vein);background:var(--vein-soft)}
+.opt.sel .box{background:var(--vein);border-color:var(--vein);color:var(--paper)}
+.opt.sel .box::after{content:"✓"}
+.opt.good{border-color:var(--ok);background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok)}
+.opt.good .box{background:var(--ok);border-color:var(--ok);color:var(--paper)}
+.opt.good .box::after{content:"✓"}
+.opt.bad{border-color:var(--art);background:var(--art-soft)}
+.opt.bad .box{background:var(--art);border-color:var(--art);color:var(--paper)}
+.opt.bad .box::after{content:"✕"}
+.opt.out{opacity:.55}
+.opt.out .box::after{content:"✕";color:var(--muted)}
+.opt.miss{border-color:var(--warn);background:var(--warn-soft);border-style:dashed}
+.opt.miss .box{border-color:var(--warn);color:var(--warn)}
+.opt.miss .box::after{content:"!"}
+.opt.left{opacity:.7}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-bottom:4px}
+.tag.t-good{background:var(--ok);color:var(--paper)}
+.tag.t-bad{background:var(--art);color:#fff}
+.tag.t-miss{background:var(--warn);color:var(--paper)}
+.tag.t-left{border:1px solid var(--line);color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:.85em}
+.tally{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.tally span{font-family:var(--f-mono);font-size:.78rem;font-weight:700;padding:4px 10px;border-radius:99px}
+.msg.mixed{border-color:var(--warn);background:var(--warn-soft)}
+.mrow .fix{grid-column:1/-1;font-size:.88em}
+.opt .why{display:block;font-size:.85em;margin-top:4px;color:var(--ink)}
+.opt[disabled]{cursor:default}
+.opt:focus-visible,.btn:focus-visible,.chip:focus-visible,select:focus-visible{outline:3px solid var(--vein);outline-offset:2px}
+
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{font-family:var(--f-display);font-weight:800;font-size:1.15rem;letter-spacing:.04em;text-transform:uppercase;border:0;border-radius:6px;padding:10px 20px;cursor:pointer;background:var(--art);color:#fff}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+.msg{border-radius:8px;padding:12px 16px;border:2px solid;max-width:80ch}
+.msg.try{border-color:var(--art);background:var(--art-soft)}
+.msg.win{border-color:var(--ok);background:var(--ok-soft)}
+.msg b{font-family:var(--f-display);font-size:1.25em;letter-spacing:.03em;text-transform:uppercase;display:block;margin-bottom:2px}
+
+.fig{min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.fig svg{width:100%;max-width:420px;height:auto;display:block}
+.figcap{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);text-align:center;letter-spacing:.04em}
+.part{font-family:var(--f-mono);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--art);color:#fff;padding:4px 10px;border-radius:4px}
+
+/* pediatric heart schematic: chambers + great vessels + ductus + coronaries */
+.h-ch{fill:var(--tissue)}
+.h-wall{fill:none;stroke:var(--art);stroke-width:7;opacity:.55}
+.h-sep{fill:none;stroke:var(--art);stroke-width:4;opacity:.45}
+.h-valve{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+.h-lab{font-family:var(--f-mono);font-size:13px;font-weight:700;fill:var(--ink);opacity:.7}
+.v-lab{font-family:var(--f-mono);font-size:12px;font-weight:700;fill:var(--ink)}
+.v-ao{fill:none;stroke:var(--art);stroke-width:15;stroke-linecap:round}
+.v-pa{fill:none;stroke:var(--vein);stroke-width:13;stroke-linecap:round}
+.v-da{fill:none;stroke:var(--muted);stroke-width:3;stroke-dasharray:3 3;opacity:.6}
+.h-hole{fill:var(--bg);stroke:var(--ink);stroke-width:2;opacity:0}
+.h-cor{fill:none;stroke:var(--art);stroke-width:2.5;opacity:.45;stroke-linecap:round}
+.h-aneur{fill:var(--art);opacity:0}
+.h-arrow{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round;opacity:0}
+.swap{opacity:0}
+.hot{animation:pulse 1.4s ease-in-out infinite}
+svg[data-hot="vsd"] .h-hole, svg[data-hot="tof"] .h-hole{opacity:1}
+svg[data-hot="vsd"] .h-hole{stroke:var(--art);stroke-width:4}
+svg[data-hot="vsd"] .h-arrow{opacity:1}
+svg[data-hot="pda"] .v-da{stroke:var(--art);stroke-width:8;stroke-dasharray:none;opacity:1}
+svg[data-hot="coarc"] .coarc{stroke-width:5;opacity:1}
+svg[data-hot="coarc"] .coarc-ring{opacity:1}
+.coarc-ring{fill:none;stroke:var(--ink);stroke-width:2;opacity:0}
+svg[data-hot="tof"] .rv{fill:var(--art);opacity:.75}
+svg[data-hot="tof"] .pa-base{stroke-width:5;opacity:1}
+svg[data-hot="tga"] .norm{opacity:0}
+svg[data-hot="tga"] .swap{opacity:1;fill:var(--art)}
+svg[data-hot="kawa"] .h-cor{stroke-width:5;opacity:1}
+svg[data-hot="kawa"] .h-aneur{opacity:1}
+svg[data-hot="hf"] .lv, svg[data-hot="hf"] .rv{fill:var(--art);opacity:.75}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.hot{animation:none}}
+/* reveal + tables */
+.reveal-name{font-size:clamp(2.8rem,7vw,6rem);text-transform:uppercase;color:var(--art)}
+.locked{border:2px dashed var(--line);border-radius:10px;padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.points{margin:0;padding-left:1.1em;display:grid;gap:6px;max-width:75ch}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;font-size:.88em;min-width:560px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+td:first-child{font-weight:700}
+tr:last-child td{border-bottom:0}
+
+/* match */
+.match{display:grid;gap:10px}
+.mrow{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,2fr);gap:12px;align-items:center;background:var(--paper);border:2px solid var(--line);border-radius:8px;padding:10px 14px}
+@media (max-width:700px){.mrow{grid-template-columns:minmax(0,1fr)}}
+.mrow.good{border-color:var(--ok);background:var(--ok-soft)}
+.mrow.bad{border-color:var(--art);background:var(--art-soft)}
+.mrow label{font-weight:700}
+.mrow label small{display:block;font-weight:400;color:var(--muted);font-size:.82em}
+select{font:inherit;font-size:.88em;width:100%;padding:8px;border-radius:6px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+
+.foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:10px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));border-top:1px solid var(--line);background:var(--paper)}
+.prog{flex:1;min-width:0;height:6px;background:var(--line);border-radius:99px;overflow:hidden;max-width:520px}
+.prog i{display:block;height:100%;background:var(--art);transition:width .3s}
+.hintkeys{font-family:var(--f-mono);font-size:.68rem;color:var(--muted)}
+@media (max-width:600px){.hintkeys{display:none}}
+
+.title-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+@media (max-width:1100px){.title-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:560px){.title-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tg{border:2px solid var(--line);border-radius:8px;padding:14px 14px;background:var(--paper);font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.tg:hover{border-color:var(--art)}
+.tg:focus-visible{outline:3px solid var(--vein);outline-offset:2px}
+.tg.done{border-color:var(--ok);background:var(--ok-soft)}
+.tg em{font-style:normal;font-family:var(--f-mono);font-size:.7rem;color:var(--muted)}
+.tg.done em{color:var(--ok)}
+.pred{display:flex;flex-direction:column;gap:8px;max-width:75ch}
+.pred label{font-weight:700}
+.pred textarea{font:inherit;font-size:1em;width:100%;min-height:7.5em;resize:vertical;padding:12px 14px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
+.pred textarea:focus-visible{outline:3px solid var(--vein);outline-offset:1px;border-color:var(--vein)}
+.yourpred{border-left:4px solid var(--vein);background:var(--vein-soft);padding:10px 14px;border-radius:0 8px 8px 0;max-width:80ch;font-size:.92em}
+.yourpred b{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--vein);display:block}
+.yourpred span{white-space:pre-wrap}
+.tg small{font-family:var(--f-mono);font-size:.68rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block}
+.tg strong{font-family:var(--f-display);font-size:1.3rem;letter-spacing:.02em}
+</style>
+
+<div class="deck">
+  <header class="bar">
+    <div class="logo">Small Hearts, <span>Big Mysteries</span></div>
+    <nav class="chips" id="chips" aria-label="Mysteries"></nav>
+    <div class="count" id="count"></div>
+  </header>
+  <main class="stage" id="stage"></main>
+  <footer class="foot">
+    <button class="btn alt" id="prev">‹ Back</button>
+    <div class="prog" aria-hidden="true"><i id="progbar"></i></div>
+    <span class="hintkeys">← → to move</span>
+    <button class="btn" id="next">Next ›</button>
+  </footer>
+</div>
+
+<script>
+const HEART="M150 78 C 128 48, 62 44, 56 104 C 50 160, 104 212, 150 262 C 196 212, 250 160, 244 104 C 238 44, 172 48, 150 78 Z";
+function heartSVG(hot){
+  const H=(k)=>hot===k?'hot':'';
+  return `<svg viewBox="0 -62 300 334" data-hot="${hot}" role="img" aria-label="Schematic heart and great vessels with the affected part highlighted">
+  <defs><clipPath id="hc"><path d="${HEART}"/></clipPath></defs>
+  <!-- pulmonary artery (from RV) -->
+  <path class="v-pa ${H('tga')}" d="M127 44 C 124 34, 118 26, 110 18"/>
+  <path class="v-pa pa-base ${H('tof')}" d="M132 90 C 131 70, 129 56, 127 44"/>
+  <path class="v-pa ${H('tga')}" d="M110 18 C 96 8, 76 6, 52 12"/>
+  <path class="v-pa ${H('tga')}" d="M110 18 C 120 4, 136 -6, 154 -10"/>
+  <!-- aorta (from LV) -->
+  <path class="v-ao ${H('tga')}" d="M164 96 C 164 40, 170 -14, 206 -30 C 238 -44, 268 -28, 270 4"/>
+  <path class="v-ao coarc ${H('coarc')}" d="M270 4 L 270 34"/>
+  <path class="v-ao" d="M270 34 L 270 150"/>
+  <ellipse class="coarc-ring" cx="270" cy="19" rx="12" ry="17"/>
+  <!-- ductus arteriosus -->
+  <path class="v-da ${H('pda')}" d="M154 -10 C 166 -18, 178 -24, 190 -24"/>
+  <!-- chambers -->
+  <g clip-path="url(#hc)">
+    <rect class="h-ch ra" x="0" y="0" width="150" height="128"/>
+    <rect class="h-ch la" x="150" y="0" width="150" height="128"/>
+    <rect class="h-ch rv ${H('tof')} ${H('hf')}" x="0" y="128" width="150" height="180"/>
+    <rect class="h-ch lv ${H('hf')}" x="150" y="128" width="150" height="180"/>
+    <path class="h-sep" d="M54 128 H86 M124 128 H176 M214 128 H246"/>
+  </g>
+  <path class="h-sep" d="M150 78 C 146 150, 156 200, 150 262"/>
+  <path class="h-wall" d="${HEART}"/>
+  <line class="h-valve" x1="88" y1="128" x2="122" y2="128"/>
+  <line class="h-valve" x1="178" y1="128" x2="212" y2="128"/>
+  <!-- septal defect -->
+  <ellipse class="h-hole ${H('vsd')} ${H('tof')}" cx="151" cy="178" rx="9" ry="15"/>
+  <path class="h-arrow" d="M182 178 H 124 m8 -7 l-8 7 l8 7"/>
+  <!-- coronary arteries -->
+  <path class="h-cor ${H('kawa')}" d="M150 96 C 120 104, 88 122, 76 162"/>
+  <path class="h-cor ${H('kawa')}" d="M168 98 C 200 102, 232 118, 238 152"/>
+  <path class="h-cor ${H('kawa')}" d="M162 102 C 176 140, 172 196, 158 236"/>
+  <g class="h-aneur ${H('kawa')}"><circle cx="98" cy="116" r="6"/><circle cx="210" cy="106" r="7"/><circle cx="172" cy="150" r="6"/></g>
+  <!-- labels -->
+  <text class="h-lab" x="98" y="104" text-anchor="middle">RA</text>
+  <text class="h-lab" x="206" y="96" text-anchor="middle">LA</text>
+  <text class="h-lab" x="104" y="200" text-anchor="middle">RV</text>
+  <text class="h-lab" x="200" y="200" text-anchor="middle">LV</text>
+  <text class="v-lab norm" x="36" y="2">PA</text>
+  <text class="v-lab norm" x="214" y="-48">Ao</text>
+  <text class="v-lab swap" x="36" y="2">Ao</text>
+  <text class="v-lab swap" x="214" y="-48">PA</text>
+  <text class="v-lab" x="168" y="-34" font-size="10" opacity=".7">DA</text>
+  </svg>`;
+}
+
+const PH={ap:"A & P · What happens inside?",as:"Assessment · What would you find?",tx:"Treatment · What do you do?"};
+
+const TOPICS=[
+{ short:"VSD", name:"Ventricular septal defect", sub:"Acyanotic · increased pulmonary blood flow", hot:"vsd", part:"Ventricular septum",
+  prompt:`A baby is born with a <b>hole in the wall between the two ventricles</b>. Pressure in the left ventricle is much higher than pressure in the right.`,
+  think:"Which way will blood flow through the hole? Where does the extra blood end up?",
+  q:[
+  {ph:"ap",ask:"If there's a hole between the ventricles, what happens inside the body?",opts:[
+    {t:"Blood shunts from the left ventricle into the right ventricle (left-to-right).",ok:1},
+    {t:"Extra blood is pumped into the pulmonary arteries, so pulmonary blood flow increases.",ok:1},
+    {t:"The heart works harder to move the extra volume, and a large hole can lead to heart failure.",ok:1},
+    {t:"Over time, high pulmonary blood flow can damage the lung vessels and raise pulmonary pressure.",ok:1},
+    {t:"Oxygen-poor blood mixes into the systemic circulation, so the baby is cyanotic from birth.",why:"Left-sided pressure is higher, so oxygen-rich blood flows left to right and goes back to the lungs. The baby is pink. The shunt reverses only late, if pulmonary pressure climbs above systemic pressure (Eisenmenger syndrome)."},
+    {t:"Blood flow to the lungs decreases.",why:"It's the opposite. The lungs receive the normal flow plus the shunted blood."}],
+   take:"Left-to-right shunts are acyanotic defects with increased pulmonary blood flow. The lungs get too much and the body gets too little."},
+  {ph:"as",ask:"What would you expect to find when you assess this infant?",opts:[
+    {t:"A loud, harsh holosystolic murmur at the left lower sternal border",ok:1},
+    {t:"Tachypnea, and sweating or tiring during feedings",ok:1},
+    {t:"Poor weight gain",ok:1},
+    {t:"Frequent respiratory infections",ok:1},
+    {t:"Signs of heart failure when the defect is large",ok:1},
+    {t:"Central cyanosis at birth",why:"A VSD is acyanotic. Oxygen-rich blood is shunted to the lungs, not the body."},
+    {t:"Weak or absent femoral pulses",why:"That points to an obstruction in the aorta, not a septal defect."}],
+   take:"Extra lung flow shows up as fast breathing, infections and feeding fatigue. The murmur is blood jetting through the hole."}],
+  def:"An opening in the ventricular septum. It's the most common congenital heart defect.",
+  points:["Small defects often close on their own during the first year.",
+    "Large defects cause heart failure and are closed with a surgical patch or a transcatheter device.",
+    "Left untreated, rising pulmonary pressure can reverse the shunt and the child becomes cyanotic (Eisenmenger syndrome)."],
+  tx:[{ph:"tx",ask:"Which interventions belong in this infant's plan of care?",opts:[
+    {t:"Monitor for heart failure; small defects may close without surgery",ok:1},
+    {t:"Digoxin and diuretics such as furosemide for heart failure symptoms",ok:1},
+    {t:"High-calorie formula or fortified breast milk in small, frequent feedings",ok:1},
+    {t:"Surgical patch or transcatheter closure for a large defect",ok:1},
+    {t:"Cluster care so the infant can rest",ok:1},
+    {t:"Continuous high-flow oxygen to improve color",why:"Oxygen dilates the pulmonary vessels, which can increase left-to-right shunting and pulmonary overcirculation."},
+    {t:"Limit calories to reduce the heart's workload",why:"These infants burn more calories than usual and need more, not fewer, to grow."}],
+   take:"Support growth, treat heart failure, and close the hole if it doesn't close on its own."}]
+},
+{ short:"PDA", name:"Patent ductus arteriosus", sub:"Acyanotic · increased pulmonary blood flow", hot:"pda", part:"Ductus arteriosus",
+  prompt:`Before birth, a <b>short vessel connects the pulmonary artery to the aorta</b> so blood can bypass the fluid-filled lungs. It normally closes within the first days after birth. In this premature baby, it stays open.`,
+  think:"After birth, which has higher pressure, the aorta or the pulmonary artery? Which way will blood flow?",
+  q:[
+  {ph:"ap",ask:"If this vessel stays open after birth, what happens inside the body?",opts:[
+    {t:"Blood flows from the aorta back into the pulmonary artery (left-to-right).",ok:1},
+    {t:"The lungs receive extra blood, so pulmonary blood flow increases.",ok:1},
+    {t:"The left side of the heart handles the extra volume returning from the lungs and can fail.",ok:1},
+    {t:"Blood runs off into the pulmonary artery during diastole, lowering diastolic pressure.",ok:1},
+    {t:"Blood flows from the pulmonary artery into the aorta, causing cyanosis.",why:"After birth, aortic pressure is higher, so blood flows from the aorta into the pulmonary artery. That's why it's acyanotic."},
+    {t:"Prostaglandin levels rise after birth, which keeps the vessel closed.",why:"Prostaglandins keep the ductus open. Falling prostaglandins and rising oxygen levels are what close it."}],
+   take:"Another left-to-right shunt: too much blood to the lungs, and a diastolic runoff that widens the pulse pressure."},
+  {ph:"as",ask:"What would you expect to find when you assess this infant?",opts:[
+    {t:"A continuous \"machinery\" murmur at the upper left sternal border",ok:1},
+    {t:"Bounding peripheral pulses",ok:1},
+    {t:"A widened pulse pressure",ok:1},
+    {t:"Tachypnea, poor feeding and slow weight gain",ok:1},
+    {t:"In a premature infant, rising oxygen or ventilator needs",ok:1},
+    {t:"Cyanosis that worsens with crying",why:"That pattern belongs to a defect with a right-to-left shunt."},
+    {t:"Blood pressure much higher in the arms than in the legs",why:"That points to a narrowing in the aorta."}],
+   take:"The murmur is continuous because aortic pressure stays higher than pulmonary pressure through the whole cardiac cycle."}],
+  def:"Failure of the fetal ductus arteriosus to close after birth.",
+  points:["Most common in premature infants.",
+    "In some cyanotic defects, an open ductus keeps the baby alive. Then prostaglandin E1 is given on purpose to keep it open."],
+  tx:[{ph:"tx",ask:"Which interventions belong in this infant's plan of care?",opts:[
+    {t:"IV indomethacin, ibuprofen or acetaminophen to close the ductus",ok:1},
+    {t:"Monitor urine output and kidney function during NSAID therapy",ok:1},
+    {t:"Transcatheter device closure or surgical ligation if medication doesn't work",ok:1},
+    {t:"Careful fluid management and treatment of heart failure symptoms",ok:1},
+    {t:"A prostaglandin E1 infusion",why:"Prostaglandin E1 keeps the ductus open. Here the goal is to close it."},
+    {t:"Wait until school age, since it always closes on its own",why:"A ductus that's still open after early infancy rarely closes by itself, and a symptomatic one needs treatment."}],
+   take:"Close it with medication first (in preemies), then with a device or surgery if needed."}]
+},
+{ short:"Coarctation", name:"Coarctation of the aorta", sub:"Acyanotic · obstruction to blood flow", hot:"coarc", part:"Aorta",
+  prompt:`A segment of the <b>aorta, just past where the arteries to the head and arms branch off</b>, is narrowed like a pinched hose.`,
+  think:"What happens to pressure before and after the pinch? Which parts of the body sit on each side of it?",
+  q:[
+  {ph:"ap",ask:"If the aorta is narrowed at this spot, what happens inside the body?",opts:[
+    {t:"Pressure rises before the narrowing, so the head and arms get high blood pressure.",ok:1},
+    {t:"Blood flow and pressure drop past the narrowing, so the lower body is underperfused.",ok:1},
+    {t:"The left ventricle pumps against high resistance, hypertrophies, and can fail.",ok:1},
+    {t:"Over time, collateral vessels grow to carry blood around the narrowing.",ok:1},
+    {t:"Blood shunts from the aorta into the pulmonary artery.",why:"That's what an open ductus does. This is an obstruction, not a shunt."},
+    {t:"Oxygen-poor blood enters the systemic circulation, causing cyanosis.",why:"The blood is well oxygenated. It just can't get past the narrowing."}],
+   take:"An obstructive defect: high pressure upstream, low flow downstream, and a left ventricle working against resistance."},
+  {ph:"as",ask:"What would you expect to find when you assess this child?",opts:[
+    {t:"Higher blood pressure in the arms than in the legs",ok:1},
+    {t:"Bounding radial pulses with weak or absent femoral pulses",ok:1},
+    {t:"Cool lower extremities, and leg pain or cramping with exercise in older children",ok:1},
+    {t:"Headaches, dizziness or nosebleeds from upper-body hypertension",ok:1},
+    {t:"In a newborn with severe narrowing, heart failure and shock when the ductus closes",ok:1},
+    {t:"Bounding pulses in all four extremities with a widened pulse pressure",why:"That pattern comes from runoff through an open ductus. Here the leg pulses are weak."},
+    {t:"A continuous machinery murmur",why:"That's the classic murmur of an open ductus."}],
+   take:"Always compare upper and lower extremity pulses and blood pressures."}],
+  def:"Narrowing of the aorta, usually near the ductus arteriosus just past the left subclavian artery.",
+  points:["Associated with Turner syndrome and bicuspid aortic valve.",
+    "In a critical newborn, blood to the lower body may depend on an open ductus.",
+    "Hypertension can persist after repair, so children need long-term BP follow-up."],
+  tx:[{ph:"tx",ask:"Which interventions belong in this child's plan of care?",opts:[
+    {t:"Prostaglandin E1 to keep the ductus open in a critically ill newborn",ok:1},
+    {t:"Balloon angioplasty, with or without a stent",ok:1},
+    {t:"Surgical resection of the narrowed segment",ok:1},
+    {t:"Compare BP in all four extremities before and after repair",ok:1},
+    {t:"Long-term BP monitoring, with antihypertensives if needed",ok:1},
+    {t:"A fluid bolus to push more blood past the narrowing",why:"Extra volume raises upper-body pressure and left ventricular workload without fixing the obstruction."},
+    {t:"Indomethacin to close the ductus in a newborn with severe narrowing",why:"In critical coarctation, the open ductus may be the main route of blood to the lower body. Closing it can cause shock."}],
+   take:"Medication can stabilize a newborn, but only a procedure removes the obstruction. Watch blood pressure for life."}]
+},
+{ short:"Tetralogy", name:"Tetralogy of Fallot", sub:"Cyanotic · decreased pulmonary blood flow", hot:"tof", part:"Septum, pulmonary outflow & right ventricle",
+  prompt:`A baby is born with <b>four problems at once</b>: a large hole between the ventricles, a narrowed exit from the right ventricle into the pulmonary artery, an aorta that sits over the hole and receives blood from both ventricles, and a thickened right ventricle.`,
+  think:"If the path to the lungs is narrow, where will blood from the right ventricle go instead?",
+  q:[
+  {ph:"ap",ask:"With these four problems, what happens inside the body?",opts:[
+    {t:"Resistance to flow into the lungs makes right ventricular pressure rise.",ok:1},
+    {t:"Oxygen-poor blood shunts right-to-left through the hole and out the aorta.",ok:1},
+    {t:"Less blood reaches the lungs to pick up oxygen.",ok:1},
+    {t:"The body responds to chronic low oxygen by making more red blood cells (polycythemia).",ok:1},
+    {t:"When pulmonary resistance suddenly rises, as with crying or feeding, cyanosis gets much worse.",ok:1},
+    {t:"Blood flows left-to-right and floods the lungs.",why:"The narrowed outflow tract makes right-sided pressure higher, so the shunt goes right to left."},
+    {t:"The thickened right ventricle is the original problem that causes the others.",why:"Right ventricular hypertrophy is the result of pumping against the narrowed outflow."}],
+   take:"Decreased pulmonary blood flow plus a right-to-left shunt makes this a cyanotic defect."},
+  {ph:"as",ask:"What would you expect to find when you assess this child?",opts:[
+    {t:"Cyanosis that worsens with crying, feeding or exertion",ok:1},
+    {t:"\"Tet spells\": sudden episodes of deep cyanosis, rapid breathing and irritability",ok:1},
+    {t:"A harsh systolic ejection murmur along the left sternal border",ok:1},
+    {t:"An older child who squats to relieve breathlessness",ok:1},
+    {t:"Clubbing of the fingers and toes over time",ok:1},
+    {t:"A boot-shaped heart on chest X-ray",ok:1},
+    {t:"Bounding pulses with a widened pulse pressure",why:"That comes from aortic runoff through an open ductus."},
+    {t:"Pink color with frequent respiratory infections from extra lung flow",why:"That's a left-to-right shunt. This child has too little lung flow."}],
+   take:"Squatting raises systemic vascular resistance, which pushes more blood through the narrow outflow into the lungs."}],
+  def:"Four defects together: ventricular septal defect, pulmonary stenosis, overriding aorta and right ventricular hypertrophy.",
+  points:["The knee-chest position does the same thing for an infant that squatting does for an older child.",
+    "Polycythemia raises the risk of clots and stroke, so keep the child well hydrated.",
+    "Complete surgical repair is usually done in the first year of life."],
+  tx:[{ph:"tx",ask:"Which interventions belong in this child's plan of care?",opts:[
+    {t:"During a tet spell, place the infant in the knee-chest position and keep them calm",ok:1},
+    {t:"Give 100% oxygen during a spell",ok:1},
+    {t:"Morphine to reduce agitation and hyperpnea, and IV fluids",ok:1},
+    {t:"Propranolol to help prevent spells",ok:1},
+    {t:"Prepare for complete surgical repair, often in the first year",ok:1},
+    {t:"Let the infant cry to help expand the lungs",why:"Crying raises oxygen demand and pulmonary resistance, which triggers and worsens spells."},
+    {t:"Restrict fluids to reduce the heart's workload",why:"Dehydration thickens polycythemic blood and raises the risk of clots and spells."}],
+   take:"Treat a spell by raising systemic resistance and calming the child. Repair fixes the anatomy."}]
+},
+{ short:"Transposition", name:"Transposition of the great arteries", sub:"Cyanotic · mixed blood flow", hot:"tga", part:"The great arteries",
+  prompt:`In this newborn, the <b>two great arteries are attached to the wrong ventricles</b>. The aorta comes off the right ventricle, and the pulmonary artery comes off the left ventricle.`,
+  think:"Trace one red blood cell. Where does blood from the body go, and where does blood from the lungs go?",
+  q:[
+  {ph:"ap",ask:"With the arteries switched, what happens inside the body?",opts:[
+    {t:"Oxygen-poor blood loops body → right heart → aorta → body without ever reaching the lungs.",ok:1},
+    {t:"Oxygen-rich blood loops lungs → left heart → pulmonary artery → lungs without reaching the body.",ok:1},
+    {t:"The baby survives only if blood can mix through an opening such as the ductus, foramen ovale or a septal defect.",ok:1},
+    {t:"As the ductus and foramen ovale start to close after birth, oxygen levels drop sharply.",ok:1},
+    {t:"The lungs get too little blood, as in other cyanotic defects.",why:"Pulmonary blood flow is normal or increased. The problem is that the oxygenated blood never reaches the body."},
+    {t:"The baby stays pink until childhood because the heart compensates.",why:"Severe cyanosis appears within hours to days of birth."}],
+   take:"Two parallel circuits instead of one loop in series. Life depends on mixing between them."},
+  {ph:"as",ask:"What would you expect to find when you assess this newborn?",opts:[
+    {t:"Profound cyanosis in the first hours to days of life",ok:1},
+    {t:"Cyanosis that barely improves with 100% oxygen",ok:1},
+    {t:"Tachypnea without much respiratory distress",ok:1},
+    {t:"An \"egg on a string\" heart shape on chest X-ray",ok:1},
+    {t:"Cyanosis only with crying that improves with squatting",why:"That pattern fits a defect with obstructed lung flow, in an older infant."},
+    {t:"Weak femoral pulses with high blood pressure in the arms",why:"That points to an obstruction in the aorta."}],
+   take:"Oxygen doesn't help because oxygenated blood can't get to the body. A failed hyperoxia test points to a cardiac cause."}],
+  def:"The aorta arises from the right ventricle and the pulmonary artery from the left, creating two separate, parallel circulations.",
+  points:["A newborn emergency: survival depends on mixing between the two circuits.",
+    "Hyperoxia test: little or no rise in PaO₂ on 100% oxygen suggests a cardiac cause of cyanosis.",
+    "The arterial switch operation is usually done within the first weeks of life."],
+  tx:[{ph:"tx",ask:"Which interventions belong in this newborn's plan of care?",opts:[
+    {t:"Prostaglandin E1 to keep the ductus arteriosus open",ok:1},
+    {t:"Balloon atrial septostomy to create a larger opening for mixing",ok:1},
+    {t:"Arterial switch operation in the first weeks of life",ok:1},
+    {t:"Monitor for apnea while prostaglandin E1 is infusing",ok:1},
+    {t:"Indomethacin to close the ductus",why:"Closing the ductus removes one of the few places blood can mix, which can be fatal."},
+    {t:"Treat the cyanosis with high-flow oxygen alone",why:"Without mixing, oxygen can't reach the body, so it barely changes the saturation."}],
+   take:"Keep the openings open, make them bigger if needed, then switch the arteries back."}]
+},
+{ short:"Kawasaki", name:"Kawasaki disease", sub:"Acquired · systemic vasculitis", hot:"kawa", part:"Coronary arteries & blood vessels",
+  prompt:`A 3-year-old develops <b>widespread inflammation of medium-sized blood vessels</b> throughout the body. The cause is unknown. The vessels most at risk are the <b>coronary arteries</b>.`,
+  think:"What happens to an artery wall that stays inflamed? What does body-wide inflammation look like from the outside?",
+  q:[
+  {ph:"ap",ask:"If the vessel walls are inflamed, what happens inside the body?",opts:[
+    {t:"Inflamed coronary artery walls weaken and can balloon into aneurysms.",ok:1},
+    {t:"Clots can form in the aneurysms and cause a myocardial infarction.",ok:1},
+    {t:"Body-wide inflammation causes high fever and inflamed skin and mucous membranes.",ok:1},
+    {t:"The platelet count rises later in the illness, increasing the risk of clots.",ok:1},
+    {t:"A structural defect present at birth causes blood to shunt.",why:"This is an acquired illness, not a congenital defect. It's the most common cause of acquired heart disease in children in the US."},
+    {t:"Bacteria grow on the heart valves.",why:"That's infective endocarditis. This is inflammation of the vessel walls with no known infectious cause."}],
+   take:"The fever and rash come and go. The coronary damage can last a lifetime."},
+  {ph:"as",ask:"What would you expect to find when you assess this child?",opts:[
+    {t:"Fever lasting 5 days or more that doesn't respond to antipyretics",ok:1},
+    {t:"Redness of both eyes without drainage",ok:1},
+    {t:"Red, cracked lips and a \"strawberry\" tongue",ok:1},
+    {t:"Swollen, red hands and feet, with peeling skin later",ok:1},
+    {t:"A rash and a swollen cervical lymph node",ok:1},
+    {t:"Extreme irritability",ok:1},
+    {t:"Thick, purulent drainage from the eyes",why:"The conjunctivitis in this disease is nonexudative."},
+    {t:"Cyanosis since birth",why:"This is an acquired illness in a previously healthy child."}],
+   take:"Diagnosis is clinical: prolonged fever plus most of the classic signs."}],
+  def:"An acute systemic vasculitis of unknown cause, mostly in children under 5. It's the leading cause of acquired heart disease in US children.",
+  points:["Phases: acute (fever and inflammation), subacute (peeling skin, rising platelets, highest aneurysm risk), and convalescent.",
+    "An echocardiogram at diagnosis and during follow-up checks the coronary arteries."],
+  tx:[{ph:"tx",ask:"Which interventions belong in this child's plan of care?",opts:[
+    {t:"IV immunoglobulin (IVIG), ideally within the first 10 days of illness",ok:1},
+    {t:"High-dose aspirin during the fever, then low-dose aspirin for its antiplatelet effect",ok:1},
+    {t:"Serial echocardiograms to monitor the coronary arteries",ok:1},
+    {t:"Delay live vaccines such as MMR and varicella for about 11 months after IVIG",ok:1},
+    {t:"Teach parents to avoid ibuprofen with aspirin and to report flu or chickenpox exposure",ok:1},
+    {t:"Acetaminophen at home to treat the fever until it passes",why:"The fever comes from vasculitis. Without IVIG, the risk of coronary aneurysms rises sharply."},
+    {t:"Antibiotics as the main treatment",why:"Kawasaki disease isn't a bacterial infection."}],
+   take:"IVIG and aspirin protect the coronary arteries. Aspirin also brings a Reye syndrome risk, so teach families what to report."}]
+},
+{ short:"Heart failure", name:"Heart failure in children", sub:"Often caused by congenital defects", hot:"hf", part:"Both ventricles",
+  prompt:`An infant's <b>heart muscle can't keep up</b>. A large hole may be overloading it with extra volume, or the muscle itself may be weak. Either way, the ventricles can't pump enough blood to meet the body's needs.`,
+  think:"How does an infant show that they're working too hard? Where does the extra fluid go?",
+  q:[
+  {ph:"ap",ask:"If both ventricles are failing, what happens inside the body?",opts:[
+    {t:"Cardiac output falls, so the sympathetic nervous system speeds up the heart rate.",ok:1},
+    {t:"Blood backs up into the lungs, causing pulmonary congestion.",ok:1},
+    {t:"Blood backs up into the systemic veins and enlarges the liver.",ok:1},
+    {t:"The work of breathing and pumping raises the metabolic rate, so calorie needs go up.",ok:1},
+    {t:"RAAS holds on to sodium and water, adding even more volume.",ok:1},
+    {t:"The heart rate slows to save energy.",why:"The sympathetic response speeds the heart up. Tachycardia is one of the earliest signs."},
+    {t:"Calorie needs drop because the infant is less active.",why:"Infants in heart failure burn more calories than usual, which is why they fail to gain weight."}],
+   take:"An infant's heart can't increase stroke volume much, so it relies on heart rate. Every extra beat and breath costs calories."},
+  {ph:"as",ask:"What would you expect to find when you assess this infant?",opts:[
+    {t:"Tachycardia and tachypnea, even at rest",ok:1},
+    {t:"Sweating and tiring during feedings",ok:1},
+    {t:"Poor weight gain or failure to thrive",ok:1},
+    {t:"Hepatomegaly",ok:1},
+    {t:"Periorbital or facial edema and sudden weight gain",ok:1},
+    {t:"Crackles, grunting, nasal flaring or retractions",ok:1},
+    {t:"Bradycardia with bounding pulses",why:"Expect tachycardia and weak pulses as the infant compensates for low output."},
+    {t:"Pitting ankle edema as the earliest sign",why:"Infants rarely show dependent leg edema. Look at the face, the eyelids and the liver instead."}],
+   take:"In infants, feeding is exercise. Sweating and tiring during feeds is a key sign."}],
+  def:"The heart can't pump enough blood to meet the body's metabolic needs. In infants it's most often caused by congenital defects that overload the heart with volume or pressure.",
+  points:["Weigh daily on the same scale, at the same time, with the same clothing (or none).",
+    "Weigh diapers to track output: 1 g of wet diaper is about 1 mL of urine."],
+  tx:[{ph:"tx",ask:"Which interventions belong in this infant's plan of care?",opts:[
+    {t:"Digoxin: count the apical pulse for a full minute and hold for bradycardia per the ordered parameters",ok:1},
+    {t:"Diuretics such as furosemide, with potassium monitoring",ok:1},
+    {t:"ACE inhibitors such as captopril or enalapril to reduce afterload",ok:1},
+    {t:"Small, frequent, high-calorie feedings, with NG feeding if the infant tires",ok:1},
+    {t:"Semi-upright positioning and clustered care to lower oxygen demand",ok:1},
+    {t:"Treat the cause, such as repairing the defect",ok:1},
+    {t:"Repeat the digoxin dose if the infant vomits it",why:"Never repeat a vomited dose. Digoxin toxicity is easy to cause in infants. Give the next dose at the scheduled time."},
+    {t:"Limit feeding volume and calories to lower fluid intake",why:"These infants need more calories to grow, not fewer."}],
+   take:"Improve pumping, remove extra fluid, feed for growth, conserve energy, and fix the underlying defect."}]
+}
+];
+
+/* build slides: cases and answer choices are shuffled on every load and reset */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let SLIDES=[];
+function build(){
+  shuffle(TOPICS);
+  SLIDES=[{kind:"title"}];
+  TOPICS.forEach((t,ti)=>{
+    t.solved=false; t.pred=""; t.first=SLIDES.length;
+    SLIDES.push({kind:"mystery",ti});
+    t.q.forEach(q=>{shuffle(q.opts);q.state={sel:new Set(),bad:new Set(),done:false,msg:""}});
+    SLIDES.push({kind:"q",ti,q:t.q[0],reveals:true});   /* A & P */
+    SLIDES.push({kind:"reveal",ti});                     /* condition named */
+    t.q.slice(1).forEach(q=>SLIDES.push({kind:"q",ti,q})); /* assessment, with prediction shown */
+    SLIDES.push({kind:"points",ti});                     /* table + key points */
+    t.tx.forEach(q=>{if(q.opts)shuffle(q.opts);if(q.rows)shuffle(q.rows);q.state={sel:new Set(),bad:new Set(),done:false,msg:"",pick:{}};SLIDES.push({kind:"q",ti,q})});
+  });
+  SLIDES.push({kind:"summary"});
+}
+build();
+
+let cur=0;
+const $=id=>document.getElementById(id), stage=$("stage");
+
+function topicLabel(t,ti){return `Mystery ${ti+1}${t.solved?` · ${t.name}`:""}`}
+
+function drawChrome(){
+  const s=SLIDES[cur];
+  $("chips").innerHTML=TOPICS.map((t,ti)=>`<button class="chip ${t.solved?'solved':''} ${s.ti===ti?'on':''}" data-go="${t.first}">${ti+1} · ${t.solved?t.short:'?'}</button>`).join("");
+  $("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  $("count").textContent=`${cur+1} / ${SLIDES.length}`;
+  $("progbar").style.width=((cur)/(SLIDES.length-1)*100)+"%";
+  $("prev").disabled=cur===0;
+  $("next").disabled=cur===SLIDES.length-1||(s.kind==="mystery"&&!TOPICS[s.ti].pred.trim());
+}
+
+function esc(x){return String(x||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function endRow(s){
+  const nx=SLIDES[cur+1];
+  if(s.reveals) return `<button class="btn" onclick="go(cur+1)">Reveal the condition</button>`;
+  if(nx&&nx.ti===s.ti) return `<button class="btn" onclick="go(cur+1)">Next</button>`;
+  const left=TOPICS.filter(t=>!t.solved).length;
+  return `<button class="btn" onclick="go(0)">${left?'Choose another mystery':'All solved · back to menu'}</button>`+
+    (nx&&nx.kind==="mystery"?`<button class="btn alt" onclick="go(cur+1)">Go to Mystery ${nx.ti+1}</button>`:'')+
+    `<button class="btn alt" onclick="go(SLIDES.length-1)">Wrap-up table</button>`;
+}
+function fig(t){return `<div class="fig">${heartSVG(t.hot)}<span class="part">${t.part}</span><span class="figcap">Front view · patient's right is on your left</span></div>`}
+
+function render(){
+  const s=SLIDES[cur]; drawChrome(); let h="";
+  if(s.kind==="title"){
+    h=`<section class="slide full"><div class="main">
+      <span class="kicker">Pediatric cardiac conditions · Clinical reasoning</span>
+      <h1>Small hearts,<br>big mysteries</h1>
+      <p class="lede">Seven mysteries. Each one starts with something in a child's heart or blood vessels that formed or works differently than it should. Reason through the anatomy and physiology, predict what you'd assess, and the condition will be revealed. Then decide how to treat it.</p>
+      <p class="small"><b>Choose a mystery to start.</b> You can work them in any order and come back to this menu anytime.</p>
+      <div class="title-grid">${TOPICS.map((t,ti)=>`<button class="tg ${t.solved?'done':''}" onclick="go(${t.first})"><strong>Mystery ${ti+1}</strong><em>${t.solved?'Solved':'Unsolved'}</em></button>`).join("")}</div>
+    </div></section>`;
+  }
+  else if(s.kind==="mystery"){
+    const t=TOPICS[s.ti];
+    h=`<section class="slide"><div class="main">
+      <span class="kicker">${topicLabel(t,s.ti)}</span>
+      <h2>What if this part stopped working?</h2>
+      <p class="lede">${t.prompt}</p>
+      <div class="pred">
+        <label for="pred${s.ti}">What do you think would happen? Type your prediction before you see the questions.</label>
+        <p class="small"><b>Think about:</b> ${t.think}</p>
+        <textarea id="pred${s.ti}" placeholder="What happens inside the body, and what would you see when you assess the patient?">${esc(t.pred)}</textarea>
+      </div>
+      <div class="row"><button class="btn" id="predgo" ${t.pred.trim()?'':'disabled'}>Lock in my prediction</button><span class="small" id="predhint">${t.pred.trim()?'':'Type a prediction to continue.'}</span></div>
+    </div>${fig(t)}</section>`;
+  }
+  else if(s.kind==="q"){
+    const t=TOPICS[s.ti], q=s.q, st=q.state;
+    let body;
+    if(q.kind==="match"){
+      body=`<div class="match">${q.rows.map((r,ri)=>{
+        const v=st.pick[ri]; const cls=st.done?(String(v)===String(r.a)?'good':'bad'):'';
+        return `<div class="mrow ${cls}"><label for="m${ri}">${r.l} shock<small>${r.s}</small></label>
+        <select id="m${ri}" data-ri="${ri}" ${st.done?'disabled':''}><option value="">Choose a treatment…</option>${q.choices.map((c,ci)=>`<option value="${ci}" ${String(v)===String(ci)?'selected':''}>${c}</option>`).join("")}</select>
+        ${st.done?(String(v)===String(r.a)?`<div class="fix"><span class="tag t-good">Correct</span></div>`:`<div class="fix"><span class="tag ${v===undefined?'t-miss':'t-bad'}">${v===undefined?'Not answered':'Incorrect'}</span> Should have picked: <b>${q.choices[r.a]}</b></div>`):''}</div>`}).join("")}</div>`;
+    } else {
+      body=`<div class="opts" role="group" aria-label="Select all that apply">${q.opts.map((o,k)=>{
+        let cls="opt", tag="", why="";
+        const picked=st.sel.has(k);
+        if(st.done){
+          if(o.ok&&picked){cls+=" good";tag=`<span class="tag t-good">Correct · you picked it</span>`;}
+          else if(o.ok){cls+=" miss";tag=`<span class="tag t-miss">${st.shown?'Correct answer':'Should have picked'}</span>`;}
+          else if(picked){cls+=" bad";tag=`<span class="tag t-bad">Picked · incorrect</span>`;why=o.why;}
+          else {cls+=" left";tag=`<span class="tag t-left">Incorrect · correctly left out</span>`;why=o.why;}
+        } else if(picked) cls+=" sel";
+        return `<button class="${cls}" data-k="${k}" ${st.done?'disabled':''} aria-pressed="${picked}"><span class="box"></span><span>${tag?tag+'<br>':''}${o.t}${why?`<span class="why">${why}</span>`:''}</span></button>`}).join("")}</div>`;
+    }
+    const tail = st.done
+      ? `<div class="msg ${st.perfect?'win':'mixed'}"><b>${st.shown?'Answer shown':st.perfect?'All correct':'Your results'}</b>${st.tally||''}<p style="margin:8px 0 0">${q.take}</p></div>
+         <div class="row">${endRow(s)}${st.shown||st.perfect?'':`<button class="btn alt" id="retry">Try again</button>`}</div>`
+      : `<div class="row"><button class="btn" id="check" ${(q.kind==="match"?q.rows.every((r,ri)=>st.pick[ri]!==undefined):st.sel.size)?'':'disabled'}>Check answer</button><button class="btn alt" id="show">Show answer</button></div>`;
+    h=`<section class="slide"><div class="main">
+      <span class="kicker">${topicLabel(t,s.ti)} <span class="ph">· ${PH[q.ph]}</span></span>
+      <h2 class="qh">${q.ask}</h2>
+      ${q.ph==="as"&&t.pred.trim()?`<div class="yourpred"><b>Your prediction</b><span>${esc(t.pred)}</span></div>`:''}
+      <p class="small">${q.kind==="match"?"Pick one treatment for each patient.":"Select all that apply."}</p>
+      ${body}${tail}
+    </div>${fig(t)}</section>`;
+  }
+  else if(s.kind==="reveal"){
+    const t=TOPICS[s.ti];
+    if(!t.solved){
+      h=`<section class="slide"><div class="main"><span class="kicker">${topicLabel(t,s.ti)}</span>
+        <div class="locked"><h2>The condition is still hidden</h2><p class="lede">Check your answer on the A &amp; P question to reveal it.</p>
+        <div class="row"><button class="btn" onclick="go(cur-1)">Back to the question</button><button class="btn alt" id="force">Reveal anyway</button></div></div>
+        </div>${fig(t)}</section>`;
+    } else {
+      h=`<section class="slide"><div class="main">
+        <span class="kicker">Mystery ${s.ti+1} · Revealed · ${t.sub}</span>
+        <h2 class="reveal-name">${t.name}</h2>
+        <p class="lede">${t.def}</p>
+        <p class="small">Now that you know the condition, think about what you would see at the bedside.</p>
+        <div class="row"><button class="btn" onclick="go(cur+1)">What would you find?</button></div>
+      </div>${fig(t)}</section>`;
+    }
+  }
+  else if(s.kind==="points"){
+    const t=TOPICS[s.ti];
+    h=`<section class="slide ${t.table?'full':''}"><div class="main">
+      <span class="kicker">Mystery ${s.ti+1} · ${t.name} · Key points</span>
+      <h2>${t.name}: the big picture</h2>
+      ${t.table?`<div class="tbl-wrap"><table><thead><tr>${t.table.head.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${t.table.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`:''}
+      <ul class="points">${t.points.map(p=>`<li>${p}</li>`).join("")}</ul>
+      <div class="row"><button class="btn" onclick="go(cur+1)">How do we treat it?</button></div>
+    </div>${t.table?'':fig(t)}</section>`;
+  }
+  else if(s.kind==="summary"){
+    const rows=[
+      ["Ventricular septal defect","Increased pulmonary flow (acyanotic)","Harsh holosystolic murmur at LLSB, feeding fatigue, infections","Monitor, HF meds, high-calorie feeds, patch or device closure"],
+      ["Patent ductus arteriosus","Increased pulmonary flow (acyanotic)","Machinery murmur, bounding pulses, wide pulse pressure","Indomethacin/ibuprofen/acetaminophen, device closure or ligation"],
+      ["Coarctation of the aorta","Obstruction to flow (acyanotic)","Arm BP higher than leg BP, weak femoral pulses","PGE1 in critical newborns, balloon angioplasty or resection, lifelong BP checks"],
+      ["Tetralogy of Fallot","Decreased pulmonary flow (cyanotic)","Tet spells, squatting, clubbing, boot-shaped heart","Knee-chest, O₂, morphine during spells; surgical repair"],
+      ["Transposition of the great arteries","Mixed flow (cyanotic)","Profound cyanosis at birth, unchanged with O₂","PGE1, balloon atrial septostomy, arterial switch"],
+      ["Kawasaki disease","Acquired vasculitis","Fever ≥ 5 days, red eyes, strawberry tongue, peeling hands and feet","IVIG and aspirin, serial echocardiograms"],
+      ["Heart failure in children","Pump can't meet demand","Tachycardia, tachypnea, sweating with feeds, hepatomegaly, poor growth","Digoxin, diuretics, ACE inhibitors, high-calorie feeds, fix the defect"]];
+    const n=TOPICS.filter(t=>t.solved).length;
+    h=`<section class="slide full"><div class="main">
+      <span class="kicker">Wrap-up · ${n} of 7 mysteries solved</span>
+      <h2>Defect, findings, fix</h2>
+      <div class="tbl-wrap"><table><thead><tr><th>Condition</th><th>Classification</th><th>Hallmark findings</th><th>Priority treatment</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+      <div class="row"><button class="btn alt" id="reset">Reset and reshuffle</button></div>
+    </div></section>`;
+  }
+  stage.innerHTML=h; stage.scrollTop=0; wire();
+}
+
+function wire(){
+  const s=SLIDES[cur];
+  if(s.kind==="q"){
+    const q=s.q, st=q.state;
+    stage.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const k=+b.dataset.k; if(st.done)return;
+      st.sel.has(k)?st.sel.delete(k):st.sel.add(k); render();});
+    stage.querySelectorAll("select").forEach(el=>el.onchange=()=>{st.pick[el.dataset.ri]=el.value===""?undefined:el.value; render();});
+    const c=$("check"); if(c) c.onclick=()=>check(s);
+    const sh=$("show"); if(sh) sh.onclick=()=>{ if(q.kind==="match"){q.rows.forEach((r,ri)=>st.pick[ri]=String(r.a));} else st.sel=new Set(); st.shown=true; st.tally=""; solve(s); };
+    const rt=$("retry"); if(rt) rt.onclick=()=>{ q.state={sel:new Set(),bad:new Set(),done:false,msg:"",pick:{}}; render(); };
+  }
+  if(s.kind==="mystery"){
+    const t=TOPICS[s.ti], ta=$("pred"+s.ti), b=$("predgo");
+    ta.oninput=()=>{t.pred=ta.value; const ok=!!t.pred.trim(); b.disabled=!ok; $("next").disabled=!ok; $("predhint").textContent=ok?'':'Type a prediction to continue.';};
+    b.onclick=()=>go(cur+1);
+  }
+  const f=$("force"); if(f) f.onclick=()=>{TOPICS[s.ti].solved=true; render();};
+  const r=$("reset"); if(r) r.onclick=resetAll;
+}
+
+function check(s){
+  const q=s.q, st=q.state;
+  if(q.kind==="match"){
+    const right=q.rows.filter((r,ri)=>String(st.pick[ri])===String(r.a)).length;
+    st.perfect=right===q.rows.length;
+    st.tally=`<div class="tally"><span class="tag t-good">${right} correct</span>${right<q.rows.length?`<span class="tag t-bad">${q.rows.length-right} incorrect</span>`:''}</div>`;
+    return solve(s);
+  }
+  const totalOk=q.opts.filter(o=>o.ok).length;
+  const found=[...st.sel].filter(k=>q.opts[k].ok).length;
+  const wrong=[...st.sel].filter(k=>!q.opts[k].ok).length;
+  const missed=totalOk-found;
+  st.perfect=!wrong&&!missed;
+  st.tally=`<div class="tally"><span class="tag t-good">${found} of ${totalOk} correct picked</span>${missed?`<span class="tag t-miss">${missed} should have picked</span>`:''}${wrong?`<span class="tag t-bad">${wrong} picked but incorrect</span>`:''}</div>`;
+  solve(s);
+}
+
+function solve(s){
+  s.q.state.done=true; s.q.state.msg="";
+  if(s.reveals) TOPICS[s.ti].solved=true;
+  render();
+}
+
+function resetAll(){
+  build();
+  go(0);
+}
+
+function go(n){cur=Math.max(0,Math.min(SLIDES.length-1,n)); render();}
+window.go=go;
+$("prev").onclick=()=>go(cur-1);
+$("next").onclick=()=>go(cur+1);
+document.addEventListener("keydown",e=>{
+  if(["SELECT","TEXTAREA","INPUT"].includes(e.target.tagName))return;
+  if(e.key==="ArrowRight"||e.key==="PageDown")go(cur+1);
+  if(e.key==="ArrowLeft"||e.key==="PageUp")go(cur-1);
+});
+render();
+</script>
+
+</body></html>

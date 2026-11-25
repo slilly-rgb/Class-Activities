@@ -1,0 +1,453 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Respiratory Rounds</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@500&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: one centered column, a "case card" per round with findings above choices; chart-like header strip with a capnography trace. */
+:root{
+  --bg:#EBF0F2; --surface:#FFFFFF; --sunk:#F3F6F7; --ink:#132430; --muted:#566874; --line:#C9D4DA;
+  --accent:#1C5A78; --accent-ink:#FFFFFF; --accent-soft:#DCEAF1;
+  --key:#B97A0E; --key-soft:#FBF0D9;
+  --ok:#23744A; --ok-soft:#DFF1E6; --bad:#A93D33; --bad-soft:#F8E1DE;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E171C; --surface:#16222A; --sunk:#111C22; --ink:#E2EBEF; --muted:#93A6B1; --line:#2A3B45;
+  --accent:#72B6D6; --accent-ink:#0B1418; --accent-soft:#1B3442;
+  --key:#E8B451; --key-soft:#3A2F17;
+  --ok:#5FC28C; --ok-soft:#163327; --bad:#EF8075; --bad-soft:#3C1E1B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E171C; --surface:#16222A; --sunk:#111C22; --ink:#E2EBEF; --muted:#93A6B1; --line:#2A3B45;
+  --accent:#72B6D6; --accent-ink:#0B1418; --accent-soft:#1B3442;
+  --key:#E8B451; --key-soft:#3A2F17;
+  --ok:#5FC28C; --ok-soft:#163327; --bad:#EF8075; --bad-soft:#3C1E1B; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(2.2rem,7vw,3.4rem);font-weight:800;font-stretch:72%;letter-spacing:-.01em;text-transform:uppercase}
+h2{font-size:clamp(1.4rem,4.5vw,1.8rem);font-weight:750;font-stretch:80%}
+h3{font-size:1.05rem;font-weight:700;font-stretch:90%}
+p{margin:0}
+.label{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.strip{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.strip .label b{color:var(--ink);font-weight:500}
+.trace{width:100%;height:46px;display:block}
+.trace path{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.lead{color:var(--muted);max-width:62ch}
+.steps{display:grid;gap:10px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;counter-increment:s}
+.steps li::before{content:counter(s);font-family:var(--f-mono);font-size:.8rem;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);display:grid;place-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 .85rem var(--f-body);border:1.5px solid var(--line);background:var(--sunk);color:var(--muted);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button{font-family:var(--f-body)}
+.btn{font-weight:700;font-size:1rem;border-radius:8px;padding:12px 20px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:focus-visible,.chip:focus-visible,.opt:focus-visible,.sata label:focus-within{outline:3px solid var(--key);outline-offset:2px}
+.link{background:none;border:0;color:var(--accent);font-weight:600;cursor:pointer;padding:0;text-decoration:underline}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.findings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+@media (max-width:560px){.findings{grid-template-columns:1fr}}
+.findings li{background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0;display:flex;flex-direction:column;gap:4px;transition:background .25s,border-color .25s}
+.findings li.key{background:var(--key-soft);border-color:var(--key)}
+.findings li.key .label{color:var(--key)}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;font:600 1.05rem var(--f-body);color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);color:var(--muted);text-decoration:line-through;cursor:default}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt .tag{font:500 .7rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+.msg{border-radius:8px;padding:12px 14px;border-left:4px solid}
+#dxmsg{scroll-margin-top:16px}
+.msg.bad{background:var(--bad-soft);border-color:var(--bad)}
+.msg.ok{background:var(--ok-soft);border-color:var(--ok)}
+.sata{display:grid;gap:8px}
+.sata label{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start;background:var(--sunk);border:1.5px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer}
+.sata input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent)}
+.sata label.done{cursor:default}
+.sata label{scroll-margin-top:16px}
+.sata .why{grid-column:2;font-size:.92rem;color:var(--muted)}
+.sata .verdict{font:500 .7rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;grid-column:2}
+.sata label.hit{border-color:var(--ok);background:var(--ok-soft)}.sata label.hit .verdict{color:var(--ok)}
+.sata label.miss{border-color:var(--key);background:var(--key-soft)}.sata label.miss .verdict{color:var(--key)}
+.sata label.err{border-color:var(--bad);background:var(--bad-soft)}.sata label.err .verdict{color:var(--bad)}
+.sata label.pass .verdict{color:var(--muted)}
+.score{display:flex;gap:18px;flex-wrap:wrap}
+.score div{display:flex;flex-direction:column}
+.score b{font:800 2rem/1 var(--f-display);font-stretch:75%;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font:500 .7rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.y{color:var(--ok);font-weight:700}.n{color:var(--bad);font-weight:700}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+const CASES = [
+{n:"Epiglottitis",c:["A 4-year-old with no record of Hib vaccination spikes a fever of 104°F (40°C) over a few hours.","Drooling and refuses to swallow, even a favorite drink.","Sits upright, leaning forward on the hands with chin thrust out and mouth open (tripod position).","Muffled voice and soft inspiratory stridor, but no barking cough."],d:["Croup","Peritonsillar abscess"],k:2,
+note:"Rapid onset, drooling, dysphagia, muffled voice, and tripod positioning point to epiglottitis. Croup develops more gradually and has a barking cough.",
+i:[["Keep the child upright and calm, in a parent's lap if possible",1,"Agitation and lying flat can trigger complete airway obstruction."],
+["Inspect the throat with a tongue blade to confirm swelling",0,"Never put anything in the mouth or throat. It can cause laryngospasm and total obstruction."],
+["Keep intubation and tracheostomy equipment at the bedside",1,"The airway can close suddenly."],
+["Give humidified oxygen as the child tolerates",1,"Supports oxygenation without adding distress."],
+["Give IV antibiotics (such as ceftriaxone) as ordered",1,"The cause is usually bacterial (Hib, strep)."],
+["Offer oral fluids to soothe the throat",0,"The child cannot swallow safely. Keep NPO and give IV fluids."],
+["Send the child alone to radiology for a supine neck X-ray",0,"Lying supine and leaving without airway support risks obstruction."],
+["Give corticosteroids as ordered to reduce swelling",1,"May reduce airway edema."]]},
+
+{n:"Peritonsillar abscess",c:["A 22-year-old's sore throat has become much worse on the left side only.","Can open the mouth only about 1 cm because of jaw muscle spasm (trismus).","The uvula is pushed toward the right and the left tonsil area bulges.","Muffled, hot-potato voice; drooling because swallowing hurts."],d:["Tonsillitis","Epiglottitis"],k:2,
+note:"One-sided swelling with uvula deviation and trismus is the hallmark of a peritonsillar abscess, usually a complication of tonsillitis.",
+i:[["Prepare for needle aspiration or incision and drainage",1,"Draining the pus is the main treatment."],
+["Give IV antibiotics as ordered",1,"Covers group A strep and anaerobes."],
+["Offer warm saline gargles and an ice collar",1,"Ease pain and swelling."],
+["Monitor airway patency and ability to swallow",1,"Swelling can compromise the airway."],
+["Give aspirin for throat pain",0,"Aspirin increases bleeding risk after drainage. Use acetaminophen or the prescribed analgesic."],
+["Lay the patient flat after drainage",0,"Keep the head of the bed up so blood and drainage aren't aspirated."],
+["Teach that tonsillectomy may be recommended later",1,"Recurrence is common."]]},
+
+{n:"Asthma",c:["A 16-year-old has episodes of wheezing and chest tightness that come and go.","A cough wakes them at night a few times a month.","Symptoms flare after running in cold air and around a friend's cat.","Spirometry improves by more than 12% after an inhaled bronchodilator."],d:["Chronic bronchitis","Status asthmaticus"],k:3,
+note:"Episodic airflow obstruction that reverses with a bronchodilator and has clear triggers is asthma. Status asthmaticus is a severe attack that does not respond to treatment.",
+i:[["Use a short-acting beta-2 agonist (albuterol) for acute symptoms",1,"SABAs are the rescue medication."],
+["Use an inhaled corticosteroid daily for long-term control",1,"Controls airway inflammation."],
+["Use salmeterol (a LABA) alone to relieve a sudden attack",0,"LABAs act slowly and are never used alone or as rescue."],
+["Teach peak flow monitoring with green, yellow, and red zones",1,"Catches worsening early."],
+["Teach trigger avoidance and correct inhaler and spacer technique",1,"Fewer attacks, better drug delivery."],
+["Rinse the mouth after each inhaled corticosteroid dose",1,"Prevents oral thrush."],
+["Suggest propranolol for exercise-related palpitations",0,"Nonselective beta-blockers can cause bronchospasm."]]},
+
+{n:"Status asthmaticus",c:["A patient with asthma has used an albuterol inhaler 8 times in 2 hours with no relief.","Uses neck and chest accessory muscles and can say only 1–2 words at a time.","Pulsus paradoxus is present; SpO₂ is 86% on room air.","Wheezing has grown quieter, breath sounds are diminished, and PaCO₂ is rising."],d:["Asthma","Emphysema"],k:0,
+note:"A severe attack that doesn't respond to repeated bronchodilators is status asthmaticus. A quiet chest with rising PaCO₂ signals impending respiratory failure.",
+i:[["Place in high Fowler's position and give oxygen",1,"Improves lung expansion and oxygenation."],
+["Give back-to-back nebulized albuterol with ipratropium",1,"Maximizes bronchodilation."],
+["Give IV corticosteroids as ordered",1,"Reduces airway inflammation."],
+["Give IV magnesium sulfate as ordered",1,"Relaxes bronchial smooth muscle."],
+["Monitor ABGs and prepare for intubation",1,"Rising PaCO₂ means the patient is tiring."],
+["Give a sedative to ease anxiety",0,"Sedatives depress the drive to breathe."],
+["Monitor less often since the wheezing has decreased",0,"Less wheeze with more distress means very little air is moving. This is an emergency."]]},
+
+{n:"Chronic bronchitis",c:["A 62-year-old with a 45 pack-year smoking history coughs up sputum most days.","The productive cough has lasted at least 3 months in each of the past 2 years.","Bluish lips and nail beds, ankle edema, and jugular vein distention.","Coarse crackles and rhonchi; the patient is overweight."],d:["Emphysema","Pneumonia"],k:1,
+note:"A productive cough for 3 months in 2 consecutive years defines chronic bronchitis. Cyanosis and right-sided heart failure signs (cor pulmonale) are classic.",
+i:[["Support smoking cessation",1,"The most effective way to slow progression."],
+["Teach huff coughing and provide chest physiotherapy",1,"Clears excess mucus."],
+["Give low-flow oxygen to keep SpO₂ around 88–92%",1,"The usual target for patients who retain CO₂."],
+["Give high-flow oxygen to keep SpO₂ at 100%",0,"Can worsen CO₂ retention. Target 88–92%."],
+["Give inhaled bronchodilators as ordered",1,"Open the airways."],
+["Give a cough suppressant at bedtime",0,"The cough clears secretions. Suppressing it promotes retention and infection."],
+["Keep flu and pneumococcal vaccines current",1,"Infections trigger exacerbations."],
+["Encourage fluids to thin secretions unless restricted for heart failure",1,"Thinner mucus is easier to clear. With cor pulmonale, check the fluid order first."]]},
+
+{n:"Emphysema",c:["A thin 68-year-old sits leaning forward with elbows on the table.","Breathes out through pursed lips; the chest is barrel-shaped.","Hyperresonant to percussion with distant, diminished breath sounds.","Severe shortness of breath with little sputum; skin color is pink."],d:["Chronic bronchitis","Asthma"],k:1,
+note:"Air trapping (barrel chest, hyperresonance, pursed-lip breathing) with weight loss and little sputum points to emphysema.",
+i:[["Teach pursed-lip and diaphragmatic breathing",1,"Keeps airways open longer to empty trapped air."],
+["Offer small, frequent, high-calorie, high-protein meals",1,"Large meals press on the diaphragm, and breathing burns calories."],
+["Encourage a high-carbohydrate diet for energy",0,"Carbohydrate metabolism produces more CO₂."],
+["Rest before meals and use energy-conservation techniques",1,"Reduces fatigue and dyspnea."],
+["Give oxygen to keep SpO₂ around 88–92%",1,"Avoids suppressing the drive to breathe."],
+["Refer to pulmonary rehabilitation",1,"Improves exercise tolerance and quality of life."],
+["Limit fluids to dry up secretions",0,"Dehydration thickens secretions."]]},
+
+{n:"Pneumonia",c:["A 74-year-old has fever, shaking chills, and new confusion.","Coughs up rust-colored sputum.","Sharp chest pain that worsens with deep breaths.","Crackles and dullness over the right lower lobe; chest X-ray shows consolidation."],d:["Tuberculosis","Chronic bronchitis"],k:3,
+note:"Acute fever, productive cough, pleuritic pain, and lobar consolidation point to pneumonia. Confusion is often the first sign in older adults.",
+i:[["Collect sputum and blood cultures before the first antibiotic dose",1,"Antibiotics given first can make cultures unreliable."],
+["Start antibiotics promptly once cultures are collected",1,"Delays increase mortality."],
+["Hold antibiotics until culture results come back",0,"Results take days. Start empiric therapy right away."],
+["Encourage incentive spirometry, coughing, and deep breathing",1,"Expands alveoli and clears secretions."],
+["Keep the head of the bed elevated",1,"Eases breathing and lowers aspiration risk."],
+["Encourage fluids unless restricted",1,"Thins secretions and replaces losses from fever."],
+["Keep the patient flat on strict bed rest",0,"Immobility worsens secretion pooling. Mobilize early."]]},
+
+{n:"Lung cancer",c:["A 66-year-old with a 50 pack-year history says their usual cough has changed.","Has coughed up blood-streaked sputum several times.","Lost 15 lb (6.8 kg) in 3 months without trying; voice is hoarse.","Has had two pneumonias in the same lobe this year."],d:["Tuberculosis","Chronic bronchitis"],k:3,
+note:"A change in a chronic cough, hemoptysis, unexplained weight loss, and pneumonia that keeps returning in one spot (from an obstructing tumor) suggest lung cancer.",
+i:[["Prepare the patient for bronchoscopy and biopsy",1,"Tissue confirms the diagnosis and type."],
+["After lobectomy, keep the chest drainage system below chest level",1,"Prevents backflow into the pleural space."],
+["Clamp the chest tube whenever the patient moves",0,"Clamping can cause a tension pneumothorax."],
+["Manage pain and teach energy conservation",1,"Supports breathing and function."],
+["Watch for facial and neck swelling (superior vena cava syndrome)",1,"An oncologic emergency."],
+["Monitor serum sodium for SIADH",1,"Small cell lung cancer can secrete ADH."],
+["Offer a palliative care referral alongside treatment",1,"Improves symptom control and quality of life."],
+["Avoid talking about prognosis to protect hope",0,"Patients need honest information to make decisions."]]},
+
+{n:"Tuberculosis",c:["A 40-year-old who recently stayed in a homeless shelter has coughed for 4 weeks.","Drenching night sweats and a low-grade fever in the afternoons.","Weight loss and very little appetite.","Chest X-ray shows an upper-lobe cavity; sputum is positive for acid-fast bacilli."],d:["Pneumonia","Lung cancer"],k:3,
+note:"A cough longer than 3 weeks with night sweats, weight loss, congregate living, and acid-fast bacilli is tuberculosis.",
+i:[["Place in an airborne infection isolation room (negative pressure)",1,"TB spreads on airborne droplet nuclei."],
+["Wear a fit-tested N95 respirator when entering",1,"Required for airborne precautions."],
+["Use droplet precautions with a surgical mask",0,"Not enough protection for TB."],
+["Give multidrug therapy (RIPE) for 6–9 months with directly observed therapy",1,"Multiple drugs prevent resistance; DOT ensures adherence."],
+["Teach that rifampin turns urine, sweat, and tears orange",1,"Expected, harmless, and can stain contact lenses."],
+["Monitor liver function and avoid alcohol",1,"Isoniazid, rifampin, and pyrazinamide are hepatotoxic."],
+["Stop the medications once cough and fever resolve",0,"Stopping early causes relapse and drug resistance."],
+["Give vitamin B6 (pyridoxine) with isoniazid",1,"Prevents peripheral neuropathy."]]},
+
+{n:"Croup",c:["An 18-month-old had a runny nose for 2 days.","Wakes at midnight with a loud cough that sounds like a barking seal.","Hoarse cry and inspiratory stridor when upset.","Low-grade fever; the child is not drooling and swallows normally."],d:["Epiglottitis","Pertussis"],k:1,
+note:"A barking cough with stridor after a cold, worse at night, in a toddler is croup (laryngotracheobronchitis). No drooling helps rule out epiglottitis.",
+i:[["Give a single dose of dexamethasone as ordered",1,"Reduces airway swelling."],
+["Give nebulized racemic epinephrine for stridor at rest",1,"Quickly shrinks airway edema."],
+["Observe for 2–4 hours after racemic epinephrine",1,"Symptoms can rebound as it wears off."],
+["Keep the child calm and with the parent",1,"Crying worsens stridor."],
+["Give a cough suppressant",0,"Not helpful for croup."],
+["Start antibiotics routinely",0,"Croup is viral."],
+["Teach parents to seek care for stridor at rest, retractions, or color change",1,"Signs of worsening obstruction."]]},
+
+{n:"RSV",c:["A 3-month-old in January has had a runny nose and congestion for 3 days.","Now has wheezing and fine crackles in both lungs.","Respiratory rate 68 with nasal flaring and subcostal retractions.","Feeding poorly; parents noticed a 15-second pause in breathing."],d:["Pertussis","Croup"],k:1,
+note:"A winter cold in a young infant that moves into the lower airways with wheezing, crackles, and work of breathing is RSV bronchiolitis. Young infants may have apnea.",
+i:[["Suction the nose before feedings and as needed",1,"Infants are nose breathers."],
+["Give humidified oxygen to keep SpO₂ at or above 90%",1,"Treats hypoxemia."],
+["Maintain hydration, with IV or NG fluids if feeding is poor",1,"Tachypnea increases fluid loss."],
+["Use contact precautions and strict hand hygiene",1,"RSV survives on hands and surfaces."],
+["Use continuous pulse oximetry and apnea monitoring",1,"Apnea is a risk in young infants."],
+["Give albuterol and corticosteroids routinely",0,"Not recommended for bronchiolitis."],
+["Room the infant with an immunocompromised child",0,"RSV can be severe for them."],
+["Teach about RSV prevention (maternal vaccine or infant nirsevimab)",1,"Lowers the risk of severe disease."]]},
+
+{n:"Influenza",c:["In early February, a 35-year-old suddenly felt very ill within a few hours.","Fever of 102.5°F (39.2°C), severe body aches, and headache.","Dry cough and extreme fatigue.","Did not get this season's vaccine; several coworkers are out with the same illness."],d:["COVID-19","Pneumonia"],k:0,
+note:"Abrupt onset of high fever, myalgias, and headache in flu season is classic influenza.",
+i:[["Start oseltamivir within 48 hours of symptom onset",1,"Works best when started early."],
+["Use droplet precautions",1,"Influenza spreads by large droplets."],
+["Encourage rest and fluids",1,"Supportive care."],
+["Give acetaminophen for fever and aches",1,"Comfort and fever control."],
+["Give antibiotics to kill the virus",0,"Antibiotics don't treat viruses."],
+["Give aspirin to a child or teen with the flu",0,"Risk of Reye syndrome."],
+["Watch for worsening cough or dyspnea after improvement",1,"May signal secondary bacterial pneumonia."],
+["Recommend a yearly influenza vaccine",1,"Best prevention."]]},
+
+{n:"COVID-19",c:["A 58-year-old developed fever and dry cough 5 days after a family gathering.","Lost the senses of taste and smell.","SpO₂ is 89%, yet the patient says they don't feel very short of breath.","Chest CT shows ground-glass opacities in both lungs."],d:["Influenza","Pneumonia"],k:1,
+note:"Loss of taste and smell after an exposure, with low oxygen the patient doesn't feel (silent hypoxemia) and bilateral ground-glass opacities, points to COVID-19.",
+i:[["Wear an N95, eye protection, gown, and gloves",1,"Recommended PPE for hospitalized patients."],
+["Give supplemental oxygen and monitor SpO₂ closely",1,"Hypoxemia can worsen quickly."],
+["Use awake prone positioning when ordered",1,"Improves ventilation-perfusion matching."],
+["Give dexamethasone as ordered since the patient needs oxygen",1,"Reduces mortality in patients on oxygen."],
+["Give remdesivir as ordered",1,"Antiviral for hospitalized patients."],
+["Give prophylactic anticoagulation as ordered",1,"COVID-19 raises clotting risk."],
+["Wear only a surgical mask",0,"Not enough protection."],
+["Give antibiotics to treat the virus",0,"Antibiotics don't treat viruses."]]},
+
+{n:"Streptococcal pharyngitis",c:["A 9-year-old has a sudden sore throat and fever of 102°F (38.9°C).","Red, swollen tonsils with white exudate; tiny red spots on the soft palate.","Tender, swollen lymph nodes in the front of the neck.","No cough or runny nose; the rapid antigen test is positive."],d:["Tonsillitis","Peritonsillar abscess"],k:3,
+note:"Sudden sore throat and fever with exudate, palatal petechiae, tender anterior nodes, no cough, and a positive rapid test is strep throat (group A strep).",
+i:[["Give penicillin or amoxicillin for the full 10 days",1,"Completing the course prevents complications."],
+["Stop the antibiotic once the throat feels better",0,"Raises the risk of rheumatic fever."],
+["Replace the toothbrush after 24 hours of antibiotics",1,"Prevents reinfection."],
+["Return to school after 12–24 hours of antibiotics and no fever",1,"No longer contagious."],
+["Teach signs of rheumatic fever and glomerulonephritis",1,"Joint pain, rash, dark urine, or swelling need follow-up."],
+["Offer cool liquids, soft foods, and warm saline gargles",1,"Comfort measures."],
+["Share leftover antibiotics with siblings who get sick",0,"Each person needs their own diagnosis and full course."]]},
+
+{n:"Tonsillitis",c:["A 7-year-old has had 7 episodes of sore throat with fever this year.","Tonsils are enlarged and nearly touch at the midline.","Breathes through the mouth, snores, and has bad breath.","Trouble swallowing solid foods; today's rapid strep test is negative."],d:["Streptococcal pharyngitis","Peritonsillar abscess"],k:0,
+note:"Recurrent episodes with large tonsils on both sides causing mouth breathing and snoring suggest chronic tonsillitis. Seven episodes in a year meets a common threshold for tonsillectomy.",
+i:[["Treat viral episodes with fluids, rest, and acetaminophen",1,"Most cases are viral."],
+["Prepare the family for tonsillectomy",1,"Indicated for frequent recurrent episodes."],
+["After surgery, position the child on the side",1,"Lets secretions drain."],
+["After surgery, report frequent swallowing",1,"An early sign of bleeding."],
+["Offer cool liquids and popsicles that are not red or brown",1,"Red or brown can be mistaken for blood."],
+["Let the child drink through a straw",0,"Suction can dislodge clots."],
+["Encourage gargling and vigorous coughing after surgery",0,"Can disrupt the surgical site."]]},
+
+{n:"Pertussis",c:["A 2-month-old had cold symptoms and a mild cough for about 10 days.","Now has fits of rapid coughing that leave the face red and then blue.","A high-pitched whoop on inhaling at the end of a coughing fit.","Vomits after coughing spells; the infant has not received DTaP yet."],d:["Croup","RSV"],k:2,
+note:"Paroxysmal coughing with an inspiratory whoop and post-tussive vomiting after a cold-like phase is pertussis (whooping cough). Infants too young for full vaccination are at highest risk.",
+i:[["Use droplet precautions",1,"Pertussis spreads by large droplets."],
+["Give a macrolide antibiotic (azithromycin) as ordered",1,"Shortens contagiousness."],
+["Give preventive antibiotics to close contacts",1,"Protects household members."],
+["Suction secretions and give humidified oxygen",1,"Thick mucus can block the airway."],
+["Keep the room quiet and offer small, frequent feedings",1,"Reduces triggers and vomiting."],
+["Give a cough suppressant",0,"Not effective and can be unsafe in infants."],
+["Teach that pregnant people should get Tdap with every pregnancy",1,"Maternal antibodies protect newborns."]]},
+
+{n:"Obstructive sleep apnea",c:["A 52-year-old's partner reports very loud snoring and episodes where breathing stops.","Falls asleep at red lights and in meetings.","Wakes with headaches and never feels rested.","BMI 38, neck circumference 18 in (46 cm), and hard-to-control blood pressure."],d:["Tonsillitis","Chronic bronchitis"],k:0,
+note:"Loud snoring with witnessed pauses in breathing, daytime sleepiness, obesity, and a thick neck point to obstructive sleep apnea.",
+i:[["Prepare the patient for a sleep study (polysomnography)",1,"Confirms the diagnosis."],
+["Use CPAP every night as prescribed",1,"Keeps the airway open during sleep."],
+["Encourage weight loss",1,"Reduces airway collapse."],
+["Sleep on the side rather than the back",1,"The tongue and soft tissue fall back when supine."],
+["Avoid alcohol and sedatives before bed",1,"They relax airway muscles."],
+["Bring home CPAP to the hospital and use it after surgery",1,"Anesthesia and opioids worsen apnea."],
+["Take a sleeping pill for deeper sleep",0,"Sedatives worsen airway collapse."],
+["Stop CPAP once daytime sleepiness improves",0,"Symptoms come back without nightly use."]]},
+
+{n:"Rhinosinusitis",c:["A 30-year-old had a cold 12 days ago that never cleared up.","Thick yellow-green nasal discharge and postnasal drip.","Pressure and pain over the cheeks and forehead that worsen when bending forward.","Decreased sense of smell and a nighttime cough."],d:["Influenza","COVID-19"],k:2,
+note:"Facial pain and pressure that worsen when leaning forward, purulent drainage, and symptoms lasting more than 10 days point to rhinosinusitis.",
+i:[["Use saline nasal irrigation",1,"Thins and clears mucus."],
+["Use an intranasal corticosteroid spray",1,"Reduces swelling so sinuses drain."],
+["Increase fluids and use humidification or steam",1,"Loosens secretions."],
+["Give analgesics for facial pain",1,"Comfort."],
+["Use oxymetazoline spray for 2 weeks",0,"Use longer than 3 days causes rebound congestion."],
+["Give antibiotics for every case",0,"Most cases are viral. Antibiotics are for specific bacterial criteria."],
+["Report severe headache, stiff neck, vision changes, or eye swelling",1,"Possible spread of infection."]]}
+];
+
+const NAMES = CASES.map(c=>c.n);
+const $ = s=>document.querySelector(s);
+const app = $("#app");
+const shuffle = a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc = s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+
+function toTop(){
+  try{window.scrollTo(0,0)}catch(e){}
+  try{(document.scrollingElement||document.documentElement).scrollTop=0}catch(e){}
+  try{app.scrollIntoView({block:"start",behavior:"auto"})}catch(e){}
+}
+
+let selected = new Set(NAMES), doShuffle = true, run = null;
+
+const TRACE = `<svg class="trace" viewBox="0 0 600 46" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 H40 L48 10 H120 L128 40 H180 L188 10 H260 L268 40 H320 L328 10 H400 L408 40 H460 L468 10 H540 L548 40 H600"/></svg>`;
+
+function header(extra){
+  return `<div class="strip"><span class="label">Respiratory Rounds</span>${extra||""}</div>`;
+}
+
+function renderStart(){
+  app.innerHTML = `
+  ${header('<span class="label">Nursing · Respiratory disorders</span>')}
+  ${TRACE}
+  <h1>Respiratory Rounds</h1>
+  <p class="lead">Read four assessment findings, name the disorder, then choose every nursing intervention and treatment that fits.</p>
+  <div class="card">
+    <h3>How each case works</h3>
+    <ol class="steps">
+      <li><span>Read the four findings about one patient.</span></li>
+      <li><span>Pick the disorder from three choices. A wrong pick is crossed out and a key finding is highlighted. Keep going until you get it.</span></li>
+      <li><span>Select all that apply: choose every correct intervention or treatment, then submit to see the rationale for each option.</span></li>
+    </ol>
+  </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h3>Disorders in this round</h3>
+      <div class="row"><button class="link" id="all">All</button><button class="link" id="none">None</button></div>
+    </div>
+    <div class="chips" id="chips">${NAMES.map(n=>`<button class="chip" aria-pressed="${selected.has(n)}" data-n="${esc(n)}">${esc(n)}</button>`).join("")}</div>
+    <label class="row" style="gap:8px;cursor:pointer"><input type="checkbox" id="shuf" ${doShuffle?"checked":""}> Shuffle case order</label>
+  </div>
+  <div class="row"><button class="btn" id="go">Start rounds (<span id="cnt">${selected.size}</span> cases)</button></div>`;
+  $("#chips").onclick = e=>{const b=e.target.closest(".chip");if(!b)return;const n=b.dataset.n;selected.has(n)?selected.delete(n):selected.add(n);b.setAttribute("aria-pressed",selected.has(n));upd()};
+  $("#all").onclick=()=>{selected=new Set(NAMES);renderStart()};
+  $("#none").onclick=()=>{selected.clear();renderStart()};
+  $("#shuf").onchange=e=>doShuffle=e.target.checked;
+  const upd=()=>{$("#cnt").textContent=selected.size;$("#go").disabled=!selected.size};upd();
+  $("#go").onclick=()=>startRun(CASES.filter(c=>selected.has(c.n)));
+}
+
+function startRun(list){
+  run = {list: doShuffle?shuffle(list):list.slice(), idx:0, results:[]};
+  renderCase();
+}
+
+function renderCase(){
+  const c = run.list[run.idx], total = run.list.length;
+  const opts = shuffle([c.n,...c.d]);
+  const rec = {n:c.n, misses:0, sataHits:0, sataTotal:c.i.length, perfect:false};
+  app.innerHTML = `
+  ${header(`<span class="label">Case <b>${String(run.idx+1).padStart(2,"0")}</b> of ${total} · Score <b>${points()}</b></span>`)}
+  <div class="progress" aria-hidden="true"><i style="width:${run.idx/total*100}%"></i></div>
+  <div class="card">
+    <span class="label">Assessment findings</span>
+    <ul class="findings">${c.c.map((t,i)=>`<li data-i="${i}"><span class="label">Finding</span><span>${esc(t)}</span></li>`).join("")}</ul>
+  </div>
+  <div class="card" id="dx">
+    <h2>Which disorder fits these findings?</h2>
+    <div class="opts">${opts.map(o=>`<button class="opt" data-o="${esc(o)}"><span>${esc(o)}</span><span class="tag"></span></button>`).join("")}</div>
+    <div id="dxmsg" aria-live="polite"></div>
+  </div>
+  <div id="stage2"></div>`;
+  toTop();
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const o=b.dataset.o;
+    if(o===c.n){
+      b.classList.add("right");b.querySelector(".tag").textContent=rec.misses?"Correct":"Correct · first try";
+      app.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+      $("#dxmsg").innerHTML=`<div class="msg ok"><strong>${esc(c.n)}.</strong> ${esc(c.note)}</div>`;
+      renderSata(c,rec);
+    }else{
+      rec.misses++;b.classList.add("wrong");b.disabled=true;b.querySelector(".tag").textContent="Not this one";
+      app.querySelector(`.findings li[data-i="${c.k}"]`).classList.add("key");
+      app.querySelector(`.findings li[data-i="${c.k}"] .label`).textContent="Key finding";
+      $("#dxmsg").innerHTML=`<div class="msg bad">${esc(o)} doesn't explain all four findings. Look again at the highlighted key finding.</div>`;
+    }
+  });
+}
+
+function renderSata(c,rec){
+  const items = shuffle(c.i.map((x,j)=>({t:x[0],ok:!!x[1],why:x[2],id:"iv"+j})));
+  const s2 = $("#stage2");
+  s2.innerHTML = `<div class="card">
+    <span class="label">Select all that apply</span>
+    <h2>Which interventions and treatments are appropriate for ${esc(c.n.toLowerCase().startsWith("covid")||c.n==="RSV"?c.n:c.n.toLowerCase())}?</h2>
+    <div class="sata">${items.map(it=>`<label for="${it.id}"><input type="checkbox" id="${it.id}"><span>${esc(it.t)}</span></label>`).join("")}</div>
+    <div class="row"><button class="btn" id="sub" disabled>Submit answers</button></div>
+    <div id="satamsg" aria-live="polite"></div>
+  </div>`;
+  const boxes = items.map(it=>$("#"+it.id));
+  boxes.forEach(b=>b.onchange=()=>$("#sub").disabled=!boxes.some(x=>x.checked));
+  const rat = $("#dxmsg");
+  try{rat.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"})}catch(e){}
+  $("#sub").onclick=()=>{
+    let hits=0;
+    items.forEach((it,j)=>{
+      const b=boxes[j], lab=b.parentElement, on=b.checked; b.disabled=true; lab.classList.add("done");
+      let cls,v;
+      if(it.ok&&on){cls="hit";v="Correct choice"}
+      else if(it.ok&&!on){cls="miss";v="Missed: this is appropriate"}
+      else if(!it.ok&&on){cls="err";v="Incorrect: do not do this"}
+      else {cls="pass";v="Correctly left out"}
+      if(on===it.ok)hits++;
+      lab.classList.add(cls);
+      lab.insertAdjacentHTML("beforeend",`<span class="verdict">${v}</span><span class="why">${esc(it.why)}</span>`);
+    });
+    rec.sataHits=hits; rec.perfect=hits===items.length; run.results.push(rec);
+    $("#sub").remove();
+    const last = run.idx===run.list.length-1;
+    $("#satamsg").innerHTML=`<div class="msg ${rec.perfect?"ok":"bad"}">${rec.perfect?"All decisions correct.":`${hits} of ${items.length} decisions correct. Review the rationales above.`}</div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="next">${last?"See results":"Next case"}</button></div>`;
+    $("#next").onclick=()=>{if(last)renderEnd();else{run.idx++;renderCase()}};
+    const firstWrong = s2.querySelector(".sata label.err, .sata label.miss");
+    if(firstWrong){try{firstWrong.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"})}catch(e){}}
+  };
+}
+
+function points(){return run.results.reduce((s,r)=>s+(r.misses===0?1:0)+(r.perfect?1:0),0)}
+
+function renderEnd(){
+  const R=run.results, n=R.length;
+  const first=R.filter(r=>!r.misses).length, perf=R.filter(r=>r.perfect).length;
+  const dec=R.reduce((s,r)=>s+r.sataHits,0), decT=R.reduce((s,r)=>s+r.sataTotal,0);
+  const missed=R.filter(r=>r.misses||!r.perfect).map(r=>r.n);
+  setTimeout(toTop,0);
+  app.innerHTML=`
+  ${header('<span class="label">Rounds complete</span>')}
+  ${TRACE}
+  <h1>End of shift</h1>
+  <div class="card">
+    <div class="score">
+      <div><b>${first}/${n}</b><span class="label">Diagnosed first try</span></div>
+      <div><b>${perf}/${n}</b><span class="label">Perfect SATA</span></div>
+      <div><b>${Math.round(dec/decT*100)}%</b><span class="label">Intervention decisions</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Case by case</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Disorder</th><th>Diagnosis</th><th>Interventions</th></tr></thead>
+      <tbody>${R.map(r=>`<tr><td>${esc(r.n)}</td><td class="${r.misses?"n":"y"}">${r.misses?`${r.misses} miss${r.misses>1?"es":""}`:"First try"}</td><td class="${r.perfect?"y":"n"}">${r.sataHits}/${r.sataTotal}</td></tr>`).join("")}</tbody>
+    </table></div>
+  </div>
+  <div class="row">
+    ${missed.length?`<button class="btn" id="retry">Retry ${missed.length} missed case${missed.length>1?"s":""}</button>`:""}
+    <button class="btn ghost" id="again">Back to start</button>
+  </div>`;
+  if(missed.length)$("#retry").onclick=()=>startRun(CASES.filter(c=>missed.includes(c.n)));
+  $("#again").onclick=()=>{renderStart();toTop()};
+}
+
+renderStart();
+</script>
+
+</body></html>

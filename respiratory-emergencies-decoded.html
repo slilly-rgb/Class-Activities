@@ -1,0 +1,330 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Respiratory Emergencies Decoded</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one centered study card; step 1 (core question) hands off to step 2 (NCLEX item), with a slim progress rail above */
+:root{
+  --bg:#eef2f5; --surface:#ffffff; --ink:#15232f; --muted:#5a6b78; --line:#d5dee5;
+  --accent:#1f6f9a; --accent-soft:#e2eff6; --ok:#1d7a4f; --ok-soft:#e3f3ea; --bad:#b23a3a; --bad-soft:#f8e6e6;
+  --core:#7a4fb0; --core-soft:#efe8f8;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f171e; --surface:#17222c; --ink:#e4ecf2; --muted:#93a5b3; --line:#2a3946;
+  --accent:#62b2dd; --accent-soft:#1a3242; --ok:#5ec993; --ok-soft:#163327; --bad:#ee8686; --bad-soft:#3a1d1f;
+  --core:#b99be6; --core-soft:#2a2140; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f171e; --surface:#17222c; --ink:#e4ecf2; --muted:#93a5b3; --line:#2a3946;
+  --accent:#62b2dd; --accent-soft:#1a3242; --ok:#5ec993; --ok-soft:#163327; --bad:#ee8686; --bad-soft:#3a1d1f;
+  --core:#b99be6; --core-soft:#2a2140; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:24px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:700;font-size:1.55rem;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.score{font-family:var(--mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.03em}
+.rail{display:grid;grid-template-columns:repeat(20,1fr);gap:4px}
+.rail button{height:8px;border:0;border-radius:4px;background:var(--line);padding:0;cursor:pointer}
+.rail button.done-ok{background:var(--ok)} .rail button.done-bad{background:var(--bad)}
+.rail button.cur{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:18px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.chip.core{background:var(--core-soft);color:var(--core)}
+.chip.plain{background:transparent;color:var(--muted);padding-inline:0}
+.steps{display:flex;gap:6px;margin-left:auto}
+.steps span{font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+.steps span.on{color:var(--ink)}
+.coreq{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.2;margin:0;text-wrap:balance}
+.hint{color:var(--muted);margin:0}
+label.notes{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:.9rem;color:var(--muted)}
+textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:96px;resize:vertical}
+textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.recall{border-left:3px solid var(--core);background:var(--core-soft);border-radius:0 10px 10px 0;padding:10px 14px;font-size:.95rem}
+.recall b{color:var(--core)}
+.stem{font-size:1.12rem;margin:0;font-weight:600;line-height:1.45}
+.sata{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.05em;text-transform:uppercase}
+.opts{display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:0}
+.opt{border:1.5px solid var(--line);border-radius:11px;background:var(--surface);transition:border-color .15s, background .15s}
+.opt label{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:12px 14px;cursor:pointer}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.mark{width:24px;height:24px;border:2px solid var(--muted);display:grid;place-items:center;font-family:var(--mono);font-size:.75rem;color:var(--muted);margin-top:1px}
+.radio .mark{border-radius:50%} .check .mark{border-radius:6px}
+.opt:hover:not(.locked){border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .mark{border-color:var(--accent);background:var(--accent);color:var(--surface)}
+.opt input:focus-visible + .mark{outline:2px solid var(--accent);outline-offset:2px}
+.opt.locked label{cursor:default}
+.opt.is-ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.is-ok .mark{border-color:var(--ok);background:var(--ok);color:var(--surface)}
+.opt.is-bad.sel{border-color:var(--bad);background:var(--bad-soft)}
+.opt.is-bad.sel .mark{border-color:var(--bad);background:var(--bad);color:var(--surface)}
+.why{grid-column:2;font-size:.94rem;color:var(--ink);margin-top:6px;padding-top:8px;border-top:1px dashed var(--line)}
+.why .tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;margin-right:6px}
+.is-ok .why .tag{color:var(--ok)} .is-bad .why .tag{color:var(--bad)}
+.miss{font-family:var(--mono);font-size:.7rem;color:var(--ok);letter-spacing:.05em;text-transform:uppercase;margin-left:6px}
+.verdict{border-radius:11px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.verdict.ok{background:var(--ok-soft)} .verdict.bad{background:var(--bad-soft)}
+.verdict strong{font-family:var(--display);font-size:1.15rem}
+.verdict.ok strong{color:var(--ok)} .verdict.bad strong{color:var(--bad)}
+.actions{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+button.btn{font:inherit;font-weight:700;border-radius:10px;padding:11px 20px;cursor:pointer;border:1.5px solid var(--accent);background:var(--accent);color:var(--surface)}
+button.btn.ghost{background:transparent;color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+.results h2{font-family:var(--display);font-size:2rem;margin:0}
+.rlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rlist li{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
+.rlist .n{font-family:var(--mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rlist .s{min-width:0}
+.rlist .r{font-family:var(--mono);font-size:.75rem;letter-spacing:.05em}
+.rlist .r.ok{color:var(--ok)} .rlist .r.bad{color:var(--bad)}
+.rlist button{all:unset;cursor:pointer;color:var(--ink)} .rlist button:hover{color:var(--accent);text-decoration:underline}
+.foot{color:var(--muted);font-size:.85rem;text-align:center}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Respiratory Emergencies Decoded</h1>
+      <span class="score" id="score">0 correct · 0 of 20 answered</span>
+    </div>
+    <div class="rail" id="rail" aria-label="Question progress"></div>
+  </header>
+  <main class="card" id="card" aria-live="polite"></main>
+  <p class="foot">PE · pleural effusion · pneumothorax · ARDS · acute respiratory failure · flail chest. Notes stay on this screen and are not saved.</p>
+</div>
+
+<script>
+const Q=[
+{t:"Acute respiratory failure",s:"What do the ABG numbers look like in respiratory failure?",c:"PaO2 under 60, PaCO2 over 50, pH under 7.35. The ABG is the best lab for judging both oxygenation and ventilation.",
+ q:"Which arterial blood gas result is consistent with acute hypercapnic respiratory failure?",o:[
+ ["pH 7.44, PaCO2 38, PaO2 92, HCO3 24",0,"Every value is within normal range. This is a normal ABG."],
+ ["pH 7.28, PaCO2 58, PaO2 54, HCO3 25",1,"Acidemia (pH below 7.35), hypercapnia (PaCO2 above 50) and hypoxemia (PaO2 below 60), with a normal HCO3 showing no time to compensate. This is acute respiratory failure."],
+ ["pH 7.50, PaCO2 30, PaO2 88, HCO3 23",0,"High pH with low PaCO2 is respiratory alkalosis from hyperventilation, and oxygenation is adequate. This client is blowing off CO2, not retaining it."],
+ ["pH 7.36, PaCO2 46, PaO2 80, HCO3 28",0,"The pH is normal, PaCO2 is only mildly high, and the raised HCO3 shows the kidneys have compensated. This fits a chronic picture, not acute failure."]]},
+{t:"Pleural effusion",s:"What does fluid around the lung sound like on assessment?",c:"Dull to percussion, with diminished or absent breath sounds over the fluid.",
+ q:"A client is admitted with a large right-sided pleural effusion. Which assessment finding does the nurse expect over the right lower lung field?",o:[
+ ["Hyperresonance on percussion",0,"Hyperresonance means extra air, as in pneumothorax or emphysema. Fluid sounds dull."],
+ ["Dullness on percussion and diminished breath sounds",1,"Fluid in the pleural space dampens percussion and muffles sound moving from the lung to the chest wall."],
+ ["Coarse crackles that clear with coughing",0,"Crackles that clear with coughing come from secretions in the airways. Pleural fluid sits outside the lung and isn't moved by coughing."],
+ ["Tracheal deviation toward the right",0,"A large effusion pushes the trachea away from the affected side, so it would shift left. Deviation toward the affected side suggests lung collapse (atelectasis)."]]},
+{t:"Pneumothorax",s:"How do you keep a chest tube working safely?",c:"Keep it below the chest, keep it sealed, and watch for tidaling. Don't clamp it and don't strip it.",
+ q:"The nurse is caring for a client with a chest tube for a pneumothorax. Which actions are appropriate? Select all that apply.",o:[
+ ["Keep the drainage unit below the level of the chest",1,"Gravity drainage keeps air and fluid flowing out and stops drainage from flowing back into the pleural space."],
+ ["Tape all tubing connections securely",1,"An airtight system prevents air leaks and accidental disconnection."],
+ ["Clamp the chest tube whenever the client ambulates",0,"Clamping traps air in the pleural space and can cause a tension pneumothorax. The unit simply travels below chest level."],
+ ["Observe for tidaling in the water-seal chamber",1,"Water rising on inspiration and falling on expiration shows the tube is patent and connected to the pleural space."],
+ ["Strip the tubing every hour to maintain patency",0,"Stripping creates high negative pressure that can damage lung tissue. It's done only with an order or per policy, never routinely."],
+ ["Keep sterile water and an occlusive dressing at the bedside",1,"These are the emergency supplies for a disconnected tube (sterile water) or a dislodged tube (occlusive dressing)."]]},
+{t:"Pneumothorax",s:"If a chest tube disconnects, what do you do?",c:"Put the end of the tube in sterile water.",
+ q:"A client's chest tube becomes disconnected from the drainage system while the client is repositioning. What should the nurse do first?",o:[
+ ["Clamp the chest tube close to the chest wall and leave it clamped",0,"Leaving the tube clamped traps air and can cause a tension pneumothorax."],
+ ["Submerge the end of the chest tube 1 to 2 inches in sterile water",1,"The water acts as a temporary water seal, letting air escape while keeping outside air from entering the pleural space."],
+ ["Remove the chest tube and apply a dry dressing",0,"The nurse doesn't remove a chest tube for a disconnection. Pulling it out would create an open pneumothorax."],
+ ["Call the provider and wait for orders",0,"Waiting leaves the pleural space open to air. Protect the client first, then notify the provider."]]},
+{t:"Pulmonary embolism",s:"When a client suddenly can't breathe, what do you do first?",c:"Sit them up and give oxygen.",
+ q:"A client is 2 days post total hip arthroplasty. The client suddenly reports sharp chest pain and says, \"I can't catch my breath.\" HR 118, RR 32, SpO2 86% on room air, and the client is visibly anxious. Which action should the nurse take first?",o:[
+ ["Administer the prescribed PRN morphine",0,"Morphine may ease pain and anxiety, but it doesn't correct hypoxemia and can depress breathing. It isn't the first action."],
+ ["Raise the head of the bed and apply oxygen",1,"Positioning improves lung expansion and oxygen treats the hypoxemia right away. Airway and breathing come first in a suspected PE."],
+ ["Obtain a 12-lead ECG",0,"An ECG is useful, but it doesn't treat the SpO2 of 86%. It comes after oxygenation."],
+ ["Notify the health care provider",0,"The provider must be notified, but the nurse treats the hypoxemia first and stays with the client."]]},
+{t:"ARDS",s:"What does ARDS look like?",c:"Stiff, wet, white lungs that oxygen won't fix, and it isn't heart failure.",
+ q:"Which findings are consistent with acute respiratory distress syndrome? Select all that apply.",o:[
+ ["PaO2 that stays low despite 100% oxygen",1,"Refractory hypoxemia is the hallmark of ARDS. Flooded, collapsed alveoli can't exchange gas no matter how much oxygen is given."],
+ ["Bilateral diffuse infiltrates (\"white-out\") on chest x-ray",1,"Fluid leaking into alveoli across both lungs produces the classic white-out appearance."],
+ ["Rising peak airway pressures on the ventilator",1,"ARDS lungs lose compliance (they get stiff), so the ventilator needs more pressure to deliver each breath."],
+ ["Elevated pulmonary capillary wedge pressure",0,"ARDS is noncardiogenic, so wedge pressure is normal. A high wedge pressure points to cardiogenic pulmonary edema."],
+ ["Tachypnea and dyspnea",1,"Rapid, labored breathing is an early sign as the client tries to make up for poor gas exchange."],
+ ["Rapid improvement in SpO2 with a nasal cannula",0,"ARDS doesn't respond quickly to low-flow oxygen. A fast response suggests a different, simpler cause."]]},
+{t:"Pneumothorax",s:"What makes a pneumothorax a tension pneumothorax?",c:"The trachea shifts away from the injured side and the BP drops.",
+ q:"A client with a left-sided pneumothorax after a motor vehicle crash becomes increasingly short of breath. Which finding most strongly indicates a tension pneumothorax has developed?",o:[
+ ["Tracheal deviation to the right with hypotension",1,"Trapped air builds pressure that shoves the mediastinum away from the injured side, compressing the heart and great vessels and dropping cardiac output."],
+ ["Decreased breath sounds on the left",0,"This is expected with any left pneumothorax. It doesn't tell you tension has developed."],
+ ["Pleuritic chest pain",0,"Pleuritic pain occurs with a simple pneumothorax too, so it doesn't distinguish tension."],
+ ["SpO2 of 92%",0,"This needs watching, but it isn't specific. Tension is marked by mediastinal shift and hemodynamic compromise."]]},
+{t:"Flail chest",s:"What is the classic sign of flail chest?",c:"Paradoxical chest movement: the loose segment moves in when the rest of the chest moves out.",
+ q:"A client arrives after blunt chest trauma with three adjacent ribs fractured in two places. Which assessment finding does the nurse expect?",o:[
+ ["A segment of the chest wall that moves inward on inspiration",1,"The free-floating segment is pulled in by negative pressure on inspiration and pushed out on expiration, opposite the rest of the chest."],
+ ["Symmetric chest expansion",0,"Flail chest makes chest movement asymmetric and paradoxical."],
+ ["A sucking sound at a chest wound",0,"A sucking chest wound is an open pneumothorax from a penetrating injury, not a blunt rib injury."],
+ ["Barrel-shaped chest",0,"A barrel chest develops over years of air trapping in COPD. It isn't an acute trauma finding."]]},
+{t:"Pulmonary embolism",s:"Which lab goes with heparin?",c:"aPTT. (Warfarin goes with PT/INR.)",
+ q:"A client with a PE is started on a continuous IV heparin infusion. Which laboratory value will the nurse use to guide titration of the infusion?",o:[
+ ["PT/INR",0,"PT/INR monitors warfarin. It's checked when the client is bridged to warfarin, but it doesn't guide heparin dosing."],
+ ["Platelet count",0,"Platelets are watched for heparin-induced thrombocytopenia, but they don't guide the infusion rate."],
+ ["Hemoglobin",0,"Hemoglobin is watched for bleeding, but it doesn't guide titration."],
+ ["aPTT",1,"Heparin is titrated to keep the aPTT in the therapeutic range, often 1.5 to 2.5 times control (or anti-Xa, per protocol)."]]},
+{t:"ARDS",s:"What is the main side effect of PEEP?",c:"PEEP can drop the blood pressure.",
+ q:"The provider increases PEEP for a mechanically ventilated client with ARDS. Which assessment is the nurse's priority after the change?",o:[
+ ["Blood glucose",0,"PEEP doesn't affect blood glucose."],
+ ["Urine output",0,"Urine output can fall later if cardiac output stays low, but blood pressure shows the problem first."],
+ ["Blood pressure",1,"Higher pressure in the chest reduces venous return and cardiac output, which can cause hypotension. Also watch for barotrauma such as pneumothorax."],
+ ["Pupil response",0,"Pupil response isn't a direct effect of PEEP for this client."]]},
+{t:"Acute respiratory failure",s:"How do you know a client is tiring out?",c:"Confusion, slowing breathing, working harder and a rising CO2.",
+ q:"A client with COPD is receiving oxygen for an exacerbation. Which findings indicate the client is progressing toward acute respiratory failure and require escalation? Select all that apply.",o:[
+ ["New confusion",1,"Rising CO2 and falling oxygen affect the brain first, so a change in mental status is an early warning."],
+ ["Respiratory rate that drops from 30 to 10 without improvement in work of breathing",1,"A falling rate without relief means the respiratory muscles are exhausting. Respiratory arrest may follow."],
+ ["Use of accessory muscles",1,"Accessory muscle use shows a high work of breathing the client can't sustain for long."],
+ ["SpO2 of 90%",0,"An SpO2 of 88 to 92% is an acceptable target for many clients with COPD."],
+ ["PaCO2 that rises from 52 to 68",1,"A climbing PaCO2 means the client can no longer ventilate effectively. This is hypercapnic failure developing."],
+ ["Speaking in full sentences",0,"Full sentences show adequate air movement. This is reassuring."]]},
+{t:"Pleural effusion",s:"What is the dangerous complication of a thoracentesis?",c:"Pneumothorax.",
+ q:"One hour after a thoracentesis, which finding requires the nurse's immediate action?",o:[
+ ["Mild soreness at the puncture site",0,"Mild soreness is expected after the procedure."],
+ ["A small amount of serous drainage on the dressing",0,"A small amount of serous drainage is expected. Keep monitoring it."],
+ ["Sudden dyspnea and absent breath sounds on the procedure side",1,"These signal a pneumothorax from the needle puncturing the lung, the major complication of thoracentesis."],
+ ["The client asks for something to drink",0,"This is an ordinary request and not a sign of a complication."]]},
+{t:"ARDS",s:"What makes ARDS different from other low-oxygen problems?",c:"Giving more oxygen doesn't fix it (refractory hypoxemia).",
+ q:"A client with sepsis develops ARDS. Which finding is the hallmark of this condition?",o:[
+ ["Hypoxemia that does not improve despite increasing FiO2",1,"Refractory hypoxemia defines ARDS. Oxygen can't reach blood across flooded, collapsed alveoli."],
+ ["Elevated pulmonary capillary wedge pressure",0,"Wedge pressure is normal in ARDS because the edema is noncardiogenic."],
+ ["Expiratory wheezes that improve with a bronchodilator",0,"Wheezes that respond to a bronchodilator point to bronchospasm, as in asthma."],
+ ["Productive cough with purulent sputum",0,"Purulent sputum suggests infection such as pneumonia. Pneumonia can trigger ARDS, but this isn't its hallmark."]]},
+{t:"Acute respiratory failure",s:"What is the first sign the brain isn't getting enough oxygen?",c:"Restlessness or confusion.",
+ q:"A client with pneumonia is at risk for acute respiratory failure. Which finding is the earliest indicator of developing hypoxemia?",o:[
+ ["Central cyanosis",0,"Cyanosis is a late sign and appears only after oxygen saturation has fallen severely."],
+ ["Bradycardia",0,"Early hypoxemia causes tachycardia. Bradycardia is a late, ominous sign."],
+ ["Restlessness and new anxiety",1,"The brain is very sensitive to low oxygen, so restlessness, anxiety and confusion appear early."],
+ ["Somnolence",0,"Somnolence is a late sign, often from rising CO2."]]},
+{t:"Pulmonary embolism",s:"What test confirms a PE?",c:"CT pulmonary angiography.",
+ q:"The provider suspects a pulmonary embolism. Which diagnostic test does the nurse anticipate will be used to confirm the diagnosis?",o:[
+ ["D-dimer",0,"A D-dimer is sensitive but not specific. It rises in many conditions, so a negative result helps rule PE out but a positive one can't confirm it."],
+ ["Chest x-ray",0,"A chest x-ray is often normal in PE. It helps rule out other causes of chest pain and dyspnea."],
+ ["CT pulmonary angiography",1,"CT pulmonary angiography shows the clot in the pulmonary arteries and is the standard confirming test."],
+ ["Arterial blood gas",0,"An ABG shows hypoxemia and often respiratory alkalosis, but those findings aren't specific to PE."]]},
+{t:"Flail chest",s:"How do you treat flail chest?",c:"Control the pain so they can breathe, and support breathing if they can't. Don't bind the chest.",
+ q:"Which interventions does the nurse anticipate for a client with flail chest? Select all that apply.",o:[
+ ["Provide adequate analgesia, such as an epidural or regional block",1,"Rib pain makes clients take shallow breaths. Good pain control lets them breathe deeply and cough."],
+ ["Encourage deep breathing and incentive spirometry",1,"Deep breathing keeps alveoli open and prevents atelectasis and pneumonia."],
+ ["Monitor SpO2 and ABGs",1,"Oxygenation and ventilation need close watching because respiratory failure can develop."],
+ ["Wrap the chest tightly with an elastic binder",0,"Binding restricts chest expansion and increases the risk of atelectasis and pneumonia."],
+ ["Prepare for intubation and mechanical ventilation if respiratory failure develops",1,"Positive-pressure ventilation stabilizes the chest wall from the inside and supports gas exchange."],
+ ["Infuse IV fluids rapidly to maintain blood pressure",0,"Flail chest often comes with a pulmonary contusion, and aggressive fluids worsen lung edema. Fluids are given carefully."]]},
+{t:"Pneumothorax",s:"What does continuous bubbling in the water-seal chamber mean?",c:"An air leak.",
+ q:"The nurse notes continuous bubbling in the water-seal chamber of a client's chest drainage system. What is the nurse's best action?",o:[
+ ["Document this as an expected finding",0,"Continuous bubbling isn't expected. Intermittent bubbling with exhalation or coughing can be expected while air leaves the pleural space."],
+ ["Clamp the chest tube for 30 minutes",0,"Prolonged clamping can cause a tension pneumothorax. Brief clamping to locate a leak is done only per policy."],
+ ["Strip the tubing toward the drainage unit",0,"Stripping doesn't fix an air leak and creates dangerous negative pressure."],
+ ["Assess the system for an air leak, starting at the insertion site",1,"Continuous bubbling means air is entering the system. Check the dressing, insertion site and every connection down to the unit."]]},
+{t:"ARDS",s:"Why do we prone ARDS patients?",c:"To improve oxygenation.",
+ q:"A client with severe ARDS is placed in the prone position. The family asks why. Which response by the nurse is accurate?",o:[
+ ["\"It prevents pressure injuries on the back.\"",0,"Proning actually raises the risk of pressure injuries on the face, chest and knees. That isn't its purpose."],
+ ["\"It helps drain secretions from the upper airway.\"",0,"Secretion drainage isn't the reason for proning in ARDS."],
+ ["\"It reduces the need for sedation.\"",0,"Proned clients usually need deep sedation and sometimes paralysis."],
+ ["\"It helps more of the lungs fill with air, which improves oxygen levels.\"",1,"Proning reopens collapsed alveoli in the back of the lungs and improves ventilation-perfusion matching."]]},
+{t:"Pleural effusion",s:"How do you position a client for a thoracentesis?",c:"Sitting up, leaning forward over the overbed table.",
+ q:"The nurse is preparing a client for a thoracentesis. How should the nurse position the client?",o:[
+ ["Supine with arms at the sides",0,"Lying supine closes the intercostal spaces and lets fluid spread out, making it hard to reach."],
+ ["Prone with a pillow under the abdomen",0,"This isn't a standard thoracentesis position and it makes breathing harder."],
+ ["Sitting upright, leaning forward over the overbed table",1,"Leaning forward spreads the ribs apart and lets fluid settle at the base of the lung, where the needle goes in."],
+ ["Side-lying on the affected side",0,"Lying on the affected side covers the insertion site. If the client can't sit, they lie on the unaffected side instead."]]},
+{t:"Pulmonary embolism",s:"What causes blood clots?",c:"Virchow's triad: not moving (stasis), blood that clots too easily, and damaged vessels.",
+ q:"The nurse is reviewing client histories. Which clients are at increased risk for pulmonary embolism? Select all that apply.",o:[
+ ["A client 1 day post total knee replacement",1,"Orthopedic surgery on the leg adds vessel injury and immobility, making it one of the highest-risk situations for a clot."],
+ ["A client who smokes and takes an oral contraceptive",1,"Estrogen and smoking together make the blood hypercoagulable."],
+ ["A client with atrial fibrillation",1,"Blood pools in the quivering atria, where clots can form and travel."],
+ ["A client who walks 3 miles daily",0,"Regular activity keeps blood moving and lowers clot risk."],
+ ["A client who just completed a 12-hour flight",1,"Prolonged sitting causes venous stasis in the legs."],
+ ["A client with well-controlled asthma",0,"Controlled asthma doesn't raise clotting risk."]]}
+];
+
+const st={i:0,stage:1,notes:Q.map(()=>""),picks:Q.map(()=>new Set()),done:Q.map(()=>null)};
+const card=document.getElementById('card'),rail=document.getElementById('rail'),score=document.getElementById('score');
+const L="ABCDEF";
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const isSata=q=>q.o.filter(o=>o[1]).length>1;
+
+Q.forEach((q,n)=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',`Question ${n+1}`);b.onclick=()=>go(n);rail.appendChild(b)});
+
+function paintTop(){
+  [...rail.children].forEach((b,n)=>{b.className=(st.done[n]===true?'done-ok':st.done[n]===false?'done-bad':'')+(n===st.i&&st.stage?' cur':'')});
+  const a=st.done.filter(d=>d!==null).length,c=st.done.filter(d=>d===true).length;
+  score.textContent=`${c} correct · ${a} of 20 answered`;
+}
+function go(n){st.i=n;st.stage=st.done[n]===null?1:2;render()}
+
+function render(){
+  paintTop();
+  if(st.stage===0)return results();
+  const q=Q[st.i],n=st.i+1;
+  const head=`<div class="meta"><span class="chip">${q.t}</span><span class="chip plain">Question ${n} of 20</span>
+    <div class="steps"><span class="${st.stage===1?'on':''}">1 Core</span><span>·</span><span class="${st.stage===2?'on':''}">2 NCLEX</span></div></div>`;
+  if(st.stage===1){
+    card.innerHTML=`${head}
+      <span class="chip core" style="align-self:flex-start">Core question</span>
+      <p class="coreq">${q.s}</p>
+      <p class="hint">Think it through or jot down your answer before you see the NCLEX version.</p>
+      <label class="notes" for="note">Your answer (optional)<textarea id="note" placeholder="Type your answer here...">${esc(st.notes[st.i])}</textarea></label>
+      <div class="actions"><button class="btn ghost" id="prev" type="button" ${st.i===0?'disabled':''}>Previous</button>
+      <button class="btn" id="next" type="button">Show the NCLEX question</button></div>`;
+    const t=document.getElementById('note');t.oninput=()=>st.notes[st.i]=t.value;
+    document.getElementById('prev').onclick=()=>{st.i--;st.stage=st.done[st.i]===null?1:2;render()};
+    document.getElementById('next').onclick=()=>{st.stage=2;render();card.querySelector('.stem')?.focus()};
+    return;
+  }
+  const sata=isSata(q),done=st.done[st.i]!==null,picks=st.picks[st.i];
+  const note=st.notes[st.i].trim();
+  const opts=q.o.map((o,k)=>{
+    const sel=picks.has(k),cls=['opt',sel?'sel':'',done?'locked':'',done?(o[1]?'is-ok':'is-bad'):''].join(' ');
+    const why=done?`<div class="why"><span class="tag">${o[1]?'Correct':'Incorrect'}</span>${o[2]}</div>`:'';
+    const missed=done&&o[1]&&!sel?'<span class="miss">Missed</span>':'';
+    return `<li class="${cls}"><label class="${sata?'check':'radio'}"><input type="${sata?'checkbox':'radio'}" name="o" value="${k}" ${sel?'checked':''} ${done?'disabled':''}>
+      <span class="mark">${L[k]}</span><span>${o[0]}${missed}${why}</span></label></li>`}).join('');
+  let verdict='';
+  if(done){const ok=st.done[st.i];
+    verdict=`<div class="verdict ${ok?'ok':'bad'}"><strong>${ok?'Correct':'Not quite'}</strong>
+      <span>Answer: ${q.o.map((o,k)=>o[1]?L[k]:null).filter(Boolean).join(', ')}. ${sata&&!ok?'Select-all items need every correct choice and no incorrect ones.':''}</span></div>
+      <div class="recall"><b>Core question:</b> ${q.s}<br><b>Core answer:</b> ${q.c}</div>`}
+  card.innerHTML=`${head}
+    ${note&&!done?`<div class="recall"><b>Your core answer:</b> ${esc(note)}</div>`:''}
+    <p class="stem" tabindex="-1">${q.q}</p>
+    ${sata?'<span class="sata">Select all that apply</span>':''}
+    <ul class="opts">${opts}</ul>
+    ${verdict}
+    ${done&&note?`<div class="recall"><b>What you wrote:</b> ${esc(note)}</div>`:''}
+    <div class="actions"><button class="btn ghost" id="back" type="button">${done?'Previous':'Back to core question'}</button>
+    ${done?`<button class="btn" id="nxt" type="button">${st.done.every(d=>d!==null)?'See results':st.i===19?'Go to first unanswered':'Next question'}</button>`
+          :`<button class="btn" id="chk" type="button" ${picks.size?'':'disabled'}>Check answer</button>`}</div>`;
+  if(!done){
+    card.querySelectorAll('input').forEach(inp=>inp.onchange=()=>{const k=+inp.value;
+      if(sata){inp.checked?picks.add(k):picks.delete(k)}else{picks.clear();picks.add(k)}
+      card.querySelectorAll('.opt').forEach((li,j)=>li.classList.toggle('sel',picks.has(j)));
+      document.getElementById('chk').disabled=!picks.size});
+    document.getElementById('chk').onclick=()=>{
+      st.done[st.i]=q.o.every((o,k)=>!!o[1]===picks.has(k));render()};
+    document.getElementById('back').onclick=()=>{st.stage=1;render()};
+  }else{
+    document.getElementById('back').onclick=()=>{if(st.i>0){st.i--;st.stage=st.done[st.i]===null?1:2}else{st.stage=1}render()};
+    document.getElementById('nxt').onclick=()=>{
+      if(st.done.every(d=>d!==null)){st.stage=0;return render()}
+      let n=st.i+1;while(n<20&&st.done[n]!==null)n++;
+      if(n>=20)n=st.done.findIndex(d=>d===null);
+      st.i=n;st.stage=1;render();window.scrollTo({top:0})};
+  }
+}
+
+function results(){
+  const c=st.done.filter(Boolean).length;
+  card.innerHTML=`<div class="results" style="display:flex;flex-direction:column;gap:16px">
+    <span class="chip core" style="align-self:flex-start">Results</span>
+    <h2>${c} of 20 correct</h2>
+    <p class="hint">Select any question to review its rationales.</p>
+    <ul class="rlist">${Q.map((q,n)=>`<li><span class="n">${String(n+1).padStart(2,'0')}</span>
+      <span class="s"><button type="button" data-n="${n}">${q.s}</button></span>
+      <span class="r ${st.done[n]?'ok':'bad'}">${st.done[n]?'Correct':'Missed'}</span></li>`).join('')}</ul>
+    <div class="actions"><span></span><button class="btn" id="again" type="button">Start over</button></div></div>`;
+  card.querySelectorAll('.rlist button').forEach(b=>b.onclick=()=>{st.i=+b.dataset.n;st.stage=2;render()});
+  document.getElementById('again').onclick=()=>{st.i=0;st.stage=1;st.notes=Q.map(()=>"");st.picks=Q.map(()=>new Set());st.done=Q.map(()=>null);render()};
+}
+render();
+</script>
+
+</body></html>

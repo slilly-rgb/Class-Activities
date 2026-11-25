@@ -1,0 +1,534 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>After the Storm at Home</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: patient banner across the top, NCJMM stage rail, then chart (left) beside the active item (right); scoreboard docked at the bottom. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb; --ink:#18202e; --muted:#5a6476; --line:#d7dde6;
+  --accent:#b8314b; --accent-soft:#f8e3e8; --ok:#1d7349; --ok-soft:#e1f2e8; --bad:#b03a2e; --bad-soft:#f9e4e1;
+  --warn:#9a5b00; --warn-soft:#fbefd9; --sel:#1f4f8f; --sel-soft:#e2ecf8; --grid:#f2c7cf;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45; --grid:#4a2730; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141c; --surface:#171d28; --surface-2:#1d2431; --ink:#e7ebf2; --muted:#9aa4b6; --line:#2c3545;
+  --accent:#ef6d86; --accent-soft:#3a1f28; --ok:#5ccb92; --ok-soft:#173226; --bad:#f08273; --bad-soft:#3a1f1c;
+  --warn:#e8b45a; --warn-soft:#352812; --sel:#8db8f2; --sel-soft:#1d2d45; --grid:#4a2730; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+.wrap{max-width:1400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 120px;display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+
+/* patient band */
+.band{background:var(--surface);border:1px solid var(--line);border-radius:10px;display:grid;grid-template-columns:auto 1fr auto;gap:8px 20px;align-items:center;padding:12px 16px}
+.casename{font-family:var(--display);font-size:15px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}
+.casename b{display:block;font-size:30px;letter-spacing:.02em;text-transform:none;color:var(--ink)}
+.pt{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:15px;color:var(--muted);min-width:0}
+.pt strong{color:var(--ink);font-family:var(--mono);font-size:15px}
+.allergy{background:var(--accent);color:#fff;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:6px;white-space:nowrap}
+.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:6px 12px;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--sel-soft);border-color:var(--sel);color:var(--sel);font-weight:700}
+
+/* stage rail */
+.rail{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.step .n{font-family:var(--display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.step .l{font-weight:700;font-size:15px;line-height:1.2}
+.step .s{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.step[aria-current="step"]{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+.step.done .s{color:var(--ok)}
+
+/* main */
+.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:0}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 16px;font-weight:700;color:var(--muted);white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .new{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-left:6px;vertical-align:middle}
+.chartbody{padding:14px 16px;max-height:68vh;overflow:auto}
+.note{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin-bottom:16px}
+.note.fresh{border-left-color:var(--accent)}
+.note .when{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.note h3{font-size:19px;margin:2px 0 4px}
+.note p{margin:0 0 6px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;white-space:nowrap}
+th{font-family:var(--display);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.H{color:var(--bad);font-weight:700}.L{color:var(--sel);font-weight:700}
+.flag{font-size:11px;margin-left:4px}
+.ref{color:var(--muted);font-size:13px}
+.orders li{margin-bottom:6px}
+.empty{color:var(--muted);font-style:italic}
+
+.item{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.ihead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.ihead h2{font-size:30px}
+.tag{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:14px;color:var(--accent);font-weight:700}
+.itype{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.prompt{font-size:19px;font-weight:700;margin:0;max-width:62ch}
+.scenario{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:14px 16px;line-height:1.9}
+.hl{border-radius:4px;padding:1px 3px;cursor:pointer;border-bottom:2px dotted var(--muted)}
+.hl:hover{background:var(--sel-soft)}
+.hl.on{background:var(--sel-soft);border-bottom:2px solid var(--sel);color:var(--sel);font-weight:700}
+.hl.right{background:var(--ok-soft);color:var(--ok);border-bottom-color:var(--ok)}
+.hl.wrong{background:var(--bad-soft);color:var(--bad);border-bottom-color:var(--bad);text-decoration:line-through}
+.hl.missed{outline:2px dashed var(--ok);outline-offset:1px}
+
+.matrix th:not(:first-child),.matrix td:not(:first-child){text-align:center;width:130px}
+.matrix td:first-child{white-space:normal;min-width:220px}
+.cell{width:30px;height:30px;border-radius:50%;border:2px solid var(--muted);background:var(--surface);display:inline-grid;place-items:center}
+.cell.on{border-color:var(--sel);background:var(--sel)}
+.cell.on::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--surface)}
+tr.right td:first-child{color:var(--ok)} tr.wrong td:first-child{color:var(--bad)}
+tr.right .cell.on{background:var(--ok);border-color:var(--ok)} tr.wrong .cell.on{background:var(--bad);border-color:var(--bad)}
+.cell.key{box-shadow:0 0 0 3px var(--ok-soft),0 0 0 5px var(--ok)}
+
+.cloze{font-size:19px;line-height:2.4;max-width:62ch}
+.cloze select{font:inherit;font-size:16px;padding:4px 6px;border-radius:6px;border:2px solid var(--sel);background:var(--sel-soft);color:var(--ink);max-width:100%}
+.cloze select.right{border-color:var(--ok);background:var(--ok-soft)} .cloze select.wrong{border-color:var(--bad);background:var(--bad-soft)}
+
+.opts{display:grid;gap:8px}
+.opt{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:8px;padding:10px 12px}
+.opt .box{width:26px;height:26px;border-radius:6px;border:2px solid var(--muted);display:grid;place-items:center;font-weight:700;font-size:14px}
+.opt.on{border-color:var(--sel);background:var(--sel-soft)} .opt.on .box{background:var(--sel);border-color:var(--sel);color:var(--surface)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)} .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border-style:dashed;border-color:var(--ok)}
+.first{font-size:12px;font-family:var(--display);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.first.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.bowtie{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:center}
+.bt-col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.bt-col h3{font-size:16px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.bt-col.mid{border:2px solid var(--accent);border-radius:12px;padding:10px;background:var(--accent-soft)}
+.tok{border:2px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;text-align:left;font-size:15px}
+.tok.on{border-color:var(--sel);background:var(--sel-soft);font-weight:700}
+.tok.right{border-color:var(--ok);background:var(--ok-soft)} .tok.wrong{border-color:var(--bad);background:var(--bad-soft)} .tok.missed{border-style:dashed;border-color:var(--ok)}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:8px;padding:10px 18px;font-weight:700;background:var(--accent);color:#fff}
+.btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.score{font-family:var(--display);font-size:24px;font-weight:700}
+.score small{font-size:15px;color:var(--muted);font-family:var(--body);font-weight:400}
+
+.rat{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.rat h3{font-size:20px}
+.rat ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:72ch}
+.rat li b.ok{color:var(--ok)} .rat li b.no{color:var(--bad)}
+.fac{background:var(--warn-soft);border:1px solid var(--warn);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.fac h3{font-size:17px;color:var(--warn);text-transform:uppercase;letter-spacing:.08em}
+.fac ul{margin:0;padding-left:20px}
+
+/* scoreboard */
+.intro{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
+.intro p{margin:0;max-width:90ch}
+.intro ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:16px}
+.step:disabled{opacity:.5;cursor:not-allowed}
+.think{background:var(--sel-soft);border:1px solid var(--sel);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.think h3{font-size:17px;color:var(--sel);text-transform:uppercase;letter-spacing:.08em}
+.think ul{margin:0;padding-left:20px}
+.results{background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.results h2{font-size:30px}
+.results textarea,.results input{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--surface);font:inherit;color:var(--ink)}
+.results textarea{min-height:90px;resize:vertical}
+.results .summary{font-family:var(--mono);font-size:14px;min-height:170px;background:var(--surface-2)}
+.ok-msg{color:var(--ok);font-weight:700}
+.hint{font-size:14px;color:var(--muted)}
+.board .prog{font-family:var(--mono);font-size:14px;white-space:nowrap}
+.board .bar{flex:1 1 160px;min-width:120px;height:10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.board .bar i{display:block;height:100%;background:var(--accent)}
+.board{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-block:8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.board .in{max-width:1400px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:10px;align-items:center;overflow-x:auto}
+.board .lbl{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-size:14px;white-space:nowrap}
+.team{display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 10px;white-space:nowrap}
+.team input{width:76px;border:0;background:transparent;font:inherit;font-weight:700;color:var(--ink)}
+.team .pts{font-family:var(--mono);font-weight:600;min-width:2.2ch;text-align:right;font-variant-numeric:tabular-nums}
+.team button{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:30px;height:30px;font-weight:700}
+.board .max{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+
+@media (max-width:1000px){.main{grid-template-columns:1fr}.rail{grid-template-columns:repeat(4,1fr)}.band{grid-template-columns:1fr}.tools{justify-content:flex-start}.chartbody{max-height:none}.bowtie{grid-template-columns:1fr}}
+@media (max-width:520px){.rail{grid-template-columns:repeat(2,1fr)}.ihead h2{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="band">
+    <div class="casename">Unfolding case<b>After the Storm</b></div>
+    <div class="pt" aria-label="Patient">
+      <span>Patient <strong>DELGADO, Frank</strong></span><span>Age <strong>61</strong></span><span>Sex <strong>M</strong></span>
+      <span>MRN <strong>0048213</strong></span><span>Unit <strong>ED → Cardiac step-down</strong></span><span>Code <strong>Full</strong></span>
+    </div>
+    <div class="tools">
+      <span class="allergy">Allergy: IV contrast (hives)</span>
+    </div>
+  </header>
+
+  <section class="intro" aria-label="How this works">
+    <p><b>Work through this case on your own, about 45 minutes.</b> Frank's chart (left) fills in as the case unfolds. Each stage asks you to make one kind of clinical judgment.</p>
+    <ul>
+      <li>Answer each stage before you check. Rationales and "Think it through" questions appear after you check, and answers can't be changed afterward.</li>
+      <li>Each stage unlocks when you finish the one before it. The bowtie at the end is optional.</li>
+      <li>Your work saves in this browser. At the end, copy your summary into the course assignment.</li>
+    </ul>
+  </section>
+
+  <nav class="rail" id="rail" aria-label="Case stages"></nav>
+
+  <div class="main">
+    <section class="panel" aria-label="Electronic health record">
+      <div class="tabs" role="tablist" id="tabs"></div>
+      <div class="chartbody" id="chart"></div>
+    </section>
+    <section class="panel item" id="item" aria-live="polite"></section>
+  </div>
+  <section class="results" id="results" hidden></section>
+</div>
+
+<div class="board" aria-label="Your progress">
+  <div class="in" id="board"></div>
+</div>
+
+<script>
+const STAGES = [
+  {id:1, step:"Recognize cues", time:"0640", type:"highlight", label:"Highlight in text"},
+  {id:2, step:"Analyze cues", time:"0710", type:"matrix", label:"Matrix · select one per row"},
+  {id:3, step:"Prioritize hypotheses", time:"0715", type:"cloze", label:"Cloze · drop-down"},
+  {id:4, step:"Generate solutions", time:"0720", type:"matrix", label:"Matrix · select one per row"},
+  {id:5, step:"Take actions", time:"1500", type:"selectN", label:"Select 4, then mark the first"},
+  {id:6, step:"Evaluate outcomes", time:"0600", type:"matrix", label:"Trend · select one per row"},
+  {id:7, step:"Bowtie", time:"Stretch", type:"bowtie", label:"Bowtie · 1 + 2 + 2"}
+];
+
+/* ---------- chart data ---------- */
+const NOTES = [
+ {s:1,t:"Day 1 · 0640",h:"ED triage note",p:["61-year-old male arrives by private vehicle reporting heavy pressure in the center of his chest that started 2 hours ago while shoveling snow, radiating to his left jaw and not relieved by rest. Rates pain 7/10. Reports nausea. Skin cool and diaphoretic. Alert and oriented ×4. Lungs clear bilaterally. S1 and S2 present, no murmur. Radial and pedal pulses 2+ bilaterally. No peripheral edema.","History: hypertension, type 2 diabetes, hyperlipidemia; smokes 1 pack per day for 30 years. Home medications: metformin 1,000 mg twice daily, hydrochlorothiazide 25 mg daily, atorvastatin 40 mg daily. Allergy: hives after IV contrast for a CT scan in 2019. Last meal 1800 last night."]},
+ {s:2,t:"Day 1 · 0712",h:"12-lead ECG",p:["Sinus tachycardia, rate 106. 2 mm ST-segment depression with T-wave inversion in V4–V6. No ST-segment elevation."]},
+ {s:3,t:"Day 1 · 0715",h:"Nursing note",p:["Chest pressure continues at 7/10. Client is restless and asks for water. Wife at bedside asks, \"Is this a heart attack?\" Provider at bedside reviewing labs and ECG. Repeat troponin due at 0940."]},
+ {s:5,t:"Day 1 · 0800",h:"Nursing note",p:["After aspirin, two doses of sublingual nitroglycerin and oxygen 2 L/min by nasal cannula, chest pressure 2/10. KCl and magnesium infusions running by pump. Metformin held. Premedication for contrast allergy given per protocol."]},
+ {s:5,t:"Day 1 · 0945",h:"Provider note",p:["Repeat high-sensitivity troponin I rose to 310 ng/L. Diagnosis: NSTEMI. Cardiac catheterization moved up to 1200."]},
+ {s:5,t:"Day 1 · 1300",h:"Post-procedure note",p:["Cardiac catheterization via right femoral artery: 90% stenosis of the left circumflex artery; drug-eluting stent placed. Sheath removed, manual pressure held 20 minutes, no closure device. Transferred to cardiac step-down. Orders: bed rest 4 hours with right leg straight, head of bed no higher than 30°, check site and right pedal pulses every 15 minutes ×4, then every 30 minutes."]},
+ {s:5,t:"Day 1 · 1500",h:"Nursing note",p:["Client reports new aching low back pain, 6/10, and says he feels \"light-headed.\" Right groin dressing dry; small soft swelling at the edge of the dressing. Skin pale and cool. Right pedal pulse 1+ (was 2+). Denies chest pain. Urine output 20 mL in the last hour."]},
+ {s:6,t:"Day 1 · 1530",h:"Rapid response summary",p:["Manual pressure held above the puncture site. Normal saline 1 L bolus given. Stat CT abdomen/pelvis: small retroperitoneal hematoma. Managed conservatively with bed rest and serial hemoglobin; no transfusion needed."]},
+ {s:6,t:"Day 2 · 0600",h:"Nursing note",p:["Slept poorly; skipped evening snack. Insulin aspart sliding scale given at 2100 for glucose 238 mg/dL. Occasional PVCs on the monitor overnight. At 0600 client says he feels \"a little shaky.\" Denies chest pain or back pain. Right groin soft, no further swelling."]}
+];
+const VITALS = [
+ {s:1,t:"D1 0640",T:"98.4",HR:108,BP:"162/94",RR:22,O2:"89% RA",pain:"7 chest",ped:"2+",uo:"—"},
+ {s:5,t:"D1 0800",T:"98.6",HR:92,BP:"138/82",RR:18,O2:"95% 2 L",pain:"2 chest",ped:"2+",uo:"—"},
+ {s:5,t:"D1 1500",T:"98.2",HR:112,BP:"98/58",RR:22,O2:"95% 2 L",pain:"6 back",ped:"1+",uo:"20"},
+ {s:6,t:"D1 1600",T:"98.4",HR:104,BP:"104/62",RR:20,O2:"96% 2 L",pain:"4 back",ped:"2+",uo:"35"},
+ {s:6,t:"D1 1800",T:"98.6",HR:96,BP:"112/68",RR:18,O2:"97% 2 L",pain:"3 back",ped:"2+",uo:"40"},
+ {s:6,t:"D1 2200",T:"98.4",HR:88,BP:"120/72",RR:16,O2:"97% RA",pain:"1 back",ped:"2+",uo:"55"},
+ {s:6,t:"D2 0600",T:"98.2",HR:82,BP:"126/76",RR:16,O2:"97% RA",pain:"0",ped:"2+",uo:"60"}
+];
+const LAB_DEF = {
+ tni:{n:"hs-Troponin I",u:"ng/L",r:"≤ 20",lo:null,hi:20},
+ k:{n:"Potassium",u:"mEq/L",r:"3.5–5.0",lo:3.5,hi:5.0},
+ mg:{n:"Magnesium",u:"mEq/L",r:"1.5–2.5",lo:1.5,hi:2.5},
+ glu:{n:"Glucose",u:"mg/dL",r:"70–110",lo:70,hi:110},
+ bnp:{n:"BNP",u:"pg/mL",r:"< 100",lo:null,hi:100},
+ cr:{n:"Creatinine",u:"mg/dL",r:"0.6–1.2",lo:0.6,hi:1.2},
+ hgb:{n:"Hemoglobin",u:"g/dL",r:"13.5–17.5",lo:13.5,hi:17.5},
+ plt:{n:"Platelets",u:"×10³/µL",r:"150–400",lo:150,hi:400}
+};
+const LABS = [
+ {s:2,t:"D1 0710",v:{tni:48,k:3.2,mg:1.3,glu:228,bnp:64,cr:1.0,hgb:14.6,plt:248}},
+ {s:5,t:"D1 0940",v:{tni:310}},
+ {s:6,t:"D1 1530",v:{hgb:11.2}},
+ {s:6,t:"D1 1800",v:{hgb:10.9}},
+ {s:6,t:"D2 0600",v:{k:4.1,mg:1.4,glu:64,cr:1.1,hgb:10.8}}
+];
+const ORDERS = [
+ {s:5,h:"Active orders (written 0720)",items:["Aspirin 324 mg chewed now, then 81 mg daily","Nitroglycerin 0.4 mg SL every 5 min, up to 3 doses, for chest pain; hold for SBP < 90","Oxygen by nasal cannula, titrate to SpO₂ ≥ 90%","Potassium chloride 10 mEq IV per hour × 2 doses by infusion pump","Magnesium sulfate 2 g IV over 1 hour","Hold metformin before cardiac catheterization","Contrast allergy premedication per protocol","Continuous cardiac monitoring; NPO for cardiac catheterization"]},
+ {s:5,h:"Post-catheterization (written 1300)",items:["Bed rest 4 hours, right leg straight, HOB ≤ 30°","Right groin site and right pedal pulses every 15 min × 4, then every 30 min","Normal saline 75 mL/hr","Insulin aspart sliding scale before meals and at bedtime"]}
+];
+
+/* ---------- items ---------- */
+const ITEMS = {
+ 1:{prompt:"Click the findings that are of immediate concern to the nurse.",
+   text:[["61-year-old male arrives by private vehicle reporting "],["heavy pressure in the center of his chest that started 2 hours ago while shoveling snow, radiating to his left jaw and not relieved by rest","c1",1],[". Rates pain 7/10. "],["Reports nausea","c2",1],[". "],["Skin cool and diaphoretic","c3",1],[". "],["Alert and oriented ×4","d1",0],[". "],["Lungs clear bilaterally","d2",0],[". "],["S1 and S2 present, no murmur","d3",0],[". "],["Radial and pedal pulses 2+ bilaterally","d4",0],[". "],["No peripheral edema","d5",0],[". History: hypertension, type 2 diabetes, hyperlipidemia; "],["smokes 1 pack per day for 30 years","d6",0],[". Home medications: metformin, hydrochlorothiazide, atorvastatin. "],["Allergy: hives after IV contrast in 2019","d7",0],[". "],["Last meal 1800 last night","d8",0],[". Vitals: "],["T 98.4 °F","d9",0],[", "],["HR 108","c4",1],[", "],["BP 162/94","c5",1],[", "],["RR 22","c6",1],[", "],["SpO₂ 89% on room air","c7",1],["."]],
+   why:{c1:"Classic ischemic pain: pressure, exertional onset, jaw radiation and no relief at rest point to acute coronary syndrome.",c2:"Nausea is a common associated symptom of myocardial ischemia, especially in people with diabetes.",c3:"Cool, diaphoretic skin reflects sympathetic stimulation and possible reduced perfusion.",c4:"Tachycardia raises myocardial oxygen demand on a heart that is already short of supply.",c5:"Hypertension increases afterload and myocardial workload.",c6:"Tachypnea can reflect pain, anxiety or early pulmonary congestion.",c7:"SpO₂ below 90% is hypoxemia and needs oxygen now.",d1:"Normal mental status; reassuring, not a concern.",d2:"Clear lungs argue against pulmonary edema right now.",d3:"Normal heart sounds; no new murmur suggesting papillary muscle dysfunction.",d4:"Normal pulses; also your baseline for the later post-catheterization checks.",d5:"No edema; no sign of right-sided failure.",d6:"A major risk factor that raises suspicion for ACS, but not something you act on in this moment.",d7:"Important later for catheterization (Stage 4), not an immediate concern at triage.",d8:"Relevant to procedure planning (NPO status), not to immediate stability.",d9:"Afebrile; not a concern."},
+   think:["Using ABCs, which cue would you act on first, and why?","The contrast allergy matters, just not at triage. When do you think it will matter?","Group the cues you picked: which point to ischemia, which to the body's stress response, and which to a heart working harder?"]},
+ 2:{prompt:"For each finding, indicate whether it requires follow-up or is expected / within normal limits.",
+   cols:["Requires follow-up","Expected / WNL"],
+   rows:[["hs-Troponin I 48 ng/L",0,"Above the 99th-percentile cutoff: myocardial injury. A single value can't show the trend, so a repeat is drawn."],
+         ["ST depression with T-wave inversion in V4–V6",0,"An ischemic pattern in the lateral leads. No ST elevation, so this fits NSTEMI or unstable angina, not STEMI."],
+         ["Potassium 3.2 mEq/L",0,"Hypokalemia, likely from hydrochlorothiazide, raises the risk of ventricular dysrhythmias in an ischemic heart."],
+         ["Magnesium 1.3 mEq/L",0,"Low magnesium also increases dysrhythmia risk and makes low potassium harder to correct."],
+         ["Glucose 228 mg/dL",0,"Hyperglycemia with diabetes and acute stress; it needs treatment and worsens outcomes in ACS."],
+         ["BNP 64 pg/mL",1,"Within normal limits: no evidence of heart failure. Matches the clear lungs and absent edema."],
+         ["Creatinine 1.0 mg/dL",1,"Normal renal function, which matters before contrast for catheterization."],
+         ["Hemoglobin 14.6 g/dL",1,"Normal. This is the baseline you will compare against after the procedure."]],
+   think:["Which two abnormal labs connect to one of Frank's home medications?","Why is a normal BNP useful information here?","What would change if the ECG had shown ST elevation?"]},
+ 3:{prompt:"Complete the nurse's analysis by choosing the best option for each blank.",
+   parts:["The client's findings are most consistent with ",0,", as shown by ",1,". The complication the nurse should be most prepared for is ",2,", made more likely by ",3,"."],
+   blanks:[
+     {opts:["acute coronary syndrome (NSTEMI)","stable angina","pericarditis","acute decompensated heart failure"],a:0,why:"Ischemic pain at rest with rising troponin and ST depression defines NSTEMI. Stable angina resolves with rest; pericarditis pain is sharp and positional; heart failure doesn't fit the normal BNP and clear lungs."},
+     {opts:["chest pressure at rest with an elevated troponin and ST depression","an elevated blood glucose","clear lungs and a normal BNP","a 30 pack-year smoking history"],a:0,why:"Symptoms plus a biomarker plus ECG changes are the evidence. Smoking is a risk factor, not evidence of the current event."},
+     {opts:["a ventricular dysrhythmia","hypoglycemia","fluid volume overload","a contrast reaction"],a:0,why:"Ventricular dysrhythmias are the leading early cause of death after MI. The contrast reaction is a later, manageable risk."},
+     {opts:["low potassium and magnesium in ischemic heart muscle","an elevated blood glucose","a BNP within normal range","a history of hypertension"],a:0,why:"Ischemic myocardium is electrically irritable, and low K⁺ and Mg²⁺ lower the threshold for VT and VF."}],
+   think:["Say the completed sentence out loud, as if giving a handoff report.","Frank's wife asks, \"Is this a heart attack?\" What could you say within your scope as an RN?","Why does dysrhythmia risk decide what monitoring starts first?"]},
+ 4:{prompt:"The provider writes the orders below. For each, indicate whether the nurse anticipates it or it is not indicated / unsafe.",
+   cols:["Anticipated","Not indicated / unsafe"],
+   rows:[["Aspirin 324 mg chewed now",0,"Antiplatelet therapy right away; chewing speeds absorption."],
+         ["Nitroglycerin 0.4 mg SL every 5 min, up to 3 doses; hold for SBP < 90",0,"Vasodilation reduces preload and myocardial oxygen demand. Check BP before each dose."],
+         ["Oxygen by nasal cannula, titrate to SpO₂ ≥ 90%",0,"SpO₂ is 89%. Oxygen is given for hypoxemia, not routinely for every chest pain."],
+         ["Potassium chloride 20 mEq IV push",1,"Never give potassium IV push: it can cause cardiac arrest. It is always diluted and given by infusion pump."],
+         ["Potassium chloride 10 mEq IV per hour × 2 doses by infusion pump",0,"The safe way to correct hypokalemia through a peripheral line."],
+         ["Magnesium sulfate 2 g IV over 1 hour",0,"Corrects low magnesium, which also helps potassium replacement work."],
+         ["Furosemide 40 mg IV now",1,"No fluid overload (clear lungs, normal BNP), and it would drop potassium further."],
+         ["Hold metformin before cardiac catheterization",0,"Metformin is held around iodinated contrast because of the risk of lactic acidosis if kidney function drops."],
+         ["Up to the bathroom as tolerated",1,"Activity raises oxygen demand during active ischemia. Bed rest with bedside commode or bedpan."],
+         ["Report the contrast reaction and premedicate per protocol before catheterization",0,"The 2019 hives is a prior contrast reaction. Premedication (often a corticosteroid and an antihistamine) lowers the risk."]],
+   think:["For each order you anticipated, does it increase oxygen supply or lower demand?","Which order would you refuse to give as written, and what would you do instead?","Look back at Stage 1. Which cue you set aside now changes the plan?"]},
+ 5:{prompt:"It is 1500, two hours after catheterization. Review the 1500 note and vitals. Select the 4 actions the nurse should take now, then mark the one to do first.",
+   need:4, first:0,
+   opts:[["Stay with the client, apply firm manual pressure just above the puncture site, and call for help",1,"Bleeding is the immediate threat. Pressure 1–2 cm above the puncture site compresses the artery where it entered."],
+         ["Notify the provider / rapid response team and report the findings using SBAR",1,"Back pain, hypotension, tachycardia and a weaker pulse after femoral access suggest retroperitoneal bleeding, which needs urgent evaluation."],
+         ["Keep the right leg straight and lower the head of the bed flat",1,"Protects the puncture site and supports blood pressure."],
+         ["Increase IV normal saline per protocol and prepare for a stat hemoglobin and imaging",1,"Restores volume and confirms the source and size of the bleed."],
+         ["Raise the head of the bed to 45° to relieve the back pain",0,"Flexing the hip puts strain on the femoral site and can worsen bleeding."],
+         ["Give the PRN morphine and reassess in 30 minutes",0,"Treats a symptom, can worsen hypotension and may mask a deteriorating bleed."],
+         ["Help the client to the bathroom to check for orthostatic changes",0,"He is on bed rest and is already hypotensive; standing could cause a fall or syncope."],
+         ["Document the findings and recheck the site in 1 hour",0,"Too slow. These findings call for action now."]],
+   think:["Why was back pain the key cue, even with a dry dressing?","Write the SBAR you would give the rapid response team.","Compare the 0640 and 1500 vital signs. How was Frank's body compensating?"]},
+ 6:{prompt:"Review the trended vital signs, labs and notes through Day 2 at 0600. For each finding, indicate whether it shows improvement / goal met or needs follow-up.",
+   cols:["Improved / goal met","Needs follow-up"],
+   rows:[["Blood pressure and heart rate trend, 1500 → 0600",0,"BP rose from 98/58 to 126/76 and HR fell from 112 to 82: bleeding controlled and volume restored."],
+         ["Right pedal pulse",0,"Back to 2+, matching the baseline from Stage 1."],
+         ["Urine output",0,"Rose from 20 to 60 mL/hr, showing better kidney perfusion."],
+         ["Back pain rating",0,"Down from 6/10 to 0; consistent with the hematoma stabilizing."],
+         ["Chest pain since catheterization",0,"None since the stent: the ischemia has been treated."],
+         ["Potassium 4.1 mEq/L",0,"Replaced to within normal limits."],
+         ["Magnesium 1.4 mEq/L",1,"Still low after one replacement, with PVCs overnight. Report it; more replacement is likely."],
+         ["Glucose 64 mg/dL with shakiness",1,"Hypoglycemia after bedtime insulin and a skipped snack. Treat now with 15 g of fast-acting carbohydrate and recheck in 15 minutes."]],
+   think:["For each trend, which two data points did you compare?","Why does the low magnesium matter more because of the PVCs?","Which Stage 1 baseline finding did you use today?"]},
+ 7:{prompt:"Stretch item. Complete the bowtie for this client's admitting problem: choose the condition, 2 actions to take, and 2 parameters to monitor.",
+   cond:{opts:["NSTEMI","Stable angina","Pericarditis","Acute heart failure"],a:[0],why:"Rising troponin with ST depression and ischemic pain at rest."},
+   act:{opts:["Give aspirin 324 mg chewed","Give nitroglycerin SL if SBP ≥ 90","Give potassium chloride IV push","Ambulate to reduce anxiety","Give furosemide IV"],a:[0,1],why:"Aspirin limits clot growth; nitroglycerin lowers oxygen demand. KCl push is unsafe, activity raises demand, and furosemide isn't indicated."},
+   mon:{opts:["Continuous ECG rhythm and ST segments","Chest pain rating and BP before and after nitroglycerin","Daily weight","Peak expiratory flow","Bowel sounds"],a:[0,1],why:"The rhythm shows dysrhythmia risk; pain and BP show the response to treatment and nitroglycerin safety."},
+   think:["Which parameter would you check before giving a second nitroglycerin dose?","How does each action you chose connect to the condition in the center?"]}
+};
+
+/* ---------- state ---------- */
+const S = {stage:1, tab:"notes", resp:{}, checked:{}, name:"", reflect:""};
+const KEY="ats-home-v1";
+try{const d=JSON.parse(localStorage.getItem(KEY)||"null"); if(d){S.resp=d.resp||{};S.checked=d.checked||{};S.stage=d.stage||1;S.name=d.name||"";S.reflect=d.reflect||"";}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({resp:S.resp,checked:S.checked,stage:S.stage,name:S.name,reflect:S.reflect}))}catch(e){}}
+function unlocked(id){ for(let k=1;k<id;k++){ if(!S.checked[k]) return false; } return true; }
+function hasAnswer(id){const it=ITEMS[id], r=S.resp[id]||{};
+  if(id===1) return Object.values(r).some(Boolean);
+  if(it.rows) return it.rows.every((_,i)=>r[i]!=null);
+  if(it.blanks) return it.blanks.every((_,i)=>r[i]!=null);
+  if(id===5) return (r.sel||[]).length===it.need && r.first!=null;
+  if(id===7) return ["cond","act","mon"].every(k=>(r[k]||[]).length===it[k].a.length);
+}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function stageOf(id){return STAGES.find(x=>x.id===id)}
+function maxFor(id){const it=ITEMS[id];
+  if(id===1) return it.text.filter(x=>x[2]===1).length;
+  if(it.rows) return it.rows.length;
+  if(it.blanks) return it.blanks.length;
+  if(id===5) return it.need+1;
+  if(id===7) return 5;}
+function scoreFor(id){const it=ITEMS[id], r=S.resp[id]||{};
+  if(id===1){let s=0; for(const x of it.text){ if(x[1] && r[x[1]]) s+= x[2]?1:-1;} return Math.max(0,s);}
+  if(it.rows){return it.rows.reduce((a,row,i)=>a+(r[i]===row[1]?1:0),0);}
+  if(it.blanks){return it.blanks.reduce((a,b,i)=>a+(Number(r[i])===b.a?1:0),0);}
+  if(id===5){const sel=r.sel||[]; let s=sel.filter(i=>it.opts[i][1]===1).length; if(r.first===it.first) s+=1; return s;}
+  if(id===7){let s=0; ["cond","act","mon"].forEach(k=>{const sel=r[k]||[]; sel.forEach(i=>{if(it[k].a.includes(i)) s++;});}); return s;}
+}
+
+/* ---------- render: rail ---------- */
+function renderRail(){
+  $("#rail").innerHTML = STAGES.map(st=>{
+    const done=S.checked[st.id];
+    const open=unlocked(st.id);
+    const meta = done ? `${scoreFor(st.id)} / ${maxFor(st.id)} pts` : (!open?"Locked":(st.id===7?"Optional":st.time));
+    return `<button class="step${done?" done":""}" data-stage="${st.id}" ${open?"":"disabled"} ${S.stage===st.id?'aria-current="step"':""}>
+      <span class="n">${st.id===7?"Stretch":"Stage "+st.id}</span><span class="l">${esc(st.step)}</span><span class="s">${meta}</span></button>`;
+  }).join("");
+}
+/* ---------- render: chart ---------- */
+const TABS=[["notes","Notes"],["vitals","Vital signs"],["labs","Labs"],["orders","Orders"]];
+function visibleStage(){return S.stage===7?6:S.stage}
+function hasNew(tab){const v=visibleStage();
+  if(tab==="notes") return NOTES.some(n=>n.s===v);
+  if(tab==="vitals") return VITALS.some(n=>n.s===v);
+  if(tab==="labs") return LABS.some(n=>n.s===v);
+  if(tab==="orders") return ORDERS.some(n=>n.s===v);}
+function renderTabs(){
+  $("#tabs").innerHTML = TABS.map(([k,l])=>`<button class="tab" role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${l}${hasNew(k)&&S.stage!==7?'<span class="new" aria-label="new data"></span>':""}</button>`).join("");
+}
+function flagLab(key,val){const d=LAB_DEF[key]; if(d.hi!=null&&val>d.hi) return "H"; if(d.lo!=null&&val<d.lo) return "L"; return "";}
+function renderChart(){
+  const v=visibleStage(); let h="";
+  if(S.tab==="notes"){
+    const list=NOTES.filter(n=>n.s<=v).slice().reverse();
+    h=list.map(n=>`<article class="note${n.s===v?" fresh":""}"><div class="when">${n.t}</div><h3>${esc(n.h)}</h3>${n.p.map(p=>`<p>${esc(p)}</p>`).join("")}</article>`).join("");
+  } else if(S.tab==="vitals"){
+    const list=VITALS.filter(n=>n.s<=v);
+    h=`<div class="tbl"><table><thead><tr><th>Time</th><th>T °F</th><th>HR</th><th>BP</th><th>RR</th><th>SpO₂</th><th>Pain /10</th><th>R pedal</th><th>UO mL/hr</th></tr></thead><tbody>${
+      list.map(r=>`<tr><td class="num">${r.t}</td><td class="num">${r.T}</td><td class="num${r.HR>100?" H":""}">${r.HR}</td><td class="num${/^(1[4-9]\d|9\d)\//.test(r.BP)?(parseInt(r.BP)>=140?" H":" L"):""}">${r.BP}</td><td class="num${r.RR>20?" H":""}">${r.RR}</td><td class="num${parseInt(r.O2)<90?" L":""}">${r.O2}</td><td class="num">${r.pain}</td><td class="num${r.ped==="1+"?" L":""}">${r.ped}</td><td class="num${r.uo==="20"?" L":""}">${r.uo}</td></tr>`).join("")
+    }</tbody></table></div>`;
+  } else if(S.tab==="labs"){
+    const cols=LABS.filter(n=>n.s<=v);
+    if(!cols.length){h=`<p class="empty">No results yet. Labs drawn at 0645 are pending.</p>`}
+    else{
+      const keys=Object.keys(LAB_DEF).filter(k=>cols.some(c=>c.v[k]!=null));
+      h=`<div class="tbl"><table><thead><tr><th>Test</th>${cols.map(c=>`<th>${c.t}</th>`).join("")}<th>Reference</th></tr></thead><tbody>${
+        keys.map(k=>`<tr><td>${LAB_DEF[k].n}</td>${cols.map(c=>{const x=c.v[k]; if(x==null) return `<td class="num ref">—</td>`; const f=flagLab(k,x); return `<td class="num ${f}">${x}${f?`<span class="flag">${f}</span>`:""}</td>`}).join("")}<td class="ref">${LAB_DEF[k].r} ${LAB_DEF[k].u}</td></tr>`).join("")
+      }</tbody></table></div><p class="ref">Reference ranges vary by lab. Swap in your program's textbook values if they differ.</p>`;
+    }
+  } else {
+    const list=ORDERS.filter(n=>n.s<=v);
+    h=list.length?list.map(o=>`<article class="note"><h3>${esc(o.h)}</h3><ul class="orders">${o.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></article>`).join(""):`<p class="empty">ED standing orders only. Provider orders appear after Stage 4.</p>`;
+  }
+  $("#chart").innerHTML=h;
+}
+
+/* ---------- render: item ---------- */
+function renderItem(){
+  const st=stageOf(S.stage), it=ITEMS[S.stage], r=S.resp[S.stage]||(S.resp[S.stage]={}), done=!!S.checked[S.stage];
+  let body="";
+  if(st.type==="highlight"){
+    body=`<div class="scenario">${it.text.map(x=>{
+      if(!x[1]) return esc(x[0]);
+      let c="hl"; if(r[x[1]]) c+=" on";
+      if(done){ if(r[x[1]]&&x[2]) c+=" right"; else if(r[x[1]]&&!x[2]) c+=" wrong"; else if(!r[x[1]]&&x[2]) c+=" missed"; }
+      return `<span class="${c}" role="button" tabindex="0" aria-pressed="${!!r[x[1]]}" data-hl="${x[1]}">${esc(x[0])}</span>`;}).join("")}</div>`;
+  } else if(st.type==="matrix"){
+    body=`<div class="tbl"><table class="matrix"><thead><tr><th>Finding</th>${it.cols.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${
+      it.rows.map((row,i)=>{const cls=done?(r[i]===row[1]?"right":"wrong"):"";
+        return `<tr class="${cls}"><td>${esc(row[0])}</td>${it.cols.map((c,j)=>`<td><button class="cell${r[i]===j?" on":""}${done&&row[1]===j&&r[i]!==j?" key":""}" data-row="${i}" data-col="${j}" aria-label="${esc(row[0])}: ${c}" aria-pressed="${r[i]===j}"></button></td>`).join("")}</tr>`}).join("")
+    }</tbody></table></div>`;
+  } else if(st.type==="cloze"){
+    body=`<p class="cloze">${it.parts.map(p=>{
+      if(typeof p==="string") return esc(p);
+      const b=it.blanks[p], val=r[p]; const cls=done?(Number(val)===b.a?"right":"wrong"):"";
+      return `<select id="blank${p}" class="${cls}" data-blank="${p}" ${done?"disabled":""} aria-label="Blank ${p+1}"><option value="">Select…</option>${b.opts.map((o,i)=>`<option value="${i}" ${String(val)===String(i)?"selected":""}>${esc(o)}</option>`).join("")}</select>`;}).join("")}</p>`;
+  } else if(st.type==="selectN"){
+    const sel=r.sel||[];
+    body=`<p class="itype">${sel.length} of ${it.need} selected</p><div class="opts">${it.opts.map((o,i)=>{
+      let c="opt"; const on=sel.includes(i); if(on) c+=" on";
+      if(done){ if(on&&o[1]) c+=" right"; else if(on&&!o[1]) c+=" wrong"; else if(!on&&o[1]) c+=" missed"; }
+      const firstBtn = on?`<span class="first${r.first===i?" on":""}" role="button" tabindex="0" data-first="${i}">${r.first===i?"First":"Mark first"}</span>`:"<span></span>";
+      return `<div class="${c}"><button class="box" data-opt="${i}" aria-pressed="${on}" aria-label="Select option ${i+1}">${on?"✓":""}</button><span data-opt="${i}" style="cursor:pointer">${esc(o[0])}</span>${firstBtn}</div>`;}).join("")}</div>`;
+  } else if(st.type==="bowtie"){
+    const col=(k,title,mid)=>{const sel=r[k]||[]; const need=it[k].a.length;
+      return `<div class="bt-col${mid?" mid":""}"><h3>${title} · pick ${need}</h3>${it[k].opts.map((o,i)=>{
+        let c="tok"; const on=sel.includes(i); if(on) c+=" on";
+        if(done){ const key=it[k].a.includes(i); if(on&&key) c+=" right"; else if(on&&!key) c+=" wrong"; else if(!on&&key) c+=" missed"; }
+        return `<button class="${c}" data-bt="${k}" data-i="${i}" aria-pressed="${on}">${esc(o)}</button>`;}).join("")}</div>`;};
+    body=`<div class="bowtie">${col("act","Actions to take")}${col("cond","Condition",true)}${col("mon","Parameters to monitor")}</div>`;
+  }
+
+  let rat="";
+  if(done){
+    let li=[];
+    if(st.type==="highlight") li=it.text.filter(x=>x[1]).map(x=>`<li><b class="${x[2]?"ok":"no"}">${x[2]?"Concern":"Not immediate"}:</b> ${esc(x[0])}. ${esc(it.why[x[1]])}</li>`);
+    if(st.type==="matrix") li=it.rows.map(row=>`<li><b class="${row[1]===0?"no":"ok"}">${it.cols[row[1]]}:</b> ${esc(row[0])}. ${esc(row[2])}</li>`);
+    if(st.type==="cloze") li=it.blanks.map((b,i)=>`<li><b class="ok">Blank ${i+1}: ${esc(b.opts[b.a])}.</b> ${esc(b.why)}</li>`);
+    if(st.type==="selectN") li=it.opts.map((o,i)=>`<li><b class="${o[1]?"ok":"no"}">${o[1]?(i===it.first?"Do first":"Do now"):"Not now"}:</b> ${esc(o[0])}. ${esc(o[2])}</li>`);
+    if(st.type==="bowtie") li=[["cond","Condition"],["act","Actions"],["mon","Monitor"]].map(([k,l])=>`<li><b class="ok">${l}: ${it[k].a.map(i=>esc(it[k].opts[i])).join("; ")}.</b> ${esc(it[k].why)}</li>`);
+    rat=`<div class="rat"><h3>Rationales</h3><ul>${li.join("")}</ul></div>`;
+  }
+  const fac = done?`<div class="think"><h3>Think it through</h3><ul>${it.think.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div>`:"";
+  const next = done&&S.stage<7?`<button class="btn ghost" id="nextBtn">${S.stage===6?"Optional bowtie":"Next stage"} →</button>`:"";
+  const ready = hasAnswer(S.stage);
+  const sc = done?`<span class="score">${scoreFor(S.stage)} / ${maxFor(S.stage)} <small>points${S.stage===1?" (+1 each concern, −1 each extra)":""}</small></span>`:"";
+  $("#item").innerHTML=`
+    <div class="ihead"><div><div class="tag">${S.stage===7?"Stretch":"Stage "+S.stage} · ${esc(st.step)}</div><h2>${S.stage===7?"Bowtie":"Day "+(S.stage===6?"2":"1")+" · "+st.time}</h2></div><span class="itype">${esc(st.label)}</span></div>
+    <p class="prompt">${esc(it.prompt)}</p>
+    ${body}
+    <div class="actions">${done?"":`<button class="btn" id="checkBtn" ${ready?"":"disabled"}>Check answers</button><button class="btn ghost" id="resetBtn">Clear</button><span class="hint">${ready?"Checking locks your answers.":(S.stage===5?"Select 4 actions and mark one as first.":"Answer every part to check.")}</span>`}${sc}${next}</div>
+    ${rat}${fac}`;
+}
+
+/* ---------- render: board ---------- */
+function totals(){const core=[1,2,3,4,5,6];return {got:core.filter(k=>S.checked[k]).reduce((a,k)=>a+scoreFor(k),0),max:core.reduce((a,k)=>a+maxFor(k),0),done:core.filter(k=>S.checked[k]).length};}
+function renderBoard(){
+  const t=totals();
+  $("#board").innerHTML=`<span class="lbl">Your progress</span><span class="prog">${t.done} of 6 stages</span><span class="bar" aria-hidden="true"><i style="width:${Math.round(t.done/6*100)}%"></i></span><span class="prog">Score ${t.got} / ${t.max}${S.checked[7]?` · bowtie ${scoreFor(7)} / 5`:""}</span>`;
+}
+function renderResults(){
+  const el=$("#results");
+  if(!S.checked[6]){el.hidden=true; el.innerHTML=""; return;}
+  const t=totals();
+  el.hidden=false;
+  el.innerHTML=`<h2>Case complete</h2>
+   <p>Your score: <b>${t.got} / ${t.max}</b>${S.checked[7]?` plus <b>${scoreFor(7)} / 5</b> on the bowtie`:" (the bowtie is optional)"}. Go back to any stage to reread the rationales.</p>
+   <label for="reflect"><b>Reflection:</b> what is one thing you would do differently if Frank were your real patient?</label>
+   <textarea id="reflect">${esc(S.reflect)}</textarea>
+   <label for="sname"><b>Your name</b></label>
+   <input id="sname" type="text" autocomplete="name" value="${esc(S.name)}">
+   <div class="actions"><button class="btn" id="sumBtn">Create my summary</button></div>
+   <div id="sumWrap" hidden style="display:flex;flex-direction:column;gap:8px">
+     <p>Copy this and paste it into the course assignment.</p>
+     <textarea id="summary" class="summary" readonly aria-label="Your summary"></textarea>
+     <div class="actions"><button class="btn ghost" id="copyBtn">Copy summary</button><span id="copyMsg" class="hint" aria-live="polite"></span></div>
+   </div>`;
+}
+function makeSummary(){
+  const t=totals(); const d=new Date();
+  const lines=STAGES.filter(x=>x.id<7).map(x=>`  Stage ${x.id} (${x.step}): ${scoreFor(x.id)} / ${maxFor(x.id)}`);
+  $("#summary").value=`After the Storm (unfolding case, at home)\nName: ${S.name.trim()||"(name not entered)"}\nCompleted: ${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}\nScore: ${t.got} / ${t.max}${S.checked[7]?` (bowtie ${scoreFor(7)} / 5)`:""}\n${lines.join("\n")}\nReflection: ${S.reflect.trim()||"(none entered)"}`;
+  $("#sumWrap").hidden=false;
+}
+function renderAll(){renderRail();renderTabs();renderChart();renderItem();renderBoard();renderResults();save();}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,[data-hl],[data-first],[data-opt]"); if(!t) return;
+  const id=S.stage, it=ITEMS[id], r=S.resp[id]||(S.resp[id]={}), done=!!S.checked[id];
+  if(t.dataset.stage){if(!unlocked(+t.dataset.stage)) return; S.stage=+t.dataset.stage; renderAll(); return;}
+  if(t.dataset.tab){S.tab=t.dataset.tab; renderTabs(); renderChart(); return;}
+  if(t.id==="sumBtn"){makeSummary(); save(); return;}
+  if(t.id==="copyBtn"){const ta=$("#summary"), msg=$("#copyMsg");
+    const ok=()=>{msg.textContent="Copied. Paste it into the course assignment."; msg.className="ok-msg";};
+    const fb=()=>{ta.focus(); ta.select(); msg.textContent="Text selected. Press Ctrl+C (or ⌘C) to copy."; msg.className="hint";};
+    try{navigator.clipboard.writeText(ta.value).then(ok,fb);}catch(err){fb();}
+    return;}
+  if(t.id==="checkBtn"){if(!hasAnswer(id)) return; S.checked[id]=true; renderAll(); return;}
+  if(t.id==="resetBtn"){if(done) return; S.resp[id]={}; renderItem(); save(); return;}
+  if(t.id==="nextBtn"){if(!done) return; S.stage=Math.min(7,id+1); if(S.tab!=="notes"&&!hasNew(S.tab)) S.tab="notes"; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); return;}
+  if(done) return;
+  if(t.dataset.hl){r[t.dataset.hl]=!r[t.dataset.hl]; renderItem(); save(); return;}
+  if(t.dataset.row!=null){r[+t.dataset.row]=+t.dataset.col; renderItem(); save(); return;}
+  if(t.dataset.first!=null){r.first=+t.dataset.first; renderItem(); save(); return;}
+  if(t.dataset.opt!=null){const i=+t.dataset.opt; r.sel=r.sel||[];
+    if(r.sel.includes(i)){r.sel=r.sel.filter(x=>x!==i); if(r.first===i) r.first=undefined;}
+    else if(r.sel.length<it.need) r.sel.push(i);
+    renderItem(); save(); return;}
+  if(t.dataset.bt){const k=t.dataset.bt,i=+t.dataset.i,need=it[k].a.length; let sel=r[k]||[];
+    if(sel.includes(i)) sel=sel.filter(x=>x!==i); else { if(sel.length>=need) sel=sel.slice(1); sel.push(i); }
+    r[k]=sel; renderItem(); save(); return;}
+});
+document.addEventListener("keydown",e=>{
+  if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-hl],[data-first]")){e.preventDefault(); e.target.click();}
+});
+document.addEventListener("change",e=>{
+  if(e.target.dataset.blank!=null){if(S.checked[S.stage]) return; const r=S.resp[S.stage]||(S.resp[S.stage]={}); r[+e.target.dataset.blank]=e.target.value===""?undefined:+e.target.value; renderItem(); save();}
+});
+document.addEventListener("input",e=>{
+  if(e.target.id==="reflect"){S.reflect=e.target.value; save();}
+  if(e.target.id==="sname"){S.name=e.target.value; save();}
+});
+
+if(!unlocked(S.stage)) S.stage=1;
+renderAll();
+</script>
+
+</body></html>

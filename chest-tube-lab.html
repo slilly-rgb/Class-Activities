@@ -1,0 +1,408 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Three-Chamber Chest Tube Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: single centered column; a live drawing of the drainage unit anchors both Learn and Test. */
+:root{
+  --bg:#edf1f2; --panel:#ffffff; --ink:#13232b; --muted:#56676f; --line:#c8d3d7;
+  --housing:#f7fafb; --water:#4aa3c7; --water-soft:#cfe8f2; --blood:#b3262e; --serous:#d9a441;
+  --accent:#d96f12; --accent-soft:#fbe7d5; --ok:#1d8355; --ok-soft:#dcf1e6; --bad:#b8322a; --bad-soft:#f8dedb;
+  --tube:#9fb3bb;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f171b; --panel:#172329; --ink:#e3ecef; --muted:#9aacb3; --line:#2c3c43;
+  --housing:#1c2a31; --water:#58b4d8; --water-soft:#18394a; --blood:#de4a52; --serous:#e0b45a;
+  --accent:#f0923a; --accent-soft:#3a2614; --ok:#3fbf85; --ok-soft:#163327; --bad:#ec6a60; --bad-soft:#3a1c1a;
+  --tube:#4f646c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f171b; --panel:#172329; --ink:#e3ecef; --muted:#9aacb3; --line:#2c3c43;
+  --housing:#1c2a31; --water:#58b4d8; --water-soft:#18394a; --blood:#de4a52; --serous:#e0b45a;
+  --accent:#f0923a; --accent-soft:#3a2614; --ok:#3fbf85; --ok-soft:#163327; --bad:#ec6a60; --bad-soft:#3a1c1a;
+  --tube:#4f646c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-display);letter-spacing:.01em;line-height:1.1;margin:0;text-wrap:balance}
+h1{font-size:2.4rem;text-transform:uppercase}
+h2{font-size:1.6rem}
+h3{font-size:1.25rem}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+header{display:flex;flex-direction:column;gap:8px}
+header p{color:var(--muted);max-width:62ch}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px;align-self:flex-start}
+.tabs button{font:600 1rem var(--f-body);border:0;background:transparent;color:var(--muted);padding:8px 18px;border-radius:7px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.step{display:flex;flex-direction:column;gap:6px;min-width:0}
+.step b{font-family:var(--f-mono);font-size:.8rem;color:var(--accent)}
+.step p{font-size:.95rem}
+@media (max-width:620px){.steps{grid-template-columns:1fr}}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;font-size:.95rem}
+@media (max-width:520px){.facts{grid-template-columns:1fr}}
+.fact{border-top:2px solid var(--line);padding-top:8px}
+.fact strong{display:block}
+.device-row{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:680px){.device-row{grid-template-columns:1fr}}
+.device svg{width:100%;height:auto;display:block}
+.device .hit{cursor:pointer;fill:transparent}
+.device .hit:hover + .sel,.device .hit:focus + .sel{opacity:.5}
+.device .sel{fill:none;stroke:var(--accent);stroke-width:3;opacity:0;transition:opacity .15s;pointer-events:none}
+.device .sel.on{opacity:1}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.9rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{font:600 .85rem var(--f-body);border:0;background:var(--panel);color:var(--muted);padding:6px 12px;cursor:pointer}
+.seg button.on{background:var(--water-soft);color:var(--ink)}
+.phase{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);min-width:11ch}
+.info{display:flex;flex-direction:column;gap:12px;min-width:0}
+.info .tag{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.info dl{margin:0;display:flex;flex-direction:column;gap:10px}
+.info dt{font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.info dd{margin:2px 0 0}
+.info ul{margin:4px 0 0;padding-left:18px}
+.info li{margin:2px 0}
+.flag{color:var(--bad);font-weight:600}
+.hint{color:var(--muted);font-size:.95rem}
+.btn{font:700 1rem var(--f-body);border:0;border-radius:8px;padding:11px 20px;cursor:pointer;background:var(--accent);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.meter{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.stem{font-size:1.1rem;font-weight:600}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;font:400 1rem var(--f-body);color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:9px;padding:11px 13px;cursor:pointer}
+.opt .box{flex:none;width:20px;height:20px;border:2px solid var(--muted);border-radius:50%;margin-top:2px}
+.opt.multi .box{border-radius:4px}
+.opt.picked{border-color:var(--ink)}
+.opt.picked .box{background:var(--ink);border-color:var(--ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{border-radius:9px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.fb.ok{background:var(--ok-soft)} .fb.no{background:var(--bad-soft)}
+.fb b{font-family:var(--f-display);font-size:1.25rem}
+.fb.ok b{color:var(--ok)} .fb.no b{color:var(--bad)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.score{font-family:var(--f-display);font-size:4rem;line-height:1;font-variant-numeric:tabular-nums}
+.review{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.review li{border-left:3px solid var(--bad);padding-left:10px;font-size:.95rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Respiratory · Med-Surg Skills</span>
+    <h1>Three-Chamber Chest Tube Lab</h1>
+    <p>Learn how a chest tube restores the lung, what each chamber of the drainage unit does, and what to do when it looks wrong. Then prove it.</p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-learn" aria-selected="true">1 · Learn</button>
+    <button role="tab" id="tab-test" aria-selected="false">2 · Test</button>
+  </div>
+
+  <!-- LEARN -->
+  <section id="learn" style="display:flex;flex-direction:column;gap:20px">
+    <div class="panel">
+      <h2>Why the lung needs a chest tube</h2>
+      <div class="steps">
+        <div class="step"><b>NORMAL</b><h3>Negative pressure</h3><p>The pleural space holds a thin film of fluid at pressure slightly below atmospheric. That vacuum keeps the lung stuck to the chest wall so it expands with every breath.</p></div>
+        <div class="step"><b>PROBLEM</b><h3>Air or fluid gets in</h3><p>Pneumothorax (air), hemothorax (blood), pleural effusion or empyema break the vacuum. The lung pulls away from the chest wall and collapses.</p></div>
+        <div class="step"><b>FIX</b><h3>Drain it one way</h3><p>The tube lets air and fluid leave but never return. As the space empties, negative pressure comes back and the lung re-expands.</p></div>
+      </div>
+      <div class="facts">
+        <div class="fact"><strong>Air: high and anterior</strong>Air rises, so a tube for pneumothorax usually sits near the apex, about the 2nd intercostal space, midclavicular line.</div>
+        <div class="fact"><strong>Fluid: low and lateral</strong>Fluid settles, so a tube for blood or effusion usually sits around the 4th–6th intercostal space, mid-axillary line.</div>
+        <div class="fact"><strong>Mediastinal tubes</strong>After cardiac surgery, tubes drain blood from around the heart. They are not in the pleural space.</div>
+        <div class="fact"><strong>At the bedside</strong>Sterile water, a sterile occlusive dressing (petroleum gauze per policy) and padded clamps for emergencies only.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Inside the drainage unit</h2>
+      <p class="hint">Tap a chamber. The unit is "breathing" with a spontaneously breathing patient, so watch the water seal rise and fall.</p>
+      <div class="device-row">
+        <div>
+          <div class="device" id="learnDevice"></div>
+          <div class="controls">
+            <span>Suction:</span>
+            <span class="seg" id="modeSeg"><button data-m="wet" class="on">Wet</button><button data-m="dry">Dry</button></span>
+            <span class="phase" id="phase">Inspiration</span>
+          </div>
+        </div>
+        <div class="info" id="info" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Rules that keep the system working</h2>
+      <div class="facts">
+        <div class="fact"><strong>Below the chest, upright</strong>Gravity drains the chest. A unit above chest level can send drainage back in; a tipped unit loses its water seal.</div>
+        <div class="fact"><strong>No dependent loops</strong>Coil extra tubing flat on the bed. A loop hanging below fills with fluid and blocks drainage.</div>
+        <div class="fact"><strong>Don't clamp routinely</strong>Clamping traps air in the chest and can cause a tension pneumothorax. Clamp only briefly to locate a leak or change the unit, per policy.</div>
+        <div class="fact"><strong>Don't strip or milk routinely</strong>Stripping creates very high negative pressure that can injure tissue. Follow provider order and policy.</div>
+        <div class="fact"><strong>Disconnected from the unit</strong>Put the patient end of the tube 2–3 cm into sterile water to restore a seal, then replace the unit.</div>
+        <div class="fact"><strong>Pulled out of the chest</strong>Cover the site with a sterile occlusive dressing taped on three sides, so air can escape but not enter. Call the provider.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEST -->
+  <section id="test" hidden>
+    <div class="panel" id="quiz"></div>
+  </section>
+</div>
+
+<script>
+/* ---------- Drainage unit drawing ---------- */
+const T=80,B=290;
+function deviceSVG(){
+  const ticks=[];
+  for(let i=1;i<=7;i++){const y=B-i*28;ticks.push(`<line x1="232" x2="240" y1="${y}" y2="${y}" stroke="var(--muted)" stroke-width="1"/><text x="244" y="${y+3}" font-size="8" font-family="IBM Plex Mono,monospace" fill="var(--muted)">${i*100}</text>`)}
+  const bub=(cls,n)=>Array.from({length:n},()=>`<circle class="${cls}" r="3" fill="var(--panel)" stroke="var(--water)" stroke-width="1.2" opacity="0"/>`).join("");
+  return `<svg viewBox="0 0 380 330" role="img" aria-label="Three-chamber chest drainage unit: suction control, water seal, collection">
+  <rect x="6" y="40" width="368" height="262" rx="12" fill="var(--housing)" stroke="var(--line)" stroke-width="2"/>
+  <path d="M70 58 V28 H8" fill="none" stroke="var(--tube)" stroke-width="6" stroke-linecap="round"/>
+  <text x="10" y="20" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--muted)">TO WALL SUCTION</text>
+  <path d="M251 84 V28 H372" fill="none" stroke="var(--tube)" stroke-width="6" stroke-linecap="round"/>
+  <text x="372" y="20" text-anchor="end" font-size="10" font-family="IBM Plex Mono,monospace" fill="var(--muted)">FROM PATIENT</text>
+  <path d="M170 60 H251" fill="none" stroke="var(--tube)" stroke-width="3"/>
+  <path d="M110 66 H170" fill="none" stroke="var(--tube)" stroke-width="3" stroke-dasharray="4 3"/>
+
+  <!-- suction control -->
+  <rect x="30" y="${T}" width="80" height="${B-T}" rx="4" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.5"/>
+  <g class="wet">
+    <rect x="31" y="130" width="78" height="${B-130-1}" fill="var(--water-soft)"/>
+    <line x1="31" x2="109" y1="130" y2="130" stroke="var(--water)" stroke-width="2"/>
+    <rect x="64" y="56" width="12" height="220" fill="none" stroke="var(--muted)" stroke-width="1.2"/>
+    ${bub("sb",8)}
+    <text x="40" y="125" font-size="9" font-family="IBM Plex Mono,monospace" fill="var(--water)">20 cm</text>
+  </g>
+  <g class="dry" style="display:none">
+    <circle cx="70" cy="140" r="24" fill="var(--housing)" stroke="var(--ink)" stroke-width="1.5"/>
+    <line x1="70" y1="140" x2="56" y2="124" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+    <text x="70" y="178" text-anchor="middle" font-size="9" font-family="IBM Plex Mono,monospace" fill="var(--muted)">−20 cm H₂O</text>
+    <rect x="44" y="205" width="52" height="44" rx="3" fill="var(--housing)" stroke="var(--ink)" stroke-width="1.2"/>
+    <rect class="bellows" x="50" y="211" width="40" height="32" rx="2" fill="var(--accent)"/>
+    <text x="70" y="264" text-anchor="middle" font-size="8" font-family="IBM Plex Mono,monospace" fill="var(--muted)">INDICATOR</text>
+  </g>
+
+  <!-- water seal -->
+  <rect x="135" y="${T}" width="70" height="${B-T}" rx="4" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.5"/>
+  <rect x="136" y="220" width="68" height="${B-220-1}" fill="var(--water-soft)"/>
+  <line x1="136" x2="204" y1="220" y2="220" stroke="var(--water)" stroke-width="2"/>
+  <rect x="162" y="60" width="16" height="200" fill="none" stroke="var(--muted)" stroke-width="1.2"/>
+  <rect class="tidal" x="164" y="212" width="12" height="48" fill="var(--water)"/>
+  ${bub("wb",6)}
+  <text x="140" y="214" font-size="9" font-family="IBM Plex Mono,monospace" fill="var(--water)">2 cm</text>
+
+  <!-- collection -->
+  <rect x="230" y="${T}" width="125" height="${B-T}" rx="4" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.5"/>
+  <line x1="272" x2="272" y1="${T}" y2="${B}" stroke="var(--line)" stroke-width="1.5"/>
+  <line x1="313" x2="313" y1="${T}" y2="${B}" stroke="var(--line)" stroke-width="1.5"/>
+  <rect class="fluid" x="231" y="${B-40}" width="40" height="39" fill="var(--blood)" opacity=".85"/>
+  ${ticks.join("")}
+  <line class="mark" x1="226" x2="276" y1="${B-40}" y2="${B-40}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 2"/>
+
+  <g font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="13" fill="var(--ink)" text-anchor="middle">
+    <text x="70" y="318">SUCTION</text><text x="170" y="318">WATER SEAL</text><text x="292" y="318">COLLECTION</text>
+  </g>
+  ${[["suction",26,88],["seal",131,78],["collection",226,133]].map(([c,x,w])=>`<rect class="hit" data-ch="${c}" tabindex="0" role="button" aria-label="${c} chamber" x="${x}" y="${T-6}" width="${w}" height="${B-T+40}"/><rect class="sel" data-sel="${c}" x="${x}" y="${T-6}" width="${w}" height="${B-T+40}" rx="6"/>`).join("")}
+  </svg>`;
+}
+const devices=[];
+function makeDevice(el,state){
+  el.innerHTML=deviceSVG();
+  const d={el,state:Object.assign({mode:"wet",tidal:"normal",vent:false,seal:"none",suction:"gentle",drain:.18,color:"blood"},state),
+    sb:[...el.querySelectorAll(".sb")],wb:[...el.querySelectorAll(".wb")],tidal:el.querySelector(".tidal"),
+    fluid:el.querySelector(".fluid"),mark:el.querySelector(".mark"),bellows:el.querySelector(".bellows"),
+    wet:el.querySelector(".wet"),dry:el.querySelector(".dry"),seeds:Array.from({length:8},()=>Math.random())};
+  d.set=s=>{Object.assign(d.state,s);apply(d)};
+  d.select=c=>el.querySelectorAll(".sel").forEach(r=>r.classList.toggle("on",r.dataset.sel===c));
+  d.onTap=cb=>el.querySelectorAll(".hit").forEach(h=>{h.addEventListener("click",()=>cb(h.dataset.ch));h.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();cb(h.dataset.ch)}})});
+  apply(d);devices.push(d);return d;
+}
+function apply(d){
+  const s=d.state;
+  d.wet.style.display=s.mode==="wet"?"":"none";
+  d.dry.style.display=s.mode==="dry"?"":"none";
+  d.bellows.style.display=s.suction==="none"?"none":"";
+  const h=Math.max(2,s.drain*196);
+  d.fluid.setAttribute("y",B-1-h);d.fluid.setAttribute("height",h);
+  d.fluid.setAttribute("fill",s.color==="serous"?"var(--serous)":"var(--blood)");
+  d.mark.setAttribute("y1",B-1-h);d.mark.setAttribute("y2",B-1-h);
+}
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let phaseText="";
+function frame(ts){
+  const t=reduce?1.0:ts/1000;
+  const breath=Math.sin(t*2*Math.PI/4);           // 4-second breath
+  const insp=breath>0;
+  for(let i=devices.length-1;i>=0;i--){
+    const d=devices[i];if(!d.el.isConnected){devices.splice(i,1);continue}
+    const s=d.state;
+    // tidaling: spontaneous breathing pulls water UP the tube on inspiration; positive-pressure ventilation reverses it
+    let rise=0;
+    if(s.tidal==="normal")rise=7+7*(s.vent?-breath:breath);
+    const top=212-rise;d.tidal.setAttribute("y",top);d.tidal.setAttribute("height",260-top);
+    // water seal bubbles
+    const sealOn=s.seal==="continuous"||(s.seal==="intermittent"&&!insp);
+    d.wb.forEach((c,k)=>{const p=((t*0.9+k/d.wb.length)%1);c.setAttribute("cx",168+((k*7)%10));c.setAttribute("cy",258-p*36);c.setAttribute("opacity",sealOn?(1-p*0.6):0)});
+    // suction bubbles
+    const sp=s.suction==="vigorous"?2.2:s.suction==="gentle"?0.55:0;
+    d.sb.forEach((c,k)=>{
+      const on=s.mode==="wet"&&sp>0&&(s.suction==="vigorous"||k%2===0);
+      const p=((t*sp+d.seeds[k])%1);
+      c.setAttribute("r",s.suction==="vigorous"?4.5:3);
+      c.setAttribute("cx",64+d.seeds[k]*12+(s.suction==="vigorous"?Math.sin(t*9+k)*10:0));
+      c.setAttribute("cy",272-p*140);c.setAttribute("opacity",on?1:0)});
+  }
+  const pt=insp?"Inspiration ↑":"Expiration ↓";
+  if(pt!==phaseText){phaseText=pt;const ph=document.getElementById("phase");if(ph)ph.textContent=reduce?"":pt}
+  if(!reduce)requestAnimationFrame(frame);
+}
+
+/* ---------- Learn ---------- */
+const INFO={
+  collection:{name:"Collection chamber",tag:"Measures what leaves the chest",
+    purpose:"Receives blood and fluid from the pleural or mediastinal space through the patient tubing. It is calibrated in mL so you can measure output.",
+    why:"Output tells you whether bleeding is slowing or getting worse. It is the earliest warning of hemorrhage after chest or heart surgery.",
+    normal:["Drainage gradually decreases and changes from bloody to serosanguineous to serous","Mark the level with date and time on the outside each shift or as ordered"],
+    flags:["More than 100 mL/hr (or a sudden large increase): notify provider","Bright red drainage after the first few hours; sudden stop of drainage with respiratory distress"],
+    act:["Never empty it. When full, the whole unit is replaced","Keep the unit below chest level and upright"]},
+  seal:{name:"Water seal chamber",tag:"The one-way valve",
+    purpose:"About 2 cm of sterile water sits over the end of a tube. Air from the chest bubbles out through the water, but the water blocks air from being pulled back into the chest.",
+    why:"This is what makes the system one-way. Without it, every inspiration would suck atmospheric air back into the pleural space and re-collapse the lung.",
+    normal:["Tidaling: water rises on inspiration and falls on expiration (spontaneous breathing). Reversed on a ventilator","Intermittent bubbling on exhalation or cough while a pneumothorax is still draining"],
+    flags:["Continuous bubbling: air leak in the system or the patient. Check from the chest outward","Tidaling stops: lung may be re-expanded, or the tube is kinked, clotted or in a dependent loop","Water seal low or unit tipped: seal lost"],
+    act:["Keep water at the 2 cm line; add sterile water if needed","To find a leak, briefly clamp close to the chest per policy: bubbling stops = leak is in the patient; continues = leak is in the tubing or unit"]},
+  suction:{name:"Suction control chamber",tag:"Sets how much pull is applied",
+    purpose:"Limits the negative pressure applied to the chest, most often −20 cm H₂O. In a wet system, the height of the water column sets suction. In a dry system, a dial sets it.",
+    why:"Suction speeds removal of air and fluid. Controlling it protects lung tissue; turning the wall up does not increase suction in a wet system, it only evaporates water.",
+    normal:["Wet: gentle, continuous bubbling","Dry: orange bellows or float visible in the indicator window"],
+    flags:["Wet: no bubbling means suction is off or disconnected","Wet: vigorous bubbling is too much wall suction; water evaporates and suction drops","Dry: indicator not showing means suction is inadequate"],
+    act:["Wet: fill with sterile water to the ordered level; adjust wall suction until bubbling is gentle","If suction is not ordered (water seal only), leave the suction port open to air"]}
+};
+function showInfo(c){
+  const i=INFO[c];
+  document.getElementById("info").innerHTML=`<span class="tag">${i.tag}</span><h3>${i.name}</h3>
+  <dl><div><dt>Purpose</dt><dd>${i.purpose}</dd></div>
+  <div><dt>Why it matters</dt><dd>${i.why}</dd></div>
+  <div><dt>Expected</dt><dd><ul>${i.normal.map(x=>`<li>${x}</li>`).join("")}</ul></dd></div>
+  <div><dt>Red flags</dt><dd><ul>${i.flags.map(x=>`<li class="flag">${x}</li>`).join("")}</ul></dd></div>
+  <div><dt>Nursing action</dt><dd><ul>${i.act.map(x=>`<li>${x}</li>`).join("")}</ul></dd></div></dl>`;
+}
+const learn=makeDevice(document.getElementById("learnDevice"),{seal:"intermittent"});
+learn.onTap(c=>{learn.select(c);showInfo(c)});
+learn.select("seal");showInfo("seal");
+document.querySelectorAll("#modeSeg button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#modeSeg button").forEach(x=>x.classList.toggle("on",x===b));
+  learn.set({mode:b.dataset.m});learn.select("suction");showInfo("suction")}));
+
+/* ---------- Test ---------- */
+const Q=[
+ {type:"tap",stem:"Tap the chamber that keeps air from being pulled back into the pleural space.",answer:"seal",
+  why:"The water seal is the one-way valve. Air can bubble out through 2 cm of water, but the water blocks air from re-entering on inspiration.",topic:"Water seal function"},
+ {type:"tap",stem:"Tap the chamber where you mark the drainage level with the date and time.",answer:"collection",
+  why:"The collection chamber is calibrated in mL. Mark the level on the outside so the next nurse can calculate output.",topic:"Collection chamber"},
+ {type:"tap",stem:"In a wet system, the height of the water in this chamber, not the wall regulator, determines how much suction reaches the patient. Tap it.",answer:"suction",
+  why:"The water column in the suction control chamber (usually 20 cm) limits negative pressure. Raising wall suction only makes it bubble harder and evaporate faster.",topic:"Suction control chamber"},
+ {type:"mc",device:{seal:"continuous"},stem:"Your patient's unit shows continuous bubbling in the water seal chamber. What do you do first?",
+  opts:["Check the system from the chest dressing outward for loose connections","Increase the wall suction","Clamp the tube until the provider arrives","Strip the tubing to clear clots"],ans:[0],
+  why:"Continuous bubbling means an air leak. Start at the insertion site and work toward the unit, checking every connection. Briefly clamping close to the chest per policy tells you whether the leak is in the patient or the system. Prolonged clamping risks tension pneumothorax.",topic:"Continuous bubbling = air leak"},
+ {type:"ms",device:{tidal:"none",seal:"none"},stem:"Tidaling in the water seal has stopped. Which could explain it? Select all that apply.",
+  opts:["The lung has re-expanded","The tubing is kinked or has a dependent loop","A clot is blocking the tube","There is a large air leak in the tubing","Suction is set too low"],ans:[0,1,2],
+  why:"Tidaling stops when the lung re-expands (confirm with chest x-ray) or when something blocks the tube: a kink, a clot or fluid in a dependent loop. An air leak causes bubbling, not loss of tidaling. Assess the patient and the tubing before assuming the good explanation.",topic:"Loss of tidaling"},
+ {type:"mc",device:{suction:"vigorous"},stem:"The suction control chamber is bubbling vigorously and the water level has dropped below the 20 cm mark. Best action?",
+  opts:["Turn the wall suction down until bubbling is gentle and add sterile water to the ordered level","Leave it; more bubbling means more suction for the patient","Turn the wall suction up to keep the water moving","Empty the chamber and run the system dry"],ans:[0],
+  why:"Vigorous bubbling does not increase suction; it evaporates water, which lowers the suction delivered. Reduce wall suction to gentle bubbling and refill with sterile water.",topic:"Vigorous suction bubbling"},
+ {type:"mc",device:{mode:"dry",suction:"none"},stem:"This is a dry suction unit. Suction is ordered at −20 cm H₂O, but the orange indicator is not visible in the window. What does this mean?",
+  opts:["Suction is inadequate; check the wall source and the unit's setting","The patient's lung has re-expanded","There is an air leak at the insertion site","This is normal for dry suction"],ans:[0],
+  why:"In a dry system the bellows or float shows that the set suction is being delivered. If it is not visible, check that wall suction is on, connected, and strong enough, and that the dial is set as ordered.",topic:"Dry suction indicator"},
+ {type:"mc",device:{seal:"intermittent"},stem:"A patient with a pneumothorax has bubbling in the water seal only when exhaling and coughing. What is your interpretation?",
+  opts:["Expected: air is still leaving the pleural space","An air leak in the tubing; tape all connections","The water seal is too low","The tube has dislodged"],ans:[0],
+  why:"Intermittent bubbling on exhalation or cough is expected while air is still draining. It should decrease as the lung heals. Continuous bubbling is the concern.",topic:"Intermittent bubbling"},
+ {type:"mc",device:{drain:.6,color:"blood"},stem:"Two hours after a chest tube was placed for hemothorax, 150 mL of bright red drainage collected in the last hour. Priority action?",
+  opts:["Notify the provider and assess vital signs","Document and recheck in 4 hours","Empty the collection chamber","Raise the unit to the level of the chest"],ans:[0],
+  why:"More than 100 mL/hr, especially bright red, can mean active bleeding. Assess for hypovolemia and report. Never empty the chamber, and never raise the unit above the chest.",topic:"Drainage > 100 mL/hr"},
+ {type:"mc",stem:"While turning the patient, the chest tube separates from the drainage unit tubing. What do you do first?",
+  opts:["Place the end of the chest tube 2–3 cm into a bottle of sterile water","Clamp the tube and leave it clamped","Cover the end with gauze and call the provider","Reconnect the dirty ends immediately"],ans:[0],
+  why:"Submerging the tube in sterile water creates an instant water seal, so air cannot enter the chest. Then set up a new sterile unit.",topic:"Disconnection from unit"},
+ {type:"mc",stem:"The chest tube is accidentally pulled out of the patient's chest. What do you do immediately?",
+  opts:["Cover the site with a sterile occlusive dressing taped on three sides and call the provider","Reinsert the tube","Apply a dressing taped on all four sides and wait","Place the patient flat and recheck in 1 hour"],ans:[0],
+  why:"Taping on three sides lets trapped air escape on exhalation while blocking air from entering on inspiration. Watch for signs of tension pneumothorax and notify the provider.",topic:"Dislodged chest tube"},
+ {type:"ms",stem:"Which actions keep the system working? Select all that apply.",
+  opts:["Keep the unit upright and below chest level","Coil excess tubing on the bed without dependent loops","Clamp the tube whenever the patient walks","Strip the tubing every hour","Keep sterile water and an occlusive dressing at the bedside"],ans:[0,1,4],
+  why:"Gravity and an unobstructed path keep drainage moving. Routine clamping can cause tension pneumothorax, and routine stripping causes dangerous negative pressure.",topic:"Maintaining the system"},
+ {type:"mc",device:{vent:true},stem:"Your patient is on a mechanical ventilator with positive-pressure breaths. How should tidaling look?",
+  opts:["Water rises on expiration and falls on inspiration (reversed)","Water rises on inspiration and falls on expiration","There is no tidaling on a ventilator","Continuous bubbling replaces tidaling"],ans:[0],
+  why:"Positive pressure pushes on inspiration instead of pulling, so tidaling is the reverse of a spontaneously breathing patient.",topic:"Tidaling on a ventilator"}
+];
+let qi=0,score=0,missed=[],sel=[],done=false;
+const quiz=document.getElementById("quiz");
+function renderQ(){
+  const q=Q[qi];sel=[];done=false;
+  const hasDev=q.type==="tap"||q.device;
+  quiz.innerHTML=`<div class="qhead"><span class="eyebrow">Question ${qi+1} of ${Q.length}</span><span class="meter">Score ${score}</span></div>
+  <div class="bar"><i style="width:${qi/Q.length*100}%"></i></div>
+  <p class="stem">${q.stem}</p>
+  ${hasDev?`<div class="device" id="qDev" style="max-width:440px"></div>`:""}
+  ${q.type==="tap"?`<p class="hint" id="tapNote">Tap a chamber on the unit.</p>`:`<div class="opts">${q.opts.map((o,k)=>`<button class="opt ${q.type==="ms"?"multi":""}" data-k="${k}"><span class="box"></span><span>${o}</span></button>`).join("")}</div>`}
+  <div id="fb"></div>
+  <div class="actions">${q.type==="tap"?"":`<button class="btn" id="check" disabled>Check answer</button>`}<button class="btn" id="next" hidden>${qi===Q.length-1?"See results":"Next question"}</button></div>`;
+  if(hasDev){const dv=makeDevice(document.getElementById("qDev"),Object.assign({seal:"none"},q.device||{}));
+    if(q.type==="tap")dv.onTap(c=>{if(done)return;dv.select(c);grade(c===q.answer,c)})}
+  quiz.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
+    if(done)return;const k=+b.dataset.k;
+    if(q.type==="mc")sel=[k];else sel=sel.includes(k)?sel.filter(x=>x!==k):[...sel,k];
+    quiz.querySelectorAll(".opt").forEach(x=>x.classList.toggle("picked",sel.includes(+x.dataset.k)));
+    document.getElementById("check").disabled=!sel.length}));
+  const ch=document.getElementById("check");
+  if(ch)ch.addEventListener("click",()=>{const ok=sel.length===q.ans.length&&sel.every(x=>q.ans.includes(x));
+    quiz.querySelectorAll(".opt").forEach(x=>{const k=+x.dataset.k;x.disabled=true;
+      if(q.ans.includes(k))x.classList.add("right");else if(sel.includes(k))x.classList.add("wrong")});
+    ch.hidden=true;grade(ok)});
+  document.getElementById("next").addEventListener("click",()=>{qi++;qi<Q.length?renderQ():results();toTop()});
+}
+function grade(ok,tapped){
+  const q=Q[qi];done=true;if(ok)score++;else missed.push(q);
+  const names={collection:"the collection chamber",seal:"the water seal chamber",suction:"the suction control chamber"};
+  const extra=q.type==="tap"&&!ok?` You tapped ${names[tapped]}; the answer is ${names[q.answer]}.`:"";
+  document.getElementById("fb").innerHTML=`<div class="fb ${ok?"ok":"no"}"><b>${ok?"Correct":"Not quite"}</b><p>${q.why}${extra}</p></div>`;
+  const tn=document.getElementById("tapNote");if(tn)tn.hidden=true;
+  quiz.querySelector(".meter").textContent="Score "+score;
+  const n=document.getElementById("next");n.hidden=false;n.focus();
+}
+function results(){
+  const pct=Math.round(score/Q.length*100);
+  quiz.innerHTML=`<span class="eyebrow">Results</span><div class="score">${score}/${Q.length}</div>
+  <p>${pct>=85?"Strong work. You can read a drainage unit and respond safely.":pct>=70?"Close. Review the topics below before clinical.":"Go back to Learn and work through each chamber again, then retake the test."}</p>
+  ${missed.length?`<h3>Review these</h3><ul class="review">${missed.map(m=>`<li><strong>${m.topic}.</strong> ${m.why}</li>`).join("")}</ul>`:""}
+  <div class="actions"><button class="btn" id="retry">Retake test</button><button class="btn ghost" id="back">Back to Learn</button></div>`;
+  document.getElementById("retry").onclick=start;
+  document.getElementById("back").onclick=()=>tab("learn");
+}
+function toTop(){const y=quiz.getBoundingClientRect().top+window.scrollY-12;window.scrollTo({top:Math.max(0,y),behavior:reduce?"auto":"smooth"});const f=quiz.querySelector(".stem");if(f){f.tabIndex=-1;f.focus({preventScroll:true})}}
+function start(){qi=0;score=0;missed=[];renderQ();toTop()}
+function tab(which){
+  document.getElementById("learn").hidden=which!=="learn";document.getElementById("learn").style.display=which==="learn"?"flex":"none";
+  document.getElementById("test").hidden=which!=="test";
+  document.getElementById("tab-learn").setAttribute("aria-selected",which==="learn");
+  document.getElementById("tab-test").setAttribute("aria-selected",which==="test");
+  window.scrollTo({top:0});
+}
+document.getElementById("tab-learn").onclick=()=>tab("learn");
+document.getElementById("tab-test").onclick=()=>{tab("test");if(!quiz.innerHTML)start()};
+requestAnimationFrame(frame);
+</script>
+
+</body></html>

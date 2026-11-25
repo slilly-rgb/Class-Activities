@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neuromuscular Drug Decoder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a pharmacy-label reference — sticky section rail on the left, one section at a time on the right; every drug class is a "label" card, every section ends in a check. */
+:root{
+  --paper:#f6f7f8;
+  --card:#ffffff;
+  --ink:#16202b;
+  --muted:#56616d;
+  --rule:#d9dee3;
+  --accent:#a3172f;      /* cardiac crimson */
+  --accent-soft:#f8e6e9;
+  --heme:#1f4f86;        /* hematology blue */
+  --heme-soft:#e4edf8;
+  --good:#1d6b42; --good-soft:#e2f2e8;
+  --bad:#a12a1b;  --bad-soft:#fbe7e3;
+  --warn:#8a5a00; --warn-soft:#fbf0d9;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+    --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+    --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+  --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+  --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.1rem;font-weight:700}
+h2{font-size:1.65rem;font-weight:700}
+h3{font-size:1.25rem;font-weight:600}
+h4{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+p{margin:0}
+a{color:var(--heme)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--heme);outline-offset:2px}
+.mono{font-family:var(--mono)}
+
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px 16px;border-right:1px solid var(--rule);background:var(--card);display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand .rx{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.08em}
+.brand b{font-family:var(--display);font-size:1.2rem}
+.brand span{font-size:.82rem;color:var(--muted)}
+nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+nav a{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;text-decoration:none;color:var(--ink);font-size:.92rem}
+nav a:hover{background:var(--paper)}
+nav a[aria-current="page"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+nav .num{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+nav .chip{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:10px;background:var(--paper);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+nav .chip.done{background:var(--good-soft);color:var(--good)}
+.overall{font-size:.85rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.bar{height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good);width:0}
+
+main{padding:32px clamp(16px,4vw,48px) 80px;max-width:1080px;width:100%}
+.view{display:flex;flex-direction:column;gap:28px}
+.eyebrow{font-family:var(--mono);font-size:.78rem;color:var(--accent);letter-spacing:.06em}
+.heme .eyebrow{color:var(--heme)}
+.lede{max-width:68ch;color:var(--muted);font-size:1.05rem}
+.prose{max-width:68ch;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:20px}
+.objectives{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.steps .panel{display:flex;flex-direction:column;gap:6px}
+.steps .panel b{font-family:var(--display);font-size:1.05rem}
+
+/* stem table */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--display);font-weight:600;font-size:.85rem;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td .stem{font-family:var(--mono);font-weight:600;color:var(--accent)}
+tr.h td .stem{color:var(--heme)}
+.groupRow td{background:var(--paper);font-family:var(--display);font-weight:600;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+
+/* flip drill */
+.drill{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.flip{border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:14px 12px;min-height:96px;text-align:left;display:flex;flex-direction:column;gap:4px;color:var(--ink)}
+.flip .front{font-family:var(--mono);font-size:1.05rem;font-weight:600;color:var(--accent)}
+.flip.h .front{color:var(--heme)}
+.flip .back{font-size:.82rem;color:var(--muted)}
+.flip .hint{font-size:.75rem;color:var(--muted)}
+.flip[aria-pressed="true"]{background:var(--paper)}
+
+/* grouped nav, decode steps, tabs, ABCD tiles */
+nav .navgroup{font-family:var(--display);font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 10px 2px}
+nav .navgroup:first-child{padding-top:0}
+.decodeSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dstep{border:1px solid var(--rule);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--paper)}
+.dstep .big{font-family:var(--display);font-size:1.35rem;font-weight:600}
+.dstep .big.mono{font-family:var(--mono);font-size:1.25rem}
+.dstep mark{background:var(--accent-soft);color:var(--accent);padding:0 2px;border-radius:3px}
+.dstep small{color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--rule);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:999px;font-size:.88rem}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.flip .ex1{font-size:.8rem;color:var(--muted)}
+.abcd{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.abcdTile{display:flex;flex-direction:column;gap:4px;padding:14px;border:1px solid var(--rule);border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink)}
+.abcdTile .letter{font-family:var(--display);font-size:2rem;font-weight:700;line-height:1;color:var(--accent)}
+.abcdTile small{color:var(--muted);font-size:.82rem}
+.abcdTile:hover{border-color:var(--accent)}
+.abcdTile[aria-current="page"]{border:2px solid var(--accent);background:var(--accent-soft)}
+@media (max-width:700px){ .decodeSteps,.abcd{grid-template-columns:1fr 1fr} }
+/* print controls */
+.secHead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cardTools{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.printbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);background:var(--card);color:var(--muted);font-size:.8rem;font-weight:600;padding:5px 10px;border-radius:6px}
+.printbtn:hover{color:var(--ink);border-color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--card);padding:12px 16px;border-radius:8px;font-size:.9rem;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:10}
+@media print{ .rail,.printbtn,.quiz,.pager,.toast{display:none !important} .shell{display:block} }
+/* traps */
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.trap{border-left:4px solid var(--warn);background:var(--warn-soft);border-radius:0 8px 8px 0;padding:12px 14px;font-size:.92rem}
+.trap b{display:block;font-family:var(--display);margin-bottom:2px}
+
+/* pathway diagrams */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.node{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:.9rem;display:flex;flex-direction:column;gap:4px;min-width:120px;flex:1 1 120px}
+.node b{font-family:var(--display);font-size:1rem}
+.node small{color:var(--muted)}
+.node small b{font-family:inherit;font-size:inherit;font-weight:600;color:var(--ink)}
+.arrow{display:flex;align-items:center;color:var(--muted);font-family:var(--mono);font-size:1.1rem}
+.block{display:inline-block;font-family:var(--mono);font-size:.74rem;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--accent);color:var(--card);align-self:flex-start}
+.heme .block{background:var(--heme)}
+.lanes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.lane{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.lane ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+.diagcap{font-size:.85rem;color:var(--muted);max-width:68ch}
+
+/* drug class cards */
+.cards{display:flex;flex-direction:column;gap:18px}
+.dcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.dhead{display:grid;grid-template-columns:1fr auto;gap:8px 16px;padding:16px 20px;border-bottom:1px solid var(--rule);border-top:5px solid var(--accent)}
+.heme .dhead{border-top-color:var(--heme)}
+.dhead .stemTag{font-family:var(--mono);font-weight:600;font-size:1.05rem;color:var(--accent);align-self:start;padding:2px 10px;border:1.5px solid currentColor;border-radius:6px;white-space:nowrap}
+.heme .dhead .stemTag{color:var(--heme)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;color:var(--muted);grid-column:1/-1}
+.meta b{color:var(--ink);font-weight:600}
+.ex{grid-column:1/-1;font-size:.92rem}
+.ex span{font-family:var(--mono);font-size:.86rem;background:var(--paper);border:1px solid var(--rule);padding:1px 7px;border-radius:4px;margin:2px 4px 2px 0;display:inline-block}
+.dbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+.cell{padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:6px}
+.cell:nth-child(odd){border-right:1px solid var(--rule)}
+.cell.wide{grid-column:1/-1;border-right:0}
+.cell ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:3px;font-size:.92rem}
+.cell p{font-size:.94rem}
+.cell.adv{background:var(--bad-soft)}
+.cell.adv h4{color:var(--bad)}
+.dtrap{padding:10px 20px;background:var(--warn-soft);font-size:.9rem}
+.dtrap b{color:var(--warn)}
+
+/* quiz */
+.quiz{display:flex;flex-direction:column;gap:16px}
+.quizHead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;border-top:2px solid var(--ink);padding-top:16px}
+.score{font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.q .qn{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.q .stemQ{font-weight:500;max-width:72ch}
+.q .tag{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:4px;background:var(--warn-soft);color:var(--warn);margin-left:6px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--card);cursor:pointer;font-size:.95rem}
+.opt:hover{border-color:var(--muted)}
+.opt input{margin:3px 0 0;accent-color:var(--heme);width:16px;height:16px}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border:2px dashed var(--good);background:var(--good-soft)}
+.qfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--card);padding:8px 16px;border-radius:6px;font-weight:600;font-size:.9rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.verdict{font-weight:600;font-size:.92rem}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.why{border-left:3px solid var(--heme);padding:8px 12px;background:var(--heme-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:18px}
+
+/* summary */
+.sumgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.sumcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.sumcard .big{font-family:var(--display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:10px}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.mid{background:var(--warn-soft);color:var(--warn)}
+.pill.low{background:var(--bad-soft);color:var(--bad)}
+.pill.none{background:var(--paper);color:var(--muted)}
+.misslist{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.receptor td:first-child{font-family:var(--mono);font-weight:600}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule)}
+  nav ol{flex-direction:row;flex-wrap:wrap}
+  nav a{grid-template-columns:auto auto;padding:6px 10px}
+  nav a .chip{display:none}
+  nav .navgroup{width:100%;padding:8px 4px 0}
+  .dbody{grid-template-columns:1fr}
+  .cell:nth-child(odd){border-right:0}
+}
+@media (prefers-reduced-motion:no-preference){
+  .opt,.flip{transition:background .15s,border-color .15s}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <span class="rx">UNIT 5 · PHARMACOLOGY</span>
+      <b>Neuromuscular Drug Decoder</b>
+      <span>Neuromuscular medications</span>
+    </div>
+    <nav aria-label="Sections"><ol id="nav"></ol></nav>
+    <div class="overall">
+      <div style="display:flex;justify-content:space-between"><span>Questions answered</span><span id="ovText" class="mono">0 / 0</span></div>
+      <div class="bar"><i id="ovBar"></i></div>
+      <button class="btn ghost" id="resetAll" type="button" style="font-size:.8rem;padding:6px 10px">Start over</button>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ============================================================
+   CONTENT
+   Card fields: name, pharm, ther, stem, ex[], how, mon[], edu[], se[], ae[], trap
+   Question fields: t ("mc"|"sata"), s (stem), o[] (options), a[] (correct indexes), w (rationale)
+   ============================================================ */
+const SECTIONS = [
+{
+  id:"start", num:"00", group:"Getting started", title:"Start here", kind:"intro"
+},
+{
+  id:"decode", num:"01", group:"Getting started", title:"How to learn pharmacology", kind:"decode",
+  lede:"There are too many drugs to memorize one at a time. These three habits turn a long list into a few patterns you can reason from, and help those patterns stick.",
+  quiz:[
+    {t:"mc", s:"A drug reference lists rasagiline with pharmacologic class “MAO-B inhibitor” and therapeutic class “anti-Parkinsonian.” Which statement best explains the two labels?",
+     o:["Pharmacologic class tells how it works; therapeutic class tells what it treats",
+        "Pharmacologic class tells what it treats; therapeutic class tells how it works",
+        "Both labels describe the chemical structure the drug's stem is based on",
+        "Therapeutic class is assigned only to drugs whose names have no stem"],
+     a:[0], w:"The pharmacologic class names the mechanism (blocks the enzyme MAO-B). The therapeutic class names the clinical use (treats Parkinson's disease). Five different mechanisms on your list are all anti-Parkinsonian drugs."},
+    {t:"mc", s:"A student has 40 medications to learn for the next exam. Which approach will help the most?",
+     o:["Learn one key drug per class, then compare the rest to it","Make a separate flashcard for every drug and reread them","Memorize each drug's side effects as one long list","Focus only on the drugs that seem most likely to be tested"],
+     a:[0], w:"Drugs in the same class share a mechanism, monitoring, teaching and adverse effects. Learning one prototype well (phenytoin for the sodium-channel antiepileptics) and then noting how the others differ turns 40 separate facts into a handful of patterns."},
+    {t:"mc", s:"Which study method leads to the best long-term recall of drug information?",
+     o:["Quizzing yourself on the material over several days","Rereading your notes and highlighting the key terms","Reviewing everything in one long session the night before","Copying the textbook's drug tables word for word"],
+     a:[0], w:"Retrieval practice (pulling information out of memory) spread over several days is one of the best-supported learning strategies. Rereading, highlighting and cramming feel productive but fade quickly."},
+    {t:"mc", s:"A nurse knows only that a drug blocks acetylcholinesterase. What can the nurse predict from that alone?",
+     o:["More acetylcholine, so watch for a slow pulse and drooling","Less acetylcholine, so watch for dry mouth and retention","More dopamine, so watch for dyskinesia and hallucinations","Less GABA activity, so watch for seizures and restlessness"],
+     a:[0], w:"Acetylcholinesterase breaks down acetylcholine. Blocking it leaves more acetylcholine everywhere, so cholinergic effects follow: bradycardia, salivation, sweating, diarrhea and bronchoconstriction. The mechanism predicts the monitoring."},
+    {t:"mc", s:"Which statement best describes the difference between a side effect and an adverse effect?",
+     o:["A side effect is expected and mild; an adverse effect is harmful","A side effect happens only in overdose; an adverse effect never does","A side effect is an allergy; an adverse effect is a drug interaction","The two terms mean the same thing and can be used interchangeably"],
+     a:[0], w:"Side effects are predictable, usually mild effects the patient can be taught to expect (drowsiness with gabapentin). Adverse effects are harmful or dangerous and need action (a spreading rash with lamotrigine)."}
+  ]
+},
+{
+  id:"ache", num:"02", group:"Brain & nerve-muscle drugs", title:"Cholinesterase inhibitors", kind:"drug", theme:"cardiac",
+  lede:"Acetylcholine carries messages for memory in the brain and tells muscles to contract. Cholinesterase inhibitors block the enzyme that breaks it down, so more acetylcholine is available. The same mechanism treats Alzheimer's disease and myasthenia gravis, and causes the same family of adverse effects.",
+  diagram:"cholinergic",
+  cards:[
+    {name:"Cholinesterase inhibitors for Alzheimer's disease", pharm:"Cholinesterase inhibitor", ther:"Alzheimer's treatment (cognitive enhancer)", stem:"-stigmine", ex:["donepezil"],
+     how:"Reversibly block acetylcholinesterase in the brain, raising acetylcholine levels in the remaining healthy neurons. This modestly improves memory, thinking and daily function in mild to severe Alzheimer's disease. It slows the decline of symptoms for a time but does not stop the disease.",
+     mon:["Cognition and daily function, as reported by caregivers","Heart rate (bradycardia), dizziness, fainting","Weight and appetite","GI bleeding, especially with NSAIDs","Wheezing in asthma or COPD"],
+     edu:["Take once daily at bedtime; take it in the morning if vivid dreams occur","Benefits take several weeks; keep taking it even if change is slow","Caregivers: report fainting, a slow pulse, black stools or weight loss","Don't stop suddenly; symptoms can drop off quickly"],
+     se:["Nausea, vomiting, diarrhea","Insomnia, vivid dreams","Muscle cramps","Loss of appetite"],
+     ae:["Bradycardia, heart block, syncope","GI bleeding","Seizures (rare)","Bronchoconstriction"],
+     trap:"Donepezil doesn't end in -stigmine. Your list spells it “donezepil.” The therapeutic class on the list also names Parkinson's, but these drugs treat Alzheimer's and myasthenia gravis; they don't treat Parkinson's movement symptoms."},
+    {name:"Cholinesterase inhibitors for myasthenia gravis and reversal", pharm:"Cholinesterase inhibitor", ther:"Myasthenia gravis treatment / reversal agent", stem:"-stigmine", ex:["neostigmine","physostigmine","edrophonium"],
+     how:"Block acetylcholinesterase at the neuromuscular junction, so more acetylcholine reaches the muscle receptors that myasthenia gravis has damaged, and muscle strength improves. Neostigmine treats myasthenia gravis, reverses nondepolarizing neuromuscular blockers after surgery, and treats urinary retention. Physostigmine crosses into the brain and reverses anticholinergic toxicity. Edrophonium is very short-acting and was used to diagnose myasthenia gravis.",
+     mon:["Muscle strength, ptosis, chewing and swallowing","Respiratory effort and vital capacity","Heart rate and BP","Cholinergic signs: salivation, sweating, tearing, urination, diarrhea, vomiting, bronchospasm","Atropine at the bedside as the antidote"],
+     edu:["Take doses exactly on time; time them so strength peaks at meals","Keep a log of strength and symptoms","Report trouble swallowing, breathing or speaking right away","Wear a medical ID for myasthenia gravis"],
+     se:["Sweating, salivation","Abdominal cramps, diarrhea","Muscle twitching"],
+     ae:["Cholinergic crisis: severe weakness, respiratory failure, bradycardia","Bronchospasm","Seizures (physostigmine)"],
+     trap:"Undertreatment (myasthenic crisis) and overdose (cholinergic crisis) both cause severe weakness and respiratory failure. Protect the airway first. Edrophonium is no longer sold in the US."}
+  ],
+  quiz:[
+    {t:"mc", s:"Which drug on the Unit 5 list does NOT carry the -stigmine stem for its class?",
+     o:["Neostigmine","Physostigmine","Donepezil","Pyridostigmine"],
+     a:[2], w:"Donepezil is a cholinesterase inhibitor but doesn't end in -stigmine. Learn it by name."},
+    {t:"mc", s:"A patient with Alzheimer's disease takes donepezil. The caregiver reports two fainting spells this week. Which assessment is the priority?",
+     o:["Apical pulse and BP","Blood glucose before meals","Pupil size and reaction","Bowel sounds"],
+     a:[0], w:"More acetylcholine slows the heart through the vagus nerve, so donepezil can cause bradycardia, heart block and syncope. Check the pulse and BP and report the fainting."},
+    {t:"mc", s:"A family member asks what donepezil will do for her father with Alzheimer's disease. The best response is:",
+     o:["It may help memory for a while, but it won't cure the disease","It cures the disease if it is started early enough after diagnosis","It replaces the brain cells that Alzheimer's disease has destroyed","It works within a day, so you'll know right away if it is helping"],
+     a:[0], w:"Cholinesterase inhibitors improve symptoms modestly by boosting acetylcholine in the neurons that remain. They don't stop the disease, and benefit takes weeks to judge."},
+    {t:"mc", s:"A patient with myasthenia gravis takes neostigmine and suddenly has severe weakness and trouble breathing. What is the nurse's priority?",
+     o:["Support the airway and breathing","Give the next dose of neostigmine early","Hold all fluids until the crisis resolves","Place the patient flat with legs elevated"],
+     a:[0], w:"Myasthenic crisis (too little drug) and cholinergic crisis (too much) look alike, and both can stop breathing. Airway and ventilation come first; the provider then works out which crisis it is."},
+    {t:"sata", s:"Which findings suggest too much cholinergic effect from a cholinesterase inhibitor? Select all that apply.",
+     o:["Excess salivation","Heart rate of 48","Diarrhea and cramping","Dry, hot, flushed skin","Widely dilated pupils"],
+     a:[0,1,2], w:"Excess acetylcholine causes salivation, sweating, bradycardia, diarrhea, bronchospasm and small pupils. Dry, flushed skin and dilated pupils are anticholinergic signs."},
+    {t:"mc", s:"A patient arrives confused, hot and flushed with dilated pupils after an overdose of an anticholinergic drug. Which drug can reverse it?",
+     o:["Physostigmine","Edrophonium","Benztropine","Trihexyphenidyl"],
+     a:[0], w:"Physostigmine crosses the blood-brain barrier and raises acetylcholine in both the brain and the body, reversing anticholinergic toxicity. Benztropine and trihexyphenidyl are anticholinergics and would make it worse."}
+  ]
+},
+{
+  id:"pd", num:"03", group:"Brain & nerve-muscle drugs", title:"Parkinson's disease drugs", kind:"drug", theme:"cardiac",
+  lede:"Parkinson's disease destroys the neurons that make dopamine, leaving acetylcholine unopposed. Every drug in this section either adds dopamine, mimics it, makes it last longer, or lowers acetylcholine to restore the balance.",
+  diagram:"balance",
+  cards:[
+    {name:"Levodopa/carbidopa", pharm:"Dopamine precursor / decarboxylase inhibitor", ther:"Anti-Parkinsonian", stem:"-dopa", ex:["levodopa","carbidopa"],
+     how:"Dopamine can't cross into the brain, but levodopa can, and the brain converts it to dopamine. Carbidopa blocks that conversion outside the brain, so more levodopa reaches the brain, a lower dose works and nausea is reduced. The most effective drug for Parkinson's symptoms. Over years, “wearing off” and sudden “on-off” swings develop.",
+     mon:["Tremor, rigidity, slowness, gait; time of day symptoms return","Orthostatic BP","Involuntary movements (dyskinesia)","Mental status: hallucinations, confusion, impulse-control problems","Skin for suspicious moles (melanoma)"],
+     edu:["Spread protein through the day; a high-protein meal near a dose can blunt it","Urine and sweat may turn dark; this is harmless","Rise slowly","Don't stop suddenly; it can cause a dangerous high fever and rigidity","Benefit can take weeks to months"],
+     se:["Nausea, loss of appetite","Orthostatic hypotension","Darkened urine and sweat"],
+     ae:["Dyskinesias","Hallucinations, psychosis","On-off phenomenon","Hypertensive crisis with nonselective MAO inhibitors","Severe rigidity and fever if stopped abruptly"],
+     trap:"The list calls this class “synthetic dopamine.” Levodopa is a dopamine precursor, and carbidopa does nothing for Parkinson's on its own."},
+    {name:"Dopamine agonists", pharm:"Dopamine receptor agonist", ther:"Anti-Parkinsonian", stem:"n/a", ex:["pramipexole","ropinirole","apomorphine","bromocriptine"],
+     how:"Stimulate dopamine receptors in the brain directly, so they don't need the dying neurons to work. Pramipexole and ropinirole are oral and are also used for restless legs syndrome. Apomorphine is injected or dissolved under the tongue to rescue sudden “off” episodes. Bromocriptine is an older drug that also treats high prolactin levels.",
+     mon:["Orthostatic BP","Sudden sleep episodes during daily activity","Hallucinations, confusion","Impulse-control behaviors: gambling, shopping, eating, sexual urges","Leg edema"],
+     edu:["Don't drive until you know whether you fall asleep without warning","Family: report new urges such as gambling or compulsive spending","Rise slowly","Apomorphine: an antiemetic is started first; never take it with ondansetron"],
+     se:["Nausea","Dizziness","Drowsiness","Leg swelling"],
+     ae:["Sudden sleep attacks","Hallucinations, psychosis","Impulse-control disorders","Severe hypotension (apomorphine with ondansetron)"]},
+    {name:"MAO-B inhibitors", pharm:"Monoamine oxidase-B (MAO-B) inhibitor", ther:"Anti-Parkinsonian", stem:"-giline", ex:["selegiline","rasagiline"],
+     how:"Block MAO-B, the brain enzyme that breaks down dopamine, so dopamine lasts longer. Used alone early in the disease or added to levodopa to smooth out wearing-off. At usual doses they are selective for MAO-B, so dietary tyramine is much less of a risk than with older MAO inhibitors.",
+     mon:["BP","Sleep (selegiline is stimulating)","Every other drug on the med list for serotonergic interactions","Increase in levodopa side effects"],
+     edu:["Take selegiline in the morning to avoid insomnia","Don't take with meperidine, tramadol, dextromethorphan or St. John's wort","Check with the provider before any antidepressant","Ask whether to limit very high-tyramine foods (aged cheese, cured meats, tap beer)"],
+     se:["Insomnia","Nausea","Headache","Dizziness"],
+     ae:["Serotonin syndrome with interacting drugs","Hypertensive crisis at high doses or with high tyramine","Worsened dyskinesias and hallucinations with levodopa"]},
+    {name:"COMT inhibitors", pharm:"Catechol-O-methyltransferase (COMT) inhibitor", ther:"Anti-Parkinsonian (levodopa adjunct)", stem:"-capone", ex:["entacapone","tolcapone"],
+     how:"Block COMT, an enzyme that breaks down levodopa in the body. More levodopa reaches the brain and each dose lasts longer, extending “on” time. They work only alongside levodopa/carbidopa and do nothing on their own.",
+     mon:["Liver function tests (tolcapone)","Dyskinesias, orthostatic BP, hallucinations (levodopa effects increase)","Diarrhea"],
+     edu:["Entacapone: take with each dose of levodopa/carbidopa","Urine may turn brownish-orange; this is harmless","Report yellow skin, dark urine or abdominal pain (tolcapone)","Report severe or persistent diarrhea"],
+     se:["Diarrhea","Nausea","Urine discoloration"],
+     ae:["Hepatotoxicity (tolcapone boxed warning)","Dyskinesias","Orthostatic hypotension","Hallucinations"],
+     trap:"Your list puts COMT inhibitors under optic medications with the class “catecholamine enzyme.” They are Parkinson's drugs."},
+    {name:"Dopamine releaser", pharm:"Dopamine releaser (also NMDA antagonist and antiviral)", ther:"Anti-Parkinsonian", stem:"n/a", ex:["amantadine"],
+     how:"Increases dopamine release and blocks its reuptake. It also blocks NMDA (glutamate) receptors, which reduces the dyskinesias caused by long-term levodopa. It was first developed as an antiviral for influenza A.",
+     mon:["Orthostatic BP","Confusion, hallucinations (especially older adults)","Mottled, purplish skin on the legs (livedo reticularis)","Peripheral edema","Renal function (dose reduced in kidney disease)"],
+     edu:["Rise slowly","Mottled skin on the legs is usually harmless but should be reported","Report confusion or swelling","Don't stop suddenly"],
+     se:["Dizziness","Dry mouth","Insomnia","Livedo reticularis"],
+     ae:["Hallucinations, confusion","Orthostatic hypotension","Worsening symptoms or fever if stopped abruptly"]},
+    {name:"Centrally acting anticholinergics", pharm:"Centrally acting anticholinergic (muscarinic antagonist)", ther:"Anti-Parkinsonian", stem:"n/a", ex:["benztropine","trihexyphenidyl"],
+     how:"Block acetylcholine in the brain, restoring the balance with the remaining dopamine. Best for tremor and rigidity, and used for drug-induced movement problems from antipsychotics. They also block acetylcholine throughout the body, which causes their side effects.",
+     mon:["Tremor and rigidity","Urinary retention, constipation","Confusion and memory (avoid in older adults when possible)","Eye pain or blurred vision (narrow-angle glaucoma)","Body temperature in hot weather"],
+     edu:["Sugarless candy or gum for dry mouth","Increase fluids and fiber","Avoid hot environments and heavy exertion; you sweat less","Report difficulty urinating, eye pain or confusion"],
+     se:["Dry mouth","Blurred vision","Constipation","Drowsiness"],
+     ae:["Urinary retention","Acute narrow-angle glaucoma","Confusion, hallucinations","Heat stroke (reduced sweating)","Tachycardia"],
+     trap:"Your list labels these as “direct acting cholinergic agonists” with the class “anticholinergics.” They are anticholinergics: they block acetylcholine; they don't stimulate it."}
+  ],
+  quiz:[
+    {t:"mc", s:"Why is carbidopa combined with levodopa?",
+     o:["It keeps levodopa from being converted outside the brain","It converts levodopa to dopamine faster inside the brain","It blocks acetylcholine to reduce tremor and rigidity","It stimulates dopamine receptors in the brain directly"],
+     a:[0], w:"Carbidopa blocks the enzyme that converts levodopa to dopamine in the body. More levodopa reaches the brain, a lower dose works, and nausea from peripheral dopamine drops."},
+    {t:"mc", s:"A patient taking levodopa/carbidopa notices the drug works poorly after a steak dinner. What should the nurse teach?",
+     o:["Spread protein through the day instead of one large meal","Stop eating meat entirely while taking this drug","Take an extra dose of the drug after any high-protein meal","Take it with a glass of milk to improve absorption"],
+     a:[0], w:"Amino acids from protein compete with levodopa for absorption and for transport into the brain. Spreading protein out keeps doses working without cutting out needed nutrition."},
+    {t:"mc", s:"The wife of a patient who started pramipexole says he has begun gambling heavily online. The nurse should:",
+     o:["Report it; this drug can cause impulse-control problems","Reassure her; this is unrelated to his Parkinson's medication","Suggest he take the dose at bedtime to reduce the urge","Tell her this means the dose should be increased"],
+     a:[0], w:"Dopamine agonists can trigger compulsive gambling, shopping, eating and sexual behavior. It needs to be reported; the provider usually lowers the dose or changes drugs."},
+    {t:"mc", s:"A patient taking selegiline asks about using dextromethorphan for a cough. The best response is:",
+     o:["Avoid it; together they can cause serotonin syndrome","It's safe as long as you take it in the evening with food","Take it with food to prevent stomach upset","It's fine if you skip your selegiline that day"],
+     a:[0], w:"MAO-B inhibitors interact with serotonergic drugs such as dextromethorphan, meperidine, tramadol and many antidepressants, risking serotonin syndrome."},
+    {t:"mc", s:"A patient is prescribed entacapone. What should the nurse teach about taking it?",
+     o:["Take it with each dose of levodopa/carbidopa","Take it once a day at bedtime, on its own, with water","Take it only on days with a lot of tremor","Take it instead of levodopa/carbidopa"],
+     a:[0], w:"Entacapone only prolongs levodopa's effect; it has no benefit alone. It is taken with every levodopa/carbidopa dose."},
+    {t:"sata", s:"An older adult with Parkinson's disease is started on benztropine. Which findings should the nurse report? Select all that apply.",
+     o:["Inability to empty the bladder","New confusion","Eye pain with blurred vision","Mild dry mouth that sugarless gum relieves","Improved hand tremor"],
+     a:[0,1,2], w:"Urinary retention, confusion and narrow-angle glaucoma are anticholinergic adverse effects that need action. Mild dry mouth is an expected side effect, and less tremor is the goal."},
+    {t:"mc", s:"A patient taking amantadine has purplish, lacy mottling on both legs. The nurse recognizes this as:",
+     o:["Livedo reticularis, a known effect of the drug","A sign of deep vein thrombosis forming in both legs","An allergic rash that needs epinephrine","A sign of levodopa toxicity"],
+     a:[0], w:"Livedo reticularis is a benign, reversible skin change with amantadine. It should be reported but is not an emergency."}
+  ]
+},
+{
+  id:"aed", num:"04", group:"Seizures & sleep", title:"Antiepileptics", kind:"drug", theme:"heme",
+  lede:"Antiepileptics calm overexcited neurons, mostly by blocking sodium or calcium channels or boosting GABA. Each drug has a signature toxicity worth knowing by name. All of them share three rules: never stop abruptly, watch for mood changes, and plan around pregnancy.",
+  diagram:"aedtable",
+  cards:[
+    {name:"Phenytoin", pharm:"Hydantoin antiepileptic (sodium-channel blocker)", ther:"Antiepileptic", stem:"n/a", ex:["phenytoin"],
+     how:"Blocks sodium channels in neurons, stopping the spread of rapid repeated firing. Used for tonic-clonic and focal seizures and status epilepticus. Narrow therapeutic range, and small dose changes can cause large jumps in blood level. A strong inducer of liver enzymes.",
+     mon:["Serum level (about 10–20 mcg/mL); toxicity above 20","Signs of toxicity: nystagmus, ataxia, slurred speech, sedation, confusion","Gums, skin rash","IV: continuous ECG and BP","Other drugs on the med list (lowers oral contraceptives and warfarin effect)"],
+     edu:["Brush, floss and see the dentist regularly (gum overgrowth)","Report any rash right away","Never stop suddenly","Use a non-hormonal backup method of birth control","Wear a medical ID; avoid alcohol"],
+     se:["Gingival hyperplasia","Hirsutism, coarse facial features","Drowsiness","Nystagmus"],
+     ae:["Toxicity: ataxia, confusion, coma","Stevens-Johnson syndrome","Dysrhythmias and hypotension with fast IV push","Birth defects","Bone loss with long-term use"],
+     trap:"IV phenytoin: mix only with normal saline (it precipitates in dextrose), give no faster than 50 mg/min in adults, and watch the site for tissue damage. Hold continuous tube feedings around doses per protocol."},
+    {name:"Carbamazepine and oxcarbazepine", pharm:"Sodium-channel blocker antiepileptic", ther:"Antiepileptic", stem:"n/a", ex:["carbamazepine","oxcarbazepine"],
+     how:"Block sodium channels like phenytoin. Used for focal and tonic-clonic seizures, trigeminal neuralgia and, for carbamazepine, bipolar disorder. Carbamazepine induces liver enzymes, including those that clear it (so its own level drops over the first weeks). Oxcarbazepine is a related drug with fewer interactions and less bone marrow toxicity.",
+     mon:["CBC (agranulocytosis, aplastic anemia with carbamazepine)","Serum sodium (hyponatremia; more common with oxcarbazepine)","Liver function","Carbamazepine level (about 4–12 mcg/mL)","Skin for rash"],
+     edu:["Report fever, sore throat, mouth sores or easy bruising","Report any rash right away","Avoid grapefruit juice (raises carbamazepine levels)","Use a non-hormonal backup method of birth control","Report headache, confusion or nausea (low sodium)"],
+     se:["Dizziness, drowsiness","Double vision","Nausea"],
+     ae:["Agranulocytosis, aplastic anemia (carbamazepine boxed warning)","Stevens-Johnson syndrome / toxic epidermal necrolysis (boxed warning)","Hyponatremia","Birth defects"],
+     trap:"Patients of Asian ancestry are screened for the HLA-B*1502 gene before carbamazepine, because it raises the risk of severe skin reactions."},
+    {name:"Valproic acid", pharm:"Valproate antiepileptic", ther:"Antiepileptic", stem:"n/a", ex:["valproic acid"],
+     how:"Increases GABA activity and blocks sodium and calcium channels, so it works for nearly every seizure type, including absence seizures. Also used for bipolar disorder and migraine prevention.",
+     mon:["Liver function tests (highest risk under age 2)","Serum ammonia (lethargy, confusion, vomiting)","Platelets","Amylase and lipase if abdominal pain","Serum level (about 50–100 mcg/mL)"],
+     edu:["Report abdominal pain, vomiting, yellow skin or unusual tiredness right away","Take with food; swallow extended-release tablets whole","Not used in pregnancy when alternatives exist; use effective birth control","Weight gain, hair thinning and tremor can occur"],
+     se:["Nausea","Weight gain","Hair loss","Tremor"],
+     ae:["Hepatotoxicity (boxed warning)","Pancreatitis (boxed warning)","Neural tube defects and other birth defects (boxed warning)","Thrombocytopenia","Hyperammonemia"],
+     trap:"Valproic acid raises lamotrigine levels, which increases the risk of a serious lamotrigine rash."},
+    {name:"Lamotrigine", pharm:"Phenyltriazine antiepileptic (sodium-channel blocker)", ther:"Antiepileptic", stem:"n/a", ex:["lamotrigine"],
+     how:"Blocks sodium channels and reduces glutamate release. Used for focal, tonic-clonic and absence seizures and for bipolar maintenance. Dosing starts very low and rises slowly over weeks to lower the risk of a dangerous rash.",
+     mon:["Skin for any rash, especially in the first 8 weeks","Mood","Drug list (valproic acid raises levels; estrogen birth control lowers them)"],
+     edu:["Report any rash right away, even a mild one","Follow the dose schedule exactly; don't jump ahead or restart at the old dose after missing several days","Dizziness and double vision can occur","Tell the provider before starting or stopping hormonal birth control"],
+     se:["Dizziness","Double vision","Headache","Nausea"],
+     ae:["Stevens-Johnson syndrome / toxic epidermal necrolysis (boxed warning)","Aseptic meningitis","Hemophagocytic lymphohistiocytosis (rare)"],
+     trap:"Your list spells it “lamotrogine.”"},
+    {name:"Newer antiepileptics", pharm:"Antiepileptic (various mechanisms)", ther:"Antiepileptic", stem:"n/a", ex:["levetiracetam","topiramate","lacosamide"],
+     how:"Levetiracetam binds a protein (SV2A) that controls neurotransmitter release; it has few drug interactions and needs no blood levels. Topiramate blocks sodium channels, boosts GABA and blocks glutamate; it also prevents migraines. Lacosamide slows sodium-channel recovery and can prolong the PR interval.",
+     mon:["Mood and behavior (levetiracetam: irritability, aggression, depression)","Renal function (levetiracetam and lacosamide doses)","Topiramate: cognition and word-finding, bicarbonate, kidney stones, vision","Lacosamide: ECG (PR interval), dizziness"],
+     edu:["Report mood changes or thoughts of self-harm","Topiramate: drink plenty of fluids; report sudden eye pain or blurred vision; may reduce birth control effectiveness","Lacosamide: report fainting or a slow or irregular heartbeat","Don't stop suddenly"],
+     se:["Drowsiness, dizziness","Fatigue","Tingling in fingers and toes (topiramate)","Weight loss (topiramate)"],
+     ae:["Behavioral changes and suicidality (levetiracetam)","Kidney stones, metabolic acidosis, acute angle-closure glaucoma (topiramate)","PR prolongation, heart block (lacosamide)","Birth defects (topiramate: cleft lip and palate)"]},
+    {name:"Gabapentinoids", pharm:"Gabapentinoid (alpha-2-delta calcium-channel ligand)", ther:"Antiepileptic / neuropathic pain agent", stem:"n/a", ex:["gabapentin","pregabalin"],
+     how:"Bind a subunit of calcium channels on nerve endings, reducing the release of excitatory neurotransmitters. Used as add-on therapy for focal seizures and widely for nerve pain: shingles pain, diabetic neuropathy and (pregabalin) fibromyalgia.",
+     mon:["Sedation and dizziness; fall risk","Respiratory status with opioids or other CNS depressants","Renal function (dose adjusted)","Peripheral edema","Signs of misuse (pregabalin is a controlled substance)"],
+     edu:["Avoid alcohol and other sedating drugs","Don't drive until you know how it affects you","Don't stop suddenly; taper with the provider","Gabapentin: take 2 hours apart from aluminum or magnesium antacids"],
+     se:["Drowsiness","Dizziness","Peripheral edema","Weight gain"],
+     ae:["Respiratory depression with opioids or CNS depressants","Suicidal thoughts (class warning)","Withdrawal symptoms or seizures if stopped abruptly","Misuse"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient's phenytoin level is 28 mcg/mL. Which finding would the nurse expect?",
+     o:["Nystagmus and an unsteady gait","Hyperactive reflexes and agitation","Tachycardia and high fever","Hair loss and weight gain"],
+     a:[0], w:"Phenytoin toxicity starts with nystagmus, then ataxia, slurred speech, sedation and confusion. The therapeutic range is about 10–20 mcg/mL."},
+    {t:"mc", s:"Which instruction is most important for a patient on long-term phenytoin?",
+     o:["Brush, floss and see the dentist regularly","Take it with grapefruit juice each morning","Expect your urine to turn orange-red","Stop it if you have no seizures for a month"],
+     a:[0], w:"Phenytoin causes gingival hyperplasia; good oral hygiene limits it. Antiepileptics are never stopped abruptly, because that can trigger status epilepticus."},
+    {t:"mc", s:"The nurse is preparing IV phenytoin. Which action is correct?",
+     o:["Flush the line and mix only with normal saline","Mix it with D5W so it is less irritating to veins","Give it rapidly by IV push to stop the seizure","Give it IM if the patient has poor IV access"],
+     a:[0], w:"Phenytoin precipitates in dextrose solutions. It is given with normal saline, no faster than 50 mg/min in adults, with ECG and BP monitoring. IM injection is painful and absorbs erratically."},
+    {t:"mc", s:"A patient taking carbamazepine reports a fever, sore throat and mouth sores. What should the nurse suspect?",
+     o:["Agranulocytosis","Hyponatremia","Phenytoin toxicity","Gingival hyperplasia"],
+     a:[0], w:"Carbamazepine can suppress the bone marrow. Fever, sore throat and mouth sores suggest a low white count. Hold the drug, notify the provider and expect a CBC."},
+    {t:"mc", s:"A patient taking valproic acid has severe abdominal pain radiating to the back with vomiting. What should the nurse suspect?",
+     o:["Pancreatitis","Gallstones from the drug","Expected GI upset","Kidney stones"],
+     a:[0], w:"Valproic acid carries a boxed warning for pancreatitis. Severe abdominal pain with vomiting needs prompt evaluation, including amylase and lipase."},
+    {t:"mc", s:"Two weeks after starting lamotrigine, a patient has a red rash on the chest. What should the nurse do?",
+     o:["Report it now; the drug may need to be stopped","Apply hydrocortisone cream and recheck in a week","Reassure the patient that rashes are expected","Increase the dose to the next step as planned"],
+     a:[0], w:"Any rash with lamotrigine is treated as possible Stevens-Johnson syndrome until proven otherwise. The risk is highest in the first 8 weeks and with fast dose increases."},
+    {t:"sata", s:"Which teaching points apply to patients taking any antiepileptic? Select all that apply.",
+     o:["Never stop the drug suddenly","Report thoughts of self-harm or mood changes","Talk with the provider before a pregnancy","Double the dose after a missed day","Stop the drug once seizures have been controlled for a month"],
+     a:[0,1,2], w:"Stopping abruptly can trigger status epilepticus, all antiepileptics carry a warning about suicidal thoughts, and several cause birth defects or interact with birth control."},
+    {t:"mc", s:"A patient takes gabapentin for nerve pain and oxycodone after surgery. Which assessment is the priority?",
+     o:["Respiratory rate and level of sedation","Blood glucose before every meal and at bedtime","Serum potassium level","Urine color and clarity"],
+     a:[0], w:"Gabapentinoids add to the respiratory depression caused by opioids and other CNS depressants. Monitor breathing and sedation closely."}
+  ]
+},
+{
+  id:"sed", num:"05", group:"Seizures & sleep", title:"Barbiturates, benzodiazepines & sleep aids", kind:"drug", theme:"heme",
+  lede:"These drugs all quiet the brain through GABA, its main “brake” signal. They stop seizures and help people sleep, and they share the same danger: respiratory depression, especially when combined with opioids or alcohol.",
+  cards:[
+    {name:"Barbiturates", pharm:"Barbiturate", ther:"Anticonvulsant / sedative-hypnotic", stem:"n/a", ex:["phenobarbital","primidone"],
+     how:"Enhance GABA at the GABA-A receptor and, at high doses, open the chloride channel directly. Because there is no ceiling to that effect, an overdose can stop breathing, and there is no antidote. Phenobarbital is long-acting and is used for status epilepticus and neonatal seizures; primidone is converted to phenobarbital. Strong inducers of liver enzymes.",
+     mon:["Respiratory rate, SpO2, level of consciousness","Serum phenobarbital level (about 15–40 mcg/mL)","Paradoxical excitement in children and older adults","Drug list (lowers effect of birth control, warfarin and many others)"],
+     edu:["Avoid alcohol, opioids and other sedating drugs","Don't drive until you know how it affects you","Don't stop suddenly; withdrawal can cause seizures","Use a non-hormonal backup method of birth control"],
+     se:["Drowsiness","Dizziness","Hangover effect"],
+     ae:["Respiratory depression, coma","Dependence and withdrawal seizures","Stevens-Johnson syndrome","Birth defects"],
+     trap:"Your list gives “antidepressant” as a therapeutic class. Barbiturates are central nervous system depressants used as anticonvulsants and sedatives, not antidepressants."},
+    {name:"Benzodiazepines", pharm:"Benzodiazepine", ther:"Anti-seizure / anxiolytic / sedative", stem:"-am", ex:["diazepam","lorazepam"],
+     how:"Make GABA-A receptors respond more strongly to GABA, quieting neurons. First-line drugs to stop status epilepticus (IV lorazepam; IV, rectal or nasal diazepam). Also used for anxiety, alcohol withdrawal, procedural sedation and (diazepam) muscle spasm. Unlike barbiturates, their effect has a ceiling, and flumazenil reverses them.",
+     mon:["Respiratory rate, SpO2, BP, level of consciousness","Airway equipment and suction ready during IV use","Fall risk","Signs of misuse or withdrawal with long-term use"],
+     edu:["Avoid alcohol and opioids unless the provider approves","Don't drive or operate machinery","Don't stop suddenly after regular use; taper with the provider","Rise slowly and use handrails"],
+     se:["Drowsiness","Dizziness","Unsteadiness","Memory problems"],
+     ae:["Respiratory depression, especially with opioids (boxed warning)","Dependence and withdrawal seizures (boxed warning)","Paradoxical agitation","Falls and confusion in older adults"],
+     trap:"The true stems are -azepam and -azolam. Plain “-am” also matches levetiracetam on this same list. Give IV lorazepam slowly; flumazenil can trigger seizures in long-term users."},
+    {name:"Non-benzodiazepine hypnotics (“Z drugs”) and trazodone", pharm:"Non-benzodiazepine GABA-A agonist (Z drugs); serotonin modulator (trazodone)", ther:"Sedative-hypnotic", stem:"z drugs", ex:["zolpidem","eszopiclone","trazodone"],
+     how:"Zolpidem and eszopiclone act on the same GABA-A receptor as benzodiazepines but more selectively, producing sleep with less muscle relaxation or anti-seizure effect. They are for short-term insomnia. Trazodone is an antidepressant that is often used at low doses to help with sleep.",
+     mon:["Next-morning drowsiness","Complex sleep behaviors (sleepwalking, sleep-driving, sleep-eating)","Falls and confusion in older adults","Trazodone: orthostatic BP, mood"],
+     edu:["Take right before bed only when you can sleep 7–8 hours","Don't take with or right after a heavy meal; it slows the effect","No alcohol","Stop the drug and report any sleep-driving, sleepwalking or other complex behaviors","Eszopiclone may leave a bitter, metallic taste"],
+     se:["Next-day drowsiness","Dizziness","Headache","Unpleasant taste (eszopiclone)"],
+     ae:["Complex sleep behaviors (boxed warning)","Respiratory depression with other CNS depressants","Trazodone: priapism, orthostatic hypotension, serotonin syndrome, suicidality in young adults"],
+     trap:"Your list spells it “trazadone” and groups it with the Z drugs. Trazodone is an antidepressant, not a Z drug."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient has a tonic-clonic seizure lasting 6 minutes. Which drug does the nurse expect to give first?",
+     o:["IV lorazepam","Oral phenobarbital","Oral zolpidem","IV mannitol"],
+     a:[0], w:"A seizure lasting 5 minutes or more is status epilepticus. IV benzodiazepines (lorazepam, or diazepam) are first-line. A longer-acting antiepileptic usually follows."},
+    {t:"mc", s:"After IV lorazepam, a patient's respiratory rate is 8 and SpO2 is 86%. Which action comes first?",
+     o:["Open the airway and support breathing","Give the next ordered antiepileptic dose","Recheck vital signs in 15 minutes","Document it as an expected effect"],
+     a:[0], w:"Benzodiazepines can depress breathing. Airway and ventilation come first; flumazenil may be ordered, used cautiously in patients with seizures."},
+    {t:"mc", s:"Why is a barbiturate overdose more dangerous than a benzodiazepine overdose?",
+     o:["Barbiturates have no ceiling effect and no antidote","Barbiturates act on serotonin instead of GABA","Barbiturates are absorbed faster from the stomach","Barbiturates are cleared by the kidneys, not the liver"],
+     a:[0], w:"At high doses barbiturates open chloride channels directly, so their CNS depression keeps deepening with dose. Benzodiazepines have a ceiling and can be reversed with flumazenil."},
+    {t:"mc", s:"A patient taking zolpidem says she found her car keys in the freezer and doesn't remember using them. What should the nurse do?",
+     o:["Tell her to stop the drug and notify the provider","Reassure her that memory gaps are common at first","Suggest she take it earlier in the evening","Suggest she add a glass of wine to deepen sleep"],
+     a:[0], w:"Complex sleep behaviors such as sleepwalking, sleep-driving and doing tasks without memory are a boxed warning for Z drugs. The drug should be stopped."},
+    {t:"mc", s:"Which instruction is correct for zolpidem?",
+     o:["Take it right before bed when you can sleep 7–8 hours","Take it with a large dinner so it absorbs more slowly","Take it in the morning if you didn't sleep well","Take an extra dose if you wake up during the night"],
+     a:[0], w:"Taking zolpidem without a full night ahead causes next-morning impairment, including drowsy driving. Food slows its onset."},
+    {t:"mc", s:"Which pair of drugs carries the greatest risk of fatal respiratory depression?",
+     o:["Lorazepam and an opioid","Trazodone and donepezil","Phenytoin and calcium","Baclofen and latanoprost"],
+     a:[0], w:"Benzodiazepines with opioids carry a boxed warning for profound sedation, respiratory depression, coma and death."}
+  ]
+},
+{
+  id:"muscle", num:"06", group:"Muscle & pressure", title:"Muscle relaxants, blockers & mannitol", kind:"drug", theme:"cardiac",
+  lede:"Neuromuscular blockers paralyze muscles during surgery and ventilation. Centrally acting muscle relaxants ease spasm and spasticity without paralysis. Mannitol pulls fluid out of the brain and eye to lower pressure.",
+  cards:[
+    {name:"Neuromuscular blocking agents", pharm:"Nondepolarizing neuromuscular blocker", ther:"Paralytic (adjunct to anesthesia and mechanical ventilation)", stem:"-curium / -curonium", ex:["atracurium","cisatracurium","rocuronium","vecuronium"],
+     how:"Compete with acetylcholine at the nicotinic receptors on skeletal muscle, causing paralysis, including of the breathing muscles. Used for intubation, surgery and difficult mechanical ventilation. They provide no sedation and no pain relief: a paralyzed patient may be fully awake. Atracurium and cisatracurium break down in the blood regardless of liver or kidney function.",
+     mon:["Airway and ventilation at all times; a ventilator is required","Sedation and pain level (the patient can't show distress)","Depth of blockade with a train-of-four nerve stimulator","HR, BP; skin and eye care (lubricate eyes, tape lids)","DVT prevention"],
+     edu:["Explain to the family that the patient can't move or speak but may hear and feel","Talk to the patient and explain care, even if unresponsive","After extubation, report trouble breathing or swallowing"],
+     se:["Hypotension","Flushing (atracurium releases histamine)"],
+     ae:["Respiratory arrest without ventilation","Awareness while paralyzed without sedation","Prolonged weakness (especially with steroids)","Anaphylaxis","Bronchospasm (atracurium)"],
+     trap:"High-alert drugs, stored separately and labeled “Warning: paralyzing agent.” Reversal: sugammadex (rocuronium, vecuronium) or neostigmine with glycopyrrolate. The list shows n/a for therapeutic class."},
+    {name:"Centrally acting muscle relaxants", pharm:"Centrally acting skeletal muscle relaxant", ther:"Antispasmodic / antispasticity agent", stem:"n/a", ex:["baclofen","cyclobenzaprine","tizanidine"],
+     how:"Act in the brain and spinal cord, not on the muscle itself. Baclofen stimulates GABA-B receptors in the spinal cord, easing spasticity from multiple sclerosis or spinal cord injury; it can be given by an intrathecal pump. Tizanidine is a central alpha-2 agonist for spasticity. Cyclobenzaprine acts in the brainstem and is used short-term (2–3 weeks) for acute muscle spasm; it is related to tricyclic antidepressants.",
+     mon:["Sedation, dizziness, fall risk","BP (tizanidine lowers it)","Liver function (tizanidine)","Anticholinergic effects with cyclobenzaprine (dry mouth, urinary retention, confusion in older adults)","Intrathecal pump function and refill dates (baclofen)"],
+     edu:["Avoid alcohol and other sedating drugs","Don't drive until you know how it affects you","Don't stop baclofen or tizanidine suddenly","Keep every baclofen pump refill appointment","Cyclobenzaprine: for short-term use only"],
+     se:["Drowsiness","Dizziness","Dry mouth","Weakness"],
+     ae:["Baclofen withdrawal: high fever, confusion, rebound spasticity, seizures, death","Hypotension and hepatotoxicity (tizanidine)","Serotonin syndrome and dysrhythmias (cyclobenzaprine)","Respiratory depression with other CNS depressants"],
+     trap:"The list shows n/a for therapeutic class. Tizanidine is not taken with ciprofloxacin or fluvoxamine, which raise its levels sharply."},
+    {name:"Osmotic diuretic", pharm:"Osmotic diuretic", ther:"Diuretic (lowers intracranial and intraocular pressure)", stem:"n/a", ex:["mannitol"],
+     how:"A sugar alcohol given IV that stays in the blood and the kidney tubules. It raises the osmolality of the blood, drawing water out of brain and eye tissue into the bloodstream, then carries that water out in the urine. Used to lower increased intracranial pressure and intraocular pressure (acute glaucoma).",
+     mon:["Neuro checks and ICP","Hourly urine output (indwelling catheter)","Serum osmolality, sodium and potassium; renal function","Lung sounds, dyspnea, edema: the first fluid shift expands blood volume","IV site (extravasation damages tissue)"],
+     edu:["Explain the catheter and frequent checks","Report shortness of breath, headache or chest pain"],
+     se:["Thirst","Headache","Nausea"],
+     ae:["Fluid and electrolyte imbalance (high or low sodium, low potassium)","Pulmonary edema and heart failure","Acute kidney injury","Rebound increase in intracranial pressure"],
+     trap:"Mannitol can crystallize when cold. Inspect it, warm to dissolve crystals, and give it through an in-line filter."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient on a ventilator is receiving a vecuronium infusion. What must the nurse also ensure?",
+     o:["The patient also receives sedation and pain relief","The ventilator alarms stay silenced to reduce noise and stress","The infusion is paused during every turn","Visitors avoid talking at the bedside"],
+     a:[0], w:"Neuromuscular blockers paralyze but don't sedate or relieve pain. Without sedation, a patient can be awake, in pain and unable to show it."},
+    {t:"mc", s:"How does the nurse check the depth of neuromuscular blockade?",
+     o:["Train-of-four with a nerve stimulator","Pupil size and reaction to a penlight check","Glasgow Coma Scale score","Deep tendon reflexes"],
+     a:[0], w:"A peripheral nerve stimulator delivers four small impulses; the number of twitches shows how much of the receptor sites are blocked."},
+    {t:"mc", s:"A patient with an intrathecal baclofen pump has a high fever, confusion and worsening spasticity. The pump alarm is sounding. What should the nurse suspect?",
+     o:["Baclofen withdrawal from pump failure","An expected reaction to a new refill","Baclofen overdose from a fast pump","Bacterial meningitis unrelated to the pump"],
+     a:[0], w:"Abrupt baclofen withdrawal causes high fever, altered mental status, rebound spasticity and muscle rigidity, and can progress to rhabdomyolysis and death. This is an emergency."},
+    {t:"mc", s:"An older adult is prescribed cyclobenzaprine for back spasm. Which finding should the nurse report?",
+     o:["Inability to urinate","Mild drowsiness after a dose","Dry mouth","Improved spasm"],
+     a:[0], w:"Cyclobenzaprine has strong anticholinergic effects, so urinary retention and confusion are concerns, especially in older adults. Drowsiness and dry mouth are expected side effects."},
+    {t:"mc", s:"A patient with a head injury receives IV mannitol. Which finding best shows the drug is working?",
+     o:["Decreasing intracranial pressure","Increasing serum potassium","Decreasing urine output","Blood pressure rising above baseline"],
+     a:[0], w:"Mannitol draws water out of the brain into the blood, lowering ICP. Urine output should rise; a falling output suggests kidney injury."},
+    {t:"mc", s:"A patient with heart failure receives mannitol. Which finding should the nurse report right away?",
+     o:["New crackles and shortness of breath","Thirst and dry mouth","Urine output of 150 mL per hour for 3 hours","Mild headache"],
+     a:[0], w:"Mannitol first pulls fluid into the bloodstream, expanding blood volume before the kidneys remove it. In heart failure this can cause pulmonary edema."}
+  ]
+},
+{
+  id:"eye", num:"07", group:"Eye & bone", title:"Glaucoma eye drops", kind:"drug", theme:"heme",
+  lede:"Glaucoma damages the optic nerve, usually because pressure inside the eye is too high. Every drug in this section lowers that pressure, either by making less fluid (aqueous humor) or by helping it drain. Eye drops reach the bloodstream too, so some cause effects far from the eye.",
+  diagram:"eye",
+  cards:[
+    {name:"Prostaglandin analogs", pharm:"Prostaglandin analog", ther:"Antiglaucoma", stem:"-oprost", ex:["latanoprost","travoprost","bimatoprost"],
+     how:"Increase the outflow of aqueous humor through the tissue around the iris (uveoscleral outflow), lowering pressure. Usually first-line because one evening drop a day works well with few body-wide effects.",
+     mon:["Eye pressure and vision at follow-up visits","Eye redness, irritation","Changes in iris color and eyelashes"],
+     edu:["Use one drop in the evening","Remove contact lenses first; wait 15 minutes before reinserting","Iris color may permanently darken (especially green, hazel or blue-brown eyes)","Eyelashes may grow longer and darker; eyelid skin may darken"],
+     se:["Eye redness","Stinging","Eyelash growth"],
+     ae:["Permanent darkening of the iris","Macular edema","Eye inflammation"]},
+    {name:"Beta blockers (eye drops)", pharm:"Beta-adrenergic blocker", ther:"Antiglaucoma", stem:"-olol", ex:["timolol","carteolol","metipranolol","levobunolol","betaxolol"],
+     how:"Reduce the production of aqueous humor by the ciliary body. Enough is absorbed into the blood to cause systemic beta blockade. Timolol and most others are nonselective; betaxolol is beta-1 selective and safer in lung disease.",
+     mon:["Heart rate and BP","Wheezing or shortness of breath (nonselective drops)","Blood glucose in diabetes (hypoglycemia may be masked)","Eye pressure"],
+     edu:["After the drop, close the eye and press the inner corner for 1–2 minutes to limit absorption into the body","Wait 5 minutes between different eye drops","Report a slow pulse, dizziness or wheezing","Tell all providers you use these drops"],
+     se:["Stinging","Blurred vision","Fatigue"],
+     ae:["Bradycardia, heart block","Bronchospasm","Hypotension","Masked hypoglycemia"]},
+    {name:"Alpha-2 adrenergic agonists (eye drops)", pharm:"Alpha-2 adrenergic agonist", ther:"Antiglaucoma", stem:"-nidine", ex:["brimonidine","apraclonidine"],
+     how:"Reduce aqueous humor production and (brimonidine) increase outflow. Brimonidine is used long-term; apraclonidine is used short-term around laser eye surgery.",
+     mon:["Eye redness, itching, swelling (allergic reaction)","Drowsiness, fatigue","BP"],
+     edu:["Don't use in infants or young children (can cause slowed breathing and coma)","Remove contacts; wait 15 minutes before reinserting","May cause drowsiness; use care driving","Avoid with MAO inhibitors"],
+     se:["Dry mouth","Eye redness, itching","Drowsiness"],
+     ae:["Allergic conjunctivitis","CNS depression and apnea in young children","Hypotension"]},
+    {name:"Carbonic anhydrase inhibitors", pharm:"Carbonic anhydrase inhibitor", ther:"Antiglaucoma", stem:"-zolamide", ex:["acetazolamide","methazolamide","dorzolamide"],
+     how:"Block carbonic anhydrase in the ciliary body, reducing aqueous humor production. Dorzolamide is an eye drop. Acetazolamide and methazolamide are oral (acetazolamide can also be IV) and act throughout the body; acetazolamide is also used for altitude sickness and some seizures.",
+     mon:["Oral forms: potassium, bicarbonate (metabolic acidosis), sodium","Intake and output","Tingling in hands and feet","Sulfonamide allergy history","Kidney stone symptoms"],
+     edu:["Drops: may cause a bitter taste and stinging","Oral: expect more urination; take in the morning","Oral: report tingling, muscle weakness, confusion or flank pain","Drink plenty of fluids"],
+     se:["Bitter taste (drops)","Frequent urination (oral)","Tingling (oral)","Fatigue"],
+     ae:["Metabolic acidosis","Hypokalemia","Kidney stones","Allergic reaction in sulfonamide-allergic patients","Blood disorders (rare)"]}
+  ],
+  quiz:[
+    {t:"mc", s:"How do prostaglandin analogs such as latanoprost lower eye pressure?",
+     o:["They increase drainage of fluid from the eye","They reduce fluid production by the ciliary body","They constrict the pupil to open the drainage angle","They pull fluid out of the eye into the bloodstream"],
+     a:[0], w:"Prostaglandin analogs increase uveoscleral outflow. Beta blockers and carbonic anhydrase inhibitors reduce production, and mannitol draws fluid out osmotically."},
+    {t:"mc", s:"A patient starting latanoprost has light hazel eyes. What should the nurse teach?",
+     o:["The iris may permanently turn darker brown","The eye will turn pink, then return to normal","Your eyelashes may fall out after a few weeks","Your vision may turn yellow for a few hours"],
+     a:[0], w:"Prostaglandin analogs can permanently darken the iris, especially in mixed-color eyes. Eyelashes typically grow longer and darker."},
+    {t:"mc", s:"A patient with asthma has a new prescription for timolol eye drops. What should the nurse do?",
+     o:["Question the order; timolol can trigger bronchospasm","Give it; eye drops don't reach the bloodstream in any amount","Teach the patient to use it only at bedtime","Give it with the patient's albuterol inhaler"],
+     a:[0], w:"Timolol is a nonselective beta blocker, and enough is absorbed to cause bronchospasm. Betaxolol (beta-1 selective) or a non-beta-blocker drop is safer."},
+    {t:"mc", s:"Which technique reduces the amount of a glaucoma drop absorbed into the body?",
+     o:["Press the inner corner of the eye for 1–2 minutes","Blink rapidly several times right after the drop","Tilt your head back for 10 minutes after the drop","Use two drops so the first can wash out the second"],
+     a:[0], w:"Pressing on the inner corner (nasolacrimal occlusion) keeps the drop from draining into the nose and throat, where it is absorbed into the blood."},
+    {t:"mc", s:"A patient taking oral acetazolamide reports tingling fingers, weakness and fatigue. Which lab results would the nurse check?",
+     o:["Potassium and bicarbonate","Glucose and A1c","Hemoglobin and platelet count","Calcium and phosphorus"],
+     a:[0], w:"Oral carbonic anhydrase inhibitors cause potassium loss and metabolic acidosis (low bicarbonate), both of which can cause weakness and tingling."},
+    {t:"mc", s:"Why is brimonidine avoided in infants and young children?",
+     o:["It can cause CNS depression and apnea","It permanently changes iris color","It causes severe bradycardia in children","It is not available as an eye drop"],
+     a:[0], w:"Brimonidine crosses into the brain easily in young children and can cause lethargy, slowed breathing and coma."}
+  ]
+},
+{
+  id:"bone", num:"08", group:"Eye & bone", title:"Osteoporosis & bone health", kind:"drug", theme:"heme",
+  lede:"Bone is constantly rebuilt: osteoclasts break it down and osteoblasts build it back. Osteoporosis develops when breakdown outpaces building. Most bone drugs slow the osteoclasts; calcium (with vitamin D) supplies the building material.",
+  diagram:"bonecycle",
+  cards:[
+    {name:"Calcium supplements", pharm:"Mineral supplement", ther:"Supplement (bone health)", stem:"n/a", ex:["calcium carbonate","calcium citrate"],
+     how:"Supply the calcium bone needs. Most osteoporosis drugs work only if calcium and vitamin D intake are adequate. Calcium carbonate is 40% calcium and needs stomach acid to absorb, so it is taken with food. Calcium citrate is 21% calcium and absorbs with or without food, which suits patients on acid-reducing drugs.",
+     mon:["Serum calcium","Signs of high calcium: constipation, nausea, confusion, kidney stones","Drug list for interactions","Bowel function"],
+     edu:["Take no more than 500–600 mg of calcium at a time","Take calcium carbonate with meals; calcium citrate any time","Take vitamin D as prescribed","Separate from levothyroxine, iron, and tetracycline or fluoroquinolone antibiotics by several hours","Increase fluids and fiber"],
+     se:["Constipation","Gas, bloating"],
+     ae:["Hypercalcemia","Kidney stones","Reduced absorption of interacting drugs"]},
+    {name:"Selective estrogen receptor modulators (SERMs)", pharm:"Selective estrogen receptor modulator (agonist/antagonist)", ther:"Osteoporosis prevention and treatment", stem:"-oxifene", ex:["raloxifene","bazedoxifene","lasofoxifene"],
+     how:"Act like estrogen in bone, slowing bone breakdown, but block estrogen in breast and uterine tissue. Used for postmenopausal osteoporosis; raloxifene also lowers the risk of invasive breast cancer. Bazedoxifene is combined with conjugated estrogens.",
+     mon:["Signs of DVT and PE: leg pain or swelling, chest pain, shortness of breath","History of blood clots or stroke","Bone density","Calcium and vitamin D intake"],
+     edu:["Report leg pain or swelling, chest pain or sudden shortness of breath","Stop 72 hours before planned immobility (surgery, long bed rest) as directed","Move and stretch often on long trips","Hot flashes and leg cramps can occur"],
+     se:["Hot flashes","Leg cramps","Peripheral edema"],
+     ae:["Venous thromboembolism (boxed warning)","Fatal stroke in women with heart disease (boxed warning)"],
+     trap:"Lasofoxifene is not approved in the US."},
+    {name:"Bisphosphonates", pharm:"Bisphosphonate", ther:"Osteoporosis prevention and treatment / Paget disease", stem:"-dronate", ex:["alendronate","risedronate","ibandronate","zoledronic acid"],
+     how:"Bind to bone and inhibit osteoclasts, slowing bone breakdown and increasing bone density. Oral forms are taken weekly or monthly; zoledronic acid is a yearly IV infusion and also treats Paget disease and high calcium from cancer. Very little of an oral dose is absorbed, so the timing rules are strict.",
+     mon:["Serum calcium and vitamin D (correct low levels first)","Renal function (especially IV)","Swallowing problems, heartburn","Dental health before starting","Bone density"],
+     edu:["Take first thing in the morning with a full glass of plain water, on an empty stomach","Stay upright for at least 30 minutes (60 for ibandronate)","Wait 30 minutes (60 for ibandronate) before food, other drinks or medications","Report jaw pain, new thigh or groin pain, or painful swallowing","Get dental care before starting and keep good oral hygiene"],
+     se:["Heartburn, nausea","Muscle and joint aches","Flu-like symptoms after IV dose"],
+     ae:["Esophagitis and esophageal ulcers","Osteonecrosis of the jaw","Atypical femur fracture","Hypocalcemia"],
+     trap:"Your list spells it “zoledromic acid.” Zoledronic acid doesn't carry the -dronate stem."},
+    {name:"Calcitonin", pharm:"Hormone (calcitonin)", ther:"Bone resorption inhibitor", stem:"n/a", ex:["calcitonin-salmon"],
+     how:"A hormone that inhibits osteoclasts, decreasing bone breakdown and lowering serum calcium. Given as a nasal spray or by injection. Used for Paget disease, hypercalcemia and, less often now, postmenopausal osteoporosis.",
+     mon:["Serum calcium (watch for low calcium: tingling, muscle cramps, tetany)","Nasal mucosa (nasal spray)","Allergy to salmon or fish proteins"],
+     edu:["Nasal spray: prime the pump; alternate nostrils daily","Report nosebleeds, nasal sores or crusting","Report tingling around the mouth or muscle cramps","Take calcium and vitamin D as prescribed"],
+     se:["Nasal irritation, runny nose","Nosebleeds","Flushing, nausea (injection)"],
+     ae:["Hypocalcemia","Allergic reactions, including anaphylaxis","Possible small increase in cancer risk with long-term use"],
+     trap:"Your list says calcitonin “promotes bone reabsorption.” It does the opposite: it inhibits bone resorption."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient is starting alendronate. Which instruction is correct?",
+     o:["Take it on waking with plain water and stay upright 30 minutes","Take it with breakfast and a glass of milk to protect the stomach","Take it at bedtime, then lie down so it stays in the stomach","Take it with your calcium so both absorb at the same time"],
+     a:[0], w:"Bisphosphonates absorb poorly and irritate the esophagus. Taking them fasting with plain water and staying upright for at least 30 minutes maximizes absorption and prevents esophageal injury."},
+    {t:"mc", s:"A patient on long-term alendronate reports jaw pain after a tooth extraction. What should the nurse suspect?",
+     o:["Osteonecrosis of the jaw","Expected post-extraction pain","Hypercalcemia","Esophagitis"],
+     a:[0], w:"Bisphosphonates can cause osteonecrosis of the jaw, especially after dental surgery. A dental exam before therapy and good oral hygiene reduce the risk."},
+    {t:"mc", s:"A patient taking raloxifene reports pain and swelling in one calf. What is the priority?",
+     o:["Report it right away; this may be a blood clot","Apply heat and elevate the leg overnight, then recheck","Massage the calf to relieve the cramp","Increase calcium intake to stop cramps"],
+     a:[0], w:"SERMs carry a boxed warning for venous thromboembolism. Unilateral calf pain and swelling suggest DVT, which needs prompt evaluation. Never massage a possible clot."},
+    {t:"mc", s:"A patient takes calcium carbonate and omeprazole. Which suggestion is most appropriate?",
+     o:["Ask the provider about switching to calcium citrate","Take the calcium carbonate on an empty stomach instead","Double the calcium carbonate dose at bedtime","Stop the omeprazole to absorb the calcium"],
+     a:[0], w:"Calcium carbonate needs stomach acid to absorb. Calcium citrate absorbs without acid, so it is preferred for patients on proton pump inhibitors."},
+    {t:"mc", s:"How does calcitonin affect bone?",
+     o:["It slows osteoclasts, so less bone is broken down","It speeds osteoclasts, so more bone is broken down","It supplies calcium directly into the bone matrix","It acts like estrogen in breast tissue"],
+     a:[0], w:"Calcitonin inhibits osteoclasts, decreasing bone resorption and lowering serum calcium. Watch for hypocalcemia."},
+    {t:"mc", s:"A patient takes levothyroxine and calcium carbonate every morning. What should the nurse teach?",
+     o:["Take them at least 4 hours apart","Take them together with breakfast","Take both at bedtime instead","Crush both and mix them in juice"],
+     a:[0], w:"Calcium binds levothyroxine in the gut and reduces its absorption. Separating them by about 4 hours keeps thyroid levels stable."}
+  ]
+},
+{
+  id:"final", num:"09", group:"Wrap-up", title:"Final review", kind:"final",
+  lede:"Mixed questions across every class. Most are NCLEX-style application items: read the scenario, then decide what matters most.",
+  quiz:[
+    {t:"mc", s:"Which patient should the nurse see first?",
+     o:["On vecuronium, ventilator alarming low tidal volume","On latanoprost, asking about iris color changes","On donepezil, reporting vivid dreams most nights this week","On calcium carbonate, reporting constipation"],
+     a:[0], w:"A paralyzed patient depends entirely on the ventilator; a ventilation problem is immediately life-threatening. The others are expected side effects or teaching needs."},
+    {t:"mc", s:"What is the pharmacologic class of selegiline?",
+     o:["Anti-Parkinsonian","MAO-B inhibitor","Dopamine agonist","Cholinesterase inhibitor"],
+     a:[1], w:"MAO-B inhibitor is the pharmacologic class (mechanism). Anti-Parkinsonian is its therapeutic class (use)."},
+    {t:"mc", s:"Which drug and adverse effect are correctly paired?",
+     o:["Phenytoin – gingival hyperplasia","Valproic acid – red-green color blindness","Lamotrigine – livedo reticularis","Donepezil – urinary retention"],
+     a:[0], w:"Phenytoin causes gum overgrowth. Valproic acid's key toxicities are liver, pancreas and birth defects; lamotrigine's is serious rash; donepezil causes cholinergic effects such as bradycardia, not urinary retention."},
+    {t:"sata", s:"Which drugs need careful monitoring of respiratory status? Select all that apply.",
+     o:["Lorazepam","Phenobarbital","Rocuronium","Latanoprost","Calcium citrate"],
+     a:[0,1,2], w:"Benzodiazepines and barbiturates depress respiration, and neuromuscular blockers paralyze the breathing muscles. Latanoprost and calcium citrate don't affect breathing."},
+    {t:"mc", s:"A patient with Parkinson's disease takes levodopa/carbidopa. Which drug order should the nurse question?",
+     o:["Phenelzine, a nonselective MAO inhibitor","Entacapone with each levodopa/carbidopa dose","Amantadine twice daily","Rasagiline once daily"],
+     a:[0], w:"Nonselective MAO inhibitors with levodopa can cause a hypertensive crisis. Entacapone, amantadine and rasagiline are routinely combined with levodopa."},
+    {t:"mc", s:"Which drug requires the nurse to have atropine available?",
+     o:["Neostigmine","Benztropine","Baclofen","Brimonidine"],
+     a:[0], w:"Atropine blocks the muscarinic effects of excess acetylcholine, reversing a cholinergic crisis from cholinesterase inhibitors such as neostigmine."},
+    {t:"mc", s:"What is the therapeutic class of timolol eye drops?",
+     o:["Antiglaucoma","Beta-adrenergic blocker","Carbonic anhydrase inhibitor","Prostaglandin analog"],
+     a:[0], w:"Timolol's therapeutic class is antiglaucoma; its pharmacologic class is beta-adrenergic blocker."},
+    {t:"mc", s:"A patient takes carbamazepine and an estrogen-containing birth control pill. What should the nurse teach?",
+     o:["Use a non-hormonal backup method of birth control","Take the two drugs at least 4 hours apart each day","Expect heavier, longer menstrual periods","No change; these drugs don't interact"],
+     a:[0], w:"Carbamazepine (like phenytoin, phenobarbital and topiramate) speeds the breakdown of hormonal contraceptives, making them less reliable."},
+    {t:"mc", s:"Which pair of drugs both lower pressure by drawing fluid or reducing its production?",
+     o:["Mannitol and dorzolamide","Baclofen and tizanidine","Lorazepam and diazepam","Pramipexole and ropinirole"],
+     a:[0], w:"Mannitol draws fluid out of the brain and eye osmotically; dorzolamide reduces aqueous humor production. Both lower intraocular pressure."},
+    {t:"mc", s:"An older adult takes benztropine, cyclobenzaprine and a sleep aid. Which finding most needs attention?",
+     o:["New confusion and inability to urinate","Mild dry mouth in the morning that improves with water","Improved tremor at rest","Slightly drowsy after meals"],
+     a:[0], w:"Stacking anticholinergic drugs in an older adult can cause delirium and urinary retention. These need prompt reporting and a medication review."}
+  ]
+},
+{ id:"summary", num:"10", group:"Wrap-up", title:"Your results", kind:"summary" },
+{ id:"stems", num:"11", group:"Wrap-up", title:"Stem cheat sheet", kind:"stems" }
+];
+
+/* ============================================================
+   STEM TABLE (from the Unit 5 medication list, with corrections)
+   ============================================================ */
+const STEMS = [
+  ["Alzheimer's and anti-Parkinsonian medications",null],
+  ["Cholinesterase inhibitor","Alzheimer's / myasthenia gravis","-stigmine","neostigmine, physostigmine, edrophonium*, donepezil*","c"],
+  ["Centrally acting anticholinergic (list: direct acting cholinergic agonist)","Anti-Parkinsonian","n/a","benztropine, trihexyphenidyl","c"],
+  ["Dopamine agonist","Anti-Parkinsonian","n/a","pramipexole, ropinirole, apomorphine, bromocriptine","c"],
+  ["Dopamine releaser","Anti-Parkinsonian","n/a","amantadine","c"],
+  ["MAO-B inhibitor","Anti-Parkinsonian","-giline","selegiline, rasagiline","c"],
+  ["Dopamine precursor / decarboxylase inhibitor","Anti-Parkinsonian","-dopa","levodopa, carbidopa","c"],
+  ["COMT inhibitor (listed under optic)","Anti-Parkinsonian","-capone","entacapone, tolcapone","c"],
+  ["Anti-epileptics and anti-seizure medications",null],
+  ["Antiepileptic","Antiepileptic","n/a","phenytoin, carbamazepine, valproic acid, lamotrigine, levetiracetam, topiramate, oxcarbazepine, gabapentin, pregabalin, lacosamide","h"],
+  ["Barbiturate","Anticonvulsant / sedative-hypnotic","n/a","phenobarbital, primidone","h"],
+  ["Benzodiazepine","Anti-seizure","-am*","diazepam, lorazepam","h"],
+  ["Non-benzodiazepine hypnotic","Sedative-hypnotic","“Z” drugs","eszopiclone, zolpidem (trazodone*)","h"],
+  ["Miscellaneous",null],
+  ["Neuromuscular blocking agent","Paralytic (list: n/a)","-curium / -curonium","atracurium, cisatracurium, rocuronium, vecuronium","c"],
+  ["Centrally acting muscle relaxant","Antispasmodic (list: n/a)","n/a","baclofen, cyclobenzaprine, tizanidine","c"],
+  ["Osmotic diuretic","Diuretic","n/a","mannitol","c"],
+  ["Optic medications",null],
+  ["Alpha-2 adrenergic agonist (eye drops)","Antiglaucoma","-nidine","brimonidine, apraclonidine","h"],
+  ["Beta-adrenergic blocker (eye drops)","Antiglaucoma","-olol","timolol, carteolol, metipranolol, levobunolol, betaxolol","h"],
+  ["Carbonic anhydrase inhibitor","Antiglaucoma","-zolamide","acetazolamide, methazolamide, dorzolamide","h"],
+  ["Prostaglandin analog (eye drops)","Antiglaucoma","-oprost","travoprost, bimatoprost, latanoprost","h"],
+  ["Musculoskeletal medications",null],
+  ["Calcium supplement","Supplement","n/a","calcium citrate, calcium carbonate","h"],
+  ["Selective estrogen receptor modulator","Osteoporosis prevention","-oxifene","raloxifene, bazedoxifene, lasofoxifene","h"],
+  ["Bisphosphonate","Osteoporosis / Paget disease","-dronate","alendronate, risedronate, ibandronate, zoledronic acid*","h"],
+  ["Calcitonin","Bone resorption inhibitor (list: “promotes bone reabsorption”)","n/a","calcitonin-salmon","h"]
+];
+const DRILL_GROUPS = [];
+let drillGroup = "";
+let currentId = "start";
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const KEY = "neuro-decoder-v1";
+let state = {answers:{}};   // answers[qid] = {sel:[...], done:true, ok:bool}
+try{ const s = localStorage.getItem(KEY); if(s){ state = JSON.parse(s) || state; if(!state.answers) state.answers = {}; } }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+// stable shuffle of options per question (seeded by question id) so order is consistent across visits
+function seeded(str){ let h = 2166136261; for(const c of str){ h ^= c.charCodeAt(0); h = Math.imul(h,16777619); } return function(){ h ^= h<<13; h ^= h>>>17; h ^= h<<5; return ((h>>>0)%100000)/100000; }; }
+SECTIONS.forEach(sec=>{ (sec.quiz||[]).forEach((q,i)=>{
+  q.id = sec.id + "-" + (i+1);
+  const r = seeded(q.id); const order = q.o.map((_,k)=>k);
+  for(let k=order.length-1;k>0;k--){ const j = Math.floor(r()*(k+1)); [order[k],order[j]]=[order[j],order[k]]; }
+  q.order = order;
+});});
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const quizSections = SECTIONS.filter(s=>s.quiz);
+const totalQ = quizSections.reduce((n,s)=>n+s.quiz.length,0);
+
+function secStats(sec){
+  let done=0, ok=0;
+  (sec.quiz||[]).forEach(q=>{ const a = state.answers[q.id]; if(a&&a.done){ done++; if(a.ok) ok++; } });
+  return {done, ok, total:(sec.quiz||[]).length};
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderNav(current){
+  const nav = document.getElementById("nav");
+  let lastGroup = "";
+  nav.innerHTML = SECTIONS.map(s=>{
+    let head = "";
+    if(s.group && s.group!==lastGroup){ lastGroup = s.group; head = `<li class="navgroup">${esc(s.group)}</li>`; }
+    let chip = "";
+    if(s.quiz){ const st = secStats(s); chip = `<span class="chip ${st.done===st.total?'done':''}">${st.ok}/${st.total}</span>`; }
+    return head + `<li><a href="#${s.id}" ${s.id===current?'aria-current="page"':''}><span class="num">${s.num}</span><span>${esc(s.title)}</span>${chip}</a></li>`;
+  }).join("");
+  let done=0; quizSections.forEach(s=>done+=secStats(s).done);
+  document.getElementById("ovText").textContent = done + " / " + totalQ;
+  document.getElementById("ovBar").style.width = (100*done/totalQ) + "%";
+}
+
+function pager(idx){
+  const prev = SECTIONS[idx-1], next = SECTIONS[idx+1];
+  return `<div class="pager">${prev?`<a class="btn ghost" href="#${prev.id}">← ${esc(prev.title)}</a>`:'<span></span>'}${next?`<a class="btn" href="#${next.id}">${esc(next.title)} →</a>`:''}</div>`;
+}
+
+function card(c, sid, ci){
+  const list = a => `<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  return `<article class="dcard">
+    <div class="dhead">
+      <h3>${esc(c.name)}</h3><div class="cardTools">${sid!==undefined?`<button type="button" class="printbtn" data-print-card="${sid}|${ci}" aria-label="Print ${esc(c.name)}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print</button>`:""}<span class="stemTag">${esc(c.stem)}</span></div>
+      <div class="meta"><span><b>Pharmacologic class:</b> ${esc(c.pharm)}</span><span><b>Therapeutic class:</b> ${esc(c.ther)}</span></div>
+      <div class="ex">${c.ex.map(e=>`<span>${esc(e)}</span>`).join("")}</div>
+    </div>
+    <div class="dbody">
+      <div class="cell wide"><h4>How it works</h4><p>${esc(c.how)}</p></div>
+      <div class="cell"><h4>Monitoring &amp; safe administration</h4>${list(c.mon)}</div>
+      <div class="cell"><h4>Patient education</h4>${list(c.edu)}</div>
+      <div class="cell"><h4>Side effects</h4>${list(c.se)}</div>
+      <div class="cell adv"><h4>Adverse effects</h4>${list(c.ae)}</div>
+    </div>
+    ${c.trap?`<div class="dtrap"><b>Watch for:</b> ${esc(c.trap)}</div>`:""}
+  </article>`;
+}
+
+function diagram(kind){
+  if(kind==="cholinergic") return `
+  <section aria-labelledby="chH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="chH">More acetylcholine or less? Predict the effects</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Body system</th><th>Too much acetylcholine (cholinergic)</th><th>Too little acetylcholine (anticholinergic)</th></tr></thead>
+      <tbody>
+        <tr><td>Heart</td><td>Bradycardia</td><td>Tachycardia</td></tr>
+        <tr><td>Lungs</td><td>Bronchospasm, secretions</td><td>Dry airways</td></tr>
+        <tr><td>Glands</td><td>Salivation, sweating, tearing</td><td>Dry mouth, dry hot skin</td></tr>
+        <tr><td>GI and bladder</td><td>Diarrhea, cramping, urination</td><td>Constipation, urinary retention</td></tr>
+        <tr><td>Eyes</td><td>Small pupils</td><td>Dilated pupils, blurred vision</td></tr>
+        <tr><td>Skeletal muscle</td><td>Twitching, then weakness</td><td>n/a</td></tr>
+        <tr><td>Brain</td><td>Seizures in severe overdose</td><td>Confusion, delirium</td></tr>
+      </tbody></table></div>
+    <p class="diagcap">Cholinesterase inhibitors push toward the left column; atropine and the anticholinergics in the Parkinson's section push toward the right.</p>
+  </section>`;
+  if(kind==="balance") return `
+  <section aria-labelledby="balH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="balH">Restore the dopamine–acetylcholine balance</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Add dopamine</h4><ol>
+        <li>Levodopa becomes dopamine in the brain <span class="block">-dopa</span></li>
+        <li>Amantadine releases more dopamine <span class="block">amantadine</span></li>
+      </ol></div>
+      <div class="lane"><h4>Mimic or protect dopamine</h4><ol>
+        <li>Dopamine agonists stimulate the receptors directly <span class="block">pramipexole, ropinirole</span></li>
+        <li>MAO-B inhibitors slow dopamine breakdown in the brain <span class="block">-giline</span></li>
+        <li>COMT inhibitors slow levodopa breakdown in the body <span class="block">-capone</span></li>
+      </ol></div>
+      <div class="lane"><h4>Lower acetylcholine</h4><ol>
+        <li>Anticholinergics block acetylcholine in the brain <span class="block">benztropine, trihexyphenidyl</span></li>
+        <li>Best for tremor; worst for older adults</li>
+      </ol></div>
+    </div>
+    <p class="diagcap">Too much dopamine effect shows up as dyskinesias, hallucinations and impulse-control problems; too little as returning tremor, rigidity and slowness.</p>
+  </section>`;
+  if(kind==="aedtable") return `
+  <section aria-labelledby="aedH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="aedH">Signature toxicity: one thing to remember for each drug</h3>
+    <div class="tablewrap"><table class="receptor">
+      <thead><tr><th>Drug</th><th>Watch for</th><th>Key monitoring</th></tr></thead>
+      <tbody>
+        <tr><td>phenytoin</td><td>Nystagmus and ataxia (toxicity); gum overgrowth</td><td>Level 10–20 mcg/mL; IV with saline only</td></tr>
+        <tr><td>carbamazepine</td><td>Bone marrow suppression; severe rash</td><td>CBC, sodium, level</td></tr>
+        <tr><td>oxcarbazepine</td><td>Hyponatremia</td><td>Sodium</td></tr>
+        <tr><td>valproic acid</td><td>Liver failure, pancreatitis, birth defects</td><td>LFTs, ammonia, platelets</td></tr>
+        <tr><td>lamotrigine</td><td>Stevens-Johnson rash</td><td>Any rash; slow dose increases</td></tr>
+        <tr><td>levetiracetam</td><td>Irritability, aggression, depression</td><td>Mood; renal function</td></tr>
+        <tr><td>topiramate</td><td>Word-finding trouble, kidney stones, glaucoma</td><td>Fluids; bicarbonate; vision</td></tr>
+        <tr><td>lacosamide</td><td>PR prolongation, dizziness</td><td>ECG</td></tr>
+        <tr><td>gabapentin, pregabalin</td><td>Sedation; breathing with opioids</td><td>Respiratory status; renal function</td></tr>
+      </tbody></table></div>
+    <p class="diagcap">For all of them: never stop abruptly, report mood changes or thoughts of self-harm, and plan ahead for pregnancy and birth control.</p>
+  </section>`;
+  if(kind==="eye") return `
+  <section aria-labelledby="eyeH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="eyeH">Two ways to lower eye pressure</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Make less fluid</h4><ol>
+        <li>Beta blockers <span class="block">-olol</span></li>
+        <li>Carbonic anhydrase inhibitors <span class="block">-zolamide</span></li>
+        <li>Alpha-2 agonists <span class="block">-nidine</span></li>
+      </ol></div>
+      <div class="lane"><h4>Drain more fluid</h4><ol>
+        <li>Prostaglandin analogs <span class="block">-oprost</span></li>
+        <li>Brimonidine also increases outflow</li>
+      </ol></div>
+      <div class="lane"><h4>Giving eye drops</h4><ol>
+        <li>Tilt head back; pull down the lower lid; one drop into the pocket</li>
+        <li>Don't touch the tip to the eye</li>
+        <li>Close the eye and press the inner corner for 1–2 minutes</li>
+        <li>Wait 5 minutes between different drops; remove contacts first</li>
+      </ol></div>
+    </div>
+  </section>`;
+  if(kind==="bonecycle") return `
+  <section class="panel" aria-labelledby="boneH">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h3 id="boneH">Where the bone drugs act</h3>
+      <div class="flow">
+        <div class="node"><b>Osteoclasts</b><small>break down old bone and release calcium</small><span class="block">-dronate slows</span><span class="block">calcitonin slows</span><span class="block">-oxifene slows</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Remodeling space</b><small>a small pit of bone is removed</small></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Osteoblasts</b><small>lay down new bone using calcium and vitamin D</small><span class="block">calcium supplies</span></div>
+      </div>
+      <p class="diagcap">Slowing breakdown lets building catch up. None of these drugs works well if calcium and vitamin D are low.</p>
+    </div>
+  </section>`;
+  return "";
+}
+
+function renderQuiz(sec){
+  const st = secStats(sec);
+  return `<section class="quiz" aria-labelledby="qh-${sec.id}">
+    <div class="quizHead"><div><div class="eyebrow">CHECK YOUR UNDERSTANDING</div><h2 id="qh-${sec.id}">${sec.kind==="final"?"Final review":"Section check"}</h2></div>
+      <div style="display:flex;gap:10px;align-items:center"><span class="score">${st.ok} correct · ${st.done}/${st.total} answered</span><button class="btn ghost" type="button" data-reset="${sec.id}" style="font-size:.8rem;padding:6px 10px">Retry section</button></div></div>
+    ${sec.quiz.map((q,i)=>renderQ(q,i)).join("")}
+  </section>`;
+}
+
+function renderQ(q,i){
+  const a = state.answers[q.id] || {sel:[]};
+  const multi = q.t==="sata";
+  const opts = q.order.map(k=>{
+    let cls = "opt";
+    if(a.done){
+      const chosen = a.sel.includes(k), right = q.a.includes(k);
+      if(chosen && right) cls += " correct"; else if(chosen && !right) cls += " wrong"; else if(!chosen && right) cls += " missed";
+    }
+    return `<label class="${cls}"><input type="${multi?'checkbox':'radio'}" name="${q.id}" value="${k}" ${a.sel.includes(k)?'checked':''} ${a.done?'disabled':''} data-q="${q.id}"><span>${esc(q.o[k])}</span></label>`;
+  }).join("");
+  let foot = "";
+  if(a.done){
+    foot = `<div class="verdict ${a.ok?'ok':'no'}">${a.ok?'Correct.':(multi?'Not quite. Dashed outlines show answers you missed.':'Not quite. The correct answer is outlined in green.')}</div><div class="why">${esc(q.w)}</div>`;
+  } else {
+    foot = `<div class="qfoot"><button class="btn" type="button" data-check="${q.id}" ${a.sel.length?'':'disabled'}>Check answer</button></div>`;
+  }
+  return `<div class="q" id="q-${q.id}"><div class="qn">QUESTION ${i+1}${multi?'<span class="tag">SELECT ALL THAT APPLY</span>':''}</div><div class="stemQ">${esc(q.s)}</div><div class="opts" role="${multi?'group':'radiogroup'}" aria-label="Answer choices">${opts}</div>${foot}</div>`;
+}
+
+function stemTable(){
+  return `<div class="tablewrap"><table>
+    <thead><tr><th>Pharmacologic class</th><th>Therapeutic class</th><th>Stem</th><th>Examples on your list</th></tr></thead>
+    <tbody>${STEMS.map(r=> r[1]===null ? `<tr class="groupRow"><td colspan="4">${esc(r[0])}</td></tr>`
+      : `<tr class="${r[4]}"><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td><span class="stem">${esc(r[2])}</span></td><td>${esc(r[3])}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <p class="diagcap">* Does not follow the stem. Learn these by name; each one is flagged on its drug card.</p>`;
+}
+
+function render(){
+  let id = viewId;
+  if(!id){ try{ id = (location.hash||"").replace("#",""); }catch(e){} }
+  id = id || "start";
+  const idx = Math.max(0, SECTIONS.findIndex(s=>s.id===id));
+  const sec = SECTIONS[idx];
+  currentId = sec.id;
+  renderNav(sec.id);
+  const main = document.getElementById("main");
+  let h = "";
+  if(sec.kind==="intro"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">UNIT 5 · NEUROMUSCULAR</div><h1>Neuromuscular Drug Decoder</h1>
+      <p class="lede">Every medication on the Unit 5 list, organized by class: Alzheimer's and myasthenia gravis, Parkinson's disease, seizures and sleep, muscle relaxants and paralytics, glaucoma eye drops, and bone health. Learn to read a drug name, then work through each class: how it works, what you monitor, what you teach, and what can go wrong. Each section ends with questions that explain the answer as soon as you check it.</p></header>
+      <section class="panel"><h3 style="margin-bottom:10px">By the end, you should be able to</h3><ol class="objectives">
+        <li>Use prefixes, roots and suffixes to identify the class of a neuromuscular, eye or bone drug.</li>
+        <li>Tell the pharmacologic class (how it works) from the therapeutic class (what it treats).</li>
+        <li>Explain the mechanism of action of each class in plain language.</li>
+        <li>Identify the assessments, labs and hold parameters for safe administration.</li>
+        <li>Teach patients how to take each drug safely and what to report.</li>
+        <li>Distinguish common side effects from adverse effects that need action.</li>
+      </ol></section>
+      <div class="steps">
+        <div class="panel"><span class="eyebrow">STEP 1</span><b>Read the labels</b><p>Each drug class is a card with the same six parts, so you can compare classes side by side.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 2</span><b>Check yourself</b><p>Answer every question at the end of the section. You'll see the rationale right away.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 3</span><b>Review your results</b><p>The results page shows your score by section and lists the topics to revisit.</p></div>
+      </div>
+      <p class="diagcap">Your answers are saved in this browser only. Use “Retry section” to clear one section, or “Start over” to clear everything.</p>
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="decode"){
+    const g = DRILL_GROUPS.find(x=>x.id===drillGroup) || DRILL_GROUPS[0];
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      <section class="panel" aria-labelledby="readH" style="display:flex;flex-direction:column;gap:14px">
+        <div><span class="eyebrow">HABIT 1</span><h3 id="readH">Learn the class, not the drug</h3></div>
+        <p class="prose" style="max-width:68ch">Drugs in a class share a mechanism, monitoring, teaching and adverse effects. Learn one key drug (the prototype) well, then notice how the others differ. The stem tells you which class you're looking at.</p>
+        <div class="decodeSteps">
+          <div class="dstep"><span class="eyebrow">1 · FIND THE STEM</span><p class="big mono">rasa<mark>giline</mark></p></div>
+          <div class="dstep"><span class="eyebrow">2 · PHARMACOLOGIC CLASS</span><p class="big">MAO-B inhibitor</p><small>How it works</small></div>
+          <div class="dstep"><span class="eyebrow">3 · THERAPEUTIC CLASS</span><p class="big">Anti-Parkinsonian</p><small>What it treats</small></div>
+        </div>
+        <p class="diagcap">Several pharmacologic classes can share one therapeutic class: five different mechanisms on this list are all anti-Parkinsonian. Stems don't always hold, so each card flags the exceptions. The full list is on the <a href="#stems">Stem cheat sheet</a>.</p>
+      </section>
+      <section class="panel" aria-labelledby="mechH" style="display:flex;flex-direction:column;gap:14px">
+        <div><span class="eyebrow">HABIT 2</span><h3 id="mechH">Let the mechanism do the work</h3></div>
+        <p class="prose" style="max-width:68ch">Once you know how a drug works, most of the nursing care follows. Ask the same questions in the same order for every class, the way each drug card is laid out.</p>
+        <div class="flow">
+          <div class="node"><b>How it works</b><small>Neostigmine blocks <b>acetylcholinesterase</b>, the enzyme that breaks down acetylcholine. More acetylcholine builds up at the nerve-muscle junction, and everywhere else.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>Expected effect</b><small>Muscles get the signal more strongly, so strength improves in myasthenia gravis. Extra acetylcholine elsewhere also slows the heart and increases secretions.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>Too much of it</b><small>Cholinergic crisis: bradycardia, bronchospasm, drooling, diarrhea and, paradoxically, severe muscle weakness (adverse effects)</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>What you check</b><small>Muscle strength, swallowing, breathing and heart rate. Keep atropine at the bedside as the antidote.</small></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node"><b>What you teach</b><small>Take doses exactly on time; report trouble swallowing or breathing; wear a medical ID</small></div>
+        </div>
+        <p class="diagcap"><b>Side effects</b> are expected and usually mild (sweating, loose stools); teach patients to expect them. <b>Adverse effects</b> are harmful (respiratory failure) and need action.</p>
+      </section>
+      <section aria-labelledby="studyH" style="display:flex;flex-direction:column;gap:12px">
+        <div><span class="eyebrow">HABIT 3</span><h3 id="studyH">Study in ways that stick</h3></div>
+        <div class="steps">
+          <div class="panel"><b>Quiz yourself</b><p>Answer the section check before you reread anything. Pulling facts out of memory builds recall far better than rereading or highlighting.</p></div>
+          <div class="panel"><b>Space it out</b><p>Several short sessions over a week beat one long one. Come back to a section a few days later and retry its questions.</p></div>
+          <div class="panel"><b>Mix it up</b><p>Once you know a few classes, practice them together. Telling an MAO-B inhibitor from a COMT inhibitor is what exams test.</p></div>
+          <div class="panel"><b>Explain the why</b><p>Say out loud why a finding matters: “A phenytoin level of 25 matters because…” If you can explain it, you can apply it.</p></div>
+        </div>
+      </section>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="drug"){
+    h = `<div class="view ${sec.theme==='heme'?'heme':''}">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">SECTION ${sec.num}</div><button type="button" class="printbtn" data-print-section="${sec.id}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print this section</button></div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${sec.diagram?sec.diagram.split(" ").map(diagram).join(""):""}
+      <div class="cards">${sec.cards.map((c,i)=>card(c,sec.id,i)).join("")}</div>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="final"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="stems"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">REFERENCE</div><button type="button" class="printbtn" data-print-section="stems"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print cheat sheet</button></div><h2>Stem cheat sheet</h2>
+      <p class="lede">Every class in this activity, with its stem and the examples from your Unit 5 list. Use it to review, not as the place to start.</p></header>
+      ${stemTable()}
+      ${pager(idx)}</div>`;
+  } else {
+    let tot=0, ok=0, done=0;
+    const rows = quizSections.map(s=>{ const st = secStats(s); tot+=st.total; ok+=st.ok; done+=st.done;
+      const pct = st.done? Math.round(100*st.ok/st.total) : null;
+      const pill = st.done<st.total ? `<span class="pill none">${st.done}/${st.total} answered</span>` : pct>=80?`<span class="pill ok">Solid</span>`:pct>=60?`<span class="pill mid">Review</span>`:`<span class="pill low">Revisit</span>`;
+      return `<a class="sumcard" href="#${s.id}" style="text-decoration:none;color:inherit"><span class="eyebrow">${s.num}</span><b>${esc(s.title)}</b><span class="big">${st.ok}/${st.total}</span>${pill}</a>`; }).join("");
+    const misses = [];
+    quizSections.forEach(s=>s.quiz.forEach((q,i)=>{ const a = state.answers[q.id]; if(a&&a.done&&!a.ok) misses.push(`<li><a href="#${s.id}">${esc(s.title)}, question ${i+1}</a>: ${esc(q.s)}</li>`); }));
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">RESULTS</div><h2>Your results</h2>
+      <p class="lede">${done===0?"You haven't answered any questions yet. Start with How to learn pharmacology.":`You've answered ${done} of ${tot} questions and got ${ok} correct (${Math.round(100*ok/Math.max(done,1))}% of those answered).`}</p></header>
+      <div class="sumgrid">${rows}</div>
+      <section class="panel" style="display:flex;flex-direction:column;gap:10px"><h3>Questions to revisit</h3>
+        ${misses.length?`<ol class="misslist">${misses.join("")}</ol>`:`<p class="diagcap">${done?"None. Nice work.":"Missed questions will be listed here."}</p>`}</section>
+      ${pager(idx)}</div>`;
+  }
+  main.innerHTML = h;
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+document.addEventListener("change", e=>{
+  const inp = e.target.closest("input[data-q]"); if(!inp) return;
+  const qid = inp.dataset.q; const a = state.answers[qid] || {sel:[]}; if(a.done) return;
+  const k = +inp.value;
+  if(inp.type==="radio") a.sel = [k];
+  else a.sel = inp.checked ? [...new Set([...a.sel,k])] : a.sel.filter(x=>x!==k);
+  state.answers[qid] = a; save();
+  const btn = document.querySelector(`[data-check="${qid}"]`); if(btn) btn.disabled = !a.sel.length;
+});
+document.addEventListener("click", e=>{
+  const chk = e.target.closest("[data-check]");
+  if(chk){
+    const qid = chk.dataset.check; let q; SECTIONS.forEach(s=>(s.quiz||[]).forEach(x=>{ if(x.id===qid) q=x; }));
+    const a = state.answers[qid]; if(!a||!a.sel.length) return;
+    const sel = [...a.sel].sort(), ans = [...q.a].sort();
+    a.ok = sel.length===ans.length && sel.every((v,i)=>v===ans[i]); a.done = true; save();
+    const sec = SECTIONS.find(s=>(s.quiz||[]).includes(q));
+    document.getElementById("q-"+qid).outerHTML = renderQ(q, sec.quiz.indexOf(q));
+    renderNav(sec.id);
+    const st = secStats(sec); const sc = document.querySelector(".score"); if(sc) sc.textContent = `${st.ok} correct · ${st.done}/${st.total} answered`;
+    return;
+  }
+  const rs = e.target.closest("[data-reset]");
+  if(rs){ const sec = SECTIONS.find(s=>s.id===rs.dataset.reset); sec.quiz.forEach(q=>delete state.answers[q.id]); save(); render(); return; }
+  const tg = e.target.closest("[data-group]");
+  if(tg){ drillGroup = tg.dataset.group; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  const fl = e.target.closest("[data-flip]");
+  if(fl){ const on = fl.getAttribute("aria-pressed")!=="true"; fl.setAttribute("aria-pressed", on); fl.querySelector(".back").hidden = !on; fl.querySelector(".hint").textContent = on?"Tap to hide":"Tap to reveal"; return; }
+});
+document.getElementById("resetAll").addEventListener("click", ()=>{
+  const b = document.getElementById("resetAll");
+  if(b.dataset.confirm){ state = {answers:{}}; save(); delete b.dataset.confirm; b.textContent="Start over"; render(); }
+  else { b.dataset.confirm = "1"; b.textContent = "Click again to clear all answers"; setTimeout(()=>{ delete b.dataset.confirm; b.textContent="Start over"; }, 4000); }
+});
+let viewId = "";
+/* ============================================================
+   PRINTING
+   Standalone file: prints from a hidden frame.
+   Published page (printing is blocked there): saves a print-ready copy
+   that opens its own print dialog.
+   ============================================================ */
+const UNIT_LABEL = "UNIT 5 · NEUROMUSCULAR", APP_TITLE = "Neuromuscular Drug Decoder";
+function inViewer(){ try{ return !!(window.claude && typeof window.claude.use === "function"); }catch(e){ return false; } }
+function toast(msg){
+  const t = document.getElementById("toast"); if(!t) return;
+  t.textContent = msg; t.hidden = false; clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ t.hidden = true; }, 6000);
+}
+function fileSafe(x){ return String(x).replace(/[^A-Za-z0-9 &()-]+/g," ").replace(/\s+/g," ").trim().slice(0,80) || "Printout"; }
+function printDoc(title, bodyHtml, heme){
+  const css = document.querySelector("style").textContent;
+  return '<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="utf-8"><title>' + esc(title) + '</title>'
+   + '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">'
+   + '<style>' + css + '\nbody{background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+   + 'main.printdoc{max-width:960px;margin:0 auto;padding:24px}.printbtn,.abcd,#toast{display:none !important}'
+   + '.dcard,.lane,.panel,tr{break-inside:avoid;page-break-inside:avoid}h2,h3{break-after:avoid}'
+   + '.printbar{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:10px}'
+   + '@media print{.printbar button{display:none}main.printdoc{padding:0}@page{margin:0.5in}}</style></head>'
+   + '<body><main class="printdoc"><div class="view' + (heme?' heme':'') + '">'
+   + '<div class="printbar"><span class="eyebrow">' + esc(UNIT_LABEL + " · " + APP_TITLE) + '</span><button class="btn" type="button" onclick="window.print()">Print</button></div>'
+   + bodyHtml + '</div></main>'
+   + '<scr'+'ipt>window.addEventListener("load",function(){setTimeout(function(){try{window.print()}catch(e){}},500)});</scr'+'ipt></body></html>';
+}
+async function doPrint(title, bodyHtml, heme){
+  const html = printDoc(title, bodyHtml, heme);
+  if(inViewer()){
+    let dl = null;
+    try{ dl = await window.claude.use("downloads"); }catch(e){}
+    if(!dl){ toast("Printing isn't available in this view. Open the downloaded HTML file in your browser to print."); return; }
+    try{
+      await dl.save({filename: fileSafe(title) + ".html", data: html});
+      toast("Saved. Open the file and the print window appears; choose Save as PDF if you'd rather keep a PDF.");
+    }catch(err){
+      if(err && err.code === "declined") return;
+      if(err && err.code === "rate_limited"){ toast("A save prompt is already open. Finish that one first."); return; }
+      toast("This view couldn't save the printable copy. Use the downloadable HTML file to print instead.");
+    }
+    return;
+  }
+  try{
+    let f = document.getElementById("printFrame"); if(f) f.remove();
+    f = document.createElement("iframe");
+    f.id = "printFrame"; f.title = "Print preview"; f.setAttribute("aria-hidden","true"); f.tabIndex = -1;
+    f.style.cssText = "position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0;";
+    document.body.appendChild(f);
+    f.srcdoc = html;
+  }catch(e){ toast("Your browser blocked printing. Try Ctrl+P (Cmd+P on a Mac)."); }
+}
+function sectionPrintBody(sec){
+  if(sec.kind==="stems") return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">REFERENCE</div><h2>Stem cheat sheet</h2></header>' + stemTable();
+  return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">SECTION ' + esc(sec.num) + '</div><h2>' + esc(sec.title) + '</h2><p class="lede">' + esc(sec.lede) + '</p></header>'
+    + (sec.diagram ? sec.diagram.split(" ").filter(d=>d!=="abcd").map(diagram).join("") : "")
+    + '<div class="cards">' + sec.cards.map(c=>card(c)).join("") + '</div>';
+}
+document.addEventListener("click", e=>{
+  const pc = e.target.closest("[data-print-card]");
+  if(pc){
+    const [sid, ci] = pc.dataset.printCard.split("|");
+    const sec = SECTIONS.find(x=>x.id===sid); const c = sec && sec.cards[+ci]; if(!c) return;
+    doPrint(c.name, '<div class="eyebrow">' + esc(sec.title.toUpperCase()) + '</div>' + card(c), sec.theme==="heme");
+    return;
+  }
+  const ps = e.target.closest("[data-print-section]");
+  if(ps){
+    const sec = SECTIONS.find(x=>x.id===ps.dataset.printSection); if(!sec) return;
+    doPrint(sec.kind==="stems" ? "Stem cheat sheet" : sec.title, sectionPrintBody(sec), sec.theme==="heme");
+  }
+});
+function go(id){
+  viewId = id; render();
+  try{ history.replaceState(null, "", "#"+id); }catch(e){}
+}
+// Navigate with script instead of relying on hash links, which some viewers block.
+document.addEventListener("click", e=>{
+  const a = e.target.closest('a[href^="#"]'); if(!a) return;
+  const id = a.getAttribute("href").slice(1);
+  if(!SECTIONS.some(s=>s.id===id)) return;
+  e.preventDefault(); go(id);
+}, true);
+window.addEventListener("hashchange", ()=>{ try{ const h = location.hash.replace("#",""); if(h && h!==viewId){ viewId = h; render(); } }catch(e){} });
+render();
+</script>
+</body>
+</html>

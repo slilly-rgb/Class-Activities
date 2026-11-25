@@ -1,0 +1,313 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Respiratory Diagnostics Match</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky test tray on the left, grid of "commonly used for" bins on the right; stacks on phones. */
+:root {
+  --bg: #eef3f6;
+  --surface: #ffffff;
+  --ink: #12283a;
+  --muted: #557086;
+  --line: #c9d7e1;
+  --accent: #0a6e9e;
+  --accent-soft: #d8ecf6;
+  --good: #1d7a4a;
+  --good-soft: #dcf2e5;
+  --bad: #b3362b;
+  --bad-soft: #fbe2df;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1a24; --surface: #142634; --ink: #e3eef5; --muted: #8fa9bc; --line: #2a4458;
+    --accent: #5cb8e6; --accent-soft: #173a50; --good: #5fd08f; --good-soft: #143826;
+    --bad: #f08074; --bad-soft: #43201d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1a24; --surface: #142634; --ink: #e3eef5; --muted: #8fa9bc; --line: #2a4458;
+  --accent: #5cb8e6; --accent-soft: #173a50; --good: #5fd08f; --good-soft: #143826;
+  --bad: #f08074; --bad-soft: #43201d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 20px; padding-block: 24px 48px; }
+
+header { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between; margin-bottom: 20px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 4px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 4vw, 38px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 62ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.score { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; padding: 8px 12px; border-radius: 6px; background: var(--surface); border: 1px solid var(--line); }
+.score b { color: var(--accent); }
+button { font: inherit; font-weight: 700; font-size: 14px; border-radius: 6px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+button:focus-visible, .card:focus-visible, .bin:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: .45; cursor: default; }
+
+.board { display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 24px; align-items: start; }
+@media (max-width: 760px) { .board { grid-template-columns: 1fr; } }
+
+.tray { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; max-height: calc(100vh - 24px); overflow-y: auto; }
+@media (max-width: 760px) { .tray { position: static; max-height: 46vh; } }
+.tray h2, .bins-head h2 { font-family: var(--font-display); font-weight: 600; font-size: 17px; margin: 0; }
+.tray-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cards { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+.tray.drop-hover { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.empty-tray { color: var(--muted); font-size: 14px; text-align: center; padding: 16px 4px; }
+
+.card { background: var(--bg); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 6px; padding: 9px 11px; cursor: grab; user-select: none; touch-action: none; }
+.card .name { font-weight: 700; font-size: 14.5px; display: block; }
+.card .tells { font-size: 13px; color: var(--muted); display: block; margin-top: 2px; }
+.card.selected { background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent); }
+.card.dragging-src { opacity: .35; }
+.ghost { position: fixed; pointer-events: none; z-index: 50; width: 240px; max-width: 80vw; box-shadow: 0 10px 28px rgba(0,0,0,.25); transform: rotate(-1.5deg); }
+
+.bins-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.hint { font-size: 13px; color: var(--muted); }
+.bins { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.bin { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.bin .label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.bin .used { font-weight: 700; font-size: 15px; line-height: 1.3; }
+.slot { border: 2px dashed var(--line); border-radius: 6px; min-height: 48px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; padding: 4px; }
+.slot .card { width: 100%; }
+.slot.filled { border-style: solid; border-color: transparent; padding: 0; }
+.bin.drop-hover .slot, .bin.armed .slot { border-color: var(--accent); background: var(--accent-soft); }
+.bin.correct { border-color: var(--good); background: var(--good-soft); }
+.bin.correct .card { border-left-color: var(--good); }
+.bin.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.bin.wrong .card { border-left-color: var(--bad); }
+.verdict { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; }
+.bin.correct .verdict { color: var(--good); }
+.bin.wrong .verdict { color: var(--bad); }
+
+.card.locked { cursor: default; border-left-color: var(--good); }
+.reveal { border-top: 1px solid var(--good); padding-top: 8px; display: grid; gap: 2px; animation: rise .35s ease-out; }
+.reveal .label { color: var(--good); }
+.reveal-text { font-size: 14px; }
+@keyframes rise { from { opacity: .3; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.banner { margin-bottom: 16px; padding: 12px 14px; border-radius: 8px; background: var(--accent-soft); border: 1px solid var(--accent); font-size: 14.5px; }
+.banner.win { background: var(--good-soft); border-color: var(--good); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Respiratory assessment · Diagnostic studies</p>
+      <h1>Respiratory Diagnostics Match</h1>
+      <p class="lede">Drag each diagnostic test to what it tells us. You can also tap a card, then tap a box. Select <b>Check answers</b>: correct matches lock in and reveal what the test is commonly used for.</p>
+    </div>
+    <div class="controls">
+      <span class="score" id="score">Placed <b id="placed">0</b>/<span id="total">17</span></span>
+      <button class="primary" id="checkBtn">Check answers</button>
+      <button id="returnBtn" disabled>Return incorrect</button>
+      <button id="revealBtn">Show answers</button>
+      <button id="resetBtn">Shuffle &amp; restart</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <div class="board">
+    <aside class="tray" id="tray" aria-label="Diagnostic test cards">
+      <div class="tray-head"><h2>Diagnostic tests</h2><span class="count" id="trayCount">17 left</span></div>
+      <div class="cards" id="cards"></div>
+    </aside>
+    <section>
+      <div class="bins-head"><h2>What it tells us</h2><span class="hint">Drop a card on an occupied box to swap. Drag a placed card back to the tray to remove it.</span></div>
+      <div class="bins" id="bins"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  ["Pulse oximetry (SpO₂)", "How much oxygen is attached to hemoglobin", "Hypoxemia, pneumonia, COPD, asthma, respiratory distress"],
+  ["Arterial blood gas (ABG)", "Oxygenation, ventilation, and acid-base status", "Respiratory failure, COPD, severe asthma, metabolic/respiratory disorders"],
+  ["Chest X-ray", "Looks at lung fields, heart size, fluid, air, and major abnormalities", "Pneumonia, pulmonary edema, pneumothorax, pleural effusion, TB, CHF"],
+  ["CT chest", "Much more detailed picture of lungs and surrounding structures", "Pulmonary embolism, tumors, interstitial disease, complicated pneumonia"],
+  ["CT pulmonary angiography (CTPA)", "Looks specifically for clots in pulmonary arteries", "Pulmonary embolism"],
+  ["MRI", "Detailed images without ionizing radiation", "Less commonly used for lungs; useful for chest masses, vessels, soft tissue"],
+  ["Pulmonary function tests (PFTs)", "Measures how well the lungs move air", "Asthma, COPD, restrictive lung diseases"],
+  ["Peak expiratory flow (PEF)", "How forcefully a person can exhale", "Asthma monitoring"],
+  ["Bronchoscopy", "Directly visualizes the airways", "Tumors, foreign bodies, bleeding, unexplained lung abnormalities"],
+  ["Sputum culture", "Identifies microorganisms causing infection", "Bacterial pneumonia, TB, other respiratory infections"],
+  ["Sputum cytology", "Looks for abnormal/malignant cells", "Suspected lung cancer"],
+  ["TB testing", "Looks for immune response to M. tuberculosis", "Tuberculosis"],
+  ["CBC", "Gives clues about infection, inflammation, anemia, etc.", "Pneumonia, infection, chronic disease"],
+  ["D-dimer", "Looks for evidence of increased clot formation/breakdown", "Helps evaluate possible PE/DVT in appropriate patients"],
+  ["V/Q scan", "Compares ventilation with blood flow in lungs", "Pulmonary embolism"],
+  ["Lung biopsy", "Examines actual lung tissue", "Cancer, interstitial lung disease, unexplained abnormalities"],
+  ["Thoracentesis", "Removes/analyzes pleural fluid", "Pleural effusion, infection, malignancy"]
+].map(([name, tells, used], i) => ({ id: "c" + i, name, tells, used }));
+
+const $ = s => document.querySelector(s);
+const cardsEl = $("#cards"), binsEl = $("#bins"), tray = $("#tray");
+let placement = {};   // binId -> cardId
+let selected = null;  // cardId selected by tap
+let checked = false;
+let locked = new Set(); // card ids matched correctly and locked in
+const isRight = b => placement[b] === "c" + b.slice(1);
+
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const cardById = id => DATA.find(d => d.id === id);
+let cardOrder = [], binOrder = [];
+
+function setup() {
+  cardOrder = shuffle(DATA.map(d => d.id));
+  binOrder = shuffle(DATA.map(d => "b" + d.id.slice(1)));
+  placement = {}; selected = null; checked = false; locked = new Set();
+  render();
+}
+
+function makeCard(d) {
+  const el = document.createElement("div");
+  el.className = "card"; el.tabIndex = 0; el.dataset.id = d.id;
+  el.setAttribute("role", "button");
+  el.innerHTML = `<span class="name"></span>`;
+  el.querySelector(".name").textContent = d.name;
+  if (selected === d.id) el.classList.add("selected");
+  if (locked.has(d.id)) { el.classList.add("locked"); el.tabIndex = -1; el.removeAttribute("role"); return el; }
+  el.addEventListener("pointerdown", startDrag);
+  el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleSelect(d.id); } });
+  return el;
+}
+
+function render() {
+  const placedIds = new Set(Object.values(placement));
+  cardsEl.innerHTML = "";
+  const inTray = cardOrder.filter(id => !placedIds.has(id));
+  inTray.forEach(id => cardsEl.appendChild(makeCard(cardById(id))));
+  if (!inTray.length) cardsEl.innerHTML = `<div class="empty-tray">All cards placed. Select <b>Check answers</b>.</div>`;
+  $("#trayCount").textContent = inTray.length + " left";
+  $("#placed").textContent = placedIds.size;
+
+  binsEl.innerHTML = "";
+  binOrder.forEach(bid => {
+    const d = cardById("c" + bid.slice(1));
+    const bin = document.createElement("div");
+    bin.className = "bin"; bin.dataset.bin = bid; bin.tabIndex = 0;
+    bin.setAttribute("role", "button");
+    bin.setAttribute("aria-label", "What it tells us: " + d.tells);
+    const cid = placement[bid];
+    const isLocked = cid && locked.has(cid);
+    let verdict = "";
+    if (isLocked) { bin.classList.add("correct"); verdict = `<span class="verdict">✓ Correct</span>`; }
+    else if (checked && cid) { bin.classList.add("wrong"); verdict = `<span class="verdict">✗ Try again</span>`; }
+    bin.innerHTML = `<div><div class="label">What it tells us</div><div class="used"></div></div><div class="slot"></div>${verdict}` +
+      (isLocked ? `<div class="reveal"><div class="label">Commonly used for</div><div class="reveal-text"></div></div>` : "");
+    bin.querySelector(".used").textContent = d.tells;
+    if (isLocked) bin.querySelector(".reveal-text").textContent = d.used;
+    const slot = bin.querySelector(".slot");
+    if (cid) { slot.classList.add("filled"); slot.appendChild(makeCard(cardById(cid))); }
+    else slot.textContent = "Drop test here";
+    if (selected && !isLocked) bin.classList.add("armed");
+    bin.addEventListener("click", e => { if (e.target.closest(".card")) return; if (selected) place(selected, bid); });
+    bin.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target === bin && selected) { e.preventDefault(); place(selected, bid); } });
+    binsEl.appendChild(bin);
+  });
+  $("#returnBtn").disabled = !checked || !binOrder.some(b => placement[b] && !isRight(b));
+}
+
+function binOfCard(cid) { return Object.keys(placement).find(b => placement[b] === cid); }
+
+function place(cid, bid) {
+  if (locked.has(cid) || (placement[bid] && locked.has(placement[bid]))) { render(); return; }
+  const from = binOfCard(cid);
+  const existing = placement[bid];
+  if (from) delete placement[from];
+  if (existing && existing !== cid) { if (from) placement[from] = existing; }
+  placement[bid] = cid;
+  selected = null; clearCheck(); render();
+}
+function unplace(cid) { const from = binOfCard(cid); if (from) delete placement[from]; selected = null; clearCheck(); render(); }
+function toggleSelect(cid) { selected = selected === cid ? null : cid; render(); }
+function clearCheck() { if (checked) { checked = false; $("#banner").hidden = true; } }
+
+tray.addEventListener("click", e => { if (!e.target.closest(".card") && selected && binOfCard(selected)) unplace(selected); });
+
+/* Pointer drag (mouse + touch). A press without movement counts as a tap-to-select. */
+let drag = null;
+function startDrag(e) {
+  if (e.button !== undefined && e.button !== 0) return;
+  const el = e.currentTarget;
+  drag = { id: el.dataset.id, el, x0: e.clientX, y0: e.clientY, moved: false, ghost: null, over: null };
+  el.setPointerCapture(e.pointerId);
+  el.addEventListener("pointermove", moveDrag);
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", cancelDrag);
+}
+function moveDrag(e) {
+  if (!drag) return;
+  if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6) return;
+  if (!drag.moved) {
+    drag.moved = true;
+    const g = drag.el.cloneNode(true); g.classList.add("ghost"); g.classList.remove("selected");
+    document.body.appendChild(g); drag.ghost = g; drag.el.classList.add("dragging-src");
+  }
+  drag.ghost.style.left = (e.clientX - 40) + "px";
+  drag.ghost.style.top = (e.clientY - 20) + "px";
+  const under = document.elementFromPoint(e.clientX, e.clientY);
+  const target = under && (under.closest(".bin") || under.closest(".tray"));
+  if (drag.over && drag.over !== target) drag.over.classList.remove("drop-hover");
+  if (target) target.classList.add("drop-hover");
+  drag.over = target;
+  // auto-scroll near viewport edges
+  if (e.clientY < 60) window.scrollBy(0, -12); else if (e.clientY > innerHeight - 60) window.scrollBy(0, 12);
+}
+function cleanupDrag() {
+  if (!drag) return;
+  drag.el.removeEventListener("pointermove", moveDrag);
+  drag.el.removeEventListener("pointerup", endDrag);
+  drag.el.removeEventListener("pointercancel", cancelDrag);
+  if (drag.ghost) drag.ghost.remove();
+  if (drag.over) drag.over.classList.remove("drop-hover");
+  drag.el.classList.remove("dragging-src");
+}
+function endDrag() {
+  if (!drag) return;
+  const d = drag; cleanupDrag(); drag = null;
+  if (!d.moved) { toggleSelect(d.id); return; }
+  if (d.over && d.over.classList.contains("bin")) place(d.id, d.over.dataset.bin);
+  else if (d.over && d.over.classList.contains("tray")) unplace(d.id);
+  else render();
+}
+function cancelDrag() { cleanupDrag(); drag = null; render(); }
+
+$("#checkBtn").addEventListener("click", () => {
+  checked = true; selected = null;
+  const total = DATA.length;
+  binOrder.forEach(b => { if (isRight(b)) locked.add(placement[b]); });
+  const right = locked.size;
+  const placedN = Object.keys(placement).length;
+  const banner = $("#banner");
+  banner.hidden = false;
+  banner.className = "banner" + (right === total ? " win" : "");
+  banner.innerHTML = right === total
+    ? `<b>${total}/${total} correct.</b> Every test is matched to what it tells us. Review the “commonly used for” notes on each box.`
+    : `<b>${right}/${total} correct.</b> ${placedN - right} placed incorrectly${placedN < total ? `, ${total - placedN} still in the tray` : ""}. Use <b>Return incorrect</b> to send the misses back and try again.`;
+  render();
+});
+$("#returnBtn").addEventListener("click", () => {
+  binOrder.forEach(b => { if (placement[b] && !isRight(b)) delete placement[b]; });
+  checked = false; $("#banner").hidden = true; render();
+});
+$("#revealBtn").addEventListener("click", () => {
+  placement = {}; binOrder.forEach(b => { placement[b] = "c" + b.slice(1); locked.add(placement[b]); });
+  checked = true; selected = null;
+  const banner = $("#banner"); banner.hidden = false; banner.className = "banner";
+  banner.innerHTML = `<b>Answer key shown.</b> Select <b>Shuffle &amp; restart</b> to try it again.`;
+  render();
+});
+$("#resetBtn").addEventListener("click", () => { $("#banner").hidden = true; setup(); });
+
+setup();
+</script>
+
+</body></html>

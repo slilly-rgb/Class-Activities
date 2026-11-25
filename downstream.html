@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Downstream: A Red Blood Cell's Journey</title>
+<style>
+:root{--ink:#fff3f1;--muted:#f1bdb8;--glass:rgba(28,3,9,.58);--line:rgba(255,190,190,.18);--accent:#ff4d63;--cyan:#8fe3ff}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1a0206;overflow:hidden;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+canvas{position:fixed;inset:0;display:block}
+.glass{background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:14px}
+#top{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;align-items:flex-start;pointer-events:none}
+#chip{padding:8px 12px;min-width:0}
+#chip .n{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+#chip .t{font-weight:750;font-size:17px;line-height:1.2;margin-top:2px}
+#chip .h{font-size:12px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:6px}
+#heart{display:inline-block;color:var(--accent);transition:transform .08s}
+#gauges{display:grid;grid-template-columns:auto auto;gap:6px 14px;padding:8px 12px;font-size:13px;flex-shrink:0}
+.g .k{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.g .v{font-variant-numeric:tabular-nums;font-weight:650;white-space:nowrap}
+.bar{height:5px;border-radius:3px;background:rgba(255,255,255,.14);margin-top:4px;overflow:hidden;width:96px}
+.bar i{display:block;height:100%;width:97%;background:linear-gradient(90deg,#6d0f2c,#ff3b4f);transition:width .2s}
+#bottom{position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;align-items:center}
+#cap{max-width:660px;width:100%;padding:12px 15px;transition:opacity .35s,transform .35s}
+#cap.hide{opacity:0;transform:translateY(8px)}
+#cap.off{display:none}
+#cap h3{margin:0 0 4px;font-size:15px;color:#ffd2cd;letter-spacing:.01em}
+#cap p{margin:0;font-size:14.5px;line-height:1.45}
+#ctrl{display:flex;gap:6px;align-items:center;padding:6px;max-width:660px;width:100%;position:relative}
+#ctrl button{appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);border-radius:10px;height:36px;min-width:36px;padding:0 10px;font:600 13px/1 inherit;cursor:pointer}
+#ctrl button.on{background:rgba(255,77,99,.28);border-color:rgba(255,120,130,.5)}
+#ctrl button:active{transform:scale(.96)}
+#prog{flex:1;height:36px;position:relative;cursor:pointer;min-width:60px}
+#prog .track{position:absolute;left:0;right:0;top:16px;height:4px;border-radius:2px;background:rgba(255,255,255,.14)}
+#prog .fill{position:absolute;left:0;top:16px;height:4px;border-radius:2px;background:var(--accent);width:0}
+#prog .tick{position:absolute;top:13px;width:2px;height:10px;background:rgba(255,220,220,.35);border-radius:1px}
+#route{position:absolute;bottom:52px;right:0;width:280px;max-height:60vh;overflow:auto;padding:8px;display:none}
+#route.show{display:block}
+#route button{display:flex;width:100%;text-align:left;gap:10px;align-items:center;background:none;border:0;color:var(--ink);padding:8px;border-radius:8px;font:500 14px/1.25 inherit;cursor:pointer}
+#route button:hover,#route button.cur{background:rgba(255,77,99,.2)}
+#route .num{font-size:11px;color:var(--muted);width:18px;text-align:right;flex-shrink:0}
+.overlay{position:fixed;inset:0;display:flex;justify-content:center;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:max(16px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at center,rgba(40,0,8,.35),rgba(10,0,3,.82))}
+.overlay.hidden{display:none}
+.card{max-width:520px;width:100%;padding:24px 22px;text-align:left;margin:auto 0;flex-shrink:0;height:max-content}
+.card .btns{display:flex;flex-wrap:wrap;gap:8px}
+.card .btns .ghost{margin-left:0}
+.card .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.card h1{font-size:30px;line-height:1.1;margin:6px 0 10px;letter-spacing:-.01em}
+.card h2{font-size:24px;margin:6px 0 10px}
+.card p{font-size:15px;line-height:1.5;margin:0 0 12px;color:#ffe6e3}
+.route-line{font-size:12.5px;line-height:1.7;color:var(--muted);margin:0 0 16px}
+.route-line b{color:var(--ink);font-weight:600}
+.big{appearance:none;border:0;background:var(--accent);color:#fff;font:700 16px/1 inherit;padding:14px 20px;border-radius:12px;cursor:pointer;box-shadow:0 6px 24px rgba(255,60,80,.35)}
+.ghost{appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);font:600 15px/1 inherit;padding:13px 16px;border-radius:12px;cursor:pointer;margin-left:6px}
+.card ol{margin:4px 0 16px 18px;padding:0;font-size:14px;line-height:1.5}
+.card ol li{margin-bottom:6px}
+@media (max-width:620px){
+  #top{flex-direction:column;align-items:stretch}
+  #chip .t{font-size:15px}
+  #gauges{grid-template-columns:repeat(4,auto);justify-content:space-between;font-size:12px;gap:4px 10px;padding:7px 10px}
+  .bar{width:64px}
+  #cap p{font-size:13.5px}
+  #ctrl button{padding:0 8px;font-size:12px}
+  .card h1{font-size:23px}
+  .card h2{font-size:21px}
+  .card{padding:18px 16px}
+  .card p{font-size:14px}
+  .card ol{font-size:13.5px}
+  .route-line{font-size:12px;margin-bottom:12px}
+  .big{padding:12px 16px;font-size:15px}
+  .ghost{padding:11px 14px;font-size:14px}
+  #route{width:min(280px,calc(100vw - 20px));max-height:55vh}
+}
+@media (max-height:640px){
+  #cap{padding:9px 12px}
+  #cap p{font-size:13px;line-height:1.38}
+  #cap h3{font-size:14px;margin-bottom:2px}
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="top">
+  <div id="chip" class="glass">
+    <div class="n" id="stopN">Stop 1 of 10</div>
+    <div class="t" id="stopT">Left ventricle</div>
+    <div class="h"><span id="heart">♥</span><span id="phase">diastole</span><span>· HR 75, shown at ⅓ speed</span></div>
+  </div>
+  <div id="gauges" class="glass">
+    <div class="g"><span class="k">Vessel ⌀</span><span class="v" id="gD">—</span></div>
+    <div class="g"><span class="k">Pressure</span><span class="v" id="gP">—</span></div>
+    <div class="g"><span class="k">Flow speed</span><span class="v" id="gV">—</span></div>
+    <div class="g"><span class="k">Your Hb O₂ sat</span><span class="v" id="gS">97%</span><div class="bar"><i id="gSb"></i></div></div>
+  </div>
+</div>
+
+<div id="bottom">
+  <div id="cap" class="glass"><h3 id="capT"></h3><p id="capP"></p></div>
+  <div id="ctrl" class="glass">
+    <button id="bPlay" aria-label="Play or pause">❚❚</button>
+    <button id="bRestart" aria-label="Restart">↺</button>
+    <div id="prog"><div class="track"></div><div class="fill" id="pFill"></div></div>
+    <button id="bSpeed" aria-label="Playback speed">1×</button>
+    <button id="bStops" aria-label="Pause at each stop" title="Pause at each new caption">Stops</button>
+    <button id="bCC" class="on" aria-label="Captions">CC</button>
+    <button id="bRoute" aria-label="Route">Route</button>
+    <div id="route" class="glass"></div>
+  </div>
+</div>
+
+<div id="start" class="overlay">
+  <div class="card glass">
+    <div class="eyebrow">A first-person trip through the circulation</div>
+    <h1>Downstream: A Red Blood Cell's Journey</h1>
+    <p>You're one freshly oxygenated red blood cell, 7.5 µm across and carrying about a billion O₂ molecules. Ride from the left ventricle all the way to the capillaries of the left thumb, then drop off your oxygen.</p>
+    <div class="route-line"><b>Route:</b> left ventricle → aortic valve → ascending aorta → aortic arch → left subclavian → axillary → brachial → radial → palmar arch → princeps pollicis → arterioles → capillaries → venule</div>
+    <div class="btns"><button class="big" id="bGo">Begin the journey ▸</button>
+    <button class="ghost" id="bGoStops">Start with pauses</button></div>
+  </div>
+</div>
+
+<div id="end" class="overlay hidden">
+  <div class="card glass">
+    <div class="eyebrow">Delivery complete</div>
+    <h2>Oxygen delivered.</h2>
+    <p>You left the heart bright red and nearly saturated. You leave the thumb darker and about ¾ saturated, carrying CO₂ back toward the lungs.</p>
+    <div class="eyebrow" style="margin-bottom:6px">Talk it through</div>
+    <ol>
+      <li>Why is there no pulse left by the time you reach the capillaries?</li>
+      <li>Before drawing an ABG from the radial artery, what do you check, and which structure makes that check meaningful?</li>
+      <li>Why did your color change in the capillary, and what bedside findings reflect perfusion of a bed like this one?</li>
+    </ol>
+    <div class="btns"><button class="big" id="bAgain">Ride again ↺</button>
+    <button class="ghost" id="bPick">Pick a stop</button></div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const TAU=Math.PI*2;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const mix=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+const rgb=(c,al)=>al===undefined?`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`:`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${al})`;
+const hash=n=>{const x=Math.sin(n*127.1+311.7)*43758.5453;return x-Math.floor(x);};
+const smooth=t=>t*t*(3-2*t);
+
+/* ---------- Route definition ---------- */
+const SEG=[
+ {id:'lv',  name:'Left ventricle',             len:42, r:9,   spd:5,   pul:1,   bend:[0,0],          wall:[150,36,50],  fog:[58,5,15], fd:20, tex:'trab',   cells:55, dia:'LV cavity',   press:'~120 / 8 mmHg', vel:'ejection ~1 m/s'},
+ {id:'asc', name:'Ascending aorta',            len:50, r:5,   spd:12,  pul:1,   bend:[0.004,-0.02],  wall:[206,122,128],fog:[70,6,16], fd:26, tex:'smooth', cells:70, dia:'~25–30 mm',   press:'~120 / 80',     vel:'peak ~100 cm/s'},
+ {id:'arch',name:'Aortic arch',                len:50, r:5,   spd:12,  pul:1,   bend:[-0.022,-0.008],wall:[206,122,128],fog:[70,6,16], fd:26, tex:'smooth', cells:70, dia:'~25 mm',      press:'~120 / 80',     vel:'peak ~90 cm/s'},
+ {id:'sub', name:'Left subclavian → axillary', len:60, r:3.4, spd:10,  pul:.9,  bend:[-0.012,0.016], wall:[200,110,116],fog:[68,6,16], fd:22, tex:'smooth', cells:60, dia:'~6–10 mm',    press:'~120 / 80',     vel:'peak ~80 cm/s'},
+ {id:'bra', name:'Brachial artery',            len:75, r:2.6, spd:9,   pul:.85, bend:[0.002,0.005],  wall:[196,102,110],fog:[66,6,16], fd:20, tex:'smooth', cells:55, dia:'~3–5 mm',     press:'~120 / 80',     vel:'peak ~70 cm/s'},
+ {id:'rad', name:'Radial artery',              len:55, r:2.0, spd:8,   pul:.8,  bend:[0.007,0.003],  wall:[190,96,106], fog:[64,6,17], fd:17, tex:'smooth', cells:45, dia:'~2–3 mm',     press:'~125 / 78',     vel:'peak ~50 cm/s'},
+ {id:'palm',name:'Palmar arch → thumb',        len:45, r:1.5, spd:6,   pul:.6,  bend:[0.02,-0.01],   wall:[186,90,100], fog:[62,6,18], fd:14, tex:'smooth', cells:35, dia:'~1–2 mm',     press:'~110 / 75',     vel:'~20–30 cm/s'},
+ {id:'art', name:'Arterioles',                 len:35, r:1.0, spd:3.5, pul:.25, bend:[-0.014,0.01],  wall:[176,78,92],  fog:[58,6,18], fd:11, tex:'muscle', cells:20, dia:'~10–100 µm',  press:'mean ~85 → 35', vel:'a few mm/s'},
+ {id:'cap', name:'Capillary',                  len:60, r:0.62,spd:2.2, pul:0,   bend:[0.004,0.003],  wall:[212,146,146],fog:[96,30,38], fd:7,  tex:'cap',    cells:0,  dia:'~5–10 µm',    press:'~35 → 15 mmHg', vel:'~0.5–1 mm/s'},
+ {id:'ven', name:'Postcapillary venule',       len:32, r:0.95,spd:3,   pul:0,   bend:[0,0],          wall:[150,72,96],  fog:[44,8,26], fd:9,  tex:'smooth', cells:25, dia:'~10–30 µm',   press:'~15 mmHg',      vel:'~1 mm/s'},
+];
+const S0={};let acc=0;SEG.forEach(s=>{s.s0=acc;S0[s.id]=acc;acc+=s.len;});
+const TOTAL=acc;
+const CAP0=S0.cap, CAP1=S0.cap+SEG[8].len;
+const segAt=s=>{for(let i=SEG.length-1;i>=0;i--)if(s>=SEG[i].s0)return i;return 0;};
+
+/* Smoothed property tables */
+const RES=0.5,N=Math.ceil((TOTAL+100)/RES);
+const K=['r','bx','by','spd','pul','fd','w0','w1','w2','f0','f1','f2'];
+const T={};K.forEach(k=>T[k]=new Float32Array(N));
+for(let i=0;i<N;i++){
+  const s=i*RES,sg=SEG[segAt(s)];
+  let bx=sg.bend[0],by=sg.bend[1];
+  if(sg.id==='cap'){bx+=0.03*Math.sin(s*0.45);by+=0.022*Math.cos(s*0.37);}
+  if(sg.id==='art'){bx+=0.01*Math.sin(s*0.3);}
+  T.r[i]=sg.r;T.bx[i]=bx;T.by[i]=by;T.spd[i]=sg.spd;T.pul[i]=sg.pul;T.fd[i]=sg.fd;
+  T.w0[i]=sg.wall[0];T.w1[i]=sg.wall[1];T.w2[i]=sg.wall[2];T.f0[i]=sg.fog[0];T.f1[i]=sg.fog[1];T.f2[i]=sg.fog[2];
+}
+function blur(a,rad){const b=new Float32Array(a.length);let sum=0;const n=a.length;
+  for(let i=-rad;i<=rad;i++)sum+=a[clamp(i,0,n-1)];
+  for(let i=0;i<n;i++){b[i]=sum/(2*rad+1);sum+=a[clamp(i+rad+1,0,n-1)]-a[clamp(i-rad,0,n-1)];}
+  a.set(b);}
+K.forEach(k=>{blur(T[k],9);blur(T[k],9);});
+const SPH=S0.art+SEG[7].len-2; // capillary-entry smooth muscle
+for(let i=0;i<N;i++){const s=i*RES;T.r[i]*=1-0.38*Math.exp(-Math.pow((s-SPH)/1.1,2));}
+const g=(k,s)=>{let i=s/RES;if(i<0)i=0;if(i>N-2)i=N-2;const i0=i|0,t=i-i0;return T[k][i0]*(1-t)+T[k][i0+1]*t;};
+
+/* Features along the route */
+const FEAT=[];
+const at=(id,o)=>S0[id]+o;
+FEAT.push({t:'valve',s:at('lv',41)});
+FEAT.push({t:'hole',s:at('asc',4),a:-2.5,sz:.2,label:'L coronary a.'});
+FEAT.push({t:'hole',s:at('asc',4.6),a:-0.4,sz:.2,label:'R coronary a.'});
+FEAT.push({t:'hole',s:at('arch',10),a:-1.15,sz:.38,label:'Brachiocephalic trunk'});
+FEAT.push({t:'hole',s:at('arch',24),a:-1.6,sz:.3,label:'L common carotid a.'});
+FEAT.push({t:'hole',s:at('arch',42),a:1.75,sz:.55,label:'Descending aorta (most flow)'});
+FEAT.push({t:'hole',s:at('sub',8),a:-1.0,sz:.26,label:'Vertebral a.'});
+FEAT.push({t:'gate',s:at('sub',32),label:'Subclavian → Axillary · 1st rib'});
+FEAT.push({t:'gate',s:at('bra',0),label:'Axillary → Brachial · teres major'});
+FEAT.push({t:'hole',s:at('bra',14),a:2.6,sz:.26,label:'Deep brachial a.'});
+FEAT.push({t:'hole',s:at('bra',72),a:0.35,sz:.5,label:'Ulnar a.'});
+FEAT.push({t:'hole',s:at('rad',44),a:-0.6,sz:.3,label:'Superficial palmar branch'});
+FEAT.push({t:'hole',s:at('palm',14),a:1.2,sz:.45,label:'Deep palmar arch (continues)'});
+FEAT.push({t:'gate',s:at('palm',20),label:'Princeps pollicis → thumb'});
+FEAT.push({t:'hole',s:at('art',10),a:2.1,sz:.4,label:'Branch arteriole'});
+FEAT.push({t:'hole',s:at('art',21),a:-0.9,sz:.38,label:''});
+FEAT.push({t:'hole',s:at('ven',12),a:-2.1,sz:.42,label:'Another capillary joins'});
+for(let s=CAP0+1;s<CAP1;s+=1.5)FEAT.push({t:'nuc',s,a:hash(s)*TAU});
+
+/* Captions */
+const CAPS=[
+ ['lv',0,'Left ventricle','You are one red blood cell, just loaded with O₂ in the lungs. The mitral valve has shut behind you; when this thick-walled chamber squeezes, you’re going out the only exit.'],
+ ['lv',30,'Aortic valve ahead','Once LV pressure tops aortic pressure (~80 mmHg), the three semilunar cusps swing open. That opening is your ticket out.'],
+ ['asc',2,'Coronary arteries','The two openings just past the valve lead to the left and right coronary arteries. The heart feeds itself first, mostly during diastole.'],
+ ['asc',14,'Ascending aorta','The body’s largest artery, about 2.5–3 cm wide. Its elastic wall stretches with each beat and recoils between beats, which keeps blood moving during diastole.'],
+ ['arch',4,'Aortic arch','Three branches come off the top of the arch: the brachiocephalic trunk, the left common carotid, and the left subclavian.'],
+ ['arch',34,'Taking the exit','You’re bound for the left hand, so you leave through the left subclavian. Most blood keeps going down the descending aorta. (The right hand is reached through the brachiocephalic trunk instead.)'],
+ ['sub',3,'Left subclavian artery','The vertebral artery branches off here on its way up to the brain.'],
+ ['sub',28,'Same vessel, new name','At the lateral border of the first rib, the subclavian becomes the axillary artery.'],
+ ['bra',0,'Brachial artery','Past the lower border of teres major it’s called the brachial artery. This is the artery under the BP cuff, and the one you listen to for Korotkoff sounds.'],
+ ['bra',62,'Cubital fossa','Just below the elbow crease, the brachial splits into the radial and ulnar arteries. You stay on the thumb side and take the radial.'],
+ ['rad',3,'Radial artery','The usual pulse check and ABG site. The systolic peak here can run a little higher than in the aorta, because the pressure wave sharpens as it travels out.'],
+ ['palm',2,'Palmar arches','In the hand the radial and ulnar arteries join through the palmar arches. The modified Allen test checks this backup loop before a radial stick.'],
+ ['palm',20,'Princeps pollicis','You branch toward the thumb. Destination: the capillary bed of the thumb pad.'],
+ ['art',2,'Arterioles','These are the resistance vessels. Rings of smooth muscle tighten or relax to set flow and BP, and the biggest pressure drop in the whole circulation happens here. The pulse fades out.'],
+ ['art',28,'Capillary entrance','Smooth muscle at the entry controls which capillaries get perfused at any moment.'],
+ ['cap',1,'Capillary','5–10 µm wide, which is narrower than you (~7.5 µm). You fold into a parachute shape and squeeze through in single file.'],
+ ['cap',13,'Unloading oxygen','Tissue PO₂ is low, so O₂ comes off hemoglobin and diffuses through a wall one cell thick. CO₂ moves the other way. Your Hb saturation falls from ~97% toward ~75%.'],
+ ['cap',40,'Slow on purpose','Flow is about 0.5–1 mm/s, so a pass takes about 1–2 seconds. That’s long enough for gas exchange. Capillary refill is a bedside check on beds like this one.'],
+ ['ven',2,'Postcapillary venule','Delivery done. Now darker red, you drift into a venule and head back to the right heart and lungs to reload.'],
+].map(c=>({s:at(c[0],c[1]),title:c[2],text:c[3]}));
+
+/* ---------- Canvas ---------- */
+const cvs=document.getElementById('c'),ctx=cvs.getContext('2d');
+let W,H,F,DPR;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cvs.width=W*DPR;cvs.height=H*DPR;cvs.style.width=W+'px';cvs.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);F=Math.min(W,H)*0.62;}
+addEventListener('resize',resize);resize();
+
+/* ---------- State ---------- */
+let cam=0.5,time=0,playing=false,speedMul=1,stopsMode=false,lastCap=-1,ended=false,beatEnv=0;
+const BEAT=2.4; // 75 bpm shown at 1/3 speed
+let parts=[],fx=[];
+const satAt=s=>s<CAP0+2?97.5:s>CAP1-4?75:97.5-22.5*smooth(clamp((s-CAP0-2)/(CAP1-CAP0-6),0,1));
+const cellCol=s=>mix([214,28,44],[128,14,44],(97.5-satAt(s))/22.5);
+const inCap=s=>s>CAP0-0.6&&s<CAP1+0.2;
+
+function sysAt(t){const ph=(t%BEAT)/BEAT;return ph<0.36?Math.sin(Math.PI*ph/0.36):0;}
+function Rat(s,sys){
+  let r=g('r',s);
+  const lvW=clamp((S0.asc+2-s)/8,0,1);
+  r*=1-0.3*lvW*beatEnv;
+  r*=1+0.07*sys*g('pul',s)*(1-lvW);
+  return r;
+}
+function spawn(sMin,sMax){
+  let s=sMin+Math.random()*(sMax-sMin);
+  if(inCap(s))return;
+  const u=Math.random();
+  const type=u<0.92?'rbc':u<0.935?'wbc':'plt';
+  parts.push({s,a:Math.random()*TAU,rf:Math.sqrt(Math.random())*0.95,type,tilt:Math.random()*TAU,spin:(Math.random()-.5)*2.2,rot:Math.random()*TAU});
+}
+function resetParts(){parts=[];fx=[];const n=SEG[segAt(cam+15)].cells;for(let i=0;i<n;i++)spawn(cam+1,cam+42);}
+
+/* ---------- Drawing helpers ---------- */
+function ellipse(x,y,rx,ry,rot){ctx.beginPath();ctx.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),rot||0,0,TAU);}
+function drawRBC(x,y,sz,tilt,rot,col,fog,f){
+  const h=sz*(0.3+0.7*Math.abs(Math.cos(tilt)));
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);
+  ellipse(0,0,sz/2,h/2);ctx.fillStyle=rgb(mix(col,fog,f));ctx.fill();
+  ellipse(0,0,sz*0.27,h*0.27);ctx.fillStyle=rgb(mix(mix(col,[60,0,10],.35),fog,f));ctx.fill();
+  if(sz>6){ellipse(-sz*0.08,-h*0.14,sz*0.36,h*0.26);ctx.strokeStyle=rgb(mix([255,170,170],fog,f),0.35);ctx.lineWidth=Math.max(1,sz*0.04);ctx.stroke();}
+  ctx.restore();
+}
+function drawWBC(x,y,sz,rot,fog,f){
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);
+  ellipse(0,0,sz/2,sz/2*0.94);ctx.fillStyle=rgb(mix([236,222,226],fog,f));ctx.fill();
+  ctx.fillStyle=rgb(mix([140,96,168],fog,f));
+  [[-.15,-.08],[.12,-.12],[.05,.14]].forEach(p=>{ellipse(p[0]*sz,p[1]*sz,sz*0.15,sz*0.12);ctx.fill();});
+  ctx.restore();
+}
+function drawPLT(x,y,sz,rot,fog,f){ctx.save();ctx.translate(x,y);ctx.rotate(rot);ellipse(0,0,sz/2,sz/3);ctx.fillStyle=rgb(mix([190,150,205],fog,f));ctx.fill();ctx.restore();}
+let LABELS=[];
+function drawLabel(x,y,text,alpha,color){if(text&&alpha>0.02)LABELS.push([x,y,text,alpha,color]);}
+function paintLabel(x,y,text,alpha,color){
+  ctx.font='600 12px ui-sans-serif,system-ui,sans-serif';
+  const w=ctx.measureText(text).width+14;
+  x=clamp(x-w/2,6,W-w-6);y=clamp(y,70,H-140);
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle='rgba(20,2,8,.72)';ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y-11,w,22,6):ctx.rect(x,y-11,w,22);ctx.fill();
+  ctx.strokeStyle=color||'rgba(255,200,200,.35)';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#fff1ee';ctx.textBaseline='middle';ctx.fillText(text,x+7,y+0.5);
+  ctx.globalAlpha=1;
+}
+
+/* ---------- Frame ---------- */
+const NR=82,SP=0.55;
+const RD=new Float32Array(NR),OX=new Float32Array(NR),OY=new Float32Array(NR),SX=new Float32Array(NR),SY=new Float32Array(NR),SR=new Float32Array(NR),RW=new Float32Array(NR);
+let last=performance.now();
+
+function frame(now){
+  let dt=Math.min(0.05,(now-last)/1000);last=now;
+  if(!playing)dt=0;
+  dt*=speedMul;
+  time+=dt;
+  const sys=sysAt(time);
+  beatEnv+=(sys-beatEnv)*Math.min(1,dt*10);
+  const P=g('pul',cam);
+  const v=g('spd',cam)*(1+P*(1.9*sys-0.65));
+  cam+=v*dt;
+  if(cam>=TOTAL-2&&!ended){ended=true;playing=false;updPlay();document.getElementById('end').classList.remove('hidden');}
+
+  /* particles */
+  const target=SEG[segAt(cam+15)].cells;
+  for(let i=parts.length-1;i>=0;i--){
+    const p=parts[i];p.s+=v*dt*(1.12-0.85*p.rf*p.rf);p.tilt+=p.spin*dt;
+    const d=p.s-cam;if(d<0.3||d>46||inCap(p.s))parts.splice(i,1);
+  }
+  let tries=0;while(parts.length<target&&tries++<5)spawn(cam+30,cam+44);
+  if(parts.length<target*0.6){for(let i=0;i<4;i++)spawn(cam+2,cam+30);}
+
+  /* gas exchange fx (screen space) */
+  if(cam>CAP0+4&&cam<CAP1-1&&dt>0){
+    const m=Math.min(W,H);
+    if(Math.random()<dt*16){const a=Math.random()*TAU,r=Math.random()*m*0.12;fx.push({o2:1,x:W/2+Math.cos(a)*r,y:H/2+Math.sin(a)*r,vx:Math.cos(a)*(70+Math.random()*90)*m/600,vy:Math.sin(a)*(70+Math.random()*90)*m/600,life:0,max:1.8});}
+    if(Math.random()<dt*6){const a=Math.random()*TAU,r=m*0.62;fx.push({o2:0,x:W/2+Math.cos(a)*r,y:H/2+Math.sin(a)*r,vx:-Math.cos(a)*60*m/600,vy:-Math.sin(a)*60*m/600,life:0,max:2.2});}
+  }
+  for(let i=fx.length-1;i>=0;i--){const e=fx[i];e.life+=dt;e.x+=e.vx*dt;e.y+=e.vy*dt;if(e.life>e.max)fx.splice(i,1);}
+
+  render(sys);
+  hud(sys);
+  requestAnimationFrame(frame);
+}
+
+function render(sys){
+  const Rc=g('r',cam);
+  const swx=Math.sin(time*0.7)*0.1*Rc+Math.sin(time*1.9)*0.02*Rc;
+  const swy=Math.cos(time*0.53)*0.08*Rc+sys*g('pul',cam)*0.03*Rc;
+  const far=cam+40;
+  ctx.fillStyle=rgb([g('f0',far)*0.75,g('f1',far)*0.75,g('f2',far)*0.75]);ctx.fillRect(0,0,W,H);
+
+  const frac=((cam%SP)+SP)%SP,d0=SP-frac+0.12;
+  let ox=0,oy=0,vx=0,vy=0,pd=0;const maxR=8*Math.max(W,H);
+  for(let k=0;k<NR;k++){
+    const d=d0+k*SP,st=d-pd,s=cam+d;
+    vx+=g('bx',s)*st;vy+=g('by',s)*st;ox+=vx*st;oy+=vy*st;pd=d;
+    RD[k]=d;OX[k]=ox;OY[k]=oy;RW[k]=Rat(s,sys);
+    SX[k]=W/2+(ox-swx)*F/d;SY[k]=H/2+(oy-swy)*F/d;SR[k]=Math.min(RW[k]*F/d,maxR);
+  }
+  const offAt=d=>{let k=Math.floor((d-d0)/SP);k=clamp(k,0,NR-2);const t=clamp((d-RD[k])/SP,0,1);return[OX[k]+(OX[k+1]-OX[k])*t,OY[k]+(OY[k+1]-OY[k])*t];};
+  const proj=(d,lx,ly)=>{const o=offAt(d);return[W/2+(o[0]+lx-swx)*F/d,H/2+(o[1]+ly-swy)*F/d];};
+  const fogAt=s=>[g('f0',s),g('f1',s),g('f2',s)];
+  const fF=(d,s)=>1-Math.exp(-d/g('fd',s));
+
+  /* collect objects */
+  const objs=[];
+  for(const p of parts){
+    const d=p.s-cam;const r=Rat(p.s,sys)*p.rf*0.86;
+    objs.push({d,fn:()=>{
+      const [x,y]=proj(d,Math.cos(p.a)*r,Math.sin(p.a)*r);
+      const fog=fogAt(p.s),f=fF(d,p.s);
+      if(p.type==='rbc'){const sz=0.42*F/d;if(sz<0.7||sz>4*Math.max(W,H))return;drawRBC(x,y,sz,p.tilt,p.rot,cellCol(p.s),fog,f);}
+      else if(p.type==='wbc'){const sz=0.8*F/d;if(sz<0.7||sz>4*Math.max(W,H))return;drawWBC(x,y,sz,p.rot,fog,f);}
+      else{const sz=0.16*F/d;if(sz<0.6)return;drawPLT(x,y,sz,p.rot+p.tilt*0.3,fog,f);}
+    }});
+  }
+  /* single-file capillary cells ahead of you */
+  for(let n=0;n<16;n++){
+    const s=cam+2.4+n*2.6+Math.sin(time*1.3+n)*0.08;
+    if(s<CAP0+0.3||s>CAP1-0.2)continue;
+    const d=s-cam;
+    objs.push({d,fn:()=>{
+      const [x,y]=proj(d,0,0);const rr=Rat(s,sys)*F/d;const fog=fogAt(s),f=fF(d,s),col=cellCol(s);
+      const wob=Math.sin(time*2+n)*0.04;
+      ctx.save();ctx.translate(x,y);ctx.rotate(wob);
+      ellipse(0,0,rr*0.86,rr*0.8);ctx.fillStyle=rgb(mix(col,fog,f));ctx.fill();
+      ellipse(0,-rr*0.16,rr*0.6,rr*0.46);ctx.fillStyle=rgb(mix(mix(col,[50,0,12],.4),fog,f));ctx.fill();
+      ellipse(0,rr*0.28,rr*0.62,rr*0.22);ctx.fillStyle=rgb(mix(mix(col,[255,160,160],.18),fog,f));ctx.fill();
+      ctx.restore();
+    }});
+  }
+  for(const ft of FEAT){
+    const d=ft.s-cam;if(d<0.25||d>RD[NR-1])continue;
+    if(ft.t==='hole'){
+      objs.push({d,fn:()=>{
+        const R=Rat(ft.s,sys);const [x,y]=proj(d,Math.cos(ft.a)*R*0.8,Math.sin(ft.a)*R*0.8);const rr=R*F/d;
+        const fog=fogAt(ft.s),f=fF(d,ft.s);
+        ellipse(x,y,rr*ft.sz,rr*ft.sz*0.55,ft.a+Math.PI/2);ctx.fillStyle=rgb(mix([28,2,8],fog,f*0.6));ctx.fill();
+        ctx.strokeStyle=rgb(mix([235,160,165],fog,f),0.7);ctx.lineWidth=Math.max(1,rr*0.025);ctx.stroke();
+        if(ft.label&&d>1.6&&d<22)drawLabel(x,y-rr*ft.sz*0.7-14,ft.label,clamp((22-d)/6,0,1)*clamp((d-1.6)/2,0,1));
+      }});
+    }else if(ft.t==='gate'){
+      objs.push({d,fn:()=>{
+        const R=Rat(ft.s,sys);const [x,y]=proj(d,0,0);const rr=R*F/d*0.93;
+        const al=clamp((24-d)/8,0,1)*clamp((d-0.6)/2,0,1);
+        ctx.save();ctx.setLineDash([rr*0.08,rr*0.06]);ctx.strokeStyle=`rgba(143,227,255,${0.75*al})`;ctx.lineWidth=Math.max(1.5,rr*0.02);
+        ctx.beginPath();ctx.arc(x,y,rr,0,TAU);ctx.stroke();ctx.restore();
+        drawLabel(x,y-rr*0.55,ft.label,al,'rgba(143,227,255,.6)');
+      }});
+    }else if(ft.t==='nuc'){
+      objs.push({d,fn:()=>{
+        const R=Rat(ft.s,sys);const [x,y]=proj(d,Math.cos(ft.a)*R*0.9,Math.sin(ft.a)*R*0.9);const rr=R*F/d;
+        const f=fF(d,ft.s);ellipse(x,y,rr*0.22,rr*0.1,ft.a+Math.PI/2);ctx.fillStyle=rgb(mix([168,96,150],fogAt(ft.s),f),0.85);ctx.fill();
+      }});
+    }else if(ft.t==='valve'){
+      objs.push({d,fn:()=>{
+        const R=Rat(ft.s,sys);const [x,y]=proj(d,0,0);const rr=R*F/d;
+        const open=clamp(Math.max(sys*1.05,1-(d-2)/9),0,1);
+        const fog=fogAt(ft.s),f=fF(d,ft.s);const col=mix([238,206,196],fog,f),edge=mix([150,90,90],fog,f);
+        for(let i=0;i<3;i++){
+          const a0=-Math.PI/2+i*TAU/3-Math.PI/3+0.02,a1=a0+TAU/3-0.04;
+          const rin=rr*open*0.94;
+          ctx.beginPath();ctx.arc(x,y,rr,a0,a1);
+          if(rin<1){ctx.lineTo(x,y);}else ctx.arc(x,y,rin,a1,a0,true);
+          ctx.closePath();ctx.fillStyle=rgb(col,0.93);ctx.fill();ctx.strokeStyle=rgb(edge);ctx.lineWidth=Math.max(1,rr*0.012);ctx.stroke();
+        }
+        if(d>2&&d<20)drawLabel(x,y-rr*0.6,open>0.6?'Aortic valve: OPEN':open>0.15?'Aortic valve: opening':'Aortic valve: closed',clamp((20-d)/5,0,1),'rgba(255,220,200,.5)');
+      }});
+    }
+  }
+  objs.sort((a,b)=>b.d-a.d);
+
+  /* walls far → near, objects interleaved */
+  let j=0;
+  for(let k=NR-2;k>=0;k--){
+    const d=RD[k],s=cam+d,sg=SEG[segAt(s)],idx=Math.floor(s/SP);
+    let tx=1;
+    if(sg.tex==='trab')tx=0.7+0.3*hash(idx);
+    else if(sg.tex==='muscle')tx=idx%3===0?0.68:(idx&1?1:0.93);
+    else if(sg.tex==='cap')tx=idx&1?1:0.95;
+    else tx=(idx&1?1:0.92)*(0.95+0.05*Math.sin(idx*0.35));
+    const lit=0.82+0.25*Math.exp(-d/3);
+    const w=[g('w0',s)*tx*lit,g('w1',s)*tx*lit,g('w2',s)*tx*lit];
+    const col=mix(w,fogAt(s),fF(d,s));
+    ctx.beginPath();ctx.arc(SX[k],SY[k],SR[k],0,TAU);ctx.moveTo(SX[k+1]+SR[k+1],SY[k+1]);ctx.arc(SX[k+1],SY[k+1],SR[k+1],0,TAU,true);
+    ctx.fillStyle=rgb(col);ctx.fill('evenodd');
+    while(j<objs.length&&objs[j].d>=d){objs[j++].fn();}
+  }
+  while(j<objs.length)objs[j++].fn();
+
+  for(const L of LABELS)paintLabel(...L);LABELS=[];
+  /* O2 / CO2 */
+  for(const e of fx){
+    const t=e.life/e.max,al=Math.min(1,t*5)*(1-t);
+    ctx.globalAlpha=al;
+    ctx.beginPath();ctx.arc(e.x,e.y,e.o2?10:9,0,TAU);ctx.fillStyle=e.o2?'rgba(140,220,255,.9)':'rgba(205,205,215,.85)';ctx.fill();
+    ctx.fillStyle=e.o2?'#08304a':'#2a2a33';ctx.font='700 9px ui-sans-serif,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(e.o2?'O₂':'CO₂',e.x,e.y+0.5);ctx.textAlign='left';
+  }
+  ctx.globalAlpha=1;
+
+  /* your own membrane: vignette tinted by your saturation */
+  const tint=cellCol(cam);
+  const m=Math.max(W,H);
+  const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.32,W/2,H/2,m*0.75);
+  gr.addColorStop(0,rgb(tint,0));gr.addColorStop(0.6,rgb(tint,0.28));gr.addColorStop(1,rgb(mix(tint,[20,0,6],.4),0.85));
+  ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
+  if(sys>0&&g('pul',cam)>0.5){ctx.fillStyle=`rgba(255,80,90,${0.06*sys*g('pul',cam)})`;ctx.fillRect(0,0,W,H);}
+}
+
+/* ---------- HUD ---------- */
+const $=id=>document.getElementById(id);
+const el={stopN:$('stopN'),stopT:$('stopT'),gD:$('gD'),gP:$('gP'),gV:$('gV'),gS:$('gS'),gSb:$('gSb'),heart:$('heart'),phase:$('phase'),cap:$('cap'),capT:$('capT'),capP:$('capP'),pFill:$('pFill')};
+let lastSeg=-1,ccOn=true;
+function setText(e,t){if(e.textContent!==t)e.textContent=t;}
+function hud(sys){
+  const i=segAt(cam),sg=SEG[i];
+  if(i!==lastSeg){lastSeg=i;setText(el.stopN,`Stop ${i+1} of ${SEG.length}`);setText(el.stopT,sg.name);setText(el.gD,sg.dia);setText(el.gP,sg.press);setText(el.gV,sg.vel);
+    document.querySelectorAll('#route button').forEach((b,bi)=>b.classList.toggle('cur',bi===i));}
+  const sat=satAt(cam);setText(el.gS,Math.round(sat)+'%');el.gSb.style.width=sat+'%';
+  const P=g('pul',cam);
+  el.heart.style.transform=`scale(${1+0.45*sys})`;
+  setText(el.phase,P<0.15?'pulse damped out':sys>0?'systole':'diastole');
+  el.pFill.style.width=(clamp(cam/TOTAL,0,1)*100)+'%';
+  let ci=-1;for(let k=0;k<CAPS.length;k++)if(cam>=CAPS[k].s)ci=k;
+  if(ci!==lastCap){lastCap=ci;
+    if(ci>=0){el.cap.classList.add('hide');setTimeout(()=>{setText(el.capT,CAPS[ci].title);setText(el.capP,CAPS[ci].text);el.cap.classList.remove('hide');},180);
+      if(stopsMode&&playing&&ci>0){playing=false;updPlay();}}
+  }
+}
+
+/* ---------- Controls ---------- */
+const bPlay=$('bPlay'),bSpeed=$('bSpeed'),bCC=$('bCC'),bStops=$('bStops'),bRoute=$('bRoute'),route=$('route');
+function updPlay(){bPlay.textContent=playing?'❚❚':'▶';}
+function jump(s){cam=clamp(s,0.5,TOTAL-3);ended=false;$('end').classList.add('hidden');resetParts();lastCap=-2;lastSeg=-1;}
+function begin(stops){stopsMode=stops;bStops.classList.toggle('on',stops);$('start').classList.add('hidden');playing=true;updPlay();}
+$('bGo').onclick=()=>begin(false);
+$('bGoStops').onclick=()=>begin(true);
+bPlay.onclick=()=>{if(ended)jump(0.5);playing=!playing;updPlay();};
+$('bRestart').onclick=()=>{jump(0.5);time=0;playing=true;updPlay();};
+const speeds=[0.5,1,1.5,2];let si=1;
+bSpeed.onclick=()=>{si=(si+1)%speeds.length;speedMul=speeds[si];bSpeed.textContent=speedMul+'×';};
+bCC.onclick=()=>{ccOn=!ccOn;bCC.classList.toggle('on',ccOn);el.cap.classList.toggle('off',!ccOn);};
+bStops.onclick=()=>{stopsMode=!stopsMode;bStops.classList.toggle('on',stopsMode);};
+bRoute.onclick=e=>{e.stopPropagation();route.classList.toggle('show');};
+document.addEventListener('click',e=>{if(!route.contains(e.target)&&e.target!==bRoute)route.classList.remove('show');});
+SEG.forEach((sg,i)=>{const b=document.createElement('button');b.innerHTML=`<span class="num">${i+1}</span><span>${sg.name}</span>`;b.onclick=()=>{jump(sg.s0+0.5);route.classList.remove('show');playing=true;updPlay();};route.appendChild(b);});
+const prog=$('prog');
+SEG.slice(1).forEach(sg=>{const t=document.createElement('div');t.className='tick';t.style.left=(sg.s0/TOTAL*100)+'%';prog.appendChild(t);});
+prog.onclick=e=>{const r=prog.getBoundingClientRect();jump(clamp((e.clientX-r.left)/r.width,0,1)*TOTAL);};
+$('bAgain').onclick=()=>{jump(0.5);time=0;playing=true;updPlay();};
+$('bPick').onclick=()=>{$('end').classList.add('hidden');jump(0.5);route.classList.add('show');};
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&$('start').classList.contains('hidden')){e.preventDefault();bPlay.click();}});
+
+resetParts();updPlay();
+requestAnimationFrame(t=>{last=t;requestAnimationFrame(frame);});
+})();
+</script>
+</body>
+</html>

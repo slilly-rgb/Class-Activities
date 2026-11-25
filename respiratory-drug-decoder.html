@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Respiratory Drug Decoder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a pharmacy-label reference — sticky section rail on the left, one section at a time on the right; every drug class is a "label" card, every section ends in a check. */
+:root{
+  --paper:#f6f7f8;
+  --card:#ffffff;
+  --ink:#16202b;
+  --muted:#56616d;
+  --rule:#d9dee3;
+  --accent:#a3172f;      /* cardiac crimson */
+  --accent-soft:#f8e6e9;
+  --heme:#1f4f86;        /* hematology blue */
+  --heme-soft:#e4edf8;
+  --good:#1d6b42; --good-soft:#e2f2e8;
+  --bad:#a12a1b;  --bad-soft:#fbe7e3;
+  --warn:#8a5a00; --warn-soft:#fbf0d9;
+  --display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+    --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+    --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161c; --card:#19212a; --ink:#e7ecf1; --muted:#9aa6b2; --rule:#2c3640;
+  --accent:#ef6b7f; --accent-soft:#3a1d24; --heme:#7fb0ea; --heme-soft:#1a2a3d;
+  --good:#6fd39b; --good-soft:#163024; --bad:#f08a78; --bad-soft:#3a1d18; --warn:#e8b65a; --warn-soft:#352813;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:2.1rem;font-weight:700}
+h2{font-size:1.65rem;font-weight:700}
+h3{font-size:1.25rem;font-weight:600}
+h4{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+p{margin:0}
+a{color:var(--heme)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--heme);outline-offset:2px}
+.mono{font-family:var(--mono)}
+
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px 16px;border-right:1px solid var(--rule);background:var(--card);display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand .rx{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.08em}
+.brand b{font-family:var(--display);font-size:1.2rem}
+.brand span{font-size:.82rem;color:var(--muted)}
+nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+nav a{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;text-decoration:none;color:var(--ink);font-size:.92rem}
+nav a:hover{background:var(--paper)}
+nav a[aria-current="page"]{background:var(--accent-soft);color:var(--ink);font-weight:600}
+nav .num{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+nav .chip{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:10px;background:var(--paper);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+nav .chip.done{background:var(--good-soft);color:var(--good)}
+.overall{font-size:.85rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.bar{height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good);width:0}
+
+main{padding:32px clamp(16px,4vw,48px) 80px;max-width:1080px;width:100%}
+.view{display:flex;flex-direction:column;gap:28px}
+.eyebrow{font-family:var(--mono);font-size:.78rem;color:var(--accent);letter-spacing:.06em}
+.heme .eyebrow{color:var(--heme)}
+.lede{max-width:68ch;color:var(--muted);font-size:1.05rem}
+.prose{max-width:68ch;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:20px}
+.objectives{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.steps .panel{display:flex;flex-direction:column;gap:6px}
+.steps .panel b{font-family:var(--display);font-size:1.05rem}
+
+/* stem table */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--display);font-weight:600;font-size:.85rem;background:var(--paper)}
+tr:last-child td{border-bottom:0}
+td .stem{font-family:var(--mono);font-weight:600;color:var(--accent)}
+tr.h td .stem{color:var(--heme)}
+.groupRow td{background:var(--paper);font-family:var(--display);font-weight:600;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+
+/* flip drill */
+.drill{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.flip{border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:14px 12px;min-height:96px;text-align:left;display:flex;flex-direction:column;gap:4px;color:var(--ink)}
+.flip .front{font-family:var(--mono);font-size:1.05rem;font-weight:600;color:var(--accent)}
+.flip.h .front{color:var(--heme)}
+.flip .back{font-size:.82rem;color:var(--muted)}
+.flip .hint{font-size:.75rem;color:var(--muted)}
+.flip[aria-pressed="true"]{background:var(--paper)}
+
+/* grouped nav, decode steps, tabs, ABCD tiles */
+nav .navgroup{font-family:var(--display);font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:12px 10px 2px}
+nav .navgroup:first-child{padding-top:0}
+.decodeSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dstep{border:1px solid var(--rule);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--paper)}
+.dstep .big{font-family:var(--display);font-size:1.35rem;font-weight:600}
+.dstep .big.mono{font-family:var(--mono);font-size:1.25rem}
+.dstep mark{background:var(--accent-soft);color:var(--accent);padding:0 2px;border-radius:3px}
+.dstep small{color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--rule);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:999px;font-size:.88rem}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.flip .ex1{font-size:.8rem;color:var(--muted)}
+.abcd{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.abcdTile{display:flex;flex-direction:column;gap:4px;padding:14px;border:1px solid var(--rule);border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink)}
+.abcdTile .letter{font-family:var(--display);font-size:2rem;font-weight:700;line-height:1;color:var(--accent)}
+.abcdTile small{color:var(--muted);font-size:.82rem}
+.abcdTile:hover{border-color:var(--accent)}
+.abcdTile[aria-current="page"]{border:2px solid var(--accent);background:var(--accent-soft)}
+@media (max-width:700px){ .decodeSteps,.abcd{grid-template-columns:1fr 1fr} }
+/* print controls */
+.secHead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.cardTools{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end}
+.printbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);background:var(--card);color:var(--muted);font-size:.8rem;font-weight:600;padding:5px 10px;border-radius:6px}
+.printbtn:hover{color:var(--ink);border-color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:min(560px,calc(100% - 32px));background:var(--ink);color:var(--card);padding:12px 16px;border-radius:8px;font-size:.9rem;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:10}
+@media print{ .rail,.printbtn,.quiz,.pager,.toast{display:none !important} .shell{display:block} }
+/* traps */
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.trap{border-left:4px solid var(--warn);background:var(--warn-soft);border-radius:0 8px 8px 0;padding:12px 14px;font-size:.92rem}
+.trap b{display:block;font-family:var(--display);margin-bottom:2px}
+
+/* pathway diagrams */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.node{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;font-size:.9rem;display:flex;flex-direction:column;gap:4px;min-width:120px;flex:1 1 120px}
+.node b{font-family:var(--display);font-size:1rem}
+.node small{color:var(--muted)}
+.arrow{display:flex;align-items:center;color:var(--muted);font-family:var(--mono);font-size:1.1rem}
+.block{display:inline-block;font-family:var(--mono);font-size:.74rem;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--accent);color:var(--card);align-self:flex-start}
+.heme .block{background:var(--heme)}
+.lanes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.lane{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.lane ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+.diagcap{font-size:.85rem;color:var(--muted);max-width:68ch}
+
+/* drug class cards */
+.cards{display:flex;flex-direction:column;gap:18px}
+.dcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.dhead{display:grid;grid-template-columns:1fr auto;gap:8px 16px;padding:16px 20px;border-bottom:1px solid var(--rule);border-top:5px solid var(--accent)}
+.heme .dhead{border-top-color:var(--heme)}
+.dhead .stemTag{font-family:var(--mono);font-weight:600;font-size:1.05rem;color:var(--accent);align-self:start;padding:2px 10px;border:1.5px solid currentColor;border-radius:6px;white-space:nowrap}
+.heme .dhead .stemTag{color:var(--heme)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;color:var(--muted);grid-column:1/-1}
+.meta b{color:var(--ink);font-weight:600}
+.ex{grid-column:1/-1;font-size:.92rem}
+.ex span{font-family:var(--mono);font-size:.86rem;background:var(--paper);border:1px solid var(--rule);padding:1px 7px;border-radius:4px;margin:2px 4px 2px 0;display:inline-block}
+.dbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+.cell{padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:6px}
+.cell:nth-child(odd){border-right:1px solid var(--rule)}
+.cell.wide{grid-column:1/-1;border-right:0}
+.cell ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:3px;font-size:.92rem}
+.cell p{font-size:.94rem}
+.cell.adv{background:var(--bad-soft)}
+.cell.adv h4{color:var(--bad)}
+.dtrap{padding:10px 20px;background:var(--warn-soft);font-size:.9rem}
+.dtrap b{color:var(--warn)}
+
+/* quiz */
+.quiz{display:flex;flex-direction:column;gap:16px}
+.quizHead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px;border-top:2px solid var(--ink);padding-top:16px}
+.score{font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.q{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.q .qn{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.q .stemQ{font-weight:500;max-width:72ch}
+.q .tag{font-family:var(--mono);font-size:.7rem;padding:1px 6px;border-radius:4px;background:var(--warn-soft);color:var(--warn);margin-left:6px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--card);cursor:pointer;font-size:.95rem}
+.opt:hover{border-color:var(--muted)}
+.opt input{margin:3px 0 0;accent-color:var(--heme);width:16px;height:16px}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.missed{border:2px dashed var(--good);background:var(--good-soft)}
+.qfoot{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--card);padding:8px 16px;border-radius:6px;font-weight:600;font-size:.9rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.verdict{font-weight:600;font-size:.92rem}
+.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
+.why{border-left:3px solid var(--heme);padding:8px 12px;background:var(--heme-soft);border-radius:0 6px 6px 0;font-size:.92rem}
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:18px}
+
+/* summary */
+.sumgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.sumcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.sumcard .big{font-family:var(--display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:10px}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.mid{background:var(--warn-soft);color:var(--warn)}
+.pill.low{background:var(--bad-soft);color:var(--bad)}
+.pill.none{background:var(--paper);color:var(--muted)}
+.misslist{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.receptor td:first-child{font-family:var(--mono);font-weight:600}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule)}
+  nav ol{flex-direction:row;flex-wrap:wrap}
+  nav a{grid-template-columns:auto auto;padding:6px 10px}
+  nav a .chip{display:none}
+  nav .navgroup{width:100%;padding:8px 4px 0}
+  .dbody{grid-template-columns:1fr}
+  .cell:nth-child(odd){border-right:0}
+}
+@media (prefers-reduced-motion:no-preference){
+  .opt,.flip{transition:background .15s,border-color .15s}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <span class="rx">UNIT 3 · PHARMACOLOGY</span>
+      <b>Respiratory Drug Decoder</b>
+      <span>Respiratory medications</span>
+    </div>
+    <nav aria-label="Sections"><ol id="nav"></ol></nav>
+    <div class="overall">
+      <div style="display:flex;justify-content:space-between"><span>Questions answered</span><span id="ovText" class="mono">0 / 0</span></div>
+      <div class="bar"><i id="ovBar"></i></div>
+      <button class="btn ghost" id="resetAll" type="button" style="font-size:.8rem;padding:6px 10px">Start over</button>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ============================================================
+   CONTENT
+   Card fields: name, pharm, ther, stem, ex[], how, mon[], edu[], se[], ae[], trap
+   Question fields: t ("mc"|"sata"), s (stem), o[] (options), a[] (correct indexes), w (rationale)
+   ============================================================ */
+const SECTIONS = [
+{
+  id:"start", num:"00", group:"Getting started", title:"Start here", kind:"intro"
+},
+{
+  id:"decode", num:"01", group:"Getting started", title:"Decoding drug names", kind:"decode",
+  lede:"Most generic drug names carry a stem that tells you the class. Learn to spot it, and you can predict how a drug works and what to watch for.",
+  quiz:[
+    {t:"mc", s:"A drug reference lists albuterol with pharmacologic class “short-acting beta-2 adrenergic agonist” and therapeutic class “bronchodilator.” Which statement best explains the two labels?",
+     o:["Pharmacologic class tells how it works; therapeutic class tells what it treats",
+        "Pharmacologic class tells what it treats; therapeutic class tells how it works",
+        "Both labels describe the chemical structure the drug's stem is based on",
+        "Therapeutic class is assigned only to drugs whose names have no stem"],
+     a:[0], w:"The pharmacologic class names the mechanism (stimulates beta-2 receptors). The therapeutic class names the clinical use (opens the airways). Three different mechanisms on your list are all bronchodilators: beta-2 agonists, muscarinic antagonists and methylxanthines."},
+    {t:"mc", s:"A patient's home medication list includes tiotropium. Using the stem, the nurse identifies the drug as a:",
+     o:["Muscarinic receptor antagonist","Long-acting beta-2 agonist","Inhaled glucocorticoid","Leukotriene receptor antagonist"],
+     a:[0], w:"The stem -tropium marks a muscarinic (anticholinergic) bronchodilator, like ipratropium and tiotropium. Beta-2 agonists end in -terol and leukotriene modifiers in -lukast."},
+    {t:"mc", s:"Which bronchodilator does NOT carry the stem for its class?",
+     o:["Levalbuterol (short-acting beta-2 agonist)","Terbutaline (short-acting beta-2 agonist)","Salmeterol (long-acting beta-2 agonist)","Formoterol (long-acting beta-2 agonist)"],
+     a:[1], w:"Terbutaline is a beta-2 agonist, but its name ends in -taline, not -terol. Learn it by name."},
+    {t:"mc", s:"Spironolactone and fluticasone both end in “-one.” Which statement is accurate?",
+     o:["-one is too common to mark one class; learn both by name","Both are glucocorticoids, so both suppress inflammation","Both are diuretics, so both lower serum potassium","-one marks every drug that blocks the aldosterone receptor"],
+     a:[0], w:"Spironolactone is a diuretic (aldosterone antagonist); fluticasone is a glucocorticoid. Many unrelated drugs end in -one. The glucocorticoid stems are really -sone/-asone and -onide (fluticasone, budesonide)."},
+    {t:"mc", s:"Which stem-to-class pairing is correct?",
+     o:["-lukast → leukotriene modifier","-tropium → beta-2 agonist","-phylline → glucocorticoid","-terol → muscarinic antagonist"],
+     a:[0], w:"-lukast drugs (montelukast, zafirlukast) block leukotrienes. -tropium drugs are muscarinic antagonists, -phylline drugs are methylxanthines, and -terol drugs are beta-2 agonists."},
+    {t:"mc", s:"A classmate says, “-dine and -zine always mean a second-generation antihistamine.” Which response is most accurate?",
+     o:["Agreed; every -dine or -zine drug on the market is an H1 blocker","These endings also show up in unrelated drugs, so check the name","Agreed, except that -zine drugs are all first-generation ones","-dine marks antihistamines only when they are taken by mouth"],
+     a:[1], w:"Famotidine (an H2 blocker) ends in -dine, and hydroxyzine and promethazine (first-generation, sedating) end in -zine. The stem narrows it down; the name confirms it."}
+  ]
+},
+{
+  id:"beta2", num:"02", group:"Asthma & COPD", title:"Beta-2 agonists", kind:"drug", theme:"cardiac",
+  lede:"Beta-2 agonists relax the smooth muscle around the airways. Short-acting ones are the rescue drugs; long-acting ones are maintenance drugs. Mixing up the two is one of the most dangerous errors in respiratory care.",
+  diagram:"airway",
+  cards:[
+    {name:"Short-acting beta-2 agonists (SABAs)", pharm:"Short-acting beta-2 adrenergic agonist", ther:"Bronchodilator", stem:"-terol", ex:["albuterol","levalbuterol","terbutaline"],
+     how:"Stimulate beta-2 receptors on bronchial smooth muscle, which relaxes it and opens the airway within minutes; effect lasts 4–6 hours. The rescue drug for acute asthma symptoms and exercise-induced bronchospasm. Inhaled forms act on the lungs with little systemic effect; oral albuterol and terbutaline reach the whole body, so tremor and tachycardia are more common.",
+     mon:["Respiratory rate, effort, lung sounds, SpO2, peak flow before and after","Heart rate and rhythm","Serum potassium with frequent or continuous nebulizers","How often the patient needs it (more than 2 days a week means poor control)","Blood glucose in diabetes"],
+     edu:["Carry the rescue inhaler at all times","MDI: shake, breathe out, inhale slowly as you press, hold about 10 seconds","Wait about 1 minute between puffs; a spacer helps the drug reach the lungs","If also using a steroid inhaler, use albuterol first","Report needing it more often, or relief that doesn't last"],
+     se:["Tremor","Nervousness","Palpitations","Headache"],
+     ae:["Tachycardia and dysrhythmias","Angina in patients with heart disease","Hypokalemia","Paradoxical bronchospasm"],
+     trap:"Terbutaline doesn't end in -terol. Levalbuterol is the active half of albuterol and may cause less tachycardia."},
+    {name:"Long-acting beta-2 agonists (LABAs)", pharm:"Long-acting beta-2 adrenergic agonist", ther:"Bronchodilator", stem:"-terol", ex:["formoterol","salmeterol"],
+     how:"Same receptor as the SABAs, but the effect lasts about 12 hours. Used for maintenance in asthma and COPD. In asthma, a LABA is always paired with an inhaled glucocorticoid, because a LABA alone raises the risk of severe and fatal attacks. In COPD it can be used alone or with an anticholinergic.",
+     mon:["Lung sounds, symptom control, use of rescue inhaler","Heart rate, BP","Asthma: confirm an inhaled glucocorticoid is also ordered"],
+     edu:["Take every 12 hours, every day, even when you feel well","Not for sudden symptoms; keep your rescue inhaler too (unless your provider set up a budesonide–formoterol reliever plan)","Don't take extra doses","Dry-powder inhalers: don't shake, don't breathe into it, inhale quickly and deeply"],
+     se:["Tremor","Headache","Palpitations"],
+     ae:["Severe asthma exacerbation if used without an inhaled glucocorticoid","Tachycardia, dysrhythmias","Hypokalemia","Paradoxical bronchospasm"]}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient with asthma is suddenly wheezing and short of breath. Which inhaler should the patient use?",
+     o:["Albuterol","Salmeterol","Fluticasone","Tiotropium"],
+     a:[0], w:"Albuterol is a short-acting beta-2 agonist and opens the airway within minutes. Salmeterol is long-acting with a slow onset, fluticasone controls inflammation over days, and tiotropium is a once-daily maintenance drug."},
+    {t:"mc", s:"After an albuterol treatment, a patient feels shaky and has a heart rate of 104. The nurse recognizes this as:",
+     o:["An expected effect of beta-2 stimulation","A sign of an allergic reaction to the drug","Proof the inhaler was used incorrectly","An early sign of glucocorticoid toxicity"],
+     a:[0], w:"Tremor and mild tachycardia are common side effects of beta-2 agonists. Report heart rates that keep climbing, chest pain, or palpitations that don't settle."},
+    {t:"mc", s:"A patient with asthma has a new order for salmeterol and no other maintenance inhaler. What should the nurse do?",
+     o:["Clarify the order; LABAs in asthma need an ICS too","Teach the patient to use it right away during an acute attack","Give it and teach the patient to rinse after use","Teach the patient to take it only before exercise"],
+     a:[0], w:"In asthma, a LABA used without an inhaled glucocorticoid (ICS) increases the risk of severe and fatal attacks. The usual approach is a combination inhaler (for example, fluticasone–salmeterol). Salmeterol is never a rescue drug."},
+    {t:"mc", s:"Which statement shows the patient understands metered-dose inhaler technique?",
+     o:["I breathe out fully, then inhale slowly as I press it","I inhale fast and hard right as I press the canister","I take both puffs back to back, without waiting between","I breathe out into the mouthpiece before each puff"],
+     a:[0], w:"With an MDI, a slow, deep breath timed with the press carries the drug into the lungs, followed by a 10-second breath hold and about a minute between puffs. A fast, hard breath is the technique for dry-powder inhalers."},
+    {t:"mc", s:"A patient uses albuterol 4–5 days a week. What does this suggest?",
+     o:["Poor asthma control; the provider needs to know","The drug is working exactly as it is meant to","The patient should switch to an oral form instead","The patient needs a larger dose of the same inhaler"],
+     a:[0], w:"Needing a rescue inhaler more than 2 days a week means asthma is not well controlled. The provider will usually step up maintenance therapy, such as an inhaled glucocorticoid."},
+    {t:"mc", s:"A patient receiving frequent albuterol nebulizer treatments should be monitored for which lab change?",
+     o:["Low potassium","High calcium","Low sodium","High magnesium"],
+     a:[0], w:"Beta-2 stimulation shifts potassium into the cells, so high or frequent doses can cause hypokalemia, especially with diuretics or steroids on board."}
+  ]
+},
+{
+  id:"anticho", num:"03", group:"Asthma & COPD", title:"Anticholinergics & methylxanthines", kind:"drug", theme:"cardiac",
+  lede:"Two more bronchodilators that work differently from beta-2 agonists. Muscarinic antagonists block the nerve signal that tightens the airways, and they are a mainstay of COPD. Methylxanthines are older oral drugs with a narrow therapeutic range.",
+  cards:[
+    {name:"Muscarinic receptor antagonists", pharm:"Muscarinic receptor antagonist", ther:"Anticholinergic (bronchodilator)", stem:"-tropium", ex:["ipratropium","tiotropium"],
+     how:"Block acetylcholine at muscarinic (M3) receptors in the airway, preventing bronchoconstriction and reducing mucus secretion. Ipratropium is short-acting (SAMA, about 4–6 hours, often combined with albuterol). Tiotropium is long-acting (LAMA, once daily) and is a first-line maintenance drug for COPD. Inhaled, so little reaches the rest of the body.",
+     mon:["Lung sounds, dyspnea, SpO2","Urinary hesitancy or retention (especially with BPH)","Eye pain or blurred vision (narrow-angle glaucoma)","Dry mouth, constipation"],
+     edu:["Tiotropium capsules go in the inhaler device; never swallow them","Keep the spray out of your eyes","Sugarless gum or hard candy helps dry mouth","Not a rescue drug for sudden symptoms (tiotropium)","Report trouble urinating or eye pain right away"],
+     se:["Dry mouth","Cough, throat irritation","Bitter taste","Constipation"],
+     ae:["Urinary retention","Acute narrow-angle glaucoma","Paradoxical bronchospasm","Tachycardia"]},
+    {name:"Methylxanthines", pharm:"Methylxanthine", ther:"Bronchodilator", stem:"-phylline", ex:["aminophylline","theophylline"],
+     how:"Relax bronchial smooth muscle, probably by inhibiting phosphodiesterase (raising cAMP) and blocking adenosine. They also stimulate the CNS and the heart, and strengthen diaphragm contraction. Theophylline is oral; aminophylline is its IV form. Now rarely first-line because the therapeutic range is narrow.",
+     mon:["Serum theophylline level (about 5–15 mcg/mL; toxicity above 20)","Heart rate and rhythm","Signs of toxicity: nausea, vomiting, restlessness, tachycardia, seizures","Interacting drugs (ciprofloxacin, erythromycin, cimetidine raise levels)","Smoking status (smoking lowers levels)"],
+     edu:["Limit caffeine (coffee, tea, cola, chocolate)","Swallow extended-release tablets whole","Take at the same times each day; don't double missed doses","Tell the provider if you start or stop smoking","Report nausea, vomiting, palpitations or restlessness"],
+     se:["Nausea","Insomnia","Nervousness","Headache"],
+     ae:["Dysrhythmias","Seizures","Toxicity from drug interactions"],
+     trap:"Aminophylline is IV theophylline; give by infusion pump, never as a rapid push."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient with COPD and benign prostatic hyperplasia starts tiotropium. Which finding should the nurse report?",
+     o:["Difficulty starting the urine stream","Dry mouth that improves with sugarless gum","A mild cough after inhaling","A bitter taste in the mouth"],
+     a:[0], w:"Anticholinergics can cause urinary retention, especially with BPH. Dry mouth, cough and bitter taste are common, minor side effects."},
+    {t:"mc", s:"Which teaching is correct for tiotropium capsules used with a HandiHaler device?",
+     o:["Place the capsule in the device; never swallow it","Swallow the capsule whole with a full glass of water","Open the capsule and mix the powder with water","Use it as a rescue drug during sudden wheezing"],
+     a:[0], w:"The capsule holds a dry powder that is pierced and inhaled through the device. Swallowing it gives no lung benefit. Tiotropium is a once-daily maintenance drug, not a rescue drug."},
+    {t:"mc", s:"A patient's theophylline level is 24 mcg/mL. Which findings would the nurse expect?",
+     o:["Nausea, restlessness, and tachycardia","Drowsiness, a slow pulse, and low blood pressure","Constipation and dry mouth","Bruising and bleeding gums"],
+     a:[0], w:"Levels above 20 mcg/mL cause toxicity: GI upset first, then CNS stimulation, tachycardia, dysrhythmias and seizures. Theophylline stimulates; it doesn't sedate."},
+    {t:"mc", s:"A patient taking theophylline tells the nurse he quit smoking last week. The nurse anticipates:",
+     o:["Levels may rise, so the dose may need lowering","Levels may fall, so the dose may need raising","No change, because smoking doesn't affect its levels","The drug must be switched to an inhaled form"],
+     a:[0], w:"Smoking speeds up the liver enzymes that clear theophylline. After quitting, clearance slows and levels rise, so toxicity can develop at the same dose."},
+    {t:"sata", s:"Which teaching points apply to a patient taking theophylline? Select all that apply.",
+     o:["Limit coffee, cola, and chocolate","Don't crush extended-release tablets","Tell the provider if you start or stop smoking","Double the next dose if you miss one","Take it only on days when you feel short of breath"],
+     a:[0,1,2], w:"Caffeine adds to theophylline's stimulant effects, crushing ER tablets releases the full dose at once, and smoking changes drug levels. Doubling doses risks toxicity, and theophylline is a scheduled maintenance drug."},
+    {t:"mc", s:"Why does ipratropium help a patient with COPD breathe more easily?",
+     o:["It blocks acetylcholine, so airways stay open","It stimulates beta-2 receptors in the airways","It reduces inflammation in the airway lining","It thins mucus so it is easier to cough up"],
+     a:[0], w:"Acetylcholine tightens airway smooth muscle and increases mucus. Blocking its muscarinic receptors keeps the airways open. In COPD, this nerve-driven tightening is a major cause of airflow limitation."}
+  ]
+},
+{
+  id:"control", num:"04", group:"Asthma & COPD", title:"Controller anti-inflammatories", kind:"drug", theme:"cardiac",
+  lede:"Asthma is an inflammatory disease. These drugs treat the inflammation itself, so they prevent attacks instead of stopping one. They only work when taken every day.",
+  diagram:"inhaler",
+  cards:[
+    {name:"Inhaled glucocorticoids (ICS)", pharm:"Inhaled glucocorticoid", ther:"Anti-inflammatory", stem:"-one / -nide", ex:["fluticasone","budesonide","beclomethasone","mometasone"],
+     how:"Suppress the inflammatory response in the airway: fewer inflammatory cells and cytokines, less mucosal swelling and mucus, and less airway hyperresponsiveness. The most effective long-term control drugs for persistent asthma. Full effect takes 1–2 weeks or more. Inhalation keeps most of the drug in the lungs, limiting systemic steroid effects.",
+     mon:["Mouth and throat for white patches (thrush); voice changes","Symptom control and rescue inhaler use","Growth in children","Bone density and eyes with long-term high doses"],
+     edu:["Use every day, even when you feel well; it won't stop an attack","Rinse your mouth with water and spit after each use","Use a spacer with a metered-dose inhaler","If you also use albuterol, use albuterol first and wait about 5 minutes","Report white patches in the mouth or hoarseness that persists"],
+     se:["Hoarseness (dysphonia)","Sore throat","Cough"],
+     ae:["Oral candidiasis (thrush)","Slight slowing of growth in children","Adrenal suppression at high doses","Osteoporosis and cataracts with long-term high doses"],
+     trap:"The list gives -one / -nide; the true stems are -sone/-asone (fluticasone, mometasone) and -onide (budesonide). Plain “-one” also matches unrelated drugs like spironolactone."},
+    {name:"Leukotriene modifiers", pharm:"Leukotriene receptor antagonist", ther:"Anti-inflammatory", stem:"-lukast", ex:["montelukast","zafirlukast"],
+     how:"Block leukotriene receptors. Leukotrienes are inflammatory mediators that cause bronchoconstriction, mucus, airway swelling and eosinophil recruitment. Oral; used for maintenance in mild persistent asthma, allergic rhinitis, and to prevent exercise-induced bronchospasm. Not a rescue drug.",
+     mon:["Mood and behavior changes (montelukast)","Liver function (zafirlukast)","Asthma control and rescue inhaler use","INR if on warfarin (zafirlukast raises it)"],
+     edu:["Take daily, even without symptoms; it won't stop an attack","Montelukast: once daily in the evening","Zafirlukast: 1 hour before or 2 hours after meals","Report nightmares, agitation, depression, or thoughts of self-harm right away","Report right upper abdominal pain, dark urine or yellow skin (zafirlukast)"],
+     se:["Headache","GI upset","Upper respiratory symptoms"],
+     ae:["Neuropsychiatric events, including suicidal thinking (montelukast boxed warning)","Hepatotoxicity (zafirlukast)","Eosinophilic granulomatosis with polyangiitis (rare)"]}
+  ],
+  quiz:[
+    {t:"mc", s:"After using a fluticasone inhaler, what should the patient do?",
+     o:["Rinse the mouth with water and spit it out","Drink a glass of water to wash the drug down","Use the albuterol inhaler right afterward","Lie flat for 15 minutes to let it absorb"],
+     a:[0], w:"Rinsing and spitting removes drug left in the mouth and throat, which lowers the risk of oral thrush and hoarseness. Swallowing the rinse adds systemic absorption."},
+    {t:"mc", s:"A patient uses albuterol and beclomethasone inhalers each morning. Which order is correct?",
+     o:["Albuterol first, wait, then beclomethasone","Beclomethasone first, then albuterol right away","Either order, as long as both are taken together","Mix both in a spacer and take them at once"],
+     a:[0], w:"The bronchodilator opens the airway first so the glucocorticoid can reach deeper into the lungs. Waiting about 5 minutes between them helps."},
+    {t:"mc", s:"A child using inhaled budesonide has white patches on the tongue and inner cheeks. What does the nurse suspect?",
+     o:["Oral thrush","Adrenal crisis","Allergic reaction","Vitamin deficiency"],
+     a:[0], w:"Inhaled glucocorticoids suppress local immunity in the mouth, allowing Candida to grow. Rinsing after each dose and using a spacer help prevent it; antifungal treatment may be needed."},
+    {t:"mc", s:"A parent reports that a teenager taking montelukast has new nightmares and seems withdrawn. What should the nurse do?",
+     o:["Report it to the provider right away","Reassure the parent this is normal for teens","Give the dose earlier in the day instead","Double the dose to improve asthma control"],
+     a:[0], w:"Montelukast carries a boxed warning for neuropsychiatric effects, including sleep disturbances, depression and suicidal thinking. These changes need prompt evaluation; the provider may stop the drug."},
+    {t:"mc", s:"Which statement about inhaled glucocorticoids is accurate?",
+     o:["They control inflammation when used every day","They open the airway within minutes of a puff","They are the first drug to use in an attack","They are stopped as soon as symptoms improve"],
+     a:[0], w:"Inhaled glucocorticoids are long-term controllers. They take days to weeks to reach full effect and must be continued when the patient feels well."},
+    {t:"mc", s:"Which instruction is correct for a patient starting zafirlukast?",
+     o:["Take it 1 hour before or 2 hours after meals","Take it with a large, high-fat meal to boost absorption","Take it only when wheezing starts","Take it with grapefruit juice each morning"],
+     a:[0], w:"Food reduces zafirlukast absorption by about 40%, so it is taken on an empty stomach. It is a daily maintenance drug, not a rescue drug."}
+  ]
+},
+{
+  id:"allergy", num:"05", group:"Allergy, cough & congestion", title:"Allergy & congestion", kind:"drug", theme:"heme",
+  lede:"Antihistamines block the itching, sneezing and runny nose of allergies. Nasal glucocorticoids treat the inflammation behind them. Decongestants shrink swollen nasal tissue, but they also tighten blood vessels elsewhere in the body.",
+  cards:[
+    {name:"Second-generation H1 antihistamines", pharm:"H1 receptor antagonist (second generation)", ther:"Antihistamine", stem:"-dine / -zine", ex:["loratadine","cetirizine","fexofenadine","desloratadine"],
+     how:"Block histamine at H1 receptors, reducing itching, sneezing, runny nose, watery eyes and hives. Unlike first-generation drugs (diphenhydramine), they cross into the brain very little, so they cause little sedation and few anticholinergic effects. Less effective for nasal congestion.",
+     mon:["Symptom relief","Drowsiness (cetirizine is the most sedating of the group)","Kidney and liver function (doses are reduced in impairment)"],
+     edu:["Take once daily; works best before allergen exposure","See how cetirizine affects you before driving","Avoid alcohol","Fexofenadine: take with water, not fruit juice, and not with antacids","Check combination cold products for duplicate antihistamines"],
+     se:["Headache","Dry mouth","Mild drowsiness (cetirizine)","Fatigue"],
+     ae:["Sedation, especially with alcohol or other CNS depressants","Hypersensitivity reactions (rare)"],
+     trap:"-dine also ends famotidine (an H2 blocker), and -zine also ends hydroxyzine and promethazine (sedating, first generation)."},
+    {name:"Nasal glucocorticoids", pharm:"Intranasal glucocorticoid", ther:"Anti-inflammatory", stem:"-one / -nide", ex:["fluticasone","mometasone","triamcinolone","budesonide"],
+     how:"Reduce inflammation in the nasal lining, relieving congestion, sneezing, itching and runny nose. The most effective single drug class for allergic rhinitis. Relief starts within days; full effect takes 1–2 weeks of daily use.",
+     mon:["Symptom relief","Nosebleeds, nasal irritation","Growth in children on long-term therapy"],
+     edu:["Blow your nose first, then shake the bottle","Tilt your head slightly forward; aim toward the outer wall of the nostril, away from the septum","Breathe in gently; don't sniff hard","Use daily for best results","Report frequent nosebleeds"],
+     se:["Nasal dryness, burning","Nosebleeds","Headache"],
+     ae:["Nasal septal perforation (rare)","Slowed growth in children (rare)","Adrenal suppression at high doses (rare)"]},
+    {name:"Decongestants", pharm:"Alpha-adrenergic agonist (sympathomimetic)", ther:"Decongestant", stem:"-rine", ex:["phenylephrine","ephedrine","pseudoephedrine"],
+     how:"Stimulate alpha-1 receptors on blood vessels in the nasal lining, causing vasoconstriction that shrinks swollen tissue and opens the nasal passages. Given as nasal sprays (phenylephrine) or orally (pseudoephedrine). Oral forms constrict blood vessels throughout the body.",
+     mon:["BP and heart rate","Insomnia, restlessness","Urinary retention in men with BPH","Use with caution in hypertension, heart disease, glaucoma, hyperthyroidism, diabetes"],
+     edu:["Use nasal sprays no more than 3 days to avoid rebound congestion","Avoid with MAO inhibitors","Take the last dose several hours before bed","Limit caffeine","Pseudoephedrine is sold behind the pharmacy counter (ID required)"],
+     se:["Nervousness, restlessness","Insomnia","Nasal burning (sprays)"],
+     ae:["Hypertension","Tachycardia, dysrhythmias","Rebound congestion (rhinitis medicamentosa)","Hypertensive crisis with MAO inhibitors"],
+     trap:"The list shows n/a for pharmacologic class; these are alpha-adrenergic agonists. The FDA has proposed removing oral phenylephrine from OTC decongestants because it doesn't work by mouth; the nasal spray is not affected."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient with hypertension asks about taking pseudoephedrine for a stuffy nose. What is the best response?",
+     o:["It can raise your BP; ask your provider first","It's safe because it only works on blood vessels in the nose","It lowers BP, so it may help you as well","It's fine if you take it with your BP pills"],
+     a:[0], w:"Oral decongestants constrict blood vessels throughout the body, raising BP and heart rate. A nasal glucocorticoid is usually a safer choice for patients with hypertension."},
+    {t:"mc", s:"A patient used phenylephrine nasal spray for 10 days and now says the congestion is worse. The nurse explains this is likely:",
+     o:["Rebound congestion from overuse of the spray","An allergy to the preservative that's in the spray","A sinus infection caused by the spray tip","A sign that the dose should be doubled"],
+     a:[0], w:"After a few days, nasal vasoconstrictors lose effect and the vessels rebound, causing worse congestion (rhinitis medicamentosa). Limit use to 3 days."},
+    {t:"mc", s:"Which second-generation antihistamine is most likely to cause drowsiness?",
+     o:["Cetirizine","Fexofenadine","Loratadine","Desloratadine"],
+     a:[0], w:"All four are second generation, but cetirizine causes drowsiness more often than the others. Patients should see how it affects them before driving."},
+    {t:"mc", s:"How should a patient take fexofenadine?",
+     o:["With water, not fruit juice","With orange or apple juice","With a glass of grapefruit juice","With an antacid to protect the stomach"],
+     a:[0], w:"Grapefruit, orange and apple juice reduce fexofenadine absorption, as do aluminum- and magnesium-containing antacids. Water is best."},
+    {t:"mc", s:"Which technique is correct for a nasal glucocorticoid spray?",
+     o:["Aim toward the outer wall of the nostril","Aim straight at the center of the septum","Tilt the head far back and sniff hard","Use it only on days when sneezing is bad"],
+     a:[0], w:"Aiming away from the septum reduces irritation, bleeding and the rare risk of septal perforation. A gentle breath keeps the drug in the nose instead of the throat, and daily use works best."},
+    {t:"mc", s:"Why do second-generation antihistamines cause less sedation than diphenhydramine?",
+     o:["They cross into the brain much less","They block H2 receptors instead of H1","They are given only as nasal sprays","They are taken only once a week"],
+     a:[0], w:"Second-generation H1 blockers cross the blood-brain barrier poorly, so they block histamine in the body with little effect on the brain. Diphenhydramine crosses easily, causing sedation and anticholinergic effects."}
+  ]
+},
+{
+  id:"cough", num:"06", group:"Allergy, cough & congestion", title:"Cough & mucus", kind:"drug", theme:"heme",
+  lede:"Antitussives quiet a cough; mucoactive agents make secretions easier to clear. The key nursing question is which kind of cough the patient has: a dry cough can be suppressed, but a productive cough is clearing the lungs.",
+  cards:[
+    {name:"Opioid antitussives", pharm:"Opioid antitussive", ther:"Antitussive", stem:"cod", ex:["codeine","hydrocodone"],
+     how:"Act on opioid receptors in the cough center of the medulla to suppress the cough reflex, at doses lower than those used for pain. Used for a dry, nonproductive cough that disrupts sleep or rest. Controlled substances.",
+     mon:["Respiratory rate and depth; hold if below 12 or per order","Level of sedation","Bowel function","Other CNS depressants on the med list (benzodiazepines, alcohol)"],
+     edu:["Avoid alcohol, sleep aids and other sedating drugs","Don't drive until you know how it affects you","Use the dosing cup or syringe, not a kitchen spoon","Increase fluids and fiber to prevent constipation","Store it locked up and away from children"],
+     se:["Drowsiness","Constipation","Nausea","Dizziness"],
+     ae:["Respiratory depression (reversed with naloxone)","Misuse and dependence","Hypotension","Life-threatening toxicity in ultra-rapid metabolizers of codeine"],
+     trap:"Opioid cough products are restricted to adults 18 and older. Codeine is contraindicated in children under 12 because some convert it to morphine very quickly."},
+    {name:"Non-opioid antitussives", pharm:"Non-opioid antitussive", ther:"Antitussive", stem:"n/a", ex:["dextromethorphan","benzonatate","diphenhydramine"],
+     how:"Dextromethorphan acts on the cough center without pain relief or respiratory depression at normal doses. Benzonatate numbs stretch receptors in the lungs and airways, reducing the cough reflex. Diphenhydramine, a first-generation antihistamine, suppresses cough centrally and is sedating.",
+     mon:["Cough frequency and character","Sedation (diphenhydramine)","Serotonergic drugs on the med list (dextromethorphan)","Anticholinergic effects in older adults (diphenhydramine)"],
+     edu:["Benzonatate: swallow whole; chewing numbs the mouth and throat and can cause choking","Keep benzonatate away from children; a few capsules can be fatal","Dextromethorphan: avoid with MAO inhibitors and check with the provider if on an SSRI","Report a cough lasting more than a week or with fever, rash or headache"],
+     se:["Drowsiness, dizziness","GI upset","Dry mouth (diphenhydramine)"],
+     ae:["Serotonin syndrome (dextromethorphan with serotonergic drugs)","Choking, seizures, cardiac arrest in benzonatate overdose","Confusion, urinary retention, falls in older adults (diphenhydramine)","Dextromethorphan misuse at high doses"]},
+    {name:"Expectorants", pharm:"Expectorant", ther:"Mucoactive agent", stem:"n/a", ex:["guaifenesin"],
+     how:"Increase the water content of respiratory secretions and reduce their thickness, so mucus is easier to cough up. Used for a productive cough with thick secretions.",
+     mon:["Character and amount of sputum","Lung sounds","Hydration status"],
+     edu:["Drink plenty of water; it helps the drug work","Swallow extended-release tablets whole","Report a cough lasting more than a week, or with fever, rash or persistent headache","Check combination products so you don't double up"],
+     se:["Nausea, vomiting","Dizziness","Headache"],
+     ae:["Rare; usually well tolerated"]},
+    {name:"Mucolytics", pharm:"Mucolytic", ther:"Mucoactive agent", stem:"n/a", ex:["acetylcysteine","hypertonic saline"],
+     how:"Acetylcysteine breaks the chemical bonds that hold mucus together, thinning thick secretions; given by nebulizer. Given orally or IV, it is also the antidote for acetaminophen overdose. Hypertonic saline draws water into the airway surface, loosening mucus; used in cystic fibrosis and bronchiectasis.",
+     mon:["Wheezing or bronchospasm, especially in asthma","Lung sounds, SpO2","Amount of secretions; suction available","Ability to cough effectively"],
+     edu:["A rotten-egg smell is normal with acetylcysteine","Cough and clear secretions after the treatment","Report wheezing or chest tightness during treatment"],
+     se:["Unpleasant odor and taste","Nausea, mouth irritation","Cough and throat irritation (hypertonic saline)"],
+     ae:["Bronchospasm","Anaphylactoid reaction (IV acetylcysteine)"],
+     trap:"A bronchodilator is often ordered before nebulized acetylcysteine or hypertonic saline to prevent bronchospasm."}
+  ],
+  quiz:[
+    {t:"mc", s:"Before giving hydrocodone cough syrup, the nurse finds a respiratory rate of 10 and the patient is very drowsy. What is the best action?",
+     o:["Hold the dose and notify the provider","Give the dose and recheck in one hour","Give half the dose with a glass of water","Give it with dextromethorphan instead"],
+     a:[0], w:"Opioids depress respiration. A rate of 10 with sedation is a hold point. Notify the provider and monitor closely; naloxone reverses opioid-induced respiratory depression."},
+    {t:"mc", s:"Which instruction is correct for benzonatate?",
+     o:["Swallow the capsule whole; never chew it","Chew the capsule to speed up its action","Open the capsule and mix it in juice","Let the capsule dissolve under the tongue"],
+     a:[0], w:"Benzonatate is a local anesthetic. Released in the mouth, it numbs the throat and can cause choking or a severe reaction. Accidental ingestion by young children can be fatal."},
+    {t:"mc", s:"A patient is starting guaifenesin. Which teaching point is most important?",
+     o:["Drink plenty of water to help thin mucus","Limit fluids so mucus doesn't get thinner","Take it at bedtime only to suppress coughing","Avoid coughing so the mucus can dissolve"],
+     a:[0], w:"Guaifenesin works by increasing the water in secretions; good hydration supports that. It helps a productive cough work better, so the patient should keep coughing up mucus."},
+    {t:"mc", s:"A patient with asthma has an order for nebulized acetylcysteine. What should the nurse do first?",
+     o:["Give a bronchodilator first, per order","Have the patient lie flat for the treatment","Mix it with the patient's corticosteroid","Warn the patient it has a sweet taste"],
+     a:[0], w:"Acetylcysteine can trigger bronchospasm, especially in asthma, so a bronchodilator is usually given first. It has a rotten-egg (sulfur) smell, and an upright position helps the patient clear secretions."},
+    {t:"mc", s:"A patient taking dextromethorphan also takes sertraline. Which risk should the nurse watch for?",
+     o:["Serotonin syndrome","Respiratory depression","Severe constipation","Bleeding"],
+     a:[0], w:"Dextromethorphan has serotonergic activity. Combined with SSRIs or MAO inhibitors, it can cause serotonin syndrome: agitation, fever, tremor, and rapid heart rate."},
+    {t:"mc", s:"For which patient is an antitussive most appropriate?",
+     o:["A dry cough that keeps the patient awake","A productive cough with thick mucus","A post-op patient doing coughing exercises","A cough with yellow sputum and fever"],
+     a:[0], w:"Suppressing a productive cough traps secretions in the lungs. Antitussives are for a dry, nonproductive cough that disrupts rest. Yellow sputum with fever needs evaluation for infection."},
+    {t:"mc", s:"Why is codeine contraindicated in children under 12?",
+     o:["Some convert it to morphine very fast","It has no effect on a child's cough reflex","It causes severe diarrhea in young children","It is only made as an adult-strength tablet"],
+     a:[0], w:"Ultra-rapid metabolizers turn codeine into morphine quickly, which can cause fatal respiratory depression. Children are at the greatest risk."}
+  ]
+},
+{
+  id:"diur", num:"07", group:"Other medications", title:"Diuretics", kind:"drug", theme:"cardiac",
+  lede:"Diuretics show up in respiratory care when fluid backs up into the lungs: pulmonary edema from heart failure, or right-sided heart failure from chronic lung disease (cor pulmonale). Where in the nephron each one acts decides how strong it is and what it does to potassium.",
+  diagram:"nephron",
+  cards:[
+    {name:"Aldosterone receptor antagonists", pharm:"Aldosterone receptor antagonist", ther:"Diuretic", stem:"-actone / -erenone", ex:["spironolactone","eplerenone","finerenone"],
+     how:"Block aldosterone at the collecting duct, so sodium and water leave and potassium stays (potassium-sparing). Diuresis is mild. Used in heart failure (lower mortality), cirrhosis with ascites and hyperaldosteronism. Finerenone is nonsteroidal and is used in chronic kidney disease with type 2 diabetes.",
+     mon:["Serum potassium (hyperkalemia)","Renal function","BP","Extra caution with ACE inhibitors, ARBs or potassium supplements"],
+     edu:["Avoid salt substitutes and potassium supplements unless prescribed","Don't add extra high-potassium foods","Report muscle weakness or an irregular heartbeat","Spironolactone: report breast tenderness or enlargement, menstrual changes"],
+     se:["Dizziness","GI upset","Headache"],
+     ae:["Hyperkalemia","Gynecomastia (spironolactone; much less with eplerenone and finerenone)","Kidney impairment"]},
+    {name:"Loop diuretics", pharm:"Loop diuretic", ther:"Diuretic", stem:"-semide", ex:["furosemide","torsemide"],
+     how:"Block the sodium-potassium-chloride pump in the thick ascending loop of Henle, where most sodium is reabsorbed, so loops cause the strongest diuresis. IV furosemide is a key drug for acute pulmonary edema: it removes fluid and also dilates veins, easing breathing quickly.",
+     mon:["Lung sounds, dyspnea, SpO2","Daily weight and intake and output","BP, including orthostatic changes","Potassium, sodium, magnesium; BUN/creatinine","Hearing (ototoxicity with rapid IV push)"],
+     edu:["Take in the morning so you aren't up at night to urinate","Weigh yourself daily; report a quick gain per your provider's limits","Eat potassium-rich foods unless told otherwise","Rise slowly","Report muscle cramps, weakness, dizziness, or ringing in the ears"],
+     se:["Frequent urination","Dizziness","Thirst"],
+     ae:["Hypokalemia","Hyponatremia, hypomagnesemia","Dehydration and hypotension","Ototoxicity","Hyperglycemia, hyperuricemia"]},
+    {name:"Thiazide diuretics", pharm:"Thiazide diuretic", ther:"Diuretic", stem:"-thiazide", ex:["hydrochlorothiazide","chlorothiazide","chlorthalidone"],
+     how:"Block sodium-chloride reabsorption in the distal convoluted tubule. Diuresis is moderate. Mainly used for hypertension and mild edema. Less effective when kidney function is poor. Chlorothiazide can be given IV.",
+     mon:["BP","Potassium and sodium","Blood glucose and uric acid","Serum calcium (thiazides retain calcium)"],
+     edu:["Take in the morning","Eat potassium-rich foods","Use sunscreen; the drug can cause photosensitivity","Diabetes: check blood sugar more often","Report muscle weakness, cramps, or joint pain"],
+     se:["Frequent urination","Dizziness","Photosensitivity"],
+     ae:["Hypokalemia","Hyponatremia","Hypercalcemia","Hyperglycemia","Hyperuricemia and gout"],
+     trap:"Your list adds -chlor (chlorothiazide, chlorthalidone), but chlor- appears in many unrelated drugs. Chlorthalidone is thiazide-like and lacks the -thiazide stem."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient with acute pulmonary edema receives IV furosemide. Which finding best shows the drug is working?",
+     o:["Fewer crackles and easier breathing","Blood pressure rising back to baseline","Increased thirst and dry mouth","Darker, more concentrated urine"],
+     a:[0], w:"The goal is to remove fluid from the lungs. Fewer crackles, less dyspnea, better SpO2 and good urine output show effect. Darker urine and thirst would suggest dehydration."},
+    {t:"mc", s:"A patient receiving furosemide has a potassium of 2.9 mEq/L. Which finding would the nurse expect?",
+     o:["Muscle weakness and leg cramps","Peaked T waves on the ECG","Hyperactive deep tendon reflexes","Facial twitching and tingling"],
+     a:[0], w:"Hypokalemia causes muscle weakness, cramps, fatigue, and ECG changes such as flattened T waves and U waves. Peaked T waves point to hyperkalemia; twitching and tingling point to low calcium."},
+    {t:"sata", s:"A patient with cor pulmonale is starting spironolactone. Which teaching points should the nurse include? Select all that apply.",
+     o:["Avoid salt substitutes that contain potassium","Report muscle weakness or an irregular heartbeat","Report breast tenderness or enlargement","Eat extra bananas and oranges every day","Take a potassium supplement each morning"],
+     a:[0,1,2], w:"Spironolactone keeps potassium in the body, so extra potassium from salt substitutes, supplements or added fruit can cause hyperkalemia. Gynecomastia is a known side effect."},
+    {t:"mc", s:"A patient has taken hydrochlorothiazide for several months. Which lab change would the nurse expect?",
+     o:["Increased blood glucose","Decreased serum calcium","Increased serum potassium","Decreased serum uric acid"],
+     a:[0], w:"Thiazides can raise blood glucose, uric acid and calcium while lowering potassium and sodium."},
+    {t:"mc", s:"How does finerenone differ from spironolactone?",
+     o:["Rarely causes breast enlargement","Lowers potassium instead of raising it","Acts in the loop of Henle like furosemide","Can be taken with potassium supplements"],
+     a:[0], w:"Finerenone is a nonsteroidal aldosterone antagonist, so hormonal side effects like gynecomastia are uncommon. It still raises potassium, so potassium monitoring is essential."}
+  ]
+},
+{
+  id:"tb", num:"08", group:"Other medications", title:"Tuberculosis treatment", kind:"drug", theme:"heme",
+  lede:"Active TB is treated with several drugs at once for at least six months. Combination therapy kills the bacteria in different ways and prevents resistance. The nurse's biggest jobs are monitoring the liver, catching each drug's signature toxicity, and supporting adherence.",
+  diagram:"tb",
+  cards:[
+    {name:"Rifampin", pharm:"Rifamycin antibiotic", ther:"Antitubercular", stem:"rif-", ex:["rifampin"],
+     how:"Inhibits bacterial RNA polymerase, stopping RNA synthesis. Bactericidal. Part of both the intensive and continuation phases. A powerful inducer of liver enzymes, so it lowers the levels of many other drugs.",
+     mon:["Liver function tests","CBC (thrombocytopenia)","Every other drug on the med list for interactions (oral contraceptives, warfarin, many antiretrovirals, anticonvulsants)"],
+     edu:["Urine, sweat, saliva and tears will turn orange-red; this is harmless","Soft contact lenses can be permanently stained","Use a non-hormonal backup method of birth control","Take on an empty stomach, 1 hour before or 2 hours after a meal","Report yellow skin, dark urine, fatigue or loss of appetite"],
+     se:["Orange-red body fluids","GI upset","Flu-like symptoms"],
+     ae:["Hepatotoxicity","Thrombocytopenia","Treatment failure of other drugs through interactions"],
+     trap:"Your list shows “Antitubercular” as the pharmacologic class and “Rifamycin antibiotic” as the therapeutic class. Using this activity's definitions, those are reversed."},
+    {name:"Isoniazid (INH)", pharm:"Antimycobacterial (mycolic acid synthesis inhibitor)", ther:"Antitubercular", stem:"n/a", ex:["isoniazid"],
+     how:"Blocks synthesis of mycolic acid, a key part of the mycobacterial cell wall. Bactericidal against rapidly dividing bacteria. Part of combination therapy for active TB and used alone to treat latent TB infection.",
+     mon:["Liver function tests (higher risk with alcohol use and older age)","Numbness or tingling in hands and feet","Phenytoin levels if on phenytoin"],
+     edu:["Take pyridoxine (vitamin B6) as prescribed to prevent nerve damage","Avoid alcohol","Avoid aged cheese, cured meats and some fish (tuna, skipjack); they can cause flushing and palpitations","Take on an empty stomach","Report yellow skin, dark urine, nausea, or numbness and tingling"],
+     se:["GI upset","Mild numbness or tingling"],
+     ae:["Hepatotoxicity (boxed warning)","Peripheral neuropathy","Seizures in overdose"]},
+    {name:"Pyrazinamide (PZA)", pharm:"Nicotinamide analog antimycobacterial", ther:"Antitubercular", stem:"n/a", ex:["pyrazinamide"],
+     how:"Converted inside the bacteria to pyrazinoic acid, which works in the acidic environment where TB hides inside macrophages. Used during the first 2 months (intensive phase); it makes a 6-month total course possible.",
+     mon:["Liver function tests","Serum uric acid","Blood glucose in diabetes","Joint pain"],
+     edu:["Drink plenty of fluids","Report joint pain or swelling (gout)","Report yellow skin, dark urine or nausea","Use sun protection"],
+     se:["Joint pain (arthralgia)","GI upset","Photosensitivity"],
+     ae:["Hepatotoxicity","Hyperuricemia and gout"]},
+    {name:"Ethambutol (EMB)", pharm:"Antimycobacterial (cell wall synthesis inhibitor)", ther:"Antitubercular", stem:"n/a", ex:["ethambutol"],
+     how:"Inhibits an enzyme needed to build the mycobacterial cell wall. Bacteriostatic. Used in the intensive phase to protect the other drugs against resistance until drug susceptibility results are back.",
+     mon:["Baseline and monthly visual acuity and red-green color discrimination","Renal function (dose adjusted)","Serum uric acid"],
+     edu:["Report blurred vision, eye pain, or trouble telling red from green right away","Take with food if it upsets your stomach","Keep all eye exam appointments"],
+     se:["GI upset","Headache"],
+     ae:["Optic neuritis (vision loss, loss of red-green color vision)","Peripheral neuropathy","Hyperuricemia"],
+     trap:"Usually avoided in young children who can't reliably report vision changes."}
+  ],
+  quiz:[
+    {t:"mc", s:"A patient is starting rifampin. Which finding should the nurse tell the patient to expect?",
+     o:["Orange-red urine, sweat, and tears","Bluish-green discoloration of the urine and stool","Black, tarry stools","Yellow-tinted vision"],
+     a:[0], w:"Rifampin colors body fluids orange-red. It is harmless, but it permanently stains soft contact lenses. Black stools and yellow vision are not rifampin effects."},
+    {t:"mc", s:"A patient starting rifampin takes an oral contraceptive. What should the nurse teach?",
+     o:["Use a backup, non-hormonal method of birth control","Rifampin makes the pill work better, so skip one dose","Take the pill and rifampin at the same time daily","No change is needed; the drugs don't interact"],
+     a:[0], w:"Rifampin induces liver enzymes that break down hormonal contraceptives, making them less effective. A barrier or other non-hormonal method is needed during therapy."},
+    {t:"mc", s:"Which vitamin is given with isoniazid to prevent peripheral neuropathy?",
+     o:["Pyridoxine (vitamin B6)","Vitamin K (phytonadione)","Vitamin C (ascorbic acid)","Folic acid (vitamin B9)"],
+     a:[0], w:"Isoniazid depletes pyridoxine (B6), which nerves need. Supplementing B6 prevents numbness and tingling, especially in patients with diabetes, alcohol use, malnutrition or pregnancy."},
+    {t:"sata", s:"Which teaching points apply to a patient taking isoniazid? Select all that apply.",
+     o:["Avoid alcohol while taking this drug","Report numbness or tingling in the hands or feet","Report yellow skin or dark urine","Stop taking the drug once the cough has gone away","Eat aged cheese to settle your stomach"],
+     a:[0,1,2], w:"Alcohol raises the risk of isoniazid hepatitis, and neuropathy and liver injury are its key adverse effects. Stopping early leads to relapse and resistance, and tyramine-rich foods like aged cheese can cause flushing and palpitations."},
+    {t:"mc", s:"A patient is starting ethambutol. Which assessment is the priority?",
+     o:["Visual acuity and red-green color vision","Hearing, checked with a whisper or audiometry test","Serum potassium level","Peak expiratory flow"],
+     a:[0], w:"Ethambutol can cause optic neuritis. Loss of red-green color discrimination is often the first sign. Vision is checked at baseline and monthly, and the drug is stopped if vision changes."},
+    {t:"mc", s:"Which lab value is most important to monitor in a patient taking pyrazinamide?",
+     o:["Uric acid","Serum potassium","Hemoglobin A1c","Serum calcium"],
+     a:[0], w:"Pyrazinamide reduces uric acid excretion, which can cause hyperuricemia and gout. Liver function is the other key lab."},
+    {t:"mc", s:"Why is active TB treated with several drugs at once, often with directly observed therapy (DOT)?",
+     o:["To prevent drug resistance and ensure full treatment","To shorten the full course to about two weeks","Because each drug alone would cause too many side effects","So the patient can stop once the cough is gone"],
+     a:[0], w:"TB bacteria quickly become resistant to a single drug. Combination therapy and DOT make sure every dose is taken for the full course, which cures the infection and prevents resistant TB."}
+  ]
+},
+{
+  id:"final", num:"09", group:"Wrap-up", title:"Final review", kind:"final",
+  lede:"Mixed questions across every class. Most are NCLEX-style application items: read the scenario, then decide what matters most.",
+  quiz:[
+    {t:"mc", s:"Which patient should the nurse see first?",
+     o:["On albuterol, wheezing with an SpO2 of 86%","On ethambutol, asking when his next eye exam is due","On loratadine, reporting a mild headache","On guaifenesin, asking how much to drink"],
+     a:[0], w:"Wheezing with an SpO2 of 86% despite a rescue drug signals a worsening attack and inadequate oxygenation. The others are routine questions or minor side effects."},
+    {t:"mc", s:"What is the pharmacologic class of montelukast?",
+     o:["Anti-inflammatory","Leukotriene modifier","Bronchodilator","Muscarinic receptor antagonist"],
+     a:[1], w:"Montelukast's pharmacologic class (mechanism) is leukotriene modifier, or leukotriene receptor antagonist. “Anti-inflammatory” is its therapeutic class."},
+    {t:"mc", s:"Which drug and teaching point are correctly paired?",
+     o:["Rifampin – orange body fluids are expected","Isoniazid – aged cheese and red wine are encouraged","Tiotropium – swallow the capsule whole","Albuterol – use daily to prevent attacks"],
+     a:[0], w:"Rifampin turns body fluids orange-red. Isoniazid patients avoid alcohol and tyramine-rich foods, tiotropium capsules go in the inhaler, and albuterol is for rescue, not daily prevention."},
+    {t:"mc", s:"What is the therapeutic class of guaifenesin?",
+     o:["Mucoactive agent","Antitussive","Decongestant","Anti-inflammatory"],
+     a:[0], w:"Guaifenesin is an expectorant (pharmacologic class) and a mucoactive agent (therapeutic class). It loosens mucus; it doesn't suppress the cough."},
+    {t:"sata", s:"Which drugs can be used as quick-relief (rescue) medications for acute bronchospasm? Select all that apply.",
+     o:["Albuterol","Levalbuterol","Salmeterol","Fluticasone","Montelukast"],
+     a:[0,1], w:"Albuterol and levalbuterol are short-acting beta-2 agonists that work within minutes. Salmeterol, fluticasone and montelukast are maintenance drugs."},
+    {t:"mc", s:"A patient with narrow-angle glaucoma has new orders for several respiratory drugs. Which order should the nurse question?",
+     o:["Ipratropium","Loratadine","Montelukast","Guaifenesin"],
+     a:[0], w:"Anticholinergics can raise eye pressure and trigger acute angle-closure glaucoma. Patients should keep the spray out of their eyes and report eye pain or blurred vision."},
+    {t:"mc", s:"A patient with hypertension needs relief from allergic rhinitis with nasal congestion. Which drug is the safest choice?",
+     o:["Nasal fluticasone","Oral pseudoephedrine","Oral ephedrine","Phenylephrine tablets"],
+     a:[0], w:"Nasal glucocorticoids treat congestion without systemic vasoconstriction. Oral decongestants raise BP and heart rate."},
+    {t:"mc", s:"A patient taking theophylline is prescribed ciprofloxacin. The nurse should monitor for:",
+     o:["Theophylline toxicity","Low theophylline levels","Hypoglycemia","Orange urine"],
+     a:[0], w:"Ciprofloxacin slows theophylline clearance, raising levels into the toxic range. Watch for nausea, restlessness, tachycardia and seizures, and expect a level to be checked."},
+    {t:"mc", s:"Which combination carries the greatest risk of fatal respiratory depression?",
+     o:["Codeine and lorazepam","Albuterol and fluticasone","Loratadine and fluticasone","Guaifenesin and water"],
+     a:[0], w:"Opioids combined with benzodiazepines carry a boxed warning for profound sedation, respiratory depression, coma and death."},
+    {t:"mc", s:"A patient with cor pulmonale takes furosemide and receives frequent albuterol nebulizers. Potassium is 3.0 mEq/L. Why is this concerning?",
+     o:["Both drugs can lower potassium further","Albuterol raises potassium to unsafe levels","Furosemide blocks albuterol's bronchodilation","Both drugs cause the urine to turn orange"],
+     a:[0], w:"Loop diuretics waste potassium, and beta-2 agonists shift potassium into the cells. Together they can push hypokalemia into the dysrhythmia range."}
+  ]
+},
+{ id:"summary", num:"10", group:"Wrap-up", title:"Your results", kind:"summary" },
+{ id:"stems", num:"11", group:"Wrap-up", title:"Stem cheat sheet", kind:"stems" }
+];
+
+/* ============================================================
+   STEM TABLE (from the Unit 3 medication list)
+   ============================================================ */
+const STEMS = [
+  ["Oral inhalers",null],
+  ["Inhaled glucocorticoid","Anti-inflammatory","-one / -nide*","fluticasone, budesonide, beclomethasone, mometasone","c"],
+  ["Short-acting beta-2 agonist","Bronchodilator","-terol","albuterol, levalbuterol","c"],
+  ["Long-acting beta-2 agonist","Bronchodilator","-terol","formoterol, salmeterol","c"],
+  ["Muscarinic receptor antagonist","Anticholinergic","-tropium","ipratropium, tiotropium","c"],
+  ["Diuretics",null],
+  ["Aldosterone receptor antagonist","Diuretic","-actone / -erenone","spironolactone, eplerenone, finerenone","c"],
+  ["Loop diuretic","Diuretic","-semide","furosemide, torsemide","c"],
+  ["Thiazide diuretic","Diuretic","-thiazide / -chlor*","hydrochlorothiazide, chlorothiazide, chlorthalidone","c"],
+  ["Oral treatments",null],
+  ["H1 inhibitor (second generation)","Antihistamine","-dine / -zine*","loratadine, cetirizine, fexofenadine, desloratadine","h"],
+  ["Leukotriene modifier","Anti-inflammatory","-lukast","montelukast, zafirlukast","c"],
+  ["Short-acting beta-2 agonist (oral)","Bronchodilator","-terol","albuterol, terbutaline*","c"],
+  ["Methylxanthine","Bronchodilator","-phylline","aminophylline, theophylline","c"],
+  ["Nasal inhalers",null],
+  ["Nasal glucocorticoid","Anti-inflammatory","-one / -nide*","fluticasone, mometasone, triamcinolone, budesonide","h"],
+  ["Antitussives",null],
+  ["Opioid antitussive","Antitussive","cod","codeine, hydrocodone","h"],
+  ["Non-opioid antitussive","Antitussive","n/a","dextromethorphan, benzonatate, diphenhydramine","h"],
+  ["Mucoactive agents",null],
+  ["Expectorant","Mucoactive agent","n/a","guaifenesin","h"],
+  ["Mucolytic","Mucoactive agent","n/a","acetylcysteine, hypertonic saline","h"],
+  ["Decongestants",null],
+  ["Alpha-adrenergic agonist (list: n/a)","Decongestant","-rine","phenylephrine, ephedrine, pseudoephedrine","h"],
+  ["Tuberculosis treatments",null],
+  ["Rifamycin antibiotic","Antitubercular","n/a (rif-)","rifampin","h"],
+  ["Mycolic acid synthesis inhibitor","Antitubercular","n/a","isoniazid (INH)","h"],
+  ["Nicotinamide analog","Antitubercular","n/a","pyrazinamide (PZA)","h"],
+  ["Cell wall synthesis inhibitor","Antitubercular","n/a","ethambutol (EMB)","h"]
+];
+const DRILL_GROUPS = [
+  {id:"airway", label:"Asthma & COPD", cards:[["-terol","Beta-2 agonist (bronchodilator)","albuterol"],["-tropium","Muscarinic antagonist (anticholinergic)","tiotropium"],["-phylline","Methylxanthine (bronchodilator)","theophylline"],["-one / -nide","Glucocorticoid (anti-inflammatory)","budesonide"],["-lukast","Leukotriene modifier","montelukast"]]},
+  {id:"allergy", label:"Allergy & cough", cards:[["-dine / -zine","Second-generation H1 antihistamine","loratadine"],["-rine","Decongestant (alpha agonist)","pseudoephedrine"],["cod","Opioid antitussive","hydrocodone"]]},
+  {id:"diuretic", label:"Diuretics", cards:[["-actone / -erenone","Aldosterone receptor antagonist","eplerenone"],["-semide","Loop diuretic","furosemide"],["-thiazide","Thiazide diuretic","hydrochlorothiazide"]]},
+  {id:"nostem", label:"No stem: learn by name", cards:[["guaifenesin","Expectorant","mucoactive agent"],["acetylcysteine","Mucolytic","mucoactive agent"],["benzonatate","Non-opioid antitussive","swallow whole"],["rifampin","Rifamycin (TB)","orange body fluids"],["isoniazid","Antimycobacterial (TB)","give with vitamin B6"],["ethambutol","Antimycobacterial (TB)","check vision"]]}
+];
+let drillGroup = "airway";
+let currentId = "start";
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const KEY = "respiratory-decoder-v1";
+let state = {answers:{}};   // answers[qid] = {sel:[...], done:true, ok:bool}
+try{ const s = localStorage.getItem(KEY); if(s){ state = JSON.parse(s) || state; if(!state.answers) state.answers = {}; } }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+// stable shuffle of options per question (seeded by question id) so order is consistent across visits
+function seeded(str){ let h = 2166136261; for(const c of str){ h ^= c.charCodeAt(0); h = Math.imul(h,16777619); } return function(){ h ^= h<<13; h ^= h>>>17; h ^= h<<5; return ((h>>>0)%100000)/100000; }; }
+SECTIONS.forEach(sec=>{ (sec.quiz||[]).forEach((q,i)=>{
+  q.id = sec.id + "-" + (i+1);
+  const r = seeded(q.id); const order = q.o.map((_,k)=>k);
+  for(let k=order.length-1;k>0;k--){ const j = Math.floor(r()*(k+1)); [order[k],order[j]]=[order[j],order[k]]; }
+  q.order = order;
+});});
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const quizSections = SECTIONS.filter(s=>s.quiz);
+const totalQ = quizSections.reduce((n,s)=>n+s.quiz.length,0);
+
+function secStats(sec){
+  let done=0, ok=0;
+  (sec.quiz||[]).forEach(q=>{ const a = state.answers[q.id]; if(a&&a.done){ done++; if(a.ok) ok++; } });
+  return {done, ok, total:(sec.quiz||[]).length};
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderNav(current){
+  const nav = document.getElementById("nav");
+  let lastGroup = "";
+  nav.innerHTML = SECTIONS.map(s=>{
+    let head = "";
+    if(s.group && s.group!==lastGroup){ lastGroup = s.group; head = `<li class="navgroup">${esc(s.group)}</li>`; }
+    let chip = "";
+    if(s.quiz){ const st = secStats(s); chip = `<span class="chip ${st.done===st.total?'done':''}">${st.ok}/${st.total}</span>`; }
+    return head + `<li><a href="#${s.id}" ${s.id===current?'aria-current="page"':''}><span class="num">${s.num}</span><span>${esc(s.title)}</span>${chip}</a></li>`;
+  }).join("");
+  let done=0; quizSections.forEach(s=>done+=secStats(s).done);
+  document.getElementById("ovText").textContent = done + " / " + totalQ;
+  document.getElementById("ovBar").style.width = (100*done/totalQ) + "%";
+}
+
+function pager(idx){
+  const prev = SECTIONS[idx-1], next = SECTIONS[idx+1];
+  return `<div class="pager">${prev?`<a class="btn ghost" href="#${prev.id}">← ${esc(prev.title)}</a>`:'<span></span>'}${next?`<a class="btn" href="#${next.id}">${esc(next.title)} →</a>`:''}</div>`;
+}
+
+function card(c, sid, ci){
+  const list = a => `<ul>${a.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  return `<article class="dcard">
+    <div class="dhead">
+      <h3>${esc(c.name)}</h3><div class="cardTools">${sid!==undefined?`<button type="button" class="printbtn" data-print-card="${sid}|${ci}" aria-label="Print ${esc(c.name)}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print</button>`:""}<span class="stemTag">${esc(c.stem)}</span></div>
+      <div class="meta"><span><b>Pharmacologic class:</b> ${esc(c.pharm)}</span><span><b>Therapeutic class:</b> ${esc(c.ther)}</span></div>
+      <div class="ex">${c.ex.map(e=>`<span>${esc(e)}</span>`).join("")}</div>
+    </div>
+    <div class="dbody">
+      <div class="cell wide"><h4>How it works</h4><p>${esc(c.how)}</p></div>
+      <div class="cell"><h4>Monitoring &amp; safe administration</h4>${list(c.mon)}</div>
+      <div class="cell"><h4>Patient education</h4>${list(c.edu)}</div>
+      <div class="cell"><h4>Side effects</h4>${list(c.se)}</div>
+      <div class="cell adv"><h4>Adverse effects</h4>${list(c.ae)}</div>
+    </div>
+    ${c.trap?`<div class="dtrap"><b>Watch for:</b> ${esc(c.trap)}</div>`:""}
+  </article>`;
+}
+
+function diagram(kind){
+  if(kind==="airway") return `
+  <section aria-labelledby="awH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="awH">What tightens an airway, and what opens it</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Smooth muscle squeeze</h4><ol>
+        <li>Beta-2 receptors relax the muscle <span class="block">-terol stimulates</span></li>
+        <li>Acetylcholine (M3 receptors) tightens it and adds mucus <span class="block">-tropium blocks</span></li>
+        <li>Methylxanthines relax it by another route <span class="block">-phylline</span></li>
+      </ol></div>
+      <div class="lane"><h4>Inflammation</h4><ol>
+        <li>Swelling, mucus and hyperreactive airways <span class="block">-sone / -onide</span></li>
+        <li>Leukotrienes cause constriction and swelling <span class="block">-lukast blocks</span></li>
+      </ol></div>
+      <div class="lane"><h4>Rescue or control?</h4><ol>
+        <li><b>Rescue:</b> SABAs (albuterol, levalbuterol) work in minutes</li>
+        <li><b>Control:</b> LABAs, LAMAs, inhaled glucocorticoids, leukotriene modifiers, theophylline; taken every day</li>
+      </ol></div>
+    </div>
+    <p class="diagcap">Bronchodilators open the airway; anti-inflammatories keep it from narrowing in the first place. Asthma treatment usually needs both.</p>
+  </section>`;
+  if(kind==="inhaler") return `
+  <section aria-labelledby="inhH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="inhH">Inhaler technique at a glance</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Metered-dose inhaler (MDI)</h4><ol>
+        <li>Shake; breathe out fully</li>
+        <li>Press as you start a <b>slow, deep</b> breath</li>
+        <li>Hold about 10 seconds; wait 1 minute between puffs</li>
+        <li>A spacer gets more drug into the lungs</li>
+      </ol></div>
+      <div class="lane"><h4>Dry-powder inhaler (DPI)</h4><ol>
+        <li>Don't shake; don't breathe out into it</li>
+        <li>Inhale <b>quickly and deeply</b></li>
+        <li>Hold your breath, then breathe out away from the device</li>
+        <li>Keep it dry</li>
+      </ol></div>
+      <div class="lane"><h4>Order and aftercare</h4><ol>
+        <li>Bronchodilator first, then the glucocorticoid (wait about 5 minutes)</li>
+        <li>Rinse and spit after any glucocorticoid inhaler</li>
+      </ol></div>
+    </div>
+  </section>`;
+  if(kind==="nephron") return `
+  <section class="panel" aria-labelledby="nephH">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <h3 id="nephH">Where each diuretic acts in the nephron</h3>
+      <div class="flow">
+        <div class="node"><b>Proximal tubule</b><small>reabsorbs most filtered water</small></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Loop of Henle</b><small>about 25% of sodium reabsorbed here · strongest effect · K⁺ lost</small><span class="block">-semide</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Distal tubule</b><small>moderate effect · K⁺ lost · Ca²⁺ kept</small><span class="block">-thiazide</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node"><b>Collecting duct</b><small>aldosterone acts here · mild effect · K⁺ kept</small><span class="block">-actone / -erenone</span></div>
+      </div>
+      <p class="diagcap">Loops and thiazides lower potassium; aldosterone antagonists raise it. Patients on loops who also get frequent albuterol are at extra risk for hypokalemia.</p>
+    </div>
+  </section>`;
+  if(kind==="tb") return `
+  <section aria-labelledby="tbH" style="display:flex;flex-direction:column;gap:10px">
+    <h3 id="tbH">The standard regimen: RIPE</h3>
+    <div class="lanes">
+      <div class="lane"><h4>Intensive phase · 2 months</h4><ol>
+        <li><span class="block">R</span> rifampin</li>
+        <li><span class="block">I</span> isoniazid</li>
+        <li><span class="block">P</span> pyrazinamide</li>
+        <li><span class="block">E</span> ethambutol</li>
+      </ol></div>
+      <div class="lane"><h4>Continuation phase · 4 months</h4><ol>
+        <li><span class="block">R</span> rifampin</li>
+        <li><span class="block">I</span> isoniazid</li>
+        <li>Longer for some patients, per the provider</li>
+      </ol></div>
+      <div class="lane"><h4>Signature toxicity</h4><ol>
+        <li><b>R, I, P:</b> liver toxicity; check LFTs</li>
+        <li><b>R:</b> orange body fluids, drug interactions</li>
+        <li><b>I:</b> neuropathy → give vitamin B6</li>
+        <li><b>P:</b> uric acid, gout</li>
+        <li><b>E:</b> eyes (red-green vision)</li>
+      </ol></div>
+    </div>
+    <p class="diagcap">Directly observed therapy (DOT) and the full course prevent relapse and drug-resistant TB. Airborne precautions continue until the provider confirms the patient is no longer infectious.</p>
+  </section>`;
+  return "";
+}
+
+function renderQuiz(sec){
+  const st = secStats(sec);
+  return `<section class="quiz" aria-labelledby="qh-${sec.id}">
+    <div class="quizHead"><div><div class="eyebrow">CHECK YOUR UNDERSTANDING</div><h2 id="qh-${sec.id}">${sec.kind==="final"?"Final review":"Section check"}</h2></div>
+      <div style="display:flex;gap:10px;align-items:center"><span class="score">${st.ok} correct · ${st.done}/${st.total} answered</span><button class="btn ghost" type="button" data-reset="${sec.id}" style="font-size:.8rem;padding:6px 10px">Retry section</button></div></div>
+    ${sec.quiz.map((q,i)=>renderQ(q,i)).join("")}
+  </section>`;
+}
+
+function renderQ(q,i){
+  const a = state.answers[q.id] || {sel:[]};
+  const multi = q.t==="sata";
+  const opts = q.order.map(k=>{
+    let cls = "opt";
+    if(a.done){
+      const chosen = a.sel.includes(k), right = q.a.includes(k);
+      if(chosen && right) cls += " correct"; else if(chosen && !right) cls += " wrong"; else if(!chosen && right) cls += " missed";
+    }
+    return `<label class="${cls}"><input type="${multi?'checkbox':'radio'}" name="${q.id}" value="${k}" ${a.sel.includes(k)?'checked':''} ${a.done?'disabled':''} data-q="${q.id}"><span>${esc(q.o[k])}</span></label>`;
+  }).join("");
+  let foot = "";
+  if(a.done){
+    foot = `<div class="verdict ${a.ok?'ok':'no'}">${a.ok?'Correct.':(multi?'Not quite. Dashed outlines show answers you missed.':'Not quite. The correct answer is outlined in green.')}</div><div class="why">${esc(q.w)}</div>`;
+  } else {
+    foot = `<div class="qfoot"><button class="btn" type="button" data-check="${q.id}" ${a.sel.length?'':'disabled'}>Check answer</button></div>`;
+  }
+  return `<div class="q" id="q-${q.id}"><div class="qn">QUESTION ${i+1}${multi?'<span class="tag">SELECT ALL THAT APPLY</span>':''}</div><div class="stemQ">${esc(q.s)}</div><div class="opts" role="${multi?'group':'radiogroup'}" aria-label="Answer choices">${opts}</div>${foot}</div>`;
+}
+
+function stemTable(){
+  return `<div class="tablewrap"><table>
+    <thead><tr><th>Pharmacologic class</th><th>Therapeutic class</th><th>Stem</th><th>Examples on your list</th></tr></thead>
+    <tbody>${STEMS.map(r=> r[1]===null ? `<tr class="groupRow"><td colspan="4">${esc(r[0])}</td></tr>`
+      : `<tr class="${r[4]}"><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td><span class="stem">${esc(r[2])}</span></td><td>${esc(r[3])}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <p class="diagcap">* Does not follow the stem. Learn these by name; each one is flagged on its drug card.</p>`;
+}
+
+function render(){
+  let id = viewId;
+  if(!id){ try{ id = (location.hash||"").replace("#",""); }catch(e){} }
+  id = id || "start";
+  const idx = Math.max(0, SECTIONS.findIndex(s=>s.id===id));
+  const sec = SECTIONS[idx];
+  currentId = sec.id;
+  renderNav(sec.id);
+  const main = document.getElementById("main");
+  let h = "";
+  if(sec.kind==="intro"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">UNIT 3 · RESPIRATORY</div><h1>Respiratory Drug Decoder</h1>
+      <p class="lede">Every medication on the Unit 3 list, organized by class: asthma and COPD drugs, allergy, cough and congestion, diuretics, and tuberculosis treatment. Learn to read a drug name, then work through each class: how it works, what you monitor, what you teach, and what can go wrong. Each section ends with questions that explain the answer as soon as you check it.</p></header>
+      <section class="panel"><h3 style="margin-bottom:10px">By the end, you should be able to</h3><ol class="objectives">
+        <li>Use prefixes, roots and suffixes to identify the class of a respiratory drug.</li>
+        <li>Tell the pharmacologic class (how it works) from the therapeutic class (what it treats).</li>
+        <li>Explain the mechanism of action of each class in plain language.</li>
+        <li>Identify the assessments, labs and hold parameters for safe administration.</li>
+        <li>Teach patients how to take each drug safely and what to report.</li>
+        <li>Distinguish common side effects from adverse effects that need action.</li>
+      </ol></section>
+      <div class="steps">
+        <div class="panel"><span class="eyebrow">STEP 1</span><b>Read the labels</b><p>Each drug class is a card with the same six parts, so you can compare classes side by side.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 2</span><b>Check yourself</b><p>Answer every question at the end of the section. You'll see the rationale right away.</p></div>
+        <div class="panel"><span class="eyebrow">STEP 3</span><b>Review your results</b><p>The results page shows your score by section and lists the topics to revisit.</p></div>
+      </div>
+      <p class="diagcap">Your answers are saved in this browser only. Use “Retry section” to clear one section, or “Start over” to clear everything.</p>
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="decode"){
+    const g = DRILL_GROUPS.find(x=>x.id===drillGroup) || DRILL_GROUPS[0];
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      <section class="panel" aria-labelledby="readH" style="display:flex;flex-direction:column;gap:14px">
+        <h3 id="readH">Read a drug name in three steps</h3>
+        <div class="decodeSteps">
+          <div class="dstep"><span class="eyebrow">1 · FIND THE STEM</span><p class="big mono">albu<mark>terol</mark></p></div>
+          <div class="dstep"><span class="eyebrow">2 · PHARMACOLOGIC CLASS</span><p class="big">Beta-2 agonist</p><small>How it works</small></div>
+          <div class="dstep"><span class="eyebrow">3 · THERAPEUTIC CLASS</span><p class="big">Bronchodilator</p><small>What it treats</small></div>
+        </div>
+        <p class="diagcap">The stem points to the pharmacologic class. Several pharmacologic classes can share one therapeutic class: beta-2 agonists, muscarinic antagonists and methylxanthines are all bronchodilators.</p>
+      </section>
+      <section style="display:flex;flex-direction:column;gap:12px" aria-labelledby="drillH">
+        <div><h3 id="drillH">Flash drill</h3><p class="diagcap">Pick a group. Say the class out loud, then tap the card to check.</p></div>
+        <div class="tabs" role="tablist" aria-label="Drill groups">${DRILL_GROUPS.map(x=>`<button type="button" role="tab" class="tab" aria-selected="${x.id===g.id}" data-group="${x.id}">${esc(x.label)}</button>`).join("")}</div>
+        <div class="drill">${g.cards.map((d,i)=>`<button type="button" class="flip" aria-pressed="false" data-flip="${i}"><span class="front">${esc(d[0])}</span><span class="ex1 mono">${esc(d[2])}</span><span class="back" hidden>${esc(d[1])}</span><span class="hint">Tap to reveal</span></button>`).join("")}</div>
+        <p class="diagcap">Every drug card shows its stem, and the full list is on the <a href="#stems">Stem cheat sheet</a>.</p>
+      </section>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="drug"){
+    h = `<div class="view ${sec.theme==='heme'?'heme':''}">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">SECTION ${sec.num}</div><button type="button" class="printbtn" data-print-section="${sec.id}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print this section</button></div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${sec.diagram?sec.diagram.split(" ").map(diagram).join(""):""}
+      <div class="cards">${sec.cards.map((c,i)=>card(c,sec.id,i)).join("")}</div>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="final"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">SECTION ${sec.num}</div><h2>${esc(sec.title)}</h2><p class="lede">${esc(sec.lede)}</p></header>
+      ${renderQuiz(sec)}
+      ${pager(idx)}</div>`;
+  } else if(sec.kind==="stems"){
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="secHead"><div class="eyebrow">REFERENCE</div><button type="button" class="printbtn" data-print-section="stems"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="6" y="14" width="12" height="7"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/></svg>Print cheat sheet</button></div><h2>Stem cheat sheet</h2>
+      <p class="lede">Every class in this activity, with its stem and the examples from your Unit 3 list. Use it to review, not as the place to start.</p></header>
+      ${stemTable()}
+      ${pager(idx)}</div>`;
+  } else {
+    let tot=0, ok=0, done=0;
+    const rows = quizSections.map(s=>{ const st = secStats(s); tot+=st.total; ok+=st.ok; done+=st.done;
+      const pct = st.done? Math.round(100*st.ok/st.total) : null;
+      const pill = st.done<st.total ? `<span class="pill none">${st.done}/${st.total} answered</span>` : pct>=80?`<span class="pill ok">Solid</span>`:pct>=60?`<span class="pill mid">Review</span>`:`<span class="pill low">Revisit</span>`;
+      return `<a class="sumcard" href="#${s.id}" style="text-decoration:none;color:inherit"><span class="eyebrow">${s.num}</span><b>${esc(s.title)}</b><span class="big">${st.ok}/${st.total}</span>${pill}</a>`; }).join("");
+    const misses = [];
+    quizSections.forEach(s=>s.quiz.forEach((q,i)=>{ const a = state.answers[q.id]; if(a&&a.done&&!a.ok) misses.push(`<li><a href="#${s.id}">${esc(s.title)}, question ${i+1}</a>: ${esc(q.s)}</li>`); }));
+    h = `<div class="view">
+      <header style="display:flex;flex-direction:column;gap:10px"><div class="eyebrow">RESULTS</div><h2>Your results</h2>
+      <p class="lede">${done===0?"You haven't answered any questions yet. Start with Decoding drug names.":`You've answered ${done} of ${tot} questions and got ${ok} correct (${Math.round(100*ok/Math.max(done,1))}% of those answered).`}</p></header>
+      <div class="sumgrid">${rows}</div>
+      <section class="panel" style="display:flex;flex-direction:column;gap:10px"><h3>Questions to revisit</h3>
+        ${misses.length?`<ol class="misslist">${misses.join("")}</ol>`:`<p class="diagcap">${done?"None. Nice work.":"Missed questions will be listed here."}</p>`}</section>
+      ${pager(idx)}</div>`;
+  }
+  main.innerHTML = h;
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+document.addEventListener("change", e=>{
+  const inp = e.target.closest("input[data-q]"); if(!inp) return;
+  const qid = inp.dataset.q; const a = state.answers[qid] || {sel:[]}; if(a.done) return;
+  const k = +inp.value;
+  if(inp.type==="radio") a.sel = [k];
+  else a.sel = inp.checked ? [...new Set([...a.sel,k])] : a.sel.filter(x=>x!==k);
+  state.answers[qid] = a; save();
+  const btn = document.querySelector(`[data-check="${qid}"]`); if(btn) btn.disabled = !a.sel.length;
+});
+document.addEventListener("click", e=>{
+  const chk = e.target.closest("[data-check]");
+  if(chk){
+    const qid = chk.dataset.check; let q; SECTIONS.forEach(s=>(s.quiz||[]).forEach(x=>{ if(x.id===qid) q=x; }));
+    const a = state.answers[qid]; if(!a||!a.sel.length) return;
+    const sel = [...a.sel].sort(), ans = [...q.a].sort();
+    a.ok = sel.length===ans.length && sel.every((v,i)=>v===ans[i]); a.done = true; save();
+    const sec = SECTIONS.find(s=>(s.quiz||[]).includes(q));
+    document.getElementById("q-"+qid).outerHTML = renderQ(q, sec.quiz.indexOf(q));
+    renderNav(sec.id);
+    const st = secStats(sec); const sc = document.querySelector(".score"); if(sc) sc.textContent = `${st.ok} correct · ${st.done}/${st.total} answered`;
+    return;
+  }
+  const rs = e.target.closest("[data-reset]");
+  if(rs){ const sec = SECTIONS.find(s=>s.id===rs.dataset.reset); sec.quiz.forEach(q=>delete state.answers[q.id]); save(); render(); return; }
+  const tg = e.target.closest("[data-group]");
+  if(tg){ drillGroup = tg.dataset.group; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  const fl = e.target.closest("[data-flip]");
+  if(fl){ const on = fl.getAttribute("aria-pressed")!=="true"; fl.setAttribute("aria-pressed", on); fl.querySelector(".back").hidden = !on; fl.querySelector(".hint").textContent = on?"Tap to hide":"Tap to reveal"; return; }
+});
+document.getElementById("resetAll").addEventListener("click", ()=>{
+  const b = document.getElementById("resetAll");
+  if(b.dataset.confirm){ state = {answers:{}}; save(); delete b.dataset.confirm; b.textContent="Start over"; render(); }
+  else { b.dataset.confirm = "1"; b.textContent = "Click again to clear all answers"; setTimeout(()=>{ delete b.dataset.confirm; b.textContent="Start over"; }, 4000); }
+});
+let viewId = "";
+/* ============================================================
+   PRINTING
+   Standalone file: prints from a hidden frame.
+   Published page (printing is blocked there): saves a print-ready copy
+   that opens its own print dialog.
+   ============================================================ */
+const UNIT_LABEL = "UNIT 3 · RESPIRATORY", APP_TITLE = "Respiratory Drug Decoder";
+function inViewer(){ try{ return !!(window.claude && typeof window.claude.use === "function"); }catch(e){ return false; } }
+function toast(msg){
+  const t = document.getElementById("toast"); if(!t) return;
+  t.textContent = msg; t.hidden = false; clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ t.hidden = true; }, 6000);
+}
+function fileSafe(x){ return String(x).replace(/[^A-Za-z0-9 &()-]+/g," ").replace(/\s+/g," ").trim().slice(0,80) || "Printout"; }
+function printDoc(title, bodyHtml, heme){
+  const css = document.querySelector("style").textContent;
+  return '<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="utf-8"><title>' + esc(title) + '</title>'
+   + '<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">'
+   + '<style>' + css + '\nbody{background:#fff}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+   + 'main.printdoc{max-width:960px;margin:0 auto;padding:24px}.printbtn,.abcd,#toast{display:none !important}'
+   + '.dcard,.lane,.panel,tr{break-inside:avoid;page-break-inside:avoid}h2,h3{break-after:avoid}'
+   + '.printbar{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:10px}'
+   + '@media print{.printbar button{display:none}main.printdoc{padding:0}@page{margin:0.5in}}</style></head>'
+   + '<body><main class="printdoc"><div class="view' + (heme?' heme':'') + '">'
+   + '<div class="printbar"><span class="eyebrow">' + esc(UNIT_LABEL + " · " + APP_TITLE) + '</span><button class="btn" type="button" onclick="window.print()">Print</button></div>'
+   + bodyHtml + '</div></main>'
+   + '<scr'+'ipt>window.addEventListener("load",function(){setTimeout(function(){try{window.print()}catch(e){}},500)});</scr'+'ipt></body></html>';
+}
+async function doPrint(title, bodyHtml, heme){
+  const html = printDoc(title, bodyHtml, heme);
+  if(inViewer()){
+    let dl = null;
+    try{ dl = await window.claude.use("downloads"); }catch(e){}
+    if(!dl){ toast("Printing isn't available in this view. Open the downloaded HTML file in your browser to print."); return; }
+    try{
+      await dl.save({filename: fileSafe(title) + ".html", data: html});
+      toast("Saved. Open the file and the print window appears; choose Save as PDF if you'd rather keep a PDF.");
+    }catch(err){
+      if(err && err.code === "declined") return;
+      if(err && err.code === "rate_limited"){ toast("A save prompt is already open. Finish that one first."); return; }
+      toast("This view couldn't save the printable copy. Use the downloadable HTML file to print instead.");
+    }
+    return;
+  }
+  try{
+    let f = document.getElementById("printFrame"); if(f) f.remove();
+    f = document.createElement("iframe");
+    f.id = "printFrame"; f.title = "Print preview"; f.setAttribute("aria-hidden","true"); f.tabIndex = -1;
+    f.style.cssText = "position:fixed;left:-10000px;top:0;width:900px;height:1200px;border:0;";
+    document.body.appendChild(f);
+    f.srcdoc = html;
+  }catch(e){ toast("Your browser blocked printing. Try Ctrl+P (Cmd+P on a Mac)."); }
+}
+function sectionPrintBody(sec){
+  if(sec.kind==="stems") return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">REFERENCE</div><h2>Stem cheat sheet</h2></header>' + stemTable();
+  return '<header style="display:flex;flex-direction:column;gap:8px"><div class="eyebrow">SECTION ' + esc(sec.num) + '</div><h2>' + esc(sec.title) + '</h2><p class="lede">' + esc(sec.lede) + '</p></header>'
+    + (sec.diagram ? sec.diagram.split(" ").filter(d=>d!=="abcd").map(diagram).join("") : "")
+    + '<div class="cards">' + sec.cards.map(c=>card(c)).join("") + '</div>';
+}
+document.addEventListener("click", e=>{
+  const pc = e.target.closest("[data-print-card]");
+  if(pc){
+    const [sid, ci] = pc.dataset.printCard.split("|");
+    const sec = SECTIONS.find(x=>x.id===sid); const c = sec && sec.cards[+ci]; if(!c) return;
+    doPrint(c.name, '<div class="eyebrow">' + esc(sec.title.toUpperCase()) + '</div>' + card(c), sec.theme==="heme");
+    return;
+  }
+  const ps = e.target.closest("[data-print-section]");
+  if(ps){
+    const sec = SECTIONS.find(x=>x.id===ps.dataset.printSection); if(!sec) return;
+    doPrint(sec.kind==="stems" ? "Stem cheat sheet" : sec.title, sectionPrintBody(sec), sec.theme==="heme");
+  }
+});
+function go(id){
+  viewId = id; render();
+  try{ history.replaceState(null, "", "#"+id); }catch(e){}
+}
+// Navigate with script instead of relying on hash links, which some viewers block.
+document.addEventListener("click", e=>{
+  const a = e.target.closest('a[href^="#"]'); if(!a) return;
+  const id = a.getAttribute("href").slice(1);
+  if(!SECTIONS.some(s=>s.id===id)) return;
+  e.preventDefault(); go(id);
+}, true);
+window.addEventListener("hashchange", ()=>{ try{ const h = location.hash.replace("#",""); if(h && h!==viewId){ viewId = h; render(); } }catch(e){} });
+render();
+</script>
+</body>
+</html>

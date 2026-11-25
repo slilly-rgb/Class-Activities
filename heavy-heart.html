@@ -1,0 +1,419 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Heavy Heart</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: case narrative column + sticky "bedside chart" rail; stage tracker runs across the top like a care timeline */
+:root{
+  --bg:#eef2f5; --paper:#ffffff; --ink:#18232e; --muted:#5a6976; --line:#d5dde4;
+  --accent:#b3263e; --accent-soft:#f8e3e7; --calm:#1f5f86; --calm-soft:#e1edf5;
+  --ok:#21794e; --ok-soft:#e1f2e8; --warn:#a4600a; --warn-soft:#fbefdb;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Literata", Georgia, "Times New Roman", serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10171d; --paper:#18222b; --ink:#e4ebf0; --muted:#97a6b2; --line:#2b3a46;
+  --accent:#ec6a80; --accent-soft:#3a1d25; --calm:#7db8de; --calm-soft:#1a2c3a;
+  --ok:#5fcf93; --ok-soft:#173327; --warn:#e8a64a; --warn-soft:#352711; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10171d; --paper:#18222b; --ink:#e4ebf0; --muted:#97a6b2; --line:#2b3a46;
+  --accent:#ec6a80; --accent-soft:#3a1d25; --calm:#7db8de; --calm-soft:#1a2c3a;
+  --ok:#5fcf93; --ok-soft:#173327; --warn:#e8a64a; --warn-soft:#352711; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+.brand{display:flex;flex-direction:column;gap:2px}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1;margin:0;letter-spacing:-.02em;text-wrap:balance}
+h1 .beat{color:var(--accent)}
+.patientTag{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);text-align:right}
+.patientTag b{color:var(--ink);font-weight:600}
+
+/* Stage tracker */
+.tracker{list-style:none;display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:18px 0 22px;padding:0}
+.tracker li{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:9px;border-top:4px solid var(--line);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tracker li.done{border-color:var(--ok);color:var(--ink)}
+.tracker li.now{border-color:var(--accent);color:var(--accent);font-weight:600}
+@media (max-width:640px){.tracker li span{display:none}.tracker li{font-size:.62rem}}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:24px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}.chart{order:-1;position:static!important}}
+
+.scene{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:clamp(18px,3vw,32px)}
+.sceneHead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline;margin-bottom:6px}
+.time{font-family:var(--f-mono);font-size:.8rem;color:var(--calm);font-weight:600}
+.cjmm{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--calm-soft);color:var(--calm)}
+h2{font-family:var(--f-display);font-weight:700;font-size:1.65rem;line-height:1.15;margin:4px 0 14px;text-wrap:balance}
+.story p{margin:0 0 12px;max-width:68ch}
+.quote{border-left:3px solid var(--accent);padding:2px 0 2px 14px;font-style:italic;margin:0 0 12px}
+.question{margin:22px 0 12px;font-family:var(--f-display);font-weight:700;font-size:1.15rem;line-height:1.3}
+.hint{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);margin:-6px 0 12px}
+
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:inherit;background:var(--bg);border:1.5px solid var(--line);border-radius:6px;padding:12px 14px;cursor:pointer;transition:border-color .15s, background .15s}
+.opt:hover:not(:disabled){border-color:var(--calm)}
+.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--calm);outline-offset:2px}
+.opt .key{flex:0 0 auto;font-family:var(--f-mono);font-weight:600;width:28px;height:28px;border-radius:4px;display:grid;place-items:center;background:var(--paper);border:1px solid var(--line);font-size:.85rem}
+.opt.sel{border-color:var(--calm);background:var(--calm-soft)}
+.opt.sel .key{background:var(--calm);color:var(--paper);border-color:var(--calm)}
+.opt.wrong{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.right .key{background:var(--ok);color:var(--paper);border-color:var(--ok)}
+.opt:disabled{cursor:default}
+.opt.struck{opacity:.5;text-decoration:line-through}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.btn{font-family:var(--f-display);font-weight:700;font-size:1rem;border:0;border-radius:6px;padding:11px 20px;cursor:pointer;background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+.fb{margin-top:16px;border-radius:6px;padding:14px 16px;border:1px solid}
+.fb h3{font-family:var(--f-display);margin:0 0 6px;font-size:1.05rem}
+.fb p{margin:0 0 8px;max-width:68ch}.fb p:last-child{margin-bottom:0}
+.fb.no{background:var(--accent-soft);border-color:var(--accent)}
+.fb.no h3{color:var(--accent)}
+.fb.yes{background:var(--ok-soft);border-color:var(--ok)}
+.fb.yes h3{color:var(--ok)}
+.next{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+.next .label{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+
+/* Chart rail */
+.chart{position:sticky;top:16px;background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.chart .ch{background:var(--ink);color:var(--paper);padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.chart .ch b{font-family:var(--f-display);font-size:1rem}
+.chart .ch span{font-family:var(--f-mono);font-size:.72rem;opacity:.8}
+.sec{padding:12px 14px;border-top:1px solid var(--line)}
+.sec:first-of-type{border-top:0}
+.sec h4{margin:0 0 8px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.vitals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.v{background:var(--bg);border-radius:4px;padding:6px 8px;min-width:0}
+.v small{display:block;font-family:var(--f-mono);font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.v strong{font-family:var(--f-mono);font-size:1rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.v.hi strong{color:var(--accent)}
+.v.lo strong{color:var(--warn)}
+.labs{width:100%;border-collapse:collapse;font-family:var(--f-mono);font-size:.8rem;font-variant-numeric:tabular-nums}
+.labs td{padding:4px 0;border-bottom:1px dotted var(--line)}
+.labs td:nth-child(2){text-align:right;font-weight:600}
+.labs td:nth-child(3){text-align:right;color:var(--muted);font-size:.7rem;padding-left:8px}
+.flagH{color:var(--accent)}.flagL{color:var(--warn)}
+.notes{margin:0;padding-left:18px;font-size:.88rem}
+.notes li{margin-bottom:4px}
+.ordersList{margin:0;padding-left:18px;font-family:var(--f-mono);font-size:.78rem}
+.ordersList li{margin-bottom:3px}
+
+/* Intro + debrief */
+.intro{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px}
+@media (max-width:820px){.intro{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:clamp(18px,3vw,28px)}
+.panel h3{font-family:var(--f-display);margin:0 0 10px;font-size:1.15rem}
+.objectives{margin:0;padding-left:20px}
+.objectives li{margin-bottom:6px}
+.ekg{width:100%;height:56px;display:block;margin:6px 0 14px}
+.ekg path{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round;stroke-dasharray:900;stroke-dashoffset:900;animation:trace 2.6s ease-out forwards}
+@keyframes trace{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.ekg path{animation:none;stroke-dashoffset:0}}
+.score{font-family:var(--f-display);font-weight:800;font-size:clamp(3rem,9vw,5rem);line-height:1;color:var(--accent)}
+.reviewItem{border-top:1px solid var(--line);padding:10px 0}
+.reviewItem b{font-family:var(--f-display)}
+.reviewItem small{display:block;font-family:var(--f-mono);color:var(--muted);font-size:.72rem}
+.prompts{margin:0;padding-left:20px}.prompts li{margin-bottom:8px}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="eyebrow">Choose-your-own-adventure · Cardiac</span>
+      <h1>Heavy <span class="beat">Heart</span></h1>
+    </div>
+    <div class="patientTag">Patient <b>Raymond Ortiz</b>, 62 M<br>New-onset heart failure · Fictional case</div>
+  </header>
+  <ol class="tracker" id="tracker"></ol>
+  <main id="app"></main>
+</div>
+
+<script>
+const STAGES=["Arrival","Assess","Diurese","Optimize","Monitor","Complication","Discharge"];
+
+const SCENES=[
+{ stage:0, time:"Day 1 · 10:45 · Emergency Department", cjmm:"Take action",
+  title:"He can't catch his breath",
+  story:`<p>Raymond Ortiz, 62, is wheeled in sitting bolt upright, gripping the stretcher rails. His wife says he has been "winded" for three weeks, now sleeps in his recliner, and twice this week woke up gasping. His shoes don't fit anymore.</p>
+  <p class="quote">"I feel like I'm breathing through a wet towel."</p>
+  <p>History: hypertension (he admits he "stopped the pills when they ran out"), type 2 diabetes, 35 pack-year smoker. No known heart disease. Skin is cool and dusky, he speaks in 3–4 word phrases, and you hear crackles before your stethoscope reaches his chest.</p>`,
+  question:"What is your first action?",
+  type:"single",
+  options:[
+    {t:"Raise the head of the bed to high Fowler's and apply oxygen, titrating to SpO₂ ≥ 94%.", ok:true},
+    {t:"Draw a BNP and troponin so the provider can confirm the diagnosis.", fb:"Labs matter, and you'll anticipate them shortly. But SpO₂ is 87% and he's speaking in fragments. Breathing comes before diagnostics."},
+    {t:"Complete a full health history while his wife is available to answer.", fb:"His wife isn't going anywhere. A detailed history can wait a few minutes; his oxygenation can't."},
+    {t:"Lay him flat so you can perform a thorough cardiac and lung assessment.", fb:"Lying flat increases venous return to an overloaded left ventricle and worsens pulmonary congestion. This could tip him into respiratory failure."}
+  ],
+  rationale:`<p>ABCs first. High Fowler's reduces venous return (preload) and lets the diaphragm move. Supplemental oxygen treats the hypoxemia caused by fluid in the alveoli. Everything else follows once he is breathing more easily.</p>`,
+  after:`Ten minutes later on 4 L nasal cannula, SpO₂ is 91% and he can finish a sentence. The provider orders a 12-lead ECG, chest X-ray, BNP, troponin and a BMP, and asks you to complete a focused cardiopulmonary assessment.`,
+  chart:{ label:"Triage", vitals:[["BP","172/98","hi"],["HR","114","hi"],["RR","30","hi"],["SpO₂","87% RA","lo"],["Temp","37.0 °C"],["Wt","98.4 kg"]],
+    notes:["Bilateral crackles, lower half of lung fields","Speaks 3–4 words per breath","Reports 3 weeks of dyspnea on exertion","Sleeps upright in recliner"] }
+},
+{ stage:1, time:"Day 1 · 11:00 · ED", cjmm:"Recognize & analyze cues",
+  title:"Reading the body",
+  story:`<p>With him a little more comfortable, you complete a focused assessment.</p>
+  <p>Fine crackles reach halfway up both lung fields. You hear an extra heart sound right after S2: an S3 gallop. With the head of the bed at 45°, his jugular veins are distended 6 cm above the sternal angle. There is 3+ pitting edema to both mid-shins. His liver edge is palpable 3 cm below the costal margin. He tells you he needs three pillows to sleep, and he has woken up "suffocating" several nights this week.</p>`,
+  question:"Which findings reflect LEFT-sided heart failure (backup into the lungs)?",
+  hint:"Select all that apply, then submit.",
+  type:"multi",
+  options:[
+    {t:"Crackles in both lung fields", ok:true},
+    {t:"Orthopnea (needs three pillows)", ok:true},
+    {t:"Paroxysmal nocturnal dyspnea (waking up suffocating)", ok:true},
+    {t:"Jugular venous distension", ok:false},
+    {t:"3+ bilateral pitting edema", ok:false},
+    {t:"Hepatomegaly", ok:false}
+  ],
+  multiFb:"Sort each finding by where the blood is backing up. Left ventricle fails → blood backs into the lungs. Right ventricle fails → blood backs into the systemic veins (neck, liver, legs).",
+  rationale:`<p><b>Left-sided (pulmonary):</b> crackles, orthopnea and PND all come from blood backing up into the pulmonary circulation and fluid leaking into the alveoli.</p>
+  <p><b>Right-sided (systemic):</b> JVD, dependent edema and hepatomegaly come from blood backing up into the venous system.</p>
+  <p>Raymond has both. Left-sided failure is the most common cause of right-sided failure, because the backed-up pressure in the lungs eventually overwhelms the right ventricle.</p>`,
+  after:`Results come back: BNP is markedly elevated, troponin is within normal limits, and the chest X-ray shows cardiomegaly with pulmonary vascular congestion. ECG shows sinus tachycardia with left ventricular hypertrophy and no acute ST changes. The provider orders furosemide 40 mg IV push now.`,
+  chart:{ label:"Focused assessment", vitals:[["BP","168/96","hi"],["HR","110","hi"],["RR","28","hi"],["SpO₂","91% 4L","lo"],["Temp","37.0 °C"],["Wt","98.4 kg"]],
+    notes:["S3 gallop","JVD 6 cm at 45°","3+ pitting edema bilateral to mid-shin","Liver edge 3 cm below costal margin","3-pillow orthopnea, PND"] }
+},
+{ stage:2, time:"Day 1 · 11:40 · ED", cjmm:"Generate solutions",
+  title:"Turning on the faucet",
+  story:`<p>You pull furosemide 40 mg from the dispensing cabinet. Raymond watches you scan it.</p>
+  <p class="quote">"Is that the water pill? Good. Get it out of me."</p>
+  <p>Review the chart on the right before you give it.</p>`,
+  question:"Before administering IV furosemide, what does the nurse do?",
+  type:"single",
+  options:[
+    {t:"Check the most recent potassium and blood pressure, then give the dose slowly over at least 2 minutes.", ok:true},
+    {t:"Hold the dose because potassium is below 4.0 mEq/L.", fb:"3.6 mEq/L is within normal range. Holding a loop diuretic in a patient with pulmonary edema for a normal potassium delays the treatment he urgently needs. You will, however, watch the trend closely."},
+    {t:"Push it rapidly so it starts working faster.", fb:"Rapid IV furosemide (faster than 20 mg/min) increases the risk of ototoxicity. 40 mg should go in over at least 2 minutes. Onset is about 5 minutes either way."},
+    {t:"Place him on a total fluid restriction first so the diuretic is more effective.", fb:"Fluid restriction may be ordered (often 1.5–2 L/day), but it isn't a prerequisite for giving a diuretic, and a total restriction isn't appropriate."}
+  ],
+  rationale:`<p>Loop diuretics waste potassium and can drop blood pressure as volume comes off. Know the baseline before the first dose. IV push furosemide is given no faster than 20 mg/min to prevent ototoxicity.</p>
+  <p>Anticipate brisk urine output within 30–60 minutes. Make sure he has a urinal or bedside commode before it kicks in, and start strict intake and output.</p>`,
+  after:`Within an hour he has voided 900 mL. RR drops to 22 and he's on 2 L. An echocardiogram the next morning shows a dilated left ventricle with an ejection fraction of 30%: heart failure with reduced ejection fraction (HFrEF). The cardiologist starts guideline-directed medical therapy.`,
+  chart:{ label:"Pre-diuretic", vitals:[["BP","164/94","hi"],["HR","106","hi"],["RR","26","hi"],["SpO₂","92% 4L"],["Temp","37.0 °C"],["Wt","98.4 kg"]],
+    labs:[["BNP","1,620 pg/mL","< 100","H"],["Troponin I","0.02 ng/mL","< 0.04"],["K⁺","3.6 mEq/L","3.5–5.0"],["Na⁺","134 mEq/L","135–145","L"],["BUN","24 mg/dL","7–20","H"],["Creatinine","1.1 mg/dL","0.6–1.2"],["Glucose","188 mg/dL","70–110","H"]],
+    orders:["Furosemide 40 mg IV push now","Strict I&O","O₂ to keep SpO₂ ≥ 94%"] }
+},
+{ stage:3, time:"Day 2 · 08:00 · Cardiac step-down", cjmm:"Analyze cues",
+  title:"The four pillars",
+  story:`<p>Raymond slept in bed last night with two pillows. He's down 2.3 kg. The cardiologist has written new orders based on the echo, and you're reviewing them at 08:00 before morning meds.</p>
+  <p>His home medication list shows he was taking <b>lisinopril 10 mg daily</b>. He told you he took his last dose at home last night at 21:00 "because I found a few old ones." Lisinopril is still active on the MAR from admission.</p>`,
+  question:"Which new order does the nurse need to clarify before giving morning medications?",
+  type:"single",
+  options:[
+    {t:"Sacubitril/valsartan 24/26 mg PO twice daily", ok:true},
+    {t:"Metoprolol succinate 12.5 mg PO daily", fb:"Evidence-based beta-blockers (metoprolol succinate, carvedilol, bisoprolol) are a pillar of HFrEF therapy. They're started at a low dose once the patient is no longer in acute decompensation, which Raymond is not. Check HR and BP before each dose."},
+    {t:"Spironolactone 12.5 mg PO daily", fb:"Aldosterone antagonists reduce mortality in HFrEF. His potassium is 3.5 and creatinine is normal, so this is appropriate. It will also help offset potassium loss from furosemide."},
+    {t:"Dapagliflozin 10 mg PO daily", fb:"SGLT2 inhibitors are now a core HFrEF therapy, with or without diabetes. Teach him about genital hygiene and signs of dehydration, but there's no reason to hold this order."}
+  ],
+  rationale:`<p>Sacubitril/valsartan (an ARNI) must <b>never</b> be given with an ACE inhibitor, and requires a <b>36-hour washout</b> after the last ACE inhibitor dose because of the risk of angioedema. His last lisinopril was 11 hours ago and it's still active on the MAR.</p>
+  <p>Call the provider: discontinue lisinopril and confirm the first ARNI dose time (no earlier than Day 3 at 09:00). The four pillars of HFrEF therapy are ARNI/ACEi/ARB, an evidence-based beta-blocker, an aldosterone antagonist, and an SGLT2 inhibitor.</p>`,
+  after:`The cardiologist discontinues lisinopril and moves the first sacubitril/valsartan dose to Day 3 at 09:00. She thanks you. Furosemide continues at 40 mg IV twice daily, and she asks the team to track his fluid status closely.`,
+  chart:{ label:"Day 2 AM", vitals:[["BP","138/82"],["HR","92"],["RR","20"],["SpO₂","94% 2L"],["Temp","36.8 °C"],["Wt","96.1 kg"]],
+    labs:[["K⁺","3.5 mEq/L","3.5–5.0"],["Creatinine","1.2 mg/dL","0.6–1.2"],["Na⁺","135 mEq/L","135–145"],["Echo EF","30%","55–70%","L"]],
+    orders:["Sacubitril/valsartan 24/26 mg PO BID","Metoprolol succinate 12.5 mg PO daily","Spironolactone 12.5 mg PO daily","Dapagliflozin 10 mg PO daily","Furosemide 40 mg IV BID","Lisinopril 10 mg PO daily (admission)"] }
+},
+{ stage:4, time:"Day 2 · 09:30 · Cardiac step-down", cjmm:"Evaluate outcomes",
+  title:"Measuring the water",
+  story:`<p>The charge nurse asks you to orient a new nursing assistant who will be helping with Raymond today. She wants to know what to measure so the team can tell whether the diuresis is working.</p>
+  <p>Raymond's lungs still have crackles at the bases, his edema is down to 2+, and his I&O shows he's 3.1 L negative since admission.</p>`,
+  question:"Which assessment is the most reliable indicator of Raymond's fluid status?",
+  type:"single",
+  options:[
+    {t:"Daily weight: same time, same scale, same clothing, after voiding and before breakfast.", ok:true},
+    {t:"Intake and output totals for each shift.", fb:"I&O is useful, but it misses insensible losses (breathing, sweat) and is easy to record incorrectly. It supports weight trends; it doesn't replace them."},
+    {t:"Grading pitting edema each shift.", fb:"Edema grading is subjective, varies between nurses, and lags behind real fluid changes. A useful finding, but not the most reliable one."},
+    {t:"Auscultating lung sounds every four hours.", fb:"Lung sounds tell you about pulmonary congestion right now, which matters. But they aren't a quantitative measure of total body fluid."}
+  ],
+  rationale:`<p>1 kg of weight change equals roughly 1 L of fluid. A standardized daily weight is the most objective, reproducible measure of fluid gain or loss, and it's the same tool Raymond will use at home to catch decompensation early.</p>
+  <p>Use the same scale every time and document the scale used.</p>`,
+  after:`By 14:00 on Day 2, Raymond has received three doses of IV furosemide and is down another 1.1 kg. Then the monitor tech calls your phone.`,
+  chart:{ label:"Day 2", vitals:[["BP","130/80"],["HR","88"],["RR","18"],["SpO₂","95% 1L"],["Temp","36.9 °C"],["Wt","95.0 kg"]],
+    notes:["Crackles at bases only","Edema 2+ bilateral","I&O since admission: −3.1 L","2-pillow orthopnea"] }
+},
+{ stage:5, time:"Day 2 · 14:10 · Cardiac step-down", cjmm:"Prioritize hypotheses",
+  title:"Too much of a good thing",
+  story:`<p class="quote">"He's throwing frequent PVCs, sometimes couplets. Can you check on him?"</p>
+  <p>Raymond is in bed rubbing his calves. He says his legs are cramping and he feels "weak as a kitten." He's alert and oriented. The rhythm strip shows sinus rhythm at 98 with frequent PVCs, flattened T waves and a visible U wave. The afternoon labs just resulted. His next furosemide dose is due at 16:00.</p>`,
+  question:"What is the nurse's priority action?",
+  type:"single",
+  options:[
+    {t:"Notify the provider now, anticipate potassium and magnesium replacement, keep him on continuous monitoring, and hold the 16:00 furosemide pending new orders.", ok:true},
+    {t:"Give the 16:00 furosemide as scheduled and recheck labs in the morning.", fb:"Another loop diuretic dose will push potassium even lower. With PVCs and U waves, he's at risk for ventricular dysrhythmias. This can't wait until morning."},
+    {t:"Administer potassium chloride 10 mEq IV push to correct it quickly.", fb:"Never give potassium by IV push. It can cause fatal cardiac arrest. IV potassium is always diluted and given by infusion pump, typically no faster than 10 mEq/hr on a peripheral line."},
+    {t:"Encourage him to eat a banana and orange juice with dinner.", fb:"Dietary potassium helps long-term but can't correct 2.9 mEq/L quickly enough when he has ECG changes. This needs prescribed replacement now."}
+  ],
+  rationale:`<p>Aggressive loop diuresis causes hypokalemia and hypomagnesemia. Cramping, weakness, flattened T waves, U waves and PVCs are classic signs, and low potassium raises the risk of life-threatening dysrhythmias.</p>
+  <p>Magnesium matters too: potassium is hard to correct while magnesium is low. Replace both, keep him on telemetry, and reassess the diuretic dose with the provider.</p>`,
+  after:`The provider orders KCl 40 mEq PO now plus 20 mEq IV over 2 hours, magnesium sulfate 2 g IV, and changes furosemide to 40 mg PO daily. By evening the PVCs have settled and potassium is 3.8. Sacubitril/valsartan starts on schedule on Day 3. On Day 4 Raymond is ready to go home.`,
+  chart:{ label:"Day 2 PM", vitals:[["BP","118/70"],["HR","98 irreg","hi"],["RR","18"],["SpO₂","95% RA"],["Temp","36.9 °C"],["Wt","95.0 kg"]],
+    labs:[["K⁺","2.9 mEq/L","3.5–5.0","L"],["Mg²⁺","1.5 mg/dL","1.7–2.2","L"],["Na⁺","136 mEq/L","135–145"],["Creatinine","1.2 mg/dL","0.6–1.2"]],
+    notes:["Frequent PVCs, occasional couplets","Flattened T waves, U wave present","Bilateral calf cramps, generalized weakness"] }
+},
+{ stage:6, time:"Day 4 · 10:00 · Discharge", cjmm:"Evaluate outcomes",
+  title:"Going home with a new heart",
+  story:`<p>Raymond is down 4.8 kg from admission, breathing comfortably on room air, and sleeping flat with one pillow. He's going home on furosemide, sacubitril/valsartan, metoprolol succinate, spironolactone and dapagliflozin. He has a cardiology follow-up in 7 days.</p>
+  <p>You use teach-back to check his understanding. His wife is taking notes.</p>`,
+  question:"Which statement shows Raymond needs more teaching?",
+  type:"single",
+  options:[
+    {t:"\"I'll switch to a salt substitute so food still tastes good.\"", ok:true},
+    {t:"\"I'll weigh myself every morning after I use the bathroom, before breakfast.\"", fb:"That's correct technique. Same time, after voiding, before eating, same scale, similar clothing."},
+    {t:"\"I'll call the clinic if I gain 2 to 3 pounds in a day or 5 pounds in a week.\"", fb:"Correct. Rapid weight gain is often the earliest sign of fluid building back up, before he feels short of breath."},
+    {t:"\"If I need more pillows to breathe at night, that's a sign to call.\"", fb:"Correct. Worsening orthopnea is a key warning sign of decompensation."}
+  ],
+  rationale:`<p>Most salt substitutes are made of <b>potassium chloride</b>. Raymond now takes spironolactone (potassium-sparing) and sacubitril/valsartan (which also raises potassium). Adding a salt substitute puts him at real risk of dangerous hyperkalemia.</p>
+  <p>Teach him to season with herbs, spices, lemon and vinegar instead, read labels for sodium (commonly a goal under 2,000 mg/day), and avoid processed and restaurant foods. Also reinforce: take medications daily even when he feels well, stop smoking, and keep his follow-up appointment.</p>`,
+  after:`Raymond repeats the plan back, and his wife adds "no salt substitute" to the list taped inside their kitchen cabinet. He leaves walking on his own, in shoes that fit again.`,
+  chart:{ label:"Discharge", vitals:[["BP","122/74"],["HR","74"],["RR","16"],["SpO₂","96% RA"],["Temp","36.8 °C"],["Wt","93.6 kg"]],
+    labs:[["K⁺","4.1 mEq/L","3.5–5.0"],["Creatinine","1.2 mg/dL","0.6–1.2"],["Na⁺","137 mEq/L","135–145"]],
+    orders:["Furosemide 40 mg PO daily","Sacubitril/valsartan 24/26 mg PO BID","Metoprolol succinate 12.5 mg PO daily","Spironolactone 12.5 mg PO daily","Dapagliflozin 10 mg PO daily","Cardiology follow-up in 7 days"] }
+}
+];
+
+const DEBRIEF=[
+ "Raymond stopped his blood pressure medication. How did years of uncontrolled hypertension lead to a dilated, weak left ventricle?",
+ "Which findings told you he was getting better between Day 1 and Day 4? Which one would you trust most and why?",
+ "Furosemide fixed one problem and caused another. What monitoring plan would have caught the hypokalemia earlier?",
+ "Name the four medication pillars of HFrEF therapy and one nursing check you'd do before giving each.",
+ "If Raymond calls the clinic in two weeks with a 4 lb weight gain in three days, what questions do you ask first?"
+];
+
+const ORDER=[[1,0,2,3],[0,3,1,4,2,5],[1,2,0,3],[1,2,3,0],[2,0,3,1],[1,3,0,2],[1,2,3,0]];
+SCENES.forEach((s,k)=>{s.options=ORDER[k].map(j=>s.options[j])});
+let i=-1, firstTry=[], attempts=0, solved=false, picked=new Set(), struck=new Set();
+const app=document.getElementById('app'), tracker=document.getElementById('tracker');
+const esc=s=>s;
+
+function drawTracker(){
+  tracker.innerHTML=STAGES.map((s,k)=>{
+    const cls=i>=SCENES.length?'done':(k<i?'done':(k===i?'now':''));
+    return `<li class="${cls}" title="${s}">${k+1}<span> · ${s}</span></li>`;
+  }).join('');
+}
+
+function chartHTML(c){
+  let h=`<aside class="chart" aria-label="Patient chart"><div class="ch"><b>R. Ortiz · Bed 4</b><span>${c.label}</span></div>`;
+  h+=`<div class="sec"><h4>Vital signs</h4><div class="vitals">${c.vitals.map(v=>`<div class="v ${v[2]||''}"><small>${v[0]}</small><strong>${v[1]}</strong></div>`).join('')}</div></div>`;
+  if(c.labs) h+=`<div class="sec"><h4>Labs</h4><table class="labs"><tbody>${c.labs.map(l=>`<tr><td>${l[0]}</td><td class="${l[3]==='H'?'flagH':l[3]==='L'?'flagL':''}">${l[1]}${l[3]?' '+l[3]:''}</td><td>${l[2]}</td></tr>`).join('')}</tbody></table></div>`;
+  if(c.orders) h+=`<div class="sec"><h4>Active orders</h4><ul class="ordersList">${c.orders.map(o=>`<li>${o}</li>`).join('')}</ul></div>`;
+  if(c.notes) h+=`<div class="sec"><h4>Nursing notes</h4><ul class="notes">${c.notes.map(n=>`<li>${n}</li>`).join('')}</ul></div>`;
+  return h+`</aside>`;
+}
+
+function renderIntro(){
+  i=-1; drawTracker();
+  app.innerHTML=`<div class="intro">
+   <section class="panel">
+     <span class="eyebrow">Case briefing</span>
+     <svg class="ekg" viewBox="0 0 600 56" preserveAspectRatio="none" aria-hidden="true"><path d="M0 34 H90 l8 -6 l8 6 H130 l6 8 l10 -40 l10 46 l8 -14 H210 l14 -10 l14 10 H300 l8 -6 l8 6 H340 l6 8 l10 -40 l10 46 l8 -14 H420 l14 -10 l14 10 H510 l8 -6 l8 6 H600"/></svg>
+     <h2>Raymond Ortiz has never had a heart problem. Until today.</h2>
+     <div class="story">
+       <p>You're the nurse who meets him in the Emergency Department and follows him through a four-day admission for new-onset heart failure. At seven decision points you'll choose what to assess, what to give, what to question and what to teach.</p>
+       <p>Pick an answer and you'll see what happens. A wrong choice shows you why and lets you try again. The patient chart on the side updates as the case moves forward, so use it.</p>
+     </div>
+     <div class="actions"><button class="btn" id="start">Start the shift</button></div>
+   </section>
+   <section class="panel">
+     <h3>By the end you should be able to</h3>
+     <ul class="objectives">
+       <li>Prioritize interventions for a patient in acute decompensated heart failure.</li>
+       <li>Distinguish left- from right-sided heart failure findings.</li>
+       <li>Safely administer IV loop diuretics and monitor their effects.</li>
+       <li>Identify nursing considerations for the four pillars of HFrEF therapy.</li>
+       <li>Recognize and respond to diuretic-induced electrolyte imbalance.</li>
+       <li>Evaluate discharge teaching using teach-back.</li>
+     </ul>
+   </section></div>`;
+  document.getElementById('start').onclick=()=>{firstTry=[];go(0)};
+}
+
+function go(n){
+  i=n; attempts=0; solved=false; picked=new Set(); struck=new Set();
+  drawTracker();
+  if(i>=SCENES.length) return renderDebrief();
+  renderScene(); window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderScene(fbHTML=''){
+  const s=SCENES[i], letters="ABCDEF";
+  const opts=s.options.map((o,k)=>{
+    let cls='opt';
+    if(s.type==='multi'){ if(picked.has(k)) cls+=' sel'; if(solved&&o.ok) cls+=' right'; }
+    else { if(struck.has(k)) cls+=' wrong struck'; if(solved&&o.ok) cls+=' right'; }
+    const dis = solved || (s.type==='single' && struck.has(k));
+    return `<button class="${cls}" data-k="${k}" ${dis?'disabled':''} aria-pressed="${picked.has(k)}"><span class="key">${letters[k]}</span><span>${o.t}</span></button>`;
+  }).join('');
+  app.innerHTML=`<div class="grid">
+    <article class="scene">
+      <div class="sceneHead"><span class="time">${s.time}</span><span class="cjmm">${s.cjmm}</span></div>
+      <h2>${s.title}</h2>
+      <div class="story">${s.story}</div>
+      <p class="question">${s.question}</p>
+      ${s.hint?`<p class="hint">${s.hint}</p>`:''}
+      <div class="opts" role="group" aria-label="Answer choices">${opts}</div>
+      ${s.type==='multi'&&!solved?`<div class="actions"><button class="btn" id="submit" ${picked.size?'':'disabled'}>Submit</button></div>`:''}
+      <div id="fb" aria-live="polite">${fbHTML}</div>
+    </article>
+    ${chartHTML(s.chart)}
+  </div>`;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>choose(+b.dataset.k));
+  const sub=document.getElementById('submit'); if(sub) sub.onclick=submitMulti;
+  const nx=document.getElementById('next'); if(nx) nx.onclick=()=>go(i+1);
+}
+
+function successHTML(){
+  const s=SCENES[i], last=i===SCENES.length-1;
+  return `<div class="fb yes"><h3>${attempts===1?'Right on the first try':'That’s it'}</h3>${s.rationale}
+    <div class="next"><span class="label">What happens next</span><p>${s.after}</p></div></div>
+    <div class="actions"><button class="btn" id="next">${last?'See your debrief':'Continue'}</button></div>`;
+}
+
+function choose(k){
+  const s=SCENES[i]; if(solved) return;
+  if(s.type==='multi'){ picked.has(k)?picked.delete(k):picked.add(k); renderScene(document.getElementById('fb').innerHTML); return; }
+  attempts++;
+  const o=s.options[k];
+  if(o.ok){ solved=true; firstTry[i]=attempts===1; renderScene(successHTML()); }
+  else { struck.add(k); renderScene(`<div class="fb no"><h3>Not the priority</h3><p>${o.fb}</p><p><b>Try again.</b></p></div>`); }
+}
+
+function submitMulti(){
+  const s=SCENES[i]; attempts++;
+  const correct=s.options.every((o,k)=>!!o.ok===picked.has(k));
+  if(correct){ solved=true; firstTry[i]=attempts===1; renderScene(successHTML()); }
+  else {
+    const right=s.options.filter((o,k)=>o.ok&&picked.has(k)).length, total=s.options.filter(o=>o.ok).length;
+    const extra=[...picked].filter(k=>!s.options[k].ok).length;
+    renderScene(`<div class="fb no"><h3>Not quite</h3><p>You found ${right} of ${total} correct findings${extra?` and included ${extra} that ${extra>1?'don’t':'doesn’t'} belong`:''}.</p><p>${s.multiFb}</p><p><b>Adjust your selections and resubmit.</b></p></div>`);
+  }
+}
+
+function renderDebrief(){
+  const n=firstTry.filter(Boolean).length, missed=SCENES.map((s,k)=>({s,k})).filter(x=>!firstTry[x.k]);
+  app.innerHTML=`<div class="intro">
+    <section class="panel">
+      <span class="eyebrow">Shift complete · Debrief</span>
+      <h2>Raymond went home walking.</h2>
+      <div class="score">${n}/${SCENES.length}</div>
+      <p class="hint" style="margin-top:6px">decisions correct on the first try</p>
+      ${missed.length?`<h3 style="font-family:var(--f-display);margin:18px 0 4px">Worth reviewing</h3>${missed.map(x=>`<div class="reviewItem"><small>Decision ${x.k+1} · ${STAGES[x.s.stage]} · ${x.s.cjmm}</small><b>${x.s.title}</b><div>${x.s.question}</div></div>`).join('')}`:`<p>Every decision correct on the first attempt. Strong clinical judgment.</p>`}
+      <div class="actions"><button class="btn" id="again">Run the case again</button></div>
+    </section>
+    <section class="panel">
+      <h3>Discussion questions</h3>
+      <ol class="prompts">${DEBRIEF.map(q=>`<li>${q}</li>`).join('')}</ol>
+    </section></div>`;
+  document.getElementById('again').onclick=renderIntro;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+renderIntro();
+</script>
+
+</body></html>

@@ -6,7 +6,7 @@
 <title>Say It Simply: Cardiovascular &amp; Hematology</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=Caveat:wght@500&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#f5f0e6; --card:#fffdf8; --ink:#1f2430; --muted:#5d6472; --line:#e3dccd;
@@ -106,6 +106,41 @@ textarea[readonly]{background-color:#fbf8f0}
 .kb summary{cursor:pointer;color:var(--accent);font-weight:600}
 .kb .brow{grid-template-columns:130px 1fr;padding:6px 0;font-size:14px;border-top:1px dashed var(--line)}
 @media (max-width:860px){.brow{grid-template-columns:1fr;gap:2px}}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:#f1ece1;color:var(--muted)}
+.pill.done{background:var(--good-soft);color:#1d5a37}
+.locked{margin-top:20px;padding:12px 16px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:14px}
+.step{margin-top:24px;padding-top:20px;border-top:2px solid var(--accent-soft)}
+.step .reveal{animation:none}
+.wrap .sn{background:var(--good)}
+.step-h{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.sn{flex:none;width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-family:Fraunces,serif;font-weight:700;display:grid;place-items:center}
+.step-h h3{margin:0;font-family:Fraunces,serif;font-size:21px;line-height:1.25}
+.step-h p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.otext{min-height:140px}
+.model{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;margin-top:6px}
+.model .brow:first-child{border-top:0}
+.medgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:6px 0 4px}
+.med{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:58px}
+.med:hover:not([disabled]){border-color:var(--ink)}
+.med .stem{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:19px;font-weight:600}
+.med.on{border-color:var(--accent);background:var(--accent-soft)}
+.med .mc{font-size:12.5px;color:var(--muted);line-height:1.35}
+.med .mark{font-size:12px;font-weight:700}
+.med.right{border-color:var(--good);background:var(--good-soft)}.med.right .mark{color:var(--good)}
+.med.wrong{border-color:var(--rev);background:var(--rev-soft)}.med.wrong .mark{color:var(--rev)}
+.med.missed{border-color:var(--mid);border-style:dashed;background:var(--mid-soft)}.med.missed .mark{color:#7a540b}
+.med.dim{opacity:.55}
+.med[disabled]{cursor:default}
+.medres{margin-top:12px;padding:12px 16px;border-radius:10px;background:var(--mid-soft);font-size:15px}
+.medres.good{background:var(--good-soft)}
+.rat{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 16px 4px}
+.ratrow{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.rat .deflabel+.ratrow{border-top:0}
+.ratrow .rs{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;font-size:17px;color:var(--good)}
+.ratrow.no .rs{color:var(--rev)}
+.ratrow b{font-size:14px}
+@media (max-width:860px){.ratrow{grid-template-columns:1fr;gap:2px}}
 .nav{display:flex;justify-content:space-between;margin-top:16px;gap:10px}
 
 /* key view */
@@ -125,7 +160,7 @@ textarea[readonly]{background-color:#fbf8f0}
 .overlay.show{display:flex}
 .modal{background:var(--card);border-radius:16px;max-width:760px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);padding:24px 26px}
 .modal h2{font-family:Fraunces,serif;margin:0 0 4px;font-size:26px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
 .stat{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .stat b{display:block;font-family:Fraunces,serif;font-size:26px}
 .stat span{font-size:12px;color:var(--muted)}
@@ -155,9 +190,9 @@ textarea[readonly]{background-color:#fbf8f0}
 <header>
   <div class="top">
     <div>
-      <div class="eyebrow">Cardiovascular &amp; Hematology</div>
+      <div class="eyebrow">Unit 4: Cardiovascular &amp; Hematology</div>
       <h1>Say It Simply</h1>
-      <p class="sub">Write a one-sentence definition in your own words, then check it. Stuck? Click "I'm not sure" to go straight to a brief description. Key ideas you included light up green. Rate yourself honestly. Your "Review" list builds as you go.</p>
+      <p class="sub">Write a one-sentence definition in your own words, then check it. For each condition, you'll then work through the patient's complaints, signs and symptoms, labs, and diagnostics, then treatment and medications. Stuck? Click "I'm not sure" to see the answer.</p>
     </div>
     <div class="tools">
       <div class="seg" role="tablist" aria-label="View">
@@ -182,11 +217,12 @@ textarea[readonly]{background-color:#fbf8f0}
         <div>
           <div class="where" id="where"></div>
           <h2 class="term" id="term"></h2>
+          <div class="pills" id="pills"></div>
         </div>
         <div class="count" id="count"></div>
       </div>
       <div class="card-body">
-        <label class="prompt" for="answer">Your simple definition <small>(one sentence only, like you'd explain it to a patient or classmate)</small></label>
+        <label class="prompt" for="answer">Your simple definition <small>(one sentence only)</small></label>
         <textarea id="answer" placeholder="In one sentence, in my own words…"></textarea>
         <div class="sentcount" id="sentcount"></div>
         <div class="actions" id="preActions">
@@ -212,6 +248,7 @@ textarea[readonly]{background-color:#fbf8f0}
             <button class="btn" id="retry" style="margin-left:auto">Try again</button>
           </div>
         </div>
+        <div id="steps"></div>
         <div class="nav">
           <button class="btn" id="prev">← Previous</button>
           <button class="btn accent" id="next">Next term →</button>
@@ -234,7 +271,7 @@ textarea[readonly]{background-color:#fbf8f0}
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-      <div><h2 id="mTitle">My results</h2><p class="sub" style="margin:0">All units. Terms marked "Review this" are listed below with their simple definitions.</p></div>
+      <div><h2 id="mTitle">My results</h2><p class="sub" style="margin:0">All sections. Terms marked "Review this" are listed below with their simple definitions.</p></div>
       <button class="btn" id="closeM">Close</button>
     </div>
     <div class="stats">
@@ -242,6 +279,7 @@ textarea[readonly]{background-color:#fbf8f0}
       <div class="stat"><b id="sMid">0</b><span>Partly there</span></div>
       <div class="stat"><b id="sRev">0</b><span>Review this</span></div>
       <div class="stat"><b id="sLeft">0</b><span>Not checked yet</span></div>
+      <div class="stat"><b id="sMed">0/0</b><span>Medication questions all correct</span></div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
       <button class="btn primary" id="copyAll">Copy all my answers</button>
@@ -506,9 +544,568 @@ const BRIEF={
 "Thrombocytopenic purpura":z(C,["ITP: the immune system destroys platelets. TTP: tiny clots form throughout the body and use up platelets.","Petechiae, purpura, nosebleeds, bleeding gums, heavy periods; risk of spontaneous bleeding when platelets fall below about 20,000.","Bleeding precautions (soft toothbrush, electric razor, no IM injections, no aspirin or NSAIDs) and steroids or IVIG for ITP as ordered."])
 };
 
+/* ---------- PATIENT PICTURE / TREATMENT / MEDS ----------
+   p: [complaints, signs, labs, diagnostics]; pk/tk: key ideas; tx: treatment; m: correct stems (null = no med step); o: distractor stems; mw: rationale */
+const POOL={
+ "-pril":"ACE inhibitor (enalapril, lisinopril)",
+ "-sartan":"ARB (valsartan, irbesartan)",
+ "-kiren":"Direct renin inhibitor (aliskiren)",
+ "-dipine":"Calcium channel blocker (nifedipine, amlodipine)",
+ "-azosin":"Alpha blocker (prazosin, doxazosin)",
+ "-lol":"Beta blocker (metoprolol, carvedilol)",
+ "-ine":"Adrenergic agonist (epinephrine, dopamine, dobutamine)",
+ "nitr":"Nitrate (nitroglycerin)",
+ "fibr":"Fibrate (fenofibrate, gemfibrozil)",
+ "-statin":"Statin (atorvastatin, simvastatin)",
+ "-arin":"Anticoagulant (heparin, warfarin, enoxaparin)",
+ "-gatr / rudin":"Direct thrombin inhibitor (dabigatran, bivalirudin)",
+ "-xaban":"Factor Xa inhibitor (apixaban, rivaroxaban)",
+ "grel":"ADP receptor inhibitor, antiplatelet (clopidogrel, ticagrelor)",
+ "-teplase":"Thrombolytic (alteplase, reteplase)",
+ "-poetin":"Erythropoiesis-stimulating agent (epoetin alfa)",
+ "-stim":"Granulocyte colony-stimulating factor (filgrastim)",
+ "-plostim / -trombopag":"Thrombopoietin receptor agonist (romiplostim, eltrombopag)",
+ "-semide":"Loop diuretic (furosemide)",
+ "-thiazide":"Thiazide diuretic (hydrochlorothiazide)"
+};
+const LAB_P=(c,s,l,d)=>({lab:true,p:[c,s,l,d]});
+const EXT={
+/* ===== LABS ===== */
+"Cardiac injury panel":{lab:true,
+ p:[`Chest pain or pressure, often spreading to the arm, jaw, neck, or back; shortness of breath; nausea; sweating.`,`Diaphoresis, anxiety, tachycardia, BP changes, dysrhythmias.`,`A rising troponin trend (and CK-MB) on repeat draws; lipid panel and BMP.`,`12-lead ECG (ST elevation or depression, T-wave inversion, Q waves), echocardiogram for wall motion, cardiac catheterization.`],
+ pk:[["Chest pain / pressure",["chest","pain","pressure","angina"]],["Diaphoresis / nausea / dyspnea",["sweat","diaphor","nausea","breath","dyspnea","sob!"]],["Rising troponin trend",["troponin","trend","rising","repeat"]],["12-lead ECG",["ecg","ekg","12","st!"]],["Echo / cath",["echo","cath"]]]},
+"Troponin (I & T)":{lab:true,
+ p:[`Chest pain or pressure lasting more than 20 minutes, spreading to the arm, jaw, or back; shortness of breath; nausea; fatigue (common in women, older adults, and diabetics).`,`Diaphoresis, tachycardia or bradycardia, BP changes, dysrhythmias, crackles if the LV is failing.`,`Troponin rising on serial draws; CK-MB may also rise. Remember that heart failure, sepsis, and kidney disease can raise troponin too.`,`12-lead ECG within 10 minutes (ST elevation = STEMI; ST depression or T-wave inversion = NSTEMI), echocardiogram, cardiac catheterization.`],
+ pk:[["Chest pain / MI symptoms",["chest","pain","pressure","mi!","infarct"]],["Diaphoresis / nausea / dyspnea",["sweat","diaphor","nausea","breath","dyspnea","sob!"]],["Serial / rising troponin",["serial","rising","trend","repeat"]],["12-lead ECG (STEMI/NSTEMI)",["ecg","ekg","12","st!","stemi"]],["Cath lab",["cath","pci"]]]},
+"CK-MB":{lab:true,
+ p:[`Chest pain, shortness of breath, nausea, sweating; chest pain that comes back a few days after an MI suggests reinfarction.`,`Diaphoresis, tachycardia, BP changes, dysrhythmias.`,`CK-MB rising within hours and falling back to normal in 2–3 days; a second rise after that means new damage; troponin confirms.`,`12-lead ECG, echocardiogram, cardiac catheterization.`],
+ pk:[["Chest pain",["chest","pain","pressure"]],["Recurrent pain → reinfarction",["reinfarct","again","recur","new","second"]],["Troponin to confirm",["troponin"]],["12-lead ECG",["ecg","ekg","12","st!"]]]},
+"Myoglobin":{lab:true,
+ p:[`Early chest pain (within the first few hours); or, because it isn't heart-specific, muscle pain and weakness after trauma, crush injury, or extreme exercise.`,`MI signs (diaphoresis, tachycardia) or skeletal muscle injury signs (muscle tenderness, swelling, dark tea-colored urine in rhabdomyolysis).`,`Troponin to confirm a cardiac cause; total CK; BUN/creatinine, since high myoglobin can injure the kidneys.`,`12-lead ECG; urinalysis for myoglobin when muscle injury is suspected.`],
+ pk:[["Early chest pain",["early","hour","chest","first"]],["Skeletal muscle injury",["muscle","skeletal","trauma","crush","rhabdo","dark urine","tea"]],["Troponin to confirm",["troponin","confirm"]],["Kidney function",["kidney","renal","bun","creatinine"]],["ECG",["ecg","ekg"]]]},
+"BNP (B-type natriuretic peptide)":{lab:true,
+ p:[`Shortness of breath (worse lying flat or at night), fatigue, weight gain, swollen ankles, cough.`,`Crackles, JVD, S3 heart sound, dependent edema, tachycardia, low O2 saturation.`,`Electrolytes (sodium, potassium), BUN/creatinine, troponin to rule out a cardiac event.`,`Echocardiogram (ejection fraction), chest X-ray (pulmonary congestion, enlarged heart), ECG.`],
+ pk:[["Dyspnea / orthopnea",["breath","dyspnea","sob!","orthopnea"]],["Edema / weight gain",["edema","swell","weight"]],["Crackles / JVD / S3",["crackl","rales","jvd","jugular","s3"]],["Echo / EF",["echo","ejection","ef!"]],["Chest X-ray",["x-ray","xray","cxr"]]]},
+
+/* ===== UNIT 2 ===== */
+"Heart failure":{
+ p:[`Shortness of breath (worse lying flat or at night), fatigue, weight gain, swollen ankles, cough.`,`Crackles, S3, JVD, dependent edema, tachycardia, low O2 saturation; right-sided: enlarged liver, abdominal swelling.`,`Elevated BNP; check sodium, potassium, BUN/creatinine.`,`Echocardiogram (ejection fraction), chest X-ray (enlarged heart, pulmonary congestion), ECG.`],
+ pk:[["Dyspnea / orthopnea",["breath","dyspnea","sob!","orthopnea","pnd!"]],["Edema / weight gain",["edema","swell","weight"]],["Crackles / JVD",["crackl","rales","jvd","jugular"]],["Elevated BNP",["bnp"]],["Echo / EF",["echo","ejection","ef!","x-ray","xray","cxr"]]],
+ tx:`Reduce fluid overload and the heart's workload: diuretics, ACE inhibitors or ARBs, and beta blockers; sodium and fluid restriction; daily weights; high Fowler's position and oxygen; activity as tolerated.`,
+ tk:[["Diuretics",["diuretic","furosemide","lasix","water pill","semide"]],["ACE inhibitor / ARB",["ace","arb","pril","sartan"]],["Beta blocker",["beta","lol"]],["Sodium / fluid restriction",["sodium","salt","restrict"]],["Daily weights",["weigh"]]],
+ m:["-semide","-pril","-sartan","-lol"], o:["-teplase","-poetin","fibr","-stim"],
+ mw:`Loop diuretics (furosemide) pull off extra fluid; ACE inhibitors, ARBs, and beta blockers lower the heart's workload and help patients live longer.`},
+"Pericarditis":{
+ p:[`Sharp, stabbing chest pain that's worse lying flat or breathing deeply and better sitting up and leaning forward; fever; fatigue.`,`Pericardial friction rub, tachycardia, low-grade fever.`,`Elevated WBC, CRP, and ESR (inflammation); troponin may be mildly elevated.`,`ECG with widespread ST elevation; echocardiogram to check for effusion.`],
+ pk:[["Sharp, positional pain",["sharp","lean","forward","lying","flat","position","stab"]],["Friction rub",["friction","rub"]],["Inflammation labs",["wbc","crp","esr","inflam"]],["Widespread ST elevation",["st elev","st!","ecg","ekg"]],["Echo for effusion",["echo","effusion"]]],
+ tx:`NSAIDs and colchicine for inflammation and pain, treat the underlying cause, position the patient upright and leaning forward, and monitor for effusion and tamponade.`,
+ tk:[["NSAIDs",["nsaid","ibuprofen","indomethacin","anti-inflam","antiinflam"]],["Colchicine",["colchicine"]],["Upright / leaning forward",["lean","forward","upright","sit","position"]],["Monitor for tamponade",["tamponade","effusion","monitor"]]],
+ m:null},
+"Infective endocarditis":{
+ p:[`Fever, chills, fatigue, night sweats, joint aches, weight loss.`,`New or changed murmur, petechiae, splinter hemorrhages, Osler nodes (painful, fingertips), Janeway lesions (painless, palms and soles), Roth spots (retina).`,`Positive blood cultures; elevated WBC, ESR, and CRP; anemia.`,`Echocardiogram (transesophageal is best) to see vegetations.`],
+ pk:[["Fever / chills",["fever","chill"]],["New murmur",["murmur"]],["Skin / nail findings",["petechia","splinter","osler","janeway","roth"]],["Blood cultures",["culture"]],["Echo / TEE",["echo","tee!","transesoph","vegetat"]]],
+ tx:`Several weeks (often 4–6) of IV antibiotics chosen from blood culture results, possible valve surgery, monitoring for emboli (stroke, limbs, kidneys), and teaching about antibiotics before dental work.`,
+ tk:[["IV antibiotics",["antibiotic","abx"]],["Long course (weeks)",["week","4","6","long"]],["Watch for emboli",["embol","stroke"]],["Dental prophylaxis",["dental","prophyla"]]],
+ m:null},
+"Pericardial effusion":{
+ p:[`May have none; chest fullness or pressure, shortness of breath, cough.`,`Muffled or distant heart sounds, tachycardia, sometimes a friction rub early on.`,`Depend on the cause: WBC and CRP for inflammation, BUN/creatinine for kidney failure.`,`Echocardiogram confirms the fluid; chest X-ray may show an enlarged “water bottle” heart; ECG may show low voltage.`],
+ pk:[["May have no symptoms",["none","asymptom","no symptom","silent"]],["Chest pressure / dyspnea",["breath","dyspnea","sob!","pressure","fullness"]],["Muffled heart sounds",["muffl","distant"]],["Echo",["echo"]],["Chest X-ray",["x-ray","xray","cxr","water bottle","enlarged"]]],
+ tx:`Treat the cause (NSAIDs or colchicine for inflammation, dialysis for kidney failure), monitor closely for tamponade, and drain large or symptomatic effusions with pericardiocentesis or a pericardial window.`,
+ tk:[["Treat the cause",["cause","underlying"]],["Monitor for tamponade",["tamponade","monitor"]],["Pericardiocentesis / drain",["pericardiocentesis","drain","window","needle"]]],
+ m:null},
+"Cardiac tamponade":{
+ p:[`Sudden shortness of breath, chest pain, anxiety, lightheadedness.`,`Beck's triad (hypotension, JVD, muffled heart sounds), pulsus paradoxus, tachycardia, narrow pulse pressure, cool clammy skin.`,`Not diagnostic; check H&H if bleeding is the cause.`,`Bedside echocardiogram (heart compressed by fluid); ECG may show low voltage or electrical alternans.`],
+ pk:[["Beck's triad",["beck","hypotens","low bp","jvd","muffl"]],["Pulsus paradoxus",["pulsus","paradox"]],["Tachycardia / dyspnea",["tachy","breath","dyspnea","sob!"]],["Echo",["echo"]]],
+ tx:`An emergency: call a rapid response, prepare for pericardiocentesis (or surgery), give IV fluids to support preload as ordered, provide oxygen, and monitor vital signs closely.`,
+ tk:[["Emergency / rapid response",["emergen","rapid","call","stat"]],["Pericardiocentesis",["pericardiocentesis","drain","needle","surg"]],["IV fluids",["fluid","iv!"]],["Oxygen",["oxygen","o2!"]]],
+ m:null},
+"Cardiomyopathy":{
+ p:[`Shortness of breath, fatigue, palpitations, chest pain, dizziness or fainting (especially with exertion in the hypertrophic type).`,`Heart failure signs (crackles, edema, JVD), a murmur in the hypertrophic type, dysrhythmias, S3 or S4.`,`Elevated BNP.`,`Echocardiogram (chamber size, wall thickness, EF), ECG, chest X-ray, cardiac MRI.`],
+ pk:[["Dyspnea / fatigue",["breath","dyspnea","sob!","fatigue","tired"]],["Palpitations / fainting",["faint","syncop","palpit","dizz"]],["Heart failure signs",["crackl","edema","jvd","swell"]],["Elevated BNP",["bnp"]],["Echo",["echo","mri"]]],
+ tx:`Treat the heart failure (beta blockers, ACE inhibitors or ARBs, diuretics), control dysrhythmias, and consider an ICD, pacemaker, or heart transplant; in hypertrophic cardiomyopathy, use beta blockers or calcium channel blockers and avoid dehydration and strenuous exercise.`,
+ tk:[["Heart failure medications",["beta","lol","ace","pril","arb","sartan","diuretic"]],["ICD / transplant",["icd","defib","pacemaker","transplant"]],["Avoid dehydration / exertion (HCM)",["dehydrat","exert","exercise","strenuous"]]],
+ m:["-lol","-pril","-sartan","-semide"], o:["-teplase","-poetin","-stim","-xaban"],
+ mw:`Dilated cardiomyopathy is treated like heart failure: beta blockers, ACE inhibitors or ARBs, and diuretics. In hypertrophic cardiomyopathy, beta blockers come first, and diuretics and vasodilators are used carefully.`},
+"Aortic stenosis":{
+ p:[`Chest pain, fainting, and shortness of breath with exertion; fatigue.`,`Harsh systolic murmur at the 2nd intercostal space, right sternal border; narrow pulse pressure; weak, delayed pulses.`,`BNP may be elevated as the LV fails.`,`Echocardiogram (valve area and pressure gradient), ECG (LV hypertrophy), cardiac catheterization.`],
+ pk:[["Angina / syncope / dyspnea",["chest pain","angina","faint","syncop","breath","dyspnea"]],["Systolic murmur",["murmur","systolic"]],["Echo",["echo"]],["LVH on ECG",["hypertroph","lvh","ecg","ekg"]]],
+ tx:`Valve replacement (surgical or TAVR) is the definitive treatment; until then, limit strenuous activity, use vasodilators cautiously, take fall precautions, and treat heart failure symptoms.`,
+ tk:[["Valve replacement / TAVR",["replace","tavr","surg","repair"]],["Use vasodilators cautiously",["caution","nitro","vasodilat","careful"]],["Activity limits / fall precautions",["activity","fall","rest","exert"]]],
+ m:null},
+"Mitral stenosis":{
+ p:[`Shortness of breath with exertion, fatigue, palpitations, coughing up blood.`,`Low-pitched diastolic rumble at the apex, irregular pulse (atrial fibrillation), crackles, flushed cheeks.`,`BNP may be elevated; INR if the patient takes warfarin.`,`Echocardiogram, ECG (atrial fibrillation, enlarged left atrium), chest X-ray.`],
+ pk:[["Dyspnea / fatigue",["breath","dyspnea","sob!","fatigue"]],["Diastolic murmur",["murmur","diastolic","rumble"]],["Atrial fibrillation",["fib","afib","irregular","palpit"]],["Hemoptysis",["hemoptys","cough","blood"]],["Echo",["echo"]]],
+ tx:`Rate control and anticoagulation for atrial fibrillation, diuretics for congestion, sodium restriction, and valve repair or replacement (balloon valvuloplasty or surgery) when symptoms worsen.`,
+ tk:[["Rate control",["rate","beta","lol","digoxin"]],["Anticoagulation",["anticoag","warfarin","arin","clot","thinner"]],["Diuretics",["diuretic","furosemide","semide"]],["Valve procedure",["valvuloplast","balloon","replace","repair","surg"]]],
+ m:["-lol","-arin","-semide"], o:["-teplase","-poetin","-azosin","-stim"],
+ mw:`Beta blockers slow the heart so the LV has more time to fill through the narrow valve, warfarin prevents clots from atrial fibrillation, and diuretics relieve lung congestion.`},
+"Aortic regurgitation":{
+ p:[`Shortness of breath, fatigue, palpitations, a pounding heartbeat (especially lying down), chest pain.`,`Wide pulse pressure, bounding “water-hammer” pulses, head bobbing with each beat, high-pitched diastolic murmur at the left sternal border.`,`BNP may be elevated.`,`Echocardiogram, chest X-ray (enlarged LV), ECG.`],
+ pk:[["Dyspnea / palpitations",["breath","dyspnea","sob!","palpit","pound"]],["Wide pulse pressure",["pulse pressure","wide"]],["Bounding pulses",["bound","water","hammer","head bob"]],["Diastolic murmur",["murmur","diastolic"]],["Echo",["echo"]]],
+ tx:`Afterload-reducing medications (ACE inhibitors, ARBs, calcium channel blockers like nifedipine) to ease forward flow, heart failure management, and valve replacement before the LV is permanently damaged.`,
+ tk:[["Lower afterload",["afterload","vasodilat","ace","pril","arb","sartan","dipine","calcium"]],["Heart failure management",["diuretic","heart failure","hf!"]],["Valve replacement",["replace","surg","repair"]]],
+ m:["-pril","-sartan","-dipine"], o:["-teplase","-poetin","grel","-statin"],
+ mw:`Vasodilators lower afterload, so more blood moves forward into the aorta instead of leaking back into the LV.`},
+"Mitral regurgitation":{
+ p:[`Shortness of breath, fatigue, palpitations, orthopnea; sudden severe shortness of breath if it happens after an MI.`,`Blowing murmur through all of systole at the apex that spreads to the axilla, crackles, atrial fibrillation, S3.`,`BNP elevated in heart failure.`,`Echocardiogram, ECG, chest X-ray.`],
+ pk:[["Dyspnea / fatigue",["breath","dyspnea","sob!","fatigue","orthopnea"]],["Systolic murmur",["murmur","holosystolic","systolic","blowing"]],["A-fib / crackles",["fib","crackl","palpit"]],["Echo",["echo"]]],
+ tx:`Reduce afterload and fluid (ACE inhibitors or ARBs, diuretics), control atrial fibrillation (rate control and anticoagulation), and repair or replace the valve; sudden regurgitation after an MI needs emergency surgery.`,
+ tk:[["Lower afterload",["ace","pril","arb","sartan","afterload","vasodilat"]],["Diuretics",["diuretic","furosemide","semide"]],["Control A-fib",["fib","rate","anticoag"]],["Repair / replace valve",["repair","replace","surg"]]],
+ m:["-pril","-sartan","-semide"], o:["-teplase","-poetin","-stim","fibr"],
+ mw:`ACE inhibitors and ARBs lower afterload so more blood goes forward instead of back into the left atrium; diuretics relieve lung congestion.`},
+"Mitral valve prolapse":{
+ p:[`Often none; palpitations, chest pain that doesn't fit typical angina, fatigue, anxiety, dizziness.`,`Mid-systolic click, sometimes a late systolic murmur.`,`Nothing specific.`,`Echocardiogram confirms the prolapse; ECG or a Holter monitor for palpitations.`],
+ pk:[["Often no symptoms",["none","asymptom","no symptom"]],["Palpitations / anxiety",["palpit","anxi","chest","dizz"]],["Mid-systolic click",["click"]],["Echo",["echo"]]],
+ tx:`Usually none needed: reassurance; limit caffeine, alcohol, and stimulants; beta blockers for palpitations or chest pain; and valve repair only if severe regurgitation develops.`,
+ tk:[["Reassurance / often no treatment",["none","reassur","monitor","no treat"]],["Avoid caffeine / stimulants",["caffeine","stimul","alcohol"]],["Beta blockers",["beta","lol"]]],
+ m:["-lol"], o:["-teplase","-arin","-poetin","-pril"],
+ mw:`Beta blockers ease palpitations and chest pain; most patients need no medication at all.`},
+"Cardiogenic shock":{
+ p:[`Chest pain (often from a large MI), severe shortness of breath, anxiety, confusion.`,`Hypotension, tachycardia, weak thready pulse, cool, clammy, pale skin, crackles, JVD, low urine output.`,`Elevated troponin and lactate, rising BUN/creatinine, low PaO2.`,`ECG (MI), echocardiogram (poor pump function), chest X-ray (pulmonary edema), hemodynamic monitoring (low cardiac output).`],
+ pk:[["Hypotension / tachycardia",["hypotens","low bp","tachy","thready"]],["Cool, clammy skin",["cool","clammy","pale","cold"]],["Crackles / JVD",["crackl","jvd","edema"]],["Troponin / lactate",["troponin","lactate"]],["ECG / echo",["ecg","ekg","echo"]]],
+ tx:`Restore pump function: treat the cause (cath lab and PCI for an MI), give inotropes such as dobutamine and vasopressors as ordered, provide oxygen or ventilation, limit IV fluids, and consider an intra-aortic balloon pump.`,
+ tk:[["Inotropes / vasopressors",["inotrop","dobutamine","dopamine","vasopress","norepi","ine!"]],["Treat the MI / PCI",["pci","cath","reperfus","stent","mi!"]],["Limit IV fluids",["limit","restrict","caution"]],["Balloon pump",["balloon","iabp","impella"]]],
+ m:["-ine"], o:["-lol","-pril","-azosin","-statin"],
+ mw:`Adrenergic agonists like dobutamine and dopamine strengthen contraction and raise BP; beta blockers, ACE inhibitors, and alpha blockers would drop BP even further.`},
+"Septic shock":{
+ p:[`Feeling very ill, chills, confusion, shortness of breath, and complaints from the source (cough, painful urination, a red, painful wound).`,`Fever or low temperature, tachycardia, tachypnea, hypotension (MAP under 65), warm flushed skin early that becomes cool and mottled, low urine output.`,`High or very low WBC, lactate above 2, positive blood cultures, elevated procalcitonin.`,`Cultures of blood, urine, sputum, or wounds; chest X-ray or other imaging to find the source.`],
+ pk:[["Fever / tachycardia / hypotension",["fever","tachy","hypotens","low bp","map"]],["Confusion / infection source",["confus","source","infect","cough","urin","wound"]],["WBC / lactate",["wbc","white","lactate"]],["Cultures",["culture"]]],
+ tx:`Sepsis bundle within the first hour: blood cultures before antibiotics, measure lactate, broad-spectrum IV antibiotics, 30 mL/kg IV crystalloid for hypotension, and vasopressors (norepinephrine) to keep MAP at 65 or higher.`,
+ tk:[["Cultures before antibiotics",["culture","before"]],["Broad-spectrum antibiotics",["antibiotic","abx"]],["Fluid bolus (30 mL/kg)",["30","fluid","bolus","crystalloid","saline"]],["Vasopressors",["vasopress","norepi","levophed","pressor"]],["Lactate",["lactate"]]],
+ m:["-ine"], o:["-lol","-dipine","-azosin","-teplase"],
+ mw:`Norepinephrine (an adrenergic agonist) tightens the dilated vessels to raise MAP. Antibiotics aren't on this list, but they are essential.`},
+"Hypovolemic shock":{
+ p:[`Thirst, weakness, dizziness, anxiety, confusion.`,`Tachycardia first, then hypotension; weak thready pulse; cool, pale skin; delayed capillary refill; flat neck veins; low urine output.`,`Low H&H if bleeding (may look normal early), high BUN/creatinine, elevated lactate.`,`Find the source (FAST ultrasound, CT, endoscopy); monitor CVP and urine output.`],
+ pk:[["Tachycardia, then hypotension",["tachy","hypotens","low bp"]],["Cool, pale skin / slow cap refill",["cool","pale","cold","capillary","refill"]],["Low urine output",["urine","output","oliguria"]],["H&H / lactate",["hemoglobin","hgb","h&h","hematocrit","hct","lactate"]],["Find the source",["source","ct!","ultrasound","fast!","endoscop"]]],
+ tx:`Stop the loss (pressure, surgery), start two large-bore IVs, replace volume with isotonic fluids or blood products, give oxygen, and monitor vital signs and urine output.`,
+ tk:[["Stop the loss",["stop","pressure","control","surg"]],["Large-bore IVs",["large","bore","iv!"]],["Fluids / blood products",["fluid","blood","transfus","crystalloid","saline"]],["Monitor vitals / urine",["monitor","urine","vital"]]],
+ m:null},
+"Obstructive shock":{
+ p:[`Sudden shortness of breath, chest pain, anxiety.`,`Hypotension, tachycardia, JVD, plus clues to the cause: muffled heart sounds (tamponade), tracheal deviation and absent breath sounds on one side (tension pneumothorax), hypoxia (PE).`,`Elevated D-dimer and troponin in PE; ABGs showing low oxygen.`,`Echocardiogram, chest X-ray, CT pulmonary angiogram for PE.`],
+ pk:[["Sudden dyspnea / chest pain",["breath","dyspnea","sob!","chest"]],["Hypotension / JVD",["hypotens","low bp","jvd"]],["Clues to the cause",["muffl","trache","breath sound","hypox"]],["D-dimer / ABG",["d-dimer","ddimer","abg"]],["Echo / CT / X-ray",["echo","ct!","x-ray","xray"]]],
+ tx:`Remove the obstruction: pericardiocentesis for tamponade, needle decompression and then a chest tube for tension pneumothorax, and thrombolytics or clot removal for a massive PE; support with oxygen and fluids.`,
+ tk:[["Remove the obstruction",["remove","relieve","obstruct"]],["Pericardiocentesis",["pericardiocentesis"]],["Needle decompression / chest tube",["needle","decompress","chest tube"]],["Thrombolytic for PE",["thrombolyt","tpa","alteplase","clot"]]],
+ m:["-teplase","-arin"], o:["-lol","-pril","-azosin","-poetin"],
+ mw:`For a massive PE, a thrombolytic (alteplase) breaks up the clot and heparin keeps new clot from forming. Tamponade and tension pneumothorax are fixed with procedures, not drugs.`},
+"Distributive shock":{
+ p:[`Depends on the type: itching, throat tightness, and wheezing (anaphylaxis); fever and chills (sepsis); weakness or numbness after a spinal injury (neurogenic).`,`Hypotension, warm, flushed skin early, tachycardia (but bradycardia in neurogenic shock), hives and swelling in anaphylaxis.`,`Elevated lactate; WBC and cultures in sepsis; tryptase in anaphylaxis.`,`Find the cause: cultures, spinal imaging, allergy history.`],
+ pk:[["Hypotension",["hypotens","low bp","pressure"]],["Warm, flushed skin",["warm","flush"]],["Clues to the type",["hive","wheez","fever","spinal","brady","itch"]],["Lactate",["lactate"]],["Find the cause",["cause","culture","allerg","imaging"]]],
+ tx:`Treat the cause (IM epinephrine for anaphylaxis, antibiotics for sepsis, spinal stabilization for neurogenic shock), give IV fluids to fill the dilated vessels, and add vasopressors as ordered.`,
+ tk:[["Epinephrine for anaphylaxis",["epinephrine","epi!","epipen"]],["IV fluids",["fluid","bolus","crystalloid"]],["Vasopressors",["vasopress","norepi","pressor"]],["Treat the cause",["cause","antibiotic","stabiliz"]]],
+ m:["-ine"], o:["-lol","-dipine","-azosin","-semide"],
+ mw:`Epinephrine and norepinephrine (adrenergic agonists) tighten the dilated vessels and raise BP; the other choices would lower BP further.`},
+
+/* ===== UNIT 3 ===== */
+"Coronary artery disease (CAD)":{
+ p:[`May have none; chest pain or pressure with exertion, shortness of breath, fatigue.`,`Often normal at rest; risk factors such as hypertension, obesity, smoking history.`,`High LDL and total cholesterol, low HDL, high triglycerides, elevated A1C or glucose.`,`ECG, stress test, coronary CT, cardiac catheterization (shows narrowed arteries).`],
+ pk:[["Exertional chest pain",["chest","pain","pressure","angina","exert"]],["May be silent",["none","silent","asymptom"]],["Lipid panel",["ldl","cholesterol","lipid","triglycer","hdl"]],["Stress test / cath",["stress","cath","angio","ecg","ekg"]]],
+ tx:`Lifestyle changes (stop smoking, heart-healthy diet, exercise, weight loss), statins, antiplatelets, BP and blood sugar control, and PCI with stents or bypass surgery for severe blockages.`,
+ tk:[["Lifestyle changes",["smok","diet","exercis","weight","lifestyle"]],["Statins",["statin","cholesterol"]],["Antiplatelets",["aspirin","antiplatelet","clopidogrel","grel"]],["PCI / bypass",["pci","stent","bypass","cabg"]]],
+ m:["-statin","grel","-lol","-pril","nitr"], o:["-teplase","-poetin","-stim"],
+ mw:`Statins lower LDL, clopidogrel prevents platelet clots on plaque, beta blockers and ACE inhibitors lower the heart's workload, and nitroglycerin relieves angina.`},
+"Stable angina":{
+ p:[`Chest pressure, squeezing, or tightness with exertion, stress, cold, or heavy meals that lasts a few minutes and may spread to the arm, jaw, or back; shortness of breath.`,`May be normal between episodes; tachycardia and higher BP during pain.`,`Troponin normal; lipid panel often abnormal.`,`ECG (ST depression during pain), exercise or medication stress test, cardiac catheterization.`],
+ pk:[["Exertional chest pressure",["chest","pressure","pain","exert","activity","stress"]],["Relieved by rest / nitro",["rest","nitro"]],["Normal troponin",["troponin","normal"]],["ECG / stress test",["ecg","ekg","stress","st!"]]],
+ tx:`Rest and sublingual nitroglycerin for episodes; long-term beta blockers, calcium channel blockers, and long-acting nitrates to prevent attacks; plus statins, aspirin, and risk-factor changes.`,
+ tk:[["Nitroglycerin",["nitro","ntg"]],["Beta blockers / CCBs",["beta","lol","calcium","ccb","dipine"]],["Statins / aspirin",["statin","aspirin"]],["Risk-factor changes",["smok","diet","exercis","lifestyle","weight"]]],
+ m:["nitr","-lol","-dipine","-statin"], o:["-teplase","-poetin","-semide","-stim"],
+ mw:`Nitroglycerin dilates the coronary vessels, beta blockers and calcium channel blockers lower the heart's oxygen demand, and statins slow plaque growth.`},
+"Unstable angina":{
+ p:[`Chest pain at rest, or new or worsening pain that lasts longer than usual and isn't relieved by rest; shortness of breath, sweating, nausea.`,`Tachycardia, anxiety, diaphoresis, high or low BP.`,`Troponin normal (this separates it from NSTEMI); repeat troponins to confirm.`,`12-lead ECG within 10 minutes (ST depression or T-wave inversion), continuous cardiac monitoring, cardiac catheterization.`],
+ pk:[["Pain at rest / not relieved",["rest","unrelieved","not relieved","wors","new"]],["Diaphoresis / nausea",["sweat","diaphor","nausea"]],["Troponin stays normal",["troponin","normal"]],["12-lead ECG",["ecg","ekg","12","st!","t wave"]]],
+ tx:`Treat it as an emergency: aspirin and other antiplatelets, nitroglycerin, oxygen if saturation is below 90%, heparin, beta blockers, statins, and cardiac catheterization with possible stenting; thrombolytics are not used.`,
+ tk:[["Aspirin / antiplatelets",["aspirin","antiplatelet","clopidogrel","grel"]],["Nitroglycerin",["nitro","ntg"]],["Heparin",["heparin","anticoag","arin"]],["Cath / PCI",["cath","pci","stent"]]],
+ m:["nitr","-lol","-arin","grel","-statin"], o:["-teplase","-poetin","-azosin"],
+ mw:`Antiplatelets, heparin, nitroglycerin, beta blockers, and statins stabilize the plaque and help prevent an MI. Thrombolytics (-teplase) are not given for unstable angina or NSTEMI.`},
+"Myocardial infarction (MI)":{
+ p:[`Crushing chest pain or pressure lasting more than 20 minutes that may spread to the arm, jaw, neck, or back and isn't relieved by rest or nitroglycerin; shortness of breath, nausea, sweating, a sense of doom. Women, older adults, and diabetics may have fatigue, indigestion, or no pain.`,`Diaphoresis, tachycardia or bradycardia, BP changes, dysrhythmias, crackles if the LV fails.`,`Troponin and CK-MB rising.`,`12-lead ECG within 10 minutes (ST elevation in STEMI; ST depression or T-wave inversion in NSTEMI; Q waves later), echocardiogram, cardiac catheterization.`],
+ pk:[["Crushing, radiating chest pain",["crush","chest","radiat","arm","jaw"]],["Diaphoresis / nausea / dyspnea",["sweat","diaphor","nausea","breath","dyspnea"]],["Atypical in women / older / diabetic",["women","diabet","older","elder","atypical"]],["Troponin rises",["troponin"]],["ECG / ST elevation",["ecg","ekg","st!","stemi"]]],
+ tx:`Restore blood flow fast: aspirin, nitroglycerin, oxygen if saturation is below 90%, morphine for pain that won't let up, heparin, and PCI within 90 minutes (or thrombolytics for STEMI if PCI isn't available); then beta blockers, ACE inhibitors, statins, and cardiac rehab.`,
+ tk:[["Aspirin / antiplatelets",["aspirin","antiplatelet","clopidogrel","grel"]],["Nitro / oxygen / morphine",["nitro","oxygen","o2!","morphine"]],["PCI or thrombolytics",["pci","cath","stent","thrombolyt","tpa","alteplase"]],["Beta blocker / ACE / statin",["beta","lol","ace","pril","statin"]]],
+ m:["nitr","-lol","-arin","grel","-teplase","-statin","-pril"], o:["-poetin","-stim","-azosin"],
+ mw:`MI care uses almost every class on the list: nitroglycerin for pain, antiplatelets and heparin to stop the clot growing, a thrombolytic for STEMI when PCI isn't available, then beta blockers, ACE inhibitors, and statins to protect the heart long term.`},
+
+/* ===== UNIT 4 ===== */
+"Arteriosclerosis":{
+ p:[`Often none.`,`Rising systolic BP, wide pulse pressure, stiff arteries; signs of complications such as angina, claudication, or stroke.`,`Lipid panel, glucose/A1C, and kidney function to check risk.`,`BP monitoring, ankle-brachial index, ultrasound, pulse wave velocity.`],
+ pk:[["Often no symptoms",["none","asymptom","silent","no symptom"]],["High systolic BP / wide pulse pressure",["systolic","pulse pressure","bp!","blood pressure","hypertens"]],["Lipid / glucose labs",["lipid","cholesterol","glucose","a1c"]],["ABI / ultrasound",["abi!","ankle","ultrasound","doppler"]]],
+ tx:`Control blood pressure with antihypertensives, manage cholesterol and blood sugar, stop smoking, exercise, and follow a heart-healthy diet.`,
+ tk:[["BP control",["bp!","blood pressure","antihypertens"]],["Cholesterol / blood sugar",["cholesterol","lipid","statin","sugar","glucose"]],["Lifestyle changes",["smok","diet","exercis","lifestyle"]]],
+ m:["-pril","-sartan","-dipine"], o:["-teplase","-poetin","-stim","-xaban"],
+ mw:`ACE inhibitors, ARBs, and calcium channel blockers lower the pressure that keeps stiffening the arteries.`},
+"Atherosclerosis":{
+ p:[`Often none until an artery is badly narrowed; then symptoms depend on where: chest pain (heart), TIA or stroke symptoms (carotids), leg pain with walking (legs).`,`Bruits over narrowed arteries, weak pulses, fatty deposits in the skin (xanthomas).`,`High LDL and total cholesterol, low HDL, high triglycerides, elevated CRP.`,`Lipid panel, carotid ultrasound, ankle-brachial index, angiography or cardiac catheterization.`],
+ pk:[["Silent until narrowed",["none","silent","asymptom"]],["Symptoms depend on location",["chest","stroke","tia","leg","claudic"]],["Bruits / weak pulses",["bruit","pulse"]],["Lipid panel",["ldl","cholesterol","lipid","triglycer","hdl"]],["Imaging",["ultrasound","angio","cath","abi!"]]],
+ tx:`Lifestyle changes (stop smoking, diet low in saturated fat, exercise, weight loss), statins and other lipid-lowering drugs, antiplatelets, and BP and blood sugar control; angioplasty, stents, or bypass for severe blockages.`,
+ tk:[["Lifestyle changes",["smok","diet","exercis","weight","lifestyle"]],["Statins / lipid-lowering",["statin","lipid","cholesterol","fibrate"]],["Antiplatelets",["aspirin","antiplatelet","clopidogrel","grel"]],["BP / glucose control",["bp!","blood pressure","glucose","sugar","diabet"]]],
+ m:["-statin","fibr","grel"], o:["-teplase","-poetin","-ine","-azosin"],
+ mw:`Statins lower LDL, fibrates lower triglycerides, and antiplatelets like clopidogrel keep clots from forming on plaque.`},
+"Hypertension":{
+ p:[`Usually none (the “silent killer”); sometimes headache, dizziness, or blurred vision.`,`BP of 130/80 or higher on repeated readings; over time, signs of organ damage (LV hypertrophy, retinal changes, kidney damage).`,`BUN/creatinine, electrolytes, urinalysis for protein, glucose, lipid panel.`,`Repeated BP readings or ambulatory monitoring, ECG (LVH), echocardiogram, eye exam.`],
+ pk:[["Often no symptoms",["none","silent","asymptom","no symptom"]],["BP ≥130/80 on repeat readings",["130","80","repeat","elevated","high"]],["Kidney labs",["bun","creatinine","kidney","renal","urin"]],["ECG / echo / eye exam",["ecg","ekg","echo","eye","lvh","retina"]]],
+ tx:`Lifestyle changes (DASH diet, sodium limits, weight loss, exercise, limit alcohol, stop smoking) plus antihypertensives using the ABCDs: ACE inhibitors/ARBs, beta blockers, calcium channel blockers, and diuretics.`,
+ tk:[["DASH diet / sodium limit",["dash","sodium","salt","diet"]],["ACE inhibitor / ARB",["ace","arb","pril","sartan"]],["Beta blocker",["beta","lol"]],["Calcium channel blocker",["calcium","ccb","dipine"]],["Diuretic",["diuretic","thiazide"]]],
+ m:["-pril","-sartan","-lol","-dipine","-thiazide","-kiren","-azosin"], o:["-teplase","-poetin","-stim"],
+ mw:`All seven are antihypertensives: the ABCDs (A: -pril and -sartan, B: -lol, C: -dipine, D: -thiazide), plus renin inhibitors (-kiren) and alpha blockers (-azosin).`},
+"Hypertensive crisis":{
+ p:[`Severe headache, blurred vision, chest pain, shortness of breath, nausea, confusion.`,`BP of 180/120 or higher; signs of organ damage such as neurologic changes, seizures, pulmonary edema, or low urine output.`,`BUN/creatinine, urinalysis (protein, blood), troponin, electrolytes.`,`ECG, chest X-ray, head CT for neurologic changes, eye exam for retinal bleeding or papilledema.`],
+ pk:[["Severe headache / blurred vision",["headache","blur","vision"]],["BP ≥180/120",["180","120"]],["Organ damage signs",["organ","neuro","seiz","chest pain","edema","urine","confus"]],["Kidney labs / troponin",["bun","creatinine","kidney","troponin","urin"]],["ECG / CT",["ecg","ekg","ct!","x-ray"]]],
+ tx:`Hypertensive emergency: IV antihypertensives (nicardipine, labetalol) in the ICU with BP checks every 5–15 minutes or an arterial line, lowering BP no more than about 25% in the first hour; urgency can be treated with oral medications.`,
+ tk:[["IV antihypertensives",["iv!","nicardipine","labetalol","drip"]],["Lower gradually (~25%)",["25","slow","gradual"]],["Frequent BP checks / art line",["frequent","arterial","art line","every 5","every 15","icu"]],["Oral meds for urgency",["oral","urgency","po!"]]],
+ m:["-dipine","-lol"], o:["-teplase","-ine","-poetin","-stim"],
+ mw:`IV nicardipine (a calcium channel blocker) and labetalol (a beta blocker) bring BP down in a controlled way; epinephrine-type drugs would raise it.`},
+"Peripheral arterial disease (PAD)":{
+ p:[`Calf, thigh, or buttock pain with walking that goes away with rest (claudication); pain at rest or at night in severe disease, often eased by dangling the legs.`,`Weak or absent foot pulses; cool, pale, shiny, hairless skin; thick toenails; pale legs when raised and red when hanging down; painful round ulcers on the toes or heels.`,`Lipid panel, glucose/A1C.`,`Ankle-brachial index (under 0.9), Doppler ultrasound, angiography.`],
+ pk:[["Claudication",["claudic","walk","calf","rest"]],["Weak pulses",["pulse"]],["Cool, pale, hairless skin",["cool","cold","pale","hair","shiny","rubor"]],["Toe ulcers",["ulcer","toe"]],["ABI / Doppler",["abi!","ankle","doppler","angio"]]],
+ tx:`Walking program, stop smoking, foot care, keep the legs dependent, antiplatelets, statins, BP and blood sugar control, and angioplasty, stents, or bypass for severe disease.`,
+ tk:[["Walking program",["walk","exercis"]],["Stop smoking",["smok"]],["Antiplatelet / statin",["antiplatelet","aspirin","clopidogrel","grel","statin"]],["Legs dependent / foot care",["dependent","dangl","foot","feet"]],["Revascularization",["angioplast","stent","bypass"]]],
+ m:["grel","-statin"], o:["-poetin","-ine","-stim","-semide"],
+ mw:`Clopidogrel prevents clots in the narrowed leg arteries, and statins slow plaque growth.`},
+"Peripheral venous disease":{
+ p:[`Aching, heavy, tired legs that feel worse with standing and better with elevation; itching.`,`Ankle and leg edema, brownish discoloration, thick leathery skin, varicose veins, shallow irregular ulcers near the inner ankle; pulses present.`,`Usually nothing specific.`,`Venous duplex ultrasound.`],
+ pk:[["Heavy legs, better elevated",["heavy","ach","elevat","standing"]],["Edema",["edema","swell"]],["Brown skin / varicose veins",["brown","discolor","varicos","leather"]],["Ulcers near the ankle",["ulcer","ankle"]],["Duplex ultrasound",["ultrasound","duplex","doppler"]]],
+ tx:`Elevate the legs, use compression stockings, avoid standing or sitting for long periods, exercise, care for the skin and any ulcers, and consider vein procedures for severe varicose veins.`,
+ tk:[["Elevate legs",["elevat"]],["Compression stockings",["compress","stocking","ted"]],["Avoid long standing / sitting",["stand","sit","long"]],["Wound / skin care",["wound","ulcer","skin"]]],
+ m:null},
+"Abdominal aortic aneurysm (AAA)":{
+ p:[`Often none; vague abdominal, back, or flank pain.`,`Pulsating mass near the umbilicus, abdominal bruit; rupture causes sudden severe back or abdominal pain, hypotension, tachycardia, and signs of shock.`,`No specific lab; H&H and type and crossmatch if rupture is suspected.`,`Abdominal ultrasound (screening), CT scan to measure the size.`],
+ pk:[["Often no symptoms",["none","asymptom","silent"]],["Pulsating mass / bruit",["pulsat","mass","bruit"]],["Rupture signs",["rupture","sudden","severe","shock"]],["Ultrasound / CT",["ultrasound","ct!"]]],
+ tx:`Small aneurysms: control BP, stop smoking, and repeat imaging to watch the size. Large or growing aneurysms: surgical or endovascular repair (EVAR). Rupture is a surgical emergency.`,
+ tk:[["BP control",["bp!","blood pressure","antihypertens"]],["Stop smoking",["smok"]],["Monitor size",["monitor","size","imaging","watch"]],["Surgical / EVAR repair",["surg","evar","repair","graft"]]],
+ m:["-lol","-pril","-statin"], o:["-teplase","-arin","-poetin"],
+ mw:`Beta blockers and ACE inhibitors lower the pressure on the weakened wall, and statins treat the underlying atherosclerosis.`},
+"Aortic dissection":{
+ p:[`Sudden, severe tearing or ripping pain in the chest or back (“the worst pain ever”); fainting; shortness of breath.`,`BP difference of more than 20 mmHg between the arms, weak or missing pulses, hypertension (or hypotension if it ruptures), a new aortic regurgitation murmur, stroke symptoms.`,`Elevated D-dimer, type and crossmatch, troponin to rule out MI.`,`CT angiography (preferred), transesophageal echocardiogram, chest X-ray (widened mediastinum).`],
+ pk:[["Tearing chest / back pain",["tear","rip","back","sudden","worst"]],["BP difference between arms",["arm","difference","unequal","pulse"]],["Hypertension",["hypertens","high bp","high blood"]],["CT angiography / TEE",["ct!","angio","tee!","transesoph","mediastin"]]],
+ tx:`An emergency: IV beta blockers first to lower heart rate and BP, then other IV antihypertensives as needed, opioids for pain, and surgery for ascending (type A) dissections; never give thrombolytics.`,
+ tk:[["Beta blocker first",["beta","lol","heart rate"]],["Pain control",["pain","opioid","morphine","fentanyl"]],["Emergency surgery",["surg","emergen","repair"]],["No thrombolytics / anticoagulants",["thrombolyt","anticoag","no tpa","avoid"]]],
+ m:["-lol","-dipine"], o:["-teplase","-arin","-ine","-poetin"],
+ mw:`Beta blockers go first to slow the heart and reduce the force on the torn wall, then a calcium channel blocker if BP stays high. Thrombolytics and anticoagulants would make the bleeding worse.`},
+
+/* ===== UNIT 5 ===== */
+"Venous thromboembolism (VTE)":{
+ p:[`Leg pain or swelling (DVT); sudden shortness of breath, chest pain that's worse with breathing, cough, anxiety (PE).`,`One-sided leg swelling, warmth, and redness (DVT); tachycardia, tachypnea, low O2 saturation, coughing up blood (PE).`,`Elevated D-dimer; PT/INR, aPTT, and platelets before starting anticoagulants.`,`Venous duplex ultrasound (DVT), CT pulmonary angiogram (PE).`],
+ pk:[["DVT leg signs",["leg","calf","swell","warm","red"]],["PE signs",["breath","dyspnea","sob!","chest","tachy","hypox"]],["D-dimer",["d-dimer","ddimer","dimer"]],["Ultrasound / CT angiogram",["ultrasound","doppler","duplex","ct!","angio"]]],
+ tx:`Anticoagulants (heparin or enoxaparin, then warfarin or a factor Xa inhibitor) to stop the clot from growing, thrombolytics for a massive PE, and prevention with early walking and compression devices.`,
+ tk:[["Anticoagulants",["anticoag","heparin","enoxaparin","lovenox","warfarin","arin","xaban","thinner"]],["Thrombolytic for massive PE",["thrombolyt","tpa","alteplase"]],["Early walking / SCDs",["ambulat","walk","scd","compress","mobil"]]],
+ m:["-arin","-xaban","-gatr / rudin"], o:["grel","-poetin","-lol","-stim"],
+ mw:`Anticoagulants (heparin, warfarin, factor Xa inhibitors, direct thrombin inhibitors) keep the clot from growing. Antiplatelets like clopidogrel are for arterial clots, not venous ones.`},
+"Deep vein thrombosis (DVT)":{
+ p:[`Pain, aching, or tenderness in one calf or thigh; swelling.`,`One-sided edema, warmth, redness, a firm vein, a larger calf measurement; some patients have no signs.`,`Elevated D-dimer; PT/INR, aPTT, and platelets before anticoagulation.`,`Venous duplex ultrasound.`],
+ pk:[["One-sided swelling",["one","unilateral","swell","edema"]],["Warmth / redness / pain",["warm","red","pain","tender"]],["D-dimer",["d-dimer","ddimer","dimer"]],["Duplex ultrasound",["ultrasound","doppler","duplex"]]],
+ tx:`Anticoagulation (heparin or enoxaparin, then warfarin or a factor Xa inhibitor), elevate the leg, never massage it, watch for PE, and prevent recurrence with early walking and compression.`,
+ tk:[["Anticoagulation",["anticoag","heparin","enoxaparin","lovenox","warfarin","arin","xaban","thinner"]],["Don't massage the leg",["massage"]],["Watch for PE",["pe!","embol","breath","lung"]],["Elevate / walk early",["elevat","ambulat","walk","compress"]]],
+ m:["-arin","-xaban","-gatr / rudin"], o:["grel","-poetin","-lol","-teplase"],
+ mw:`Anticoagulants stop the clot from growing while the body breaks it down. Antiplatelets aren't used for venous clots, and thrombolytics are saved for a massive PE.`},
+"Iron deficiency anemia":{
+ p:[`Fatigue, weakness, shortness of breath with exertion, dizziness, headache, feeling cold, cravings for ice or dirt (pica).`,`Pallor, tachycardia, brittle spoon-shaped nails, smooth sore tongue, cracks at the corners of the mouth.`,`Low hemoglobin and hematocrit, low MCV (small cells), low serum iron and ferritin, high TIBC.`,`CBC with indices and iron studies; stool test for hidden blood or endoscopy to find blood loss.`],
+ pk:[["Fatigue / dyspnea",["fatigue","tired","weak","breath"]],["Pallor / spoon nails",["pale","pallor","spoon","nail","pica"]],["Low hemoglobin",["hemoglobin","hgb","h&h","hematocrit"]],["Low MCV / ferritin",["mcv","ferritin","iron","microcyt","small"]],["Find blood loss",["stool","occult","endoscop","colonoscop","bleed"]]],
+ tx:`Treat the cause (such as GI bleeding or heavy periods), give oral iron with vitamin C (or IV iron), encourage iron-rich foods, and transfuse if severe.`,
+ tk:[["Treat the cause",["cause","bleed","source"]],["Iron supplements",["iron","ferrous"]],["Vitamin C / iron-rich foods",["vitamin c","orange","food","diet","red meat","spinach"]],["Transfusion if severe",["transfus","blood"]]],
+ m:null},
+"Vitamin deficiency anemia":{
+ p:[`Fatigue, weakness, shortness of breath, sore tongue; with low B12, numbness and tingling in the hands and feet, trouble walking, memory problems.`,`Pallor, smooth beefy red tongue, mild jaundice, poor balance and decreased vibration sense (B12).`,`Low hemoglobin, high MCV (large cells), low B12 or folate level, intrinsic factor antibodies in pernicious anemia.`,`CBC with indices, B12 and folate levels, intrinsic factor testing.`],
+ pk:[["Fatigue / sore tongue",["fatigue","tired","weak","tongue"]],["Nerve symptoms (B12)",["numb","tingl","neuro","balance","memory"]],["High MCV (large cells)",["mcv","macrocyt","large","megalo"]],["Low B12 / folate level",["b12","folate","intrinsic"]]],
+ tx:`Replace the missing vitamin: B12 injections (lifelong for pernicious anemia) or oral B12, folic acid supplements, foods rich in B12 or folate, and limiting alcohol.`,
+ tk:[["B12 injections",["b12","injection","shot","cyanocobalamin"]],["Folic acid",["folic","folate"]],["Diet",["diet","food","meat","leafy","green"]],["Lifelong for pernicious",["lifelong","life","forever","pernicious"]]],
+ m:null},
+"Sickle cell anemia":{
+ p:[`Severe pain in the chest, back, abdomen, or joints during a crisis; fatigue; shortness of breath.`,`Pallor, jaundice, swollen hands and feet in young children, fever, tachycardia; acute chest syndrome (chest pain, fever, low oxygen); stroke symptoms.`,`Low hemoglobin, high reticulocyte count, elevated bilirubin, sickled cells on the smear.`,`Hemoglobin electrophoresis (shows hemoglobin S), newborn screening, chest X-ray for acute chest syndrome, transcranial Doppler for stroke risk.`],
+ pk:[["Pain crisis",["pain","crisis"]],["Jaundice / pallor",["jaundice","yellow","pale","pallor"]],["Low Hgb / high retic / bilirubin",["hemoglobin","hgb","retic","bilirubin"]],["Hemoglobin electrophoresis",["electrophoresis","hemoglobin s","hbs","smear"]]],
+ tx:`During a crisis: IV fluids, oxygen, scheduled opioids, warmth, and rest. Long term: hydroxyurea, transfusions, folic acid, vaccines and infection prevention, and avoiding triggers like dehydration, cold, and high altitude.`,
+ tk:[["Fluids",["fluid","hydrat"]],["Oxygen",["oxygen","o2!"]],["Opioid pain control",["opioid","morphine","pain","dilaudid","hydromorphone"]],["Hydroxyurea / transfusion",["hydroxyurea","transfus"]],["Avoid triggers",["trigger","cold","altitude","dehydrat","infect"]]],
+ m:null},
+"Disseminated intravascular coagulation (DIC)":{
+ p:[`Bleeding (nosebleeds, gums, heavy oozing), shortness of breath, confusion.`,`Oozing from IV sites and wounds, petechiae, purpura, blood in urine or stool; clot signs such as cool, mottled fingers and toes, low urine output, mental status changes.`,`Low platelets and fibrinogen; prolonged PT/INR and aPTT; elevated D-dimer and fibrin split products.`,`Coagulation panel with repeat labs; find the trigger (cultures, imaging).`],
+ pk:[["Bleeding / oozing",["bleed","ooz","nosebleed","gum"]],["Petechiae / purpura",["petechia","purpura","bruis"]],["Clot / organ damage signs",["clot","mottl","organ","urine","confus"]],["Low platelets / fibrinogen",["platelet","fibrinogen"]],["High PT / aPTT / D-dimer",["pt!","inr","aptt","ptt","d-dimer","dimer","split"]]],
+ tx:`Treat the trigger (such as sepsis), replace blood products (platelets, fresh frozen plasma, cryoprecipitate, packed red cells), use bleeding precautions, and sometimes give heparin when clotting dominates.`,
+ tk:[["Treat the trigger",["cause","trigger","sepsis","underlying"]],["Blood products",["platelet","plasma","ffp","cryo","transfus","blood product"]],["Bleeding precautions",["precaution","bleed"]],["Heparin (sometimes)",["heparin"]]],
+ m:null},
+"Acute lymphoblastic leukemia (ALL)":{
+ p:[`Fatigue, weakness, fever, frequent infections, bone or joint pain, easy bruising or bleeding, loss of appetite.`,`Pallor, petechiae, bruising, swollen lymph nodes, enlarged liver and spleen.`,`WBC very high or low with many blasts; low hemoglobin, platelets, and neutrophils.`,`Bone marrow aspiration and biopsy (confirms it), lumbar puncture to check the spinal fluid, chest X-ray.`],
+ pk:[["Fatigue / infections / bleeding",["fatigue","tired","infect","fever","bleed","bruis"]],["Bone pain",["bone","joint"]],["Swollen nodes / spleen",["lymph","node","spleen","liver"]],["Blasts / low counts",["blast","wbc","platelet","hemoglobin","neutro","low count","cbc"]],["Bone marrow biopsy",["marrow","biopsy","aspirat"]]],
+ tx:`Chemotherapy in phases, sometimes radiation or a stem cell transplant, plus supportive care: neutropenic and bleeding precautions, transfusions, infection prevention, nutrition, and family support.`,
+ tk:[["Chemotherapy",["chemo"]],["Stem cell transplant",["transplant","stem cell","bone marrow"]],["Neutropenic precautions",["neutropen","infection","isolat"]],["Bleeding precautions / transfusions",["bleed","transfus","precaution"]]],
+ m:null},
+"Polycythemia vera":{
+ p:[`Headache, dizziness, fatigue, blurred vision, itching after a warm shower or bath, burning pain in the hands and feet.`,`Ruddy red face, enlarged spleen, high BP, signs of clots (stroke, MI, DVT).`,`High hemoglobin, hematocrit, and RBC count; often high WBC and platelets; low erythropoietin level; JAK2 gene mutation.`,`CBC, JAK2 testing, bone marrow biopsy.`],
+ pk:[["Headache / dizziness",["headache","dizz","vision","blur"]],["Itching after a warm shower",["itch","prurit","shower","bath"]],["Ruddy face / big spleen",["ruddy","red","flush","spleen"]],["High Hgb / Hct",["hemoglobin","hgb","hematocrit","hct","rbc"]],["JAK2",["jak"]]],
+ tx:`Regular phlebotomy to lower the hematocrit, low-dose aspirin to prevent clots, hydroxyurea to slow blood cell production, staying hydrated, and teaching clot warning signs.`,
+ tk:[["Phlebotomy",["phlebotom","remov","draw"]],["Low-dose aspirin",["aspirin"]],["Hydroxyurea",["hydroxyurea"]],["Hydration",["hydrat","fluid","water"]]],
+ m:null},
+"Thrombocytopenic purpura":{
+ p:[`Easy bruising, nosebleeds, bleeding gums, heavy periods, blood in urine or stool, fatigue; confusion and fever in TTP.`,`Petechiae, purpura, bruising, prolonged bleeding from cuts; TTP adds neurologic changes and kidney problems.`,`Low platelet count (under 150,000; spontaneous bleeding risk under about 20,000) with normal PT and aPTT; in TTP, anemia with fragmented red cells and low ADAMTS13.`,`CBC, peripheral blood smear, sometimes a bone marrow biopsy.`],
+ pk:[["Bruising / bleeding",["bruis","bleed","nosebleed","gum","period"]],["Petechiae / purpura",["petechia","purpura","purple","spot"]],["Low platelets",["platelet","plt!"]],["Normal PT/aPTT / smear",["pt!","aptt","ptt","smear","normal"]]],
+ tx:`ITP: corticosteroids, IVIG, thrombopoietin receptor agonists, and sometimes removing the spleen. TTP: emergency plasma exchange. Both: bleeding precautions and platelet transfusions for serious bleeding.`,
+ tk:[["Steroids / IVIG",["steroid","prednisone","ivig","immune globulin"]],["Platelet-boosting drugs",["thrombopoietin","tpo","romiplostim","eltrombopag","plostim","trombopag"]],["Plasma exchange (TTP)",["plasma","plasmapheresis","exchange"]],["Bleeding precautions",["precaution","soft","razor","bleed"]]],
+ m:["-plostim / -trombopag"], o:["-arin","grel","-teplase","-xaban"],
+ mw:`Thrombopoietin receptor agonists (romiplostim, eltrombopag) push the bone marrow to make more platelets. Anticoagulants, antiplatelets, and thrombolytics would increase bleeding and are avoided.`}
+};
+
+/* Key ideas per part: [complaints, signs & symptoms, labs, diagnostics] */
+const K=(...a)=>a;
+const BR=["breath","dyspnea","sob!","short of"], CP=["chest","pain","pressure","angina"], FAT=["fatigue","tired","weak"];
+const PK4={
+"Cardiac injury panel":K(
+ [["Chest pain / pressure",CP],["Radiates to arm, jaw, back",["radiat","arm","jaw","back","neck"]],["Dyspnea / nausea / sweating",BR.concat(["nausea","sweat"])]],
+ [["Diaphoresis",["diaphor","sweat","clammy"]],["Heart rate / BP changes",["tachy","brady","bp!","blood pressure","hypotens","hypertens"]],["Dysrhythmias",["dysrhythm","arrhythm","rhythm"]]],
+ [["Troponin rising on repeat draws",["troponin","trend","rising","serial","repeat"]],["CK-MB",["ck"]]],
+ [["12-lead ECG changes",["ecg","ekg","12","st!","q wave"]],["Echo / cath",["echo","cath"]]]),
+"Troponin (I & T)":K(
+ [["Chest pain > 20 minutes",CP],["Radiating pain",["radiat","arm","jaw","back"]],["Dyspnea / nausea / fatigue",BR.concat(["nausea","fatigue"])]],
+ [["Diaphoresis",["diaphor","sweat","clammy"]],["HR / BP changes",["tachy","brady","bp!","hypotens","hypertens"]],["Dysrhythmias / crackles",["dysrhythm","arrhythm","crackl"]]],
+ [["Serial, rising troponin",["serial","rising","trend","repeat","troponin"]],["CK-MB",["ck"]],["Other causes (HF, sepsis, kidney)",["sepsis","kidney","renal","heart failure","false"]]],
+ [["12-lead ECG within 10 min",["ecg","ekg","12","10"]],["STEMI vs NSTEMI",["stemi","st!"]],["Cath / echo",["cath","echo"]]]),
+"CK-MB":K(
+ [["Chest pain",CP],["Pain returns days later",["again","recur","return","days later","reinfarct"]]],
+ [["Diaphoresis",["diaphor","sweat"]],["HR / BP changes, dysrhythmias",["tachy","brady","bp!","dysrhythm","arrhythm"]]],
+ [["Rises, normal in 2–3 days",["2","3","days","normal"]],["Second rise = reinfarction",["second","again","reinfarct","new"]],["Troponin confirms",["troponin"]]],
+ [["12-lead ECG",["ecg","ekg","12"]],["Echo / cath",["echo","cath"]]]),
+"Myoglobin":K(
+ [["Early chest pain",["early","hour","chest"]],["Muscle pain / weakness",["muscle","weak","trauma","crush","exercis"]]],
+ [["MI signs",["diaphor","sweat","tachy"]],["Muscle injury signs / dark urine",["tender","swell","dark","tea","rhabdo","urine"]]],
+ [["Troponin to confirm",["troponin","confirm"]],["Total CK",["ck"]],["Kidney function",["kidney","renal","bun","creatinine"]]],
+ [["ECG",["ecg","ekg"]],["Urinalysis for myoglobin",["urinalysis","ua!","urine"]]]),
+"BNP (B-type natriuretic peptide)":K(
+ [["Dyspnea / orthopnea",BR.concat(["orthopnea","lying","night"])],["Fatigue",FAT],["Weight gain / swelling",["weight","swell","ankle"]]],
+ [["Crackles",["crackl","rales"]],["JVD / S3",["jvd","jugular","s3"]],["Edema",["edema","swell"]],["Low O2 sat / tachycardia",["o2","oxygen","sat","tachy"]]],
+ [["Sodium / potassium",["sodium","na!","potassium","k!","electrolyte"]],["BUN / creatinine",["bun","creatinine","kidney","renal"]],["Troponin",["troponin"]]],
+ [["Echo / ejection fraction",["echo","ejection","ef!"]],["Chest X-ray",["x-ray","xray","cxr"]],["ECG",["ecg","ekg"]]]),
+"Heart failure":K(
+ [["Dyspnea / orthopnea",BR.concat(["orthopnea","lying","night","pnd!"])],["Fatigue",FAT],["Weight gain / swollen ankles",["weight","swell","ankle"]]],
+ [["Crackles",["crackl","rales"]],["JVD / S3",["jvd","jugular","s3"]],["Dependent edema",["edema","swell"]],["Tachycardia / low O2 sat",["tachy","o2","oxygen","sat"]]],
+ [["Elevated BNP",["bnp"]],["Sodium / potassium",["sodium","potassium","electrolyte"]],["BUN / creatinine",["bun","creatinine","kidney","renal"]]],
+ [["Echo / ejection fraction",["echo","ejection","ef!"]],["Chest X-ray",["x-ray","xray","cxr"]],["ECG",["ecg","ekg"]]]),
+"Pericarditis":K(
+ [["Sharp chest pain",["sharp","stab","chest","pain"]],["Worse lying flat, better leaning forward",["lean","forward","lying","flat","sit","breath"]],["Fever / fatigue",["fever","fatigue","tired"]]],
+ [["Pericardial friction rub",["friction","rub"]],["Tachycardia",["tachy"]],["Low-grade fever",["fever","temp"]]],
+ [["WBC / CRP / ESR",["wbc","crp","esr","inflam","white"]],["Troponin mildly up",["troponin"]]],
+ [["Widespread ST elevation on ECG",["st elev","st!","ecg","ekg"]],["Echo for effusion",["echo","effusion"]]]),
+"Infective endocarditis":K(
+ [["Fever / chills",["fever","chill"]],["Fatigue / night sweats",["fatigue","tired","sweat"]],["Joint aches / weight loss",["joint","ache","weight"]]],
+ [["New murmur",["murmur"]],["Petechiae / splinter hemorrhages",["petechia","splinter"]],["Osler nodes / Janeway lesions / Roth spots",["osler","janeway","roth"]]],
+ [["Positive blood cultures",["culture"]],["WBC / ESR / CRP",["wbc","esr","crp","white"]],["Anemia",["anemi","hemoglobin","hgb"]]],
+ [["Echocardiogram",["echo"]],["TEE shows vegetations",["tee!","transesoph","vegetat"]]]),
+"Pericardial effusion":K(
+ [["May have none",["none","asymptom","no symptom"]],["Chest fullness / pressure",["fullness","pressure","chest"]],["Dyspnea / cough",BR.concat(["cough"])]],
+ [["Muffled heart sounds",["muffl","distant"]],["Tachycardia",["tachy"]],["Friction rub",["friction","rub"]]],
+ [["Depends on the cause",["cause","depend"]],["WBC / CRP or BUN / creatinine",["wbc","crp","bun","creatinine"]]],
+ [["Echocardiogram",["echo"]],["Chest X-ray (water bottle heart)",["x-ray","xray","cxr","water","bottle"]],["Low-voltage ECG",["ecg","ekg","voltage"]]]),
+"Cardiac tamponade":K(
+ [["Sudden dyspnea",BR.concat(["sudden"])],["Chest pain",CP],["Anxiety / lightheaded",["anxi","lighthead","dizz"]]],
+ [["Hypotension",["hypotens","low bp","low blood"]],["JVD",["jvd","jugular"]],["Muffled heart sounds",["muffl","distant"]],["Pulsus paradoxus",["pulsus","paradox"]]],
+ [["Not diagnostic",["not","none","no specific"]],["H&H if bleeding",["h&h","hemoglobin","hgb","hematocrit"]]],
+ [["Bedside echo",["echo"]],["ECG: low voltage / electrical alternans",["ecg","ekg","alternans","voltage"]]]),
+"Cardiomyopathy":K(
+ [["Dyspnea / fatigue",BR.concat(FAT)],["Palpitations",["palpit"]],["Chest pain / fainting",["chest","faint","syncop","dizz"]]],
+ [["Crackles / edema / JVD",["crackl","edema","jvd","swell"]],["Murmur (hypertrophic)",["murmur"]],["Dysrhythmias / S3 or S4",["dysrhythm","arrhythm","s3","s4"]]],
+ [["Elevated BNP",["bnp"]]],
+ [["Echocardiogram",["echo"]],["ECG / chest X-ray",["ecg","ekg","x-ray","xray"]],["Cardiac MRI",["mri"]]]),
+"Aortic stenosis":K(
+ [["Chest pain with exertion",["chest","angina","pain"]],["Fainting",["faint","syncop","dizz"]],["Dyspnea / fatigue",BR.concat(FAT)]],
+ [["Harsh systolic murmur",["murmur","systolic"]],["Narrow pulse pressure",["pulse pressure","narrow"]],["Weak, delayed pulses",["pulse","weak","delay"]]],
+ [["BNP may rise",["bnp"]]],
+ [["Echo (valve area / gradient)",["echo"]],["ECG: LV hypertrophy",["ecg","ekg","hypertroph","lvh"]],["Cardiac cath",["cath"]]]),
+"Mitral stenosis":K(
+ [["Dyspnea with exertion",BR],["Fatigue / palpitations",["fatigue","tired","palpit"]],["Coughing up blood",["cough","blood","hemoptys"]]],
+ [["Diastolic rumble at apex",["murmur","diastolic","rumble"]],["Irregular pulse (A-fib)",["irregular","fib"]],["Crackles / flushed cheeks",["crackl","flush","cheek"]]],
+ [["BNP may rise",["bnp"]],["INR if on warfarin",["inr","warfarin"]]],
+ [["Echocardiogram",["echo"]],["ECG (A-fib, big LA)",["ecg","ekg","fib"]],["Chest X-ray",["x-ray","xray","cxr"]]]),
+"Aortic regurgitation":K(
+ [["Dyspnea / fatigue",BR.concat(FAT)],["Palpitations / pounding heartbeat",["palpit","pound"]],["Chest pain",CP]],
+ [["Wide pulse pressure",["pulse pressure","wide"]],["Bounding pulses / head bobbing",["bound","water","hammer","head","bob"]],["Diastolic murmur",["murmur","diastolic"]]],
+ [["BNP may rise",["bnp"]]],
+ [["Echocardiogram",["echo"]],["Chest X-ray (big LV)",["x-ray","xray","cxr"]],["ECG",["ecg","ekg"]]]),
+"Mitral regurgitation":K(
+ [["Dyspnea / orthopnea",BR.concat(["orthopnea"])],["Fatigue / palpitations",["fatigue","tired","palpit"]],["Sudden dyspnea after MI",["sudden","mi!","after"]]],
+ [["Holosystolic murmur → axilla",["murmur","holosystolic","systolic","blowing","axilla"]],["Crackles",["crackl"]],["A-fib / S3",["fib","s3"]]],
+ [["BNP elevated",["bnp"]]],
+ [["Echocardiogram",["echo"]],["ECG / chest X-ray",["ecg","ekg","x-ray","xray"]]]),
+"Mitral valve prolapse":K(
+ [["Often none",["none","asymptom","no symptom"]],["Palpitations",["palpit"]],["Chest pain / anxiety / dizziness",["chest","anxi","dizz","fatigue"]]],
+ [["Mid-systolic click",["click"]],["Late systolic murmur",["murmur"]]],
+ [["Nothing specific",["none","nothing","no specific","normal"]]],
+ [["Echocardiogram",["echo"]],["ECG / Holter",["ecg","ekg","holter","monitor"]]]),
+"Cardiogenic shock":K(
+ [["Chest pain",CP],["Severe dyspnea",BR],["Anxiety / confusion",["anxi","confus"]]],
+ [["Hypotension / tachycardia",["hypotens","low bp","tachy"]],["Cool, clammy, pale skin",["cool","clammy","pale","cold"]],["Crackles / JVD",["crackl","jvd"]],["Low urine output",["urine","output","oliguria"]]],
+ [["Troponin elevated",["troponin"]],["Lactate elevated",["lactate"]],["BUN / creatinine / low PaO2",["bun","creatinine","pao2","abg","oxygen"]]],
+ [["ECG",["ecg","ekg"]],["Echo",["echo"]],["Chest X-ray / hemodynamics",["x-ray","xray","hemodynamic","cardiac output","swan"]]]),
+"Septic shock":K(
+ [["Feels very ill / chills",["ill","chill","sick"]],["Confusion / dyspnea",["confus"].concat(BR)],["Source complaints",["cough","urin","wound","burn"]]],
+ [["Fever or low temp",["fever","temp","hypotherm"]],["Tachycardia / tachypnea",["tachy"]],["Hypotension (MAP < 65)",["hypotens","low bp","map"]],["Warm then mottled skin",["warm","flush","mottl","cool"]]],
+ [["High or low WBC",["wbc","white"]],["Lactate > 2",["lactate"]],["Blood cultures / procalcitonin",["culture","procalcitonin"]]],
+ [["Cultures (blood, urine, sputum, wound)",["culture"]],["Imaging to find the source",["x-ray","xray","ct!","imaging","source"]]]),
+"Hypovolemic shock":K(
+ [["Thirst",["thirst"]],["Weakness / dizziness",["weak","dizz","lighthead"]],["Anxiety / confusion",["anxi","confus"]]],
+ [["Tachycardia, then hypotension",["tachy","hypotens","low bp"]],["Cool, pale skin / slow cap refill",["cool","pale","cold","capillary","refill"]],["Flat neck veins",["flat","neck vein"]],["Low urine output",["urine","output","oliguria"]]],
+ [["Low H&H if bleeding",["h&h","hemoglobin","hgb","hematocrit","hct"]],["High BUN / creatinine",["bun","creatinine"]],["Elevated lactate",["lactate"]]],
+ [["Find the source (FAST, CT, endoscopy)",["fast!","ultrasound","ct!","endoscop","source"]],["Monitor CVP / urine output",["cvp","urine","monitor"]]]),
+"Obstructive shock":K(
+ [["Sudden dyspnea",BR.concat(["sudden"])],["Chest pain",CP],["Anxiety",["anxi"]]],
+ [["Hypotension / tachycardia",["hypotens","low bp","tachy"]],["JVD",["jvd","jugular"]],["Clues: muffled sounds, tracheal shift, hypoxia",["muffl","trache","breath sound","hypox"]]],
+ [["D-dimer / troponin (PE)",["d-dimer","ddimer","dimer","troponin"]],["ABGs show low O2",["abg","oxygen","hypox","pao2"]]],
+ [["Echocardiogram",["echo"]],["Chest X-ray",["x-ray","xray","cxr"]],["CT pulmonary angiogram",["ct!","angio"]]]),
+"Distributive shock":K(
+ [["Itching / throat tightness (anaphylaxis)",["itch","throat","tight","wheez"]],["Fever / chills (sepsis)",["fever","chill"]],["Weakness / numbness (neurogenic)",["numb","weak","spinal"]]],
+ [["Hypotension",["hypotens","low bp"]],["Warm, flushed skin",["warm","flush"]],["Tachycardia (brady if neurogenic)",["tachy","brady"]],["Hives / swelling",["hive","swell","angioedema"]]],
+ [["Lactate",["lactate"]],["WBC / cultures (sepsis)",["wbc","culture"]],["Tryptase (anaphylaxis)",["tryptase"]]],
+ [["Find the cause",["cause","culture","imaging","allerg","spinal"]]]),
+"Coronary artery disease (CAD)":K(
+ [["May have none",["none","silent","asymptom"]],["Chest pain with exertion",["chest","pain","pressure","exert"]],["Dyspnea / fatigue",BR.concat(FAT)]],
+ [["Often normal at rest",["normal","rest"]],["Risk factors: HTN, obesity, smoking",["hypertens","bp!","obes","weight","smok"]]],
+ [["High LDL / cholesterol",["ldl","cholesterol","lipid"]],["Low HDL / high triglycerides",["hdl","triglycer"]],["High A1C / glucose",["a1c","glucose","sugar"]]],
+ [["ECG / stress test",["ecg","ekg","stress"]],["Coronary CT",["ct!"]],["Cardiac cath",["cath","angio"]]]),
+"Stable angina":K(
+ [["Chest pressure with exertion",["chest","pressure","squeez","tight","exert","stress"]],["Lasts a few minutes, eases with rest",["minute","rest","short"]],["Radiates to arm / jaw / back",["radiat","arm","jaw","back"]]],
+ [["Normal between episodes",["normal","between"]],["Tachycardia / higher BP during pain",["tachy","bp!","blood pressure","hypertens"]]],
+ [["Troponin normal",["troponin","normal"]],["Abnormal lipids",["lipid","cholesterol","ldl"]]],
+ [["ECG: ST depression during pain",["ecg","ekg","st!"]],["Stress test",["stress"]],["Cardiac cath",["cath"]]]),
+"Unstable angina":K(
+ [["Pain at rest / new or worsening",["rest","new","wors","longer"]],["Not relieved by rest",["not relieved","unrelieved","doesn't go","not go away"]],["Dyspnea / sweating / nausea",BR.concat(["sweat","nausea"])]],
+ [["Tachycardia",["tachy"]],["Diaphoresis / anxiety",["diaphor","sweat","anxi"]],["BP changes",["bp!","blood pressure","hypotens","hypertens"]]],
+ [["Troponin stays normal",["troponin","normal"]],["Repeat troponins",["repeat","serial"]]],
+ [["12-lead ECG in 10 min",["ecg","ekg","12","10"]],["ST depression / T inversion",["st!","t wave","t-wave","inver"]],["Cardiac monitoring / cath",["monitor","cath"]]]),
+"Myocardial infarction (MI)":K(
+ [["Crushing chest pain > 20 min",["crush","chest","pain","pressure","20"]],["Radiates to arm / jaw / back",["radiat","arm","jaw","back","neck"]],["Dyspnea / nausea / doom",BR.concat(["nausea","doom"])],["Atypical in women / older / diabetics",["women","older","elder","diabet","atypical","indigest"]]],
+ [["Diaphoresis",["diaphor","sweat","clammy"]],["Tachy- or bradycardia / BP changes",["tachy","brady","bp!","hypotens"]],["Dysrhythmias / crackles",["dysrhythm","arrhythm","crackl"]]],
+ [["Troponin rising",["troponin"]],["CK-MB rising",["ck"]]],
+ [["12-lead ECG in 10 min",["ecg","ekg","12","10"]],["ST elevation (STEMI)",["st!","stemi","elevat"]],["Echo / cath",["echo","cath"]]]),
+"Arteriosclerosis":K(
+ [["Often none",["none","asymptom","silent","no symptom"]]],
+ [["High systolic BP",["systolic","bp!","blood pressure","hypertens"]],["Wide pulse pressure",["pulse pressure","wide"]],["Complication signs",["angina","claudic","stroke"]]],
+ [["Lipid panel",["lipid","cholesterol"]],["Glucose / A1C",["glucose","a1c","sugar"]],["Kidney function",["kidney","renal","bun","creatinine"]]],
+ [["BP monitoring",["bp!","blood pressure","monitor"]],["Ankle-brachial index / ultrasound",["abi!","ankle","ultrasound","doppler"]]]),
+"Atherosclerosis":K(
+ [["Often none until narrowed",["none","silent","asymptom"]],["Symptoms by location",["chest","stroke","tia","leg","walk"]]],
+ [["Bruits",["bruit"]],["Weak pulses",["pulse"]],["Xanthomas",["xanthoma","fatty","deposit"]]],
+ [["High LDL / cholesterol",["ldl","cholesterol","lipid"]],["Low HDL / high triglycerides",["hdl","triglycer"]],["Elevated CRP",["crp"]]],
+ [["Carotid ultrasound",["ultrasound","carotid","doppler"]],["Ankle-brachial index",["abi!","ankle"]],["Angiography / cath",["angio","cath"]]]),
+"Hypertension":K(
+ [["Usually none",["none","silent","asymptom","no symptom"]],["Headache / dizziness / blurred vision",["headache","dizz","blur","vision"]]],
+ [["BP ≥ 130/80 on repeat readings",["130","80","repeat","high","elevat"]],["Organ damage signs",["lvh","hypertroph","retina","kidney","organ"]]],
+ [["BUN / creatinine",["bun","creatinine","kidney","renal"]],["Urinalysis for protein",["urin","protein"]],["Electrolytes / glucose / lipids",["electrolyte","potassium","glucose","lipid","cholesterol"]]],
+ [["Repeated / ambulatory BP",["repeat","ambulatory","monitor","bp!"]],["ECG / echo",["ecg","ekg","echo"]],["Eye exam",["eye","retina","fundus"]]]),
+"Hypertensive crisis":K(
+ [["Severe headache",["headache"]],["Blurred vision",["blur","vision"]],["Chest pain / dyspnea / confusion",["chest","confus","nausea"].concat(BR)]],
+ [["BP ≥ 180/120",["180","120"]],["Neuro changes / seizures",["neuro","seiz","confus"]],["Pulmonary edema / low urine output",["edema","crackl","urine"]]],
+ [["BUN / creatinine",["bun","creatinine","kidney"]],["Urinalysis",["urin"]],["Troponin / electrolytes",["troponin","electrolyte","potassium"]]],
+ [["ECG / chest X-ray",["ecg","ekg","x-ray","xray"]],["Head CT",["ct!","head"]],["Eye exam",["eye","retina","papilledema"]]]),
+"Peripheral arterial disease (PAD)":K(
+ [["Leg pain with walking, relieved by rest",["claudic","walk","calf","rest"]],["Rest pain / night pain",["night","rest pain","dangl"]]],
+ [["Weak or absent pulses",["pulse"]],["Cool, pale, shiny, hairless skin",["cool","cold","pale","shiny","hair"]],["Dependent rubor",["rubor","red"]],["Painful toe ulcers",["ulcer","toe"]]],
+ [["Lipid panel",["lipid","cholesterol"]],["Glucose / A1C",["glucose","a1c","sugar"]]],
+ [["Ankle-brachial index < 0.9",["abi!","ankle","0.9"]],["Doppler / angiography",["doppler","ultrasound","angio"]]]),
+"Peripheral venous disease":K(
+ [["Heavy, aching legs",["heavy","ach","tired"]],["Worse standing, better elevated",["stand","elevat"]],["Itching",["itch"]]],
+ [["Edema",["edema","swell"]],["Brown discoloration",["brown","discolor","stain"]],["Varicose veins",["varicos"]],["Shallow ulcers near ankle",["ulcer","ankle"]]],
+ [["Usually nothing specific",["none","nothing","no specific","normal"]]],
+ [["Venous duplex ultrasound",["ultrasound","duplex","doppler"]]]),
+"Abdominal aortic aneurysm (AAA)":K(
+ [["Often none",["none","asymptom","silent"]],["Vague abdominal / back pain",["abdom","back","flank","pain"]]],
+ [["Pulsating mass",["pulsat","mass"]],["Abdominal bruit",["bruit"]],["Rupture: severe pain, shock",["rupture","shock","hypotens","sudden"]]],
+ [["No specific lab",["none","no specific","nothing"]],["H&H / type & crossmatch if rupture",["h&h","hemoglobin","type","crossmatch","cross"]]],
+ [["Abdominal ultrasound",["ultrasound"]],["CT scan",["ct!"]]]),
+"Aortic dissection":K(
+ [["Sudden tearing / ripping pain",["tear","rip","sudden","worst"]],["Chest or back pain",["chest","back"]],["Fainting / dyspnea",["faint","syncop"].concat(BR)]],
+ [["BP difference between arms",["arm","difference","unequal"]],["Weak or missing pulses",["pulse"]],["Hypertension",["hypertens","high bp","high blood"]],["New murmur / stroke signs",["murmur","stroke"]]],
+ [["Elevated D-dimer",["d-dimer","ddimer","dimer"]],["Type & crossmatch",["type","crossmatch","cross"]],["Troponin to rule out MI",["troponin"]]],
+ [["CT angiography",["ct!","angio"]],["TEE",["tee!","transesoph","echo"]],["Chest X-ray: wide mediastinum",["x-ray","xray","mediastin"]]]),
+"Venous thromboembolism (VTE)":K(
+ [["Leg pain / swelling (DVT)",["leg","calf","swell","pain"]],["Sudden dyspnea / chest pain (PE)",BR.concat(["chest","sudden"])],["Cough / anxiety",["cough","anxi"]]],
+ [["One-sided swelling, warmth, redness",["one","unilateral","warm","red","swell"]],["Tachycardia / tachypnea",["tachy"]],["Low O2 sat / hemoptysis",["o2","oxygen","sat","hypox","hemoptys","blood"]]],
+ [["Elevated D-dimer",["d-dimer","ddimer","dimer"]],["PT/INR, aPTT, platelets",["pt!","inr","aptt","ptt","platelet","coag"]]],
+ [["Duplex ultrasound (DVT)",["ultrasound","duplex","doppler"]],["CT pulmonary angiogram (PE)",["ct!","angio"]]]),
+"Deep vein thrombosis (DVT)":K(
+ [["Calf or thigh pain / tenderness",["pain","ach","tender","calf","thigh"]],["Swelling",["swell"]]],
+ [["One-sided edema",["one","unilateral","edema","swell"]],["Warmth / redness",["warm","red"]],["Firm vein / bigger calf",["firm","cord","circumference","bigger","larger"]]],
+ [["Elevated D-dimer",["d-dimer","ddimer","dimer"]],["PT/INR, aPTT, platelets",["pt!","inr","aptt","ptt","platelet","coag"]]],
+ [["Venous duplex ultrasound",["ultrasound","duplex","doppler"]]]),
+"Iron deficiency anemia":K(
+ [["Fatigue / weakness",FAT],["Dyspnea / dizziness / headache",BR.concat(["dizz","headache"])],["Feeling cold / pica",["cold","pica","ice","crav"]]],
+ [["Pallor",["pale","pallor"]],["Tachycardia",["tachy"]],["Spoon nails / sore tongue",["spoon","nail","tongue","mouth"]]],
+ [["Low Hgb / Hct",["hemoglobin","hgb","h&h","hematocrit","hct"]],["Low MCV",["mcv","microcyt","small"]],["Low iron / ferritin, high TIBC",["iron","ferritin","tibc"]]],
+ [["CBC and iron studies",["cbc","iron stud"]],["Stool test / endoscopy",["stool","occult","endoscop","colonoscop"]]]),
+"Vitamin deficiency anemia":K(
+ [["Fatigue / weakness",FAT],["Sore tongue",["tongue"]],["Numbness / tingling (B12)",["numb","tingl","walk","memory"]]],
+ [["Pallor / mild jaundice",["pale","pallor","jaundice","yellow"]],["Beefy red tongue",["tongue","beef","red"]],["Poor balance / less vibration sense",["balance","vibration","gait","neuro"]]],
+ [["Low hemoglobin",["hemoglobin","hgb"]],["High MCV",["mcv","macrocyt","large","megalo"]],["Low B12 or folate / intrinsic factor antibodies",["b12","folate","intrinsic"]]],
+ [["CBC with indices",["cbc","indices"]],["B12 / folate levels",["b12","folate","level"]],["Intrinsic factor test",["intrinsic","schilling"]]]),
+"Sickle cell anemia":K(
+ [["Severe pain (crisis)",["pain","crisis"]],["Fatigue",FAT],["Dyspnea",BR]],
+ [["Pallor / jaundice",["pale","pallor","jaundice","yellow"]],["Swollen hands and feet (children)",["hand","feet","foot","swell"]],["Fever / tachycardia",["fever","tachy"]],["Acute chest syndrome / stroke signs",["acute chest","stroke","hypox"]]],
+ [["Low hemoglobin",["hemoglobin","hgb"]],["High reticulocytes",["retic"]],["High bilirubin / sickled cells",["bilirubin","sickle","smear"]]],
+ [["Hemoglobin electrophoresis",["electrophoresis","hemoglobin s","hbs"]],["Chest X-ray / transcranial Doppler",["x-ray","xray","doppler","transcranial"]]]),
+"Disseminated intravascular coagulation (DIC)":K(
+ [["Bleeding (nose, gums, oozing)",["bleed","nose","gum","ooz"]],["Dyspnea / confusion",["confus"].concat(BR)]],
+ [["Oozing from IV sites",["ooz","iv!","site","wound"]],["Petechiae / purpura",["petechia","purpura","bruis"]],["Clot signs: mottled skin, low urine",["mottl","cool","urine","mental","clot"]]],
+ [["Low platelets / fibrinogen",["platelet","fibrinogen"]],["Long PT/INR and aPTT",["pt!","inr","aptt","ptt"]],["High D-dimer / fibrin split products",["d-dimer","ddimer","dimer","split","fsp"]]],
+ [["Repeat coagulation panel",["coag","panel","repeat","serial"]],["Find the trigger",["trigger","cause","culture","imaging"]]]),
+"Acute lymphoblastic leukemia (ALL)":K(
+ [["Fatigue / weakness",FAT],["Fever / frequent infections",["fever","infect"]],["Bone or joint pain",["bone","joint"]],["Easy bruising / bleeding",["bruis","bleed"]]],
+ [["Pallor",["pale","pallor"]],["Petechiae / bruising",["petechia","bruis"]],["Swollen lymph nodes, liver, spleen",["lymph","node","liver","spleen"]]],
+ [["WBC with blasts",["blast","wbc","white"]],["Low Hgb / platelets / neutrophils",["hemoglobin","hgb","platelet","neutro","low"]]],
+ [["Bone marrow biopsy",["marrow","biopsy","aspirat"]],["Lumbar puncture",["lumbar","lp!","spinal"]],["Chest X-ray",["x-ray","xray"]]]),
+"Polycythemia vera":K(
+ [["Headache / dizziness",["headache","dizz"]],["Itching after warm shower",["itch","shower","bath","prurit"]],["Blurred vision / burning hands and feet",["blur","vision","burn","fatigue"]]],
+ [["Ruddy red face",["ruddy","red","flush","plethor"]],["Enlarged spleen",["spleen"]],["High BP / clot signs",["bp!","hypertens","clot","stroke","dvt"]]],
+ [["High Hgb / Hct / RBCs",["hemoglobin","hgb","hematocrit","hct","rbc","red cell"]],["High WBC / platelets",["wbc","platelet"]],["Low EPO / JAK2",["epo","erythropoietin","jak"]]],
+ [["CBC",["cbc"]],["JAK2 testing",["jak"]],["Bone marrow biopsy",["marrow","biopsy"]]]),
+"Thrombocytopenic purpura":K(
+ [["Easy bruising",["bruis"]],["Nosebleeds / gum bleeding / heavy periods",["nose","gum","period","bleed","menstru"]],["Confusion / fever (TTP)",["confus","fever"]]],
+ [["Petechiae / purpura",["petechia","purpura","purple"]],["Prolonged bleeding",["prolong","bleed","cut"]],["Neuro / kidney changes (TTP)",["neuro","kidney","renal"]]],
+ [["Low platelets",["platelet","plt!","150","20,000","20000"]],["Normal PT / aPTT",["pt!","aptt","ptt","normal"]],["TTP: fragmented RBCs, low ADAMTS13",["schistocyt","fragment","adamts"]]],
+ [["CBC",["cbc"]],["Peripheral smear",["smear"]],["Bone marrow biopsy",["marrow","biopsy"]]])
+};
+
+Object.keys(PK4).forEach(k=>{if(EXT[k])EXT[k].pk4=PK4[k];});
+/* Medication rationales: why each correct stem is used, and why-not notes for wrong picks */
+const RAT={
+"Heart failure":{"-semide":"Makes the kidneys excrete sodium and water, which removes excess fluid and relieves edema and lung congestion (lowers preload).","-pril":"Blocks the formation of angiotensin II, which dilates vessels and reduces sodium and water retention; this lowers afterload and slows harmful heart remodeling.","-sartan":"Blocks angiotensin II receptors for the same afterload and remodeling benefits; used when an ACE inhibitor causes a cough.","-lol":"Slows the heart and blocks the stress hormones that overwork a failing heart; carvedilol and metoprolol succinate improve long-term survival."},
+"Cardiomyopathy":{"-lol":"Slows the heart so the ventricles have more time to fill; first-line in hypertrophic cardiomyopathy and improves survival in dilated cardiomyopathy.","-pril":"Lowers afterload and slows remodeling in dilated cardiomyopathy.","-sartan":"Gives the same benefits as an ACE inhibitor when one isn't tolerated.","-semide":"Relieves fluid overload in dilated cardiomyopathy; used cautiously in hypertrophic cardiomyopathy, where the stiff ventricle needs volume to fill."},
+"Mitral stenosis":{"-lol":"Slows the heart rate so the left ventricle has more time to fill through the narrow valve, and controls the rate in atrial fibrillation.","-arin":"Warfarin (or heparin) prevents clots in the enlarged left atrium, especially with atrial fibrillation, lowering stroke risk.","-semide":"Lowers the pressure backing up into the lungs, relieving shortness of breath."},
+"Aortic regurgitation":{"-pril":"Dilates arteries to lower afterload, so more blood moves forward into the aorta instead of leaking back into the LV.","-sartan":"Lowers afterload the same way by blocking angiotensin II receptors.","-dipine":"Nifedipine relaxes the arteries, lowering afterload and the amount of blood that leaks back."},
+"Mitral regurgitation":{"-pril":"Lowers afterload so more blood goes forward into the aorta and less flows backward into the left atrium.","-sartan":"Lowers afterload the same way by blocking angiotensin II receptors.","-semide":"Removes the fluid that backs up into the lungs."},
+"Mitral valve prolapse":{"-lol":"Slows the heart and blunts the effects of adrenaline, easing palpitations and chest pain."},
+"Cardiogenic shock":{"-ine":"Dobutamine strengthens each contraction (positive inotrope), and dopamine or norepinephrine raises BP so organs are perfused."},
+"Septic shock":{"-ine":"Norepinephrine constricts the dilated vessels to raise MAP to 65 or higher when fluids alone aren't enough."},
+"Obstructive shock":{"-teplase":"Dissolves a massive PE so blood can flow through the lungs and back to the left heart again.","-arin":"Heparin stops the clot from growing and prevents new clots from forming."},
+"Distributive shock":{"-ine":"Epinephrine reverses anaphylaxis by constricting vessels and opening the airways; norepinephrine raises BP in septic and neurogenic shock."},
+"Coronary artery disease (CAD)":{"-statin":"Lowers LDL and stabilizes plaque, reducing the risk of MI.","grel":"Blocks platelets from clumping on plaque and keeps stents open.","-lol":"Lowers heart rate and the force of contraction, so the heart needs less oxygen.","-pril":"Lowers BP and protects the heart and vessels, especially with diabetes or heart failure.","nitr":"Dilates veins and coronary arteries to relieve angina."},
+"Stable angina":{"nitr":"Sublingual nitroglycerin quickly dilates veins and coronary arteries, lowering preload and relieving the pain; long-acting nitrates prevent attacks.","-lol":"Lower heart rate and contractility, so the heart needs less oxygen during exertion.","-dipine":"Relax the coronary and peripheral arteries, increasing oxygen supply and lowering demand.","-statin":"Slows plaque growth and lowers the risk of future cardiac events."},
+"Unstable angina":{"nitr":"Relieves ischemic pain by dilating the coronary arteries and lowering preload.","-lol":"Lowers oxygen demand and the risk of dysrhythmias.","-arin":"Heparin stops the partial clot from growing into a complete blockage.","grel":"Added to aspirin to stop platelets from building on the ruptured plaque.","-statin":"High-intensity statins stabilize the plaque and lower the risk of an MI."},
+"Myocardial infarction (MI)":{"nitr":"Relieves ischemic pain by dilating the coronary arteries and lowering preload; hold it for hypotension, right ventricular MI, or recent erectile dysfunction medication.","-lol":"Lowers oxygen demand, limits how much muscle dies, and reduces dysrhythmias.","-arin":"Heparin keeps the clot from extending.","grel":"Given with aspirin to stop further platelet clotting and keep a new stent open.","-teplase":"Dissolves the clot in STEMI when PCI can't be done in time.","-statin":"Stabilizes plaque and lowers the risk of another MI.","-pril":"Prevents harmful remodeling of the heart muscle after an MI, especially when the ejection fraction is low."},
+"Arteriosclerosis":{"-pril":"Lowers BP and reduces stress on the stiffening artery walls.","-sartan":"Lowers BP the same way by blocking angiotensin II receptors.","-dipine":"Relaxes arterial smooth muscle, lowering BP."},
+"Atherosclerosis":{"-statin":"Lowers LDL, the main building block of plaque, and stabilizes existing plaque.","fibr":"Lowers triglycerides and raises HDL.","grel":"Keeps clots from forming on plaque."},
+"Hypertension":{"-pril":"Blocks the formation of angiotensin II, causing vasodilation and less aldosterone, so the body retains less sodium and water.","-sartan":"Blocks angiotensin II receptors for the same effect, without the ACE inhibitor cough.","-lol":"Lowers heart rate and cardiac output.","-dipine":"Relaxes arterial smooth muscle, dilating the arteries.","-thiazide":"Removes sodium and water to lower blood volume; first-line for many patients.","-kiren":"Blocks renin, the first step of the renin-angiotensin-aldosterone system (RAAS).","-azosin":"Blocks alpha receptors on blood vessels, causing vasodilation; also helps urinary symptoms of BPH."},
+"Hypertensive crisis":{"-dipine":"IV nicardipine can be titrated to bring BP down in a controlled way.","-lol":"IV labetalol quickly lowers both BP and heart rate."},
+"Peripheral arterial disease (PAD)":{"grel":"Prevents clots in the narrowed leg arteries, lowering the risk of MI, stroke, and limb loss.","-statin":"Slows plaque growth and helps improve walking distance."},
+"Abdominal aortic aneurysm (AAA)":{"-lol":"Lowers BP and the force of each contraction, reducing stress on the aneurysm wall.","-pril":"Keeps BP controlled to slow the aneurysm's growth.","-statin":"Treats the underlying atherosclerosis."},
+"Aortic dissection":{"-lol":"Given first (IV esmolol or labetalol) to lower heart rate and the force of each beat, which helps keep the tear from spreading.","-dipine":"Added after the beta blocker if BP stays high; giving it first could cause a reflex fast heart rate."},
+"Venous thromboembolism (VTE)":{"-arin":"Heparin or enoxaparin stops the clot from growing right away; warfarin is used for long-term prevention (monitor INR).","-xaban":"Oral factor Xa inhibitors treat the clot long term without routine INR checks.","-gatr / rudin":"Direct thrombin inhibitors block clotting: dabigatran orally, or argatroban and bivalirudin IV when heparin can't be used (heparin-induced thrombocytopenia)."},
+"Deep vein thrombosis (DVT)":{"-arin":"Heparin or enoxaparin stops the clot from growing right away; warfarin is used for long-term prevention (monitor INR).","-xaban":"Oral factor Xa inhibitors treat the clot long term without routine INR checks.","-gatr / rudin":"Direct thrombin inhibitors block clotting: dabigatran orally, or argatroban and bivalirudin IV when heparin can't be used (heparin-induced thrombocytopenia)."},
+"Thrombocytopenic purpura":{"-plostim / -trombopag":"Stimulates the bone marrow to make more platelets in chronic ITP."}
+};
+const LOWBP="Would lower BP even further in a patient who is already in shock.", BLEED="Would increase bleeding risk.";
+const WN={
+"Cardiogenic shock":{"-lol":LOWBP,"-pril":LOWBP,"-azosin":LOWBP},
+"Septic shock":{"-lol":LOWBP,"-dipine":LOWBP,"-azosin":LOWBP,"-teplase":"Thrombolytics dissolve clots; they don't treat infection or low BP."},
+"Distributive shock":{"-lol":LOWBP,"-dipine":LOWBP,"-azosin":LOWBP,"-semide":"Would remove fluid the patient needs to fill the dilated vessels."},
+"Obstructive shock":{"-lol":LOWBP,"-pril":LOWBP,"-azosin":LOWBP},
+"Unstable angina":{"-teplase":"Thrombolytics aren't given for unstable angina or NSTEMI: the clot is only partial, and the bleeding risk outweighs the benefit."},
+"Aortic dissection":{"-teplase":"Would worsen bleeding into the torn aortic wall.","-arin":"Would worsen bleeding into the torn aortic wall.","-ine":"Would raise heart rate and BP, which can extend the tear."},
+"Venous thromboembolism (VTE)":{"grel":"Antiplatelets prevent arterial clots; venous clots are treated with anticoagulants."},
+"Deep vein thrombosis (DVT)":{"grel":"Antiplatelets prevent arterial clots; venous clots are treated with anticoagulants.","-teplase":"Thrombolytics are saved for a massive PE, not a routine DVT."},
+"Thrombocytopenic purpura":{"-arin":BLEED+" Platelets are already low.","grel":BLEED+" Platelets are already low.","-teplase":BLEED+" Platelets are already low.","-xaban":BLEED+" Platelets are already low."},
+"Hypertensive crisis":{"-ine":"Adrenergic agonists would raise BP even higher."},
+"Mitral valve prolapse":{"-pril":"ACE inhibitors aren't needed unless significant regurgitation develops."}
+};
+const WN_DEFAULT={"-poetin":"Erythropoiesis-stimulating agents treat anemia from kidney disease or chemotherapy, not this condition.","-stim":"Colony-stimulating factors raise white blood cells in neutropenia, not this condition."};
+const whyNot=(term,s)=>(WN[term]&&WN[term][s])||WN_DEFAULT[s]||"Not used to treat this condition.";
+
 /* ---------- STATE ---------- */
-const ALL=[]; UNITS.forEach((u,ui)=>u.groups.forEach((g,gi)=>g.terms.forEach((t,ti)=>{t.id=`u${u.n}-${gi}-${ti}`;t.unit=ui;t.group=g.g;t.b=BRIEF[t.t]||[];ALL.push(t);})));
-const KEY="sayItSimply-cvheme-v2";
+const ALL=[]; UNITS.forEach((u,ui)=>u.groups.forEach((g,gi)=>g.terms.forEach((t,ti)=>{t.id=`u${u.n}-${gi}-${ti}`;t.unit=ui;t.group=g.g;t.b=BRIEF[t.t]||[];t.x=EXT[t.t]||null;ALL.push(t);})));
+const KEY="sayItSimply-cvheme-v3";
 let S={unit:0,idx:{},ans:{}};
 try{const raw=localStorage.getItem(KEY); if(raw){const p=JSON.parse(raw); if(p&&p.ans) S=Object.assign(S,p);}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -536,25 +1133,26 @@ function renderRail(){const {t:c}=cur();let html="",lastG=null;
   $("rail").innerHTML=html;
   $("rail").querySelectorAll(".item").forEach(b=>b.onclick=()=>{const list=unitTerms(S.unit);S.idx[S.unit]=list.findIndex(x=>x.id===b.dataset.id);save();renderCard();renderRail();});}
 function renderCard(){const {list,i,t}=cur();const a=A(t.id);const u=UNITS[S.unit];
-  $("where").textContent=`Unit ${u.n} · ${t.group}`;$("term").textContent=t.t;$("count").textContent=`${i+1} / ${list.length}`;
+  $("where").textContent=`Section ${u.n} · ${t.group}`;$("term").textContent=t.t;$("count").textContent=`${i+1} / ${list.length}`;
   $("answer").value=a.text;$("answer").readOnly=a.shown;$("hintline").innerHTML="";updateCount();
   $("preActions").style.display=a.shown?"none":"flex";
   $("reveal").classList.toggle("show",a.shown);
   if(a.shown){$("def").textContent=t.d;
     const got=t.k.map(([lab,st])=>a.text.trim()&&hits(a.text,st));const n=got.filter(Boolean).length;
     $("keys").innerHTML=t.k.map(([lab],j)=>`<span class="chip ${got[j]?"hit":""}"><span class="ic">${got[j]?"✓":"○"}</span>${lab}</span>`).join("");
-    $("brief").innerHTML=`<div class="brief-h">${t.t} <small>Brief description</small></div>`+t.b.map(([l,x])=>`<div class="brow"><b>${l}</b><div>${x}</div></div>`).join("");
+    $("brief").innerHTML=`<div class="brief-h">${t.t} <small>Brief description</small></div>`+briefEarly(t).map(([l,x])=>`<div class="brow"><b>${l}</b><div>${x}</div></div>`).join("")+(isCond(t)?`<div class="brow"><b></b><div style="color:var(--muted);font-size:14px">More about ${lcFirst(t.t)} appears in the wrap-up at the end of this topic.</div></div>`:"");
     setBrief(!!a.briefOpen);
     $("keynote").textContent=a.text.trim()?`You touched on ${n} of ${t.k.length} key ideas. This is a guide only. Different wording can still be right, so compare and rate yourself.`:"No definition yet. Read the brief description below, then click Try again and write it in your own words.";
     document.querySelectorAll(".rbtn").forEach(b=>b.classList.toggle("on",b.dataset.r===a.rate));}
+  renderSteps();
   $("prev").disabled=i===0&&S.unit===0;
-  const lastAll=(S.unit===UNITS.length-1&&i===list.length-1);$("next").textContent=lastAll?"See my results →":(i===list.length-1?`Unit ${UNITS[S.unit+1].n} →`:"Next term →");}
+  const lastAll=(S.unit===UNITS.length-1&&i===list.length-1);$("next").textContent=lastAll?"See my results →":(i===list.length-1?`Section ${UNITS[S.unit+1].n} →`:"Next term →");}
 function renderProgress(){const tot=ALL.length;let g=0,m=0,r=0;ALL.forEach(t=>{const s=S.ans[t.id]&&S.ans[t.id].rate;if(s==="good")g++;else if(s==="mid")m++;else if(s==="rev")r++;});
   $("progText").textContent=`${g+m+r} of ${tot} checked`;$("pGood").style.width=g/tot*100+"%";$("pMid").style.width=m/tot*100+"%";$("pRev").style.width=r/tot*100+"%";
   return {g,m,r,left:tot-g-m-r};}
-function renderKey(){const u=UNITS[S.unit];$("keyIntro").textContent=`Unit ${u.n}: ${u.name}. Every term with its simple definition, for projecting or studying.`;
+function renderKey(){const u=UNITS[S.unit];$("keyIntro").textContent=`Section ${u.n}: ${u.name}. Every term with its simple definition, for projecting or studying.`;
   let html="",lastG=null;unitTerms(S.unit).forEach(t=>{if(t.group!==lastG&&u.groups.length>1){html+=`<div class="krow grouphead">${t.group}</div>`;}lastG=t.group;
-    html+=`<div class="krow"><div class="kt">${t.t}</div><div><div class="kd">${t.d}</div><details class="kb"><summary>Brief description</summary>${t.b.map(([l,x])=>`<div class="brow"><b>${l}</b><div>${x}</div></div>`).join("")}</details></div></div>`;});
+    html+=`<div class="krow"><div class="kt">${t.t}</div><div><div class="kd">${t.d}</div><details class="kb"><summary>Brief description</summary>${t.b.map(([l,x])=>`<div class="brow"><b>${l}</b><div>${x}</div></div>`).join("")}</details>${t.x?`<details class="kb"><summary>${t.x.lab?"Complaints, signs, labs & diagnostics":"Patient picture, treatment & medications"}</summary>${stepPrompts(t).labels.map((l,i)=>`<div class="brow"><b>${l}</b><div>${t.x.p[i]}</div></div>`).join("")}${t.x.tx?`<div class="brow"><b>Treatment</b><div>${t.x.tx}</div></div>`:""}${t.x.m?`<div class="brow"><b>Medications</b><div><b style="font-family:monospace;color:var(--ink);text-transform:none;letter-spacing:0">${t.x.m.join("  ·  ")}</b><br>${t.x.m.map(s=>`<b style="font-family:monospace;color:var(--ink);text-transform:none;letter-spacing:0">${s}</b>: ${(RAT[t.t]||{})[s]||""}`).join("<br>")}</div></div>`:""}</details>`:""}</div></div>`;});
   $("keytable").innerHTML=html;$("keytable").querySelectorAll(".kd").forEach(d=>d.onclick=()=>d.classList.toggle("open"));}
 function renderAll(){setTheme();renderTabs();renderRail();renderCard();renderProgress();renderKey();}
 
@@ -591,21 +1189,97 @@ $("kShow").onclick=()=>{$("kShow").classList.add("on");$("kHide").classList.remo
 
 /* results modal */
 function openM(){const s=renderProgress();$("sGood").textContent=s.g;$("sMid").textContent=s.m;$("sRev").textContent=s.r;$("sLeft").textContent=s.left;
+  const medT=ALL.filter(t=>t.x&&t.x.m);$("sMed").textContent=`${medT.filter(t=>S.ans[t.id]&&S.ans[t.id].md&&medScore(t,S.ans[t.id]).perfect).length}/${medT.length}`;
   const rev=ALL.filter(t=>S.ans[t.id]&&S.ans[t.id].rate==="rev");
-  $("rlist").innerHTML=rev.length?rev.map(t=>`<li><div class="ru">Unit ${UNITS[t.unit].n} · ${t.group}</div><div class="rt">${t.t}</div><div class="rd">${t.d}</div></li>`).join(""):`<li class="empty">Nothing marked "Review this" yet.</li>`;
+  $("rlist").innerHTML=rev.length?rev.map(t=>`<li><div class="ru">Section ${UNITS[t.unit].n} · ${t.group}</div><div class="rt">${t.t}</div><div class="rd">${t.d}</div></li>`).join(""):`<li class="empty">Nothing marked "Review this" yet.</li>`;
   $("overlay").classList.add("show");}
 $("openReview").onclick=openM;$("closeM").onclick=()=>$("overlay").classList.remove("show");
 $("overlay").onclick=e=>{if(e.target===$("overlay"))$("overlay").classList.remove("show");};
 const RL={good:"Nailed it",mid:"Partly there",rev:"Review this"};
 function copy(txt,msg){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast(msg),()=>fallbackCopy(txt,msg));}else fallbackCopy(txt,msg);}
 function fallbackCopy(txt,msg){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast(msg);}catch(e){toast("Copy didn't work in this view");}ta.remove();}
-$("copyAll").onclick=()=>{let out="SAY IT SIMPLY: Cardiovascular & Hematology\n";
-  UNITS.forEach((u,ui)=>{out+=`\n=== Unit ${u.n}: ${u.name} ===\n`;unitTerms(ui).forEach(t=>{const a=S.ans[t.id]||{};out+=`\n${t.t}\n  My definition: ${(a.text||"").trim()||"(blank)"}\n  Self-rating: ${RL[a.rate]||"not checked"}\n`;});});
+$("copyAll").onclick=()=>{let out="SAY IT SIMPLY: Unit 4 Cardiovascular & Hematology\n";
+  UNITS.forEach((u,ui)=>{out+=`\n=== Section ${u.n}: ${u.name} ===\n`;unitTerms(ui).forEach(t=>{const a=S.ans[t.id]||{};out+=`\n${t.t}\n  My definition: ${(a.text||"").trim()||"(blank)"}\n  Self-rating: ${RL[a.rate]||"not checked"}\n`;
+    if(t.x){const L=stepPrompts(t).labels;PARTS.forEach((k,i)=>{out+=`  ${L[i]}: ${(a[k+"t"]||"").trim()||"(blank)"}\n`;});if(!t.x.lab)out+=`  Treatment: ${(a.tt||"").trim()||"(blank)"}\n`;
+      if(t.x.m)out+=`  Medications picked: ${(a.msel||[]).join(", ")||"(none)"}${a.md?` (${medScore(t,a).perfect?"all correct":"correct answer: "+t.x.m.join(", ")})`:" (not checked)"}\n`;}});});
   copy(out,"All answers copied. Paste them into your assignment.");};
 $("copyRev").onclick=()=>{const rev=ALL.filter(t=>S.ans[t.id]&&S.ans[t.id].rate==="rev");if(!rev.length){toast("No review terms yet");return;}
   copy("MY REVIEW LIST\n\n"+rev.map(t=>`${t.t}: ${t.d}`).join("\n\n"),"Review list copied");};
 $("resetAll").onclick=()=>{const b=$("resetAll");if(b.dataset.c!=="1"){b.dataset.c="1";b.textContent="Click again to erase everything";setTimeout(()=>{b.dataset.c="";b.textContent="Start over";},3500);return;}
   S={unit:0,idx:{},ans:{}};save();b.dataset.c="";b.textContent="Start over";$("overlay").classList.remove("show");renderAll();toast("Cleared. Fresh start.");};
+
+/* ---------- STEPS 2-4 ---------- */
+const LATE=["What you'll see","Nursing focus"];
+const isCond=t=>!!(t.x&&!t.x.lab);
+const briefEarly=t=>isCond(t)?t.b.filter(([l])=>!LATE.includes(l)):t.b;
+function wrapUp(t){const rows=t.b.filter(([l])=>LATE.includes(l));if(!rows.length)return"";
+  return `<section class="step wrap" id="step-w"><div class="step-h"><span class="sn">✓</span><div><h3>Wrap-up: ${t.t}</h3></div></div>
+  <div class="model">${rows.map(([l,x])=>`<div class="brow"><b>${l}</b><div>${x}</div></div>`).join("")}</div></section>`;}
+const lcFirst=s=>s.charAt(0).toLowerCase()+s.slice(1);
+function seedShuffle(arr,seed){let h=0;for(const c of seed)h=(h*31+c.charCodeAt(0))>>>0;const a=arr.slice();for(let i=a.length-1;i>0;i--){h=(h*1103515245+12345)>>>0;const j=h%(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function chipsHTML(text,keys){const got=keys.map(([l,st])=>!!(text&&text.trim()&&hits(text,st)));const n=got.filter(Boolean).length;
+  return {n,html:`<div class="keys">${keys.map(([l],j)=>`<span class="chip ${got[j]?"hit":""}"><span class="ic">${got[j]?"✓":"○"}</span>${l}</span>`).join("")}</div>`};}
+function rowsHTML(labels,vals){return `<div class="model">${vals.map((v,i)=>`<div class="brow"><b>${labels[i]}</b><div>${v}</div></div>`).join("")}</div>`;}
+function stepPrompts(t){const x=t.x;let nm=t.t.replace(/\s*\(.*?\)/g,"");
+  if(x.lab){const lc=nm==="Cardiac injury panel"?"cardiac injury panel":nm;
+    return {labels:["Complaints","Signs & symptoms","Other labs","Diagnostics"],
+      parts:[[`If a patient's ${lc} comes back elevated, what would the patient complain of?`,"What would the patient tell you they're feeling?"],
+             [`What signs and symptoms would you expect to find?`,"What would you see, hear, feel, or measure on assessment?"],
+             [`What other lab values would you check or expect?`,"Which labs would you look at, and what would you expect them to show?"],
+             [`What additional diagnostics would you expect?`,"Think ECG, imaging, and other tests."]]};}
+  const c=lcFirst(t.t);
+  return {labels:["Complaints","Signs & symptoms","Labs","Diagnostics"],
+    parts:[[`What would a patient with ${c} complain of?`,"What would the patient tell you they're feeling?"],
+           [`What signs and symptoms would you expect to find in a patient with ${c}?`,"What would you see, hear, feel, or measure on assessment?"],
+           [`What lab values would you expect?`,"Which labs would be abnormal, and in which direction?"],
+           [`What additional diagnostics would you expect?`,"Think ECG, imaging, and other tests."]],
+    t:[`How would ${c} be treated?`,"Think about nursing care, procedures, and the types of medications used."]};}
+const PARTS=["c","s","l","d"];
+function openStep(n,key,title,sub,text,shown,model,keys,ansLabel){
+  let h=`<section class="step" id="step-${key}"><div class="step-h"><span class="sn">${n}</span><div><h3>${title}</h3></div></div>
+  <textarea class="otext" data-k="${key}" placeholder="Type what you would expect…" ${shown?"readonly":""}>${esc2(text||"")}</textarea>`;
+  if(!shown){h+=`<div class="actions"><button class="btn primary" data-act="check" data-s="${key}">Check my answer</button><button class="btn" data-act="skip" data-s="${key}">I'm not sure</button></div>`;}
+  else{const c=chipsHTML(text,keys);h+=`<div class="reveal show"><div class="deflabel">${ansLabel}</div>${model}
+    <div class="deflabel" style="margin-top:12px">Key ideas to look for</div>${c.html}<p class="keynote">${text&&text.trim()?`You touched on ${c.n} of ${keys.length} key ideas.`:"No answer written. Read the model answer above."}</p></div>`;}
+  return h+`</section>`;}
+const esc2=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function medStep(n,t,a){const x=t.x;const opts=seedShuffle(x.m.concat(x.o),t.id);const sel=a.msel||[];const done=a.md;
+  let h=`<section class="step" id="step-m"><div class="step-h"><span class="sn">${n}</span><div><h3>Which medication(s) would treat this patient?</h3><p>Select all that apply. Each choice shows only the drug's root, prefix, or suffix.</p></div></div><div class="medgrid">`;
+  opts.forEach(s=>{const ok=x.m.includes(s),on=sel.includes(s);let cls="med";if(on)cls+=" on";
+    if(done){cls+=ok&&on?" right":(!ok&&on?" wrong":(ok?" missed":" dim"));}
+    h+=`<button class="${cls}" data-stem="${s}" ${done?"disabled":""}><span class="stem">${s}</span>${done?`<span class="mc">${POOL[s]}</span>`:""}${done?`<span class="mark">${ok&&on?"✓ Correct":!ok&&on?"✗ Not used":ok?"Missed":""}</span>`:""}</button>`;});
+  h+=`</div>`;
+  if(!done)h+=`<div class="actions"><button class="btn primary" data-act="meds">Check medications</button><button class="btn" data-act="medskip">I'm not sure</button></div>`;
+  else{const r=medScore(t,a);h+=`<div class="medres ${r.perfect?"good":""}"><b>${r.perfect?"All correct!":`You picked ${r.hit} of ${x.m.length} correct stem${x.m.length>1?"s":""}${r.wrong?` and ${r.wrong} that ${r.wrong>1?"don't":"doesn't"} fit`:""}.`}</b></div>
+    <div class="rat"><div class="deflabel">Rationale</div>${x.m.map(s=>`<div class="ratrow"><span class="rs">${s}</span><div><b>${POOL[s]}</b><br>${(RAT[t.t]||{})[s]||""}</div></div>`).join("")}
+    ${(a.msel||[]).filter(s=>!x.m.includes(s)).map(s=>`<div class="ratrow no"><span class="rs">${s}</span><div><b>Why not: ${POOL[s]}</b><br>${whyNot(t.t,s)}</div></div>`).join("")}</div>
+    <div class="actions"><button class="btn" data-act="medretry">Try the medications again</button></div>`;}
+  return h+`</section>`;}
+function medScore(t,a){const sel=a.msel||[];const hit=sel.filter(s=>t.x.m.includes(s)).length,wrong=sel.length-hit;return {hit,wrong,perfect:hit===t.x.m.length&&wrong===0};}
+function renderSteps(){const {t}=cur();const a=A(t.id);const box=$("steps");
+  if(!t.x){box.innerHTML="";renderPills(t,a);return;}
+  if(!a.shown){box.innerHTML=`<div class="locked">🔒 Next: complaints, signs and symptoms, labs, and diagnostics${t.x.lab?"":", then treatment"+(t.x.m?" and medications":"")}. Check your definition to unlock.</div>`;renderPills(t,a);return;}
+  const P=stepPrompts(t);let h="";let open=true;
+  PARTS.forEach((k,i)=>{if(!open)return;
+    h+=openStep(i+2,k,P.parts[i][0],P.parts[i][1],a[k+"t"],a[k+"s"],`<div class="model"><div class="brow"><b>${P.labels[i]}</b><div>${t.x.p[i]}</div></div></div>`,t.x.pk4[i],`Expected ${P.labels[i].toLowerCase()}`);
+    open=!!a[k+"s"];});
+  if(!t.x.lab&&open){h+=openStep(6,"t",P.t[0],P.t[1],a.tt,a.ts,`<div class="model"><div class="brow"><b>Treatment</b><div>${t.x.tx}</div></div></div>`,t.x.tk,"How it's treated");
+    if(t.x.m&&a.ts)h+=medStep(7,t,a);
+    if(t.x.m?a.md:a.ts)h+=wrapUp(t);}
+  box.innerHTML=h;renderPills(t,a);}
+function renderPills(t,a){const ps=[["Define",a.shown]];if(t.x){const L=stepPrompts(t).labels;PARTS.forEach((k,i)=>ps.push([L[i],a[k+"s"]]));if(!t.x.lab){ps.push(["Treatment",a.ts]);if(t.x.m)ps.push(["Medications",a.md]);}}
+  $("pills").innerHTML=ps.length>1?ps.map(([l,d],i)=>`<span class="pill ${d?"done":""}">${d?"✓":i+1} ${l}</span>`).join(""):"";}
+$("steps").addEventListener("input",e=>{if(e.target.classList.contains("otext")){const {t}=cur();const a=A(t.id);a[e.target.dataset.k+"t"]=e.target.value;save();}});
+$("steps").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const {t}=cur();const a=A(t.id);
+  if(b.dataset.stem){a.msel=a.msel||[];const s=b.dataset.stem;a.msel=a.msel.includes(s)?a.msel.filter(x=>x!==s):a.msel.concat(s);save();b.classList.toggle("on");return;}
+  const act=b.dataset.act,s=b.dataset.s;let scrollTo=null;
+  if(act==="check"){const ta=document.querySelector(`.otext[data-k="${s}"]`);if(!ta.value.trim()){toast("Write your answer first, or choose “I'm not sure.”");ta.focus();return;}a[s+"t"]=ta.value;a[s+"s"]=true;const ord=PARTS.concat(["t","m"]);scrollTo="step-"+ord[ord.indexOf(s)+1];}
+  if(act==="skip"){const ta=document.querySelector(`.otext[data-k="${s}"]`);a[s+"t"]=ta.value;a[s+"s"]=true;scrollTo=`step-${s}`;}
+  if(act==="meds"){if(!(a.msel||[]).length){toast("Pick at least one, or choose “I'm not sure.”");return;}a.md=true;}
+  if(act==="medskip"){a.msel=[];a.md=true;}
+  if(act==="medretry"){a.msel=[];a.md=false;}
+  save();renderSteps();renderProgress();
+  if(scrollTo){const el=document.getElementById(scrollTo)||document.getElementById(`step-${s}`);if(el)setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),60);}});
 
 let tt;function toast(m){$("toast").textContent=m;$("toast").classList.add("show");clearTimeout(tt);tt=setTimeout(()=>$("toast").classList.remove("show"),2600);}
 renderAll();

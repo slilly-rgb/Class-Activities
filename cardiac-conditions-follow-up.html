@@ -1,0 +1,393 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cardiac Conditions Follow-Up</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one full-screen "monitor" slide at a time; header = topic strip, footer = telemetry progress line. Clicker-driven. */
+:root{
+  --bg:#F4F6F8; --panel:#FFFFFF; --ink:#13202A; --muted:#5A6873; --line:#D9DFE4;
+  --accent:#B3202D; --accent-soft:#F6E3E5; --answer:#0E6A70; --answer-soft:#E1F1F1;
+  --grid:rgba(179,32,45,.07);
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1318; --panel:#151D24; --ink:#E5EBF0; --muted:#97A4AE; --line:#26323C;
+  --accent:#F0646F; --accent-soft:#3A1C21; --answer:#57C4C9; --answer-soft:#122E31;
+  --grid:rgba(240,100,111,.06); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1318; --panel:#151D24; --ink:#E5EBF0; --muted:#97A4AE; --line:#26323C;
+  --accent:#F0646F; --accent-soft:#3A1C21; --answer:#57C4C9; --answer-soft:#122E31;
+  --grid:rgba(240,100,111,.06); color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;
+  display:flex;flex-direction:column;overflow:hidden;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;align-items:center;gap:12px;padding-block:12px;border-bottom:1px solid var(--line);background:var(--bg)}
+.topic-chip{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.hbtn{font:600 13px var(--f-body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer}
+.hbtn:hover{border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{flex:1;min-height:0;overflow-y:auto;display:flex}
+.slide{margin:auto;width:100%;max-width:1100px;padding-block:28px;display:flex;flex-direction:column;gap:22px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(34px,6vw,68px);font-weight:800;line-height:1.02}
+h2{font-size:clamp(28px,4.2vw,48px);font-weight:800;line-height:1.08}
+.lede{font-size:clamp(18px,2vw,23px);color:var(--muted);max-width:60ch;margin:0}
+/* ECG trace on title */
+.trace{width:100%;max-width:100%;height:90px;color:var(--accent)}
+.trace path{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linejoin:round;stroke-dasharray:1400;stroke-dashoffset:0;animation:draw 2.4s ease-out}
+@keyframes draw{from{stroke-dashoffset:1400}to{stroke-dashoffset:0}}
+.topics{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.topics button{width:100%;text-align:left;display:flex;gap:12px;align-items:baseline;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font:600 17px var(--f-body);color:var(--ink);cursor:pointer}
+.topics button:hover{border-color:var(--accent)}
+.topics .n{font-family:var(--f-mono);font-size:13px;color:var(--accent)}
+/* CJMM */
+.cjmm{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.step .n{font-family:var(--f-mono);font-size:12px;color:var(--accent)}
+.step b{font-family:var(--f-display);font-size:18px;line-height:1.15}
+.step span{font-size:14px;color:var(--muted)}
+.phase{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+/* takeaways */
+.take{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px;margin:0;padding:0;list-style:none;counter-reset:t}
+.take li{display:grid;grid-template-columns:auto 1fr;gap:12px;font-size:clamp(16px,1.6vw,19px);padding-block:10px;border-top:1px solid var(--line);min-width:0}
+.take li::before{counter-increment:t;content:counter(t);font-family:var(--f-mono);font-size:13px;color:var(--accent);padding-top:3px}
+.take b{color:var(--ink)}
+.compare{overflow-x:auto}
+.compare table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+.compare th,.compare td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.compare th{font-family:var(--f-mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500}
+.compare td:first-child{font-weight:700;color:var(--accent);white-space:nowrap}
+/* question */
+.qmeta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.pill{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.dots{display:flex;gap:6px}
+.dots i{width:22px;height:4px;border-radius:2px;background:var(--line)}
+.dots i.on{background:var(--accent)}
+.qtext{font-family:var(--f-display);font-weight:700;font-size:clamp(24px,3.4vw,40px);line-height:1.18;text-wrap:balance;margin:0;max-width:30ch}
+.scenario{font-size:clamp(17px,1.8vw,21px);color:var(--muted);margin:0;max-width:62ch;border-left:3px solid var(--accent);padding-left:14px}
+.answer{background:var(--answer-soft);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:8px;animation:rise .35s ease-out}
+@keyframes rise{from{transform:translateY(8px);opacity:.4}to{transform:none;opacity:1}}
+.answer .lab{font-family:var(--f-mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--answer)}
+.answer .short{font-size:clamp(18px,2vw,23px);font-weight:700;margin:0}
+.answer .why{font-size:clamp(16px,1.6vw,19px);margin:0;color:var(--ink)}
+.reveal{align-self:flex-start;font:700 16px var(--f-body);color:var(--answer);background:transparent;border:2px dashed var(--answer);border-radius:10px;padding:14px 20px;cursor:pointer}
+.reveal:hover{background:var(--answer-soft)}
+/* footer */
+footer{border-top:1px solid var(--line);background:var(--bg);padding-block:10px;display:flex;align-items:center;gap:12px}
+.bar{flex:1;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar div{height:100%;background:var(--accent);transition:width .25s}
+.count{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.nav{width:40px;height:34px;font-size:18px}
+/* menu */
+.menu{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 92%,transparent);z-index:20;overflow-y:auto;
+  padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:24px}
+.menu .inner{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.hint{font-size:13px;color:var(--muted)}
+kbd{font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;background:var(--panel)}
+@media (max-width:760px){
+  .cjmm{grid-template-columns:repeat(2,1fr)}
+  .take{grid-template-columns:1fr}
+  .hide-sm{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="wrap">
+  <div class="topic-chip" id="chip">Management of Patients with Cardiac Conditions</div>
+  <button class="hbtn" id="menuBtn" aria-haspopup="dialog">Topics</button>
+  <button class="hbtn hide-sm" id="fsBtn">Fullscreen</button>
+</header>
+<main id="main"><div class="slide wrap" id="slide"></div></main>
+<footer class="wrap">
+  <button class="hbtn nav" id="prev" aria-label="Previous">‹</button>
+  <div class="bar"><div id="bar"></div></div>
+  <span class="count" id="count"></span>
+  <button class="hbtn nav" id="next" aria-label="Next">›</button>
+</footer>
+<div class="menu wrap" id="menu" hidden role="dialog" aria-label="Jump to topic">
+  <div class="inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <h2 style="font-size:28px">Jump to a topic</h2>
+      <button class="hbtn" id="closeMenu">Close</button>
+    </div>
+    <ul class="topics" id="menuList"></ul>
+    <p class="hint">Clicker or <kbd>→</kbd> <kbd>Space</kbd> advances. On a question, the first press reveals the answer and the next moves on. <kbd>←</kbd> goes back, <kbd>A</kbd> toggles the answer, <kbd>T</kbd> opens topics, <kbd>F</kbd> fullscreen.</p>
+  </div>
+</div>
+
+<script>
+const TOPICS = [
+{ name:"Heart Failure",
+  core:"The heart cannot pump enough to meet the body's demand, so fluid backs up behind the failing side.",
+  take:[
+    "<b>Left-sided</b> backs up into the <b>lungs</b>: dyspnea, orthopnea, crackles, pink frothy sputum.",
+    "<b>Right-sided</b> backs up into the <b>body</b>: JVD, dependent edema, hepatomegaly, ascites, weight gain.",
+    "<b>Compensation</b> (SNS, RAAS, hypertrophy) helps short term but worsens HF long term. Most HF drugs block it.",
+    "<b>BNP</b> rises with ventricular stretch. <b>NYHA I–IV</b> grades how much activity brings on symptoms.",
+    "<b>Daily weight</b> is the best fluid indicator: same scale, same time, same clothing. Report a gain of 2–3 lb in a day or 5 lb in a week.",
+    "<b>Bedside priorities:</b> high Fowler's, O₂ as ordered, diuretics, I&amp;O, lung sounds, sodium restriction, adherence teaching."
+  ],
+  qs:[
+    {step:"Recognize Cues", q:"Sort these cues into left-sided or right-sided failure.", s:"Crackles · JVD · orthopnea · ascites · pink frothy sputum · dependent edema",
+     a:"Left: crackles, orthopnea, pink frothy sputum. Right: JVD, ascites, dependent edema.", w:"Left = Lungs. Blood backs up behind the left ventricle into the pulmonary circulation; behind the right ventricle into the systemic venous system."},
+    {step:"Analyze Cues", q:"Your client weighs 3 lb more than yesterday. What does that number mean?", s:"Lungs have new bibasilar crackles; ankles are 2+ pitting.",
+     a:"About 1.5 L of retained fluid. This is worsening HF, not fat gain.", w:"1 kg ≈ 1 L of fluid. A gain this fast, paired with crackles and edema, meets the threshold to report and anticipate a diuretic adjustment."},
+    {step:"Analyze Cues", q:"Why do the body's compensatory mechanisms eventually make heart failure worse?", s:"",
+     a:"SNS raises heart rate and afterload; RAAS retains sodium and water, raising preload. Both increase cardiac workload and remodel the heart.", w:"This is why beta blockers (block SNS) and ACE inhibitors, ARBs, ARNIs and aldosterone antagonists (block RAAS) are core HF therapy."},
+    {step:"Generate Solutions", q:"Before the morning dose of IV furosemide, which lab do you check, and why?", s:"",
+     a:"Potassium.", w:"Loop diuretics waste potassium. Hypokalemia triggers dysrhythmias, which a failing heart tolerates poorly. Also check BP and recent I&amp;O."},
+    {step:"Take Action", q:"What is your first action?", s:"At 0300 your HF client sits bolt upright, gasping, with coarse crackles throughout, pink frothy sputum and SpO₂ 86%.",
+     a:"Position high Fowler's with legs dependent and apply oxygen, then call the provider / rapid response.", w:"This is acute pulmonary edema. Positioning reduces venous return and eases breathing immediately; anticipate IV diuretic next."}
+  ]},
+{ name:"Valvular Dysfunction",
+  core:"A damaged valve either will not open fully or will not close fully, and the heart works harder to move the same blood.",
+  take:[
+    "<b>Stenosis</b> = valve will not open fully. Pressure builds behind it and forward flow drops.",
+    "<b>Regurgitation</b> = valve will not close fully. Blood leaks backward and the chamber is volume-overloaded.",
+    "<b>Left-side valves</b> (mitral, aortic) are affected most. Mitral disease enlarges the left atrium and leads to AFib.",
+    "<b>Hallmark finding</b> is a murmur. <b>Echo</b> (TTE or TEE) confirms the diagnosis.",
+    "<b>Medications</b> (diuretics, vasodilators, beta blockers, ACE inhibitors) control symptoms. They do not repair the valve.",
+    "<b>Nurse focus:</b> activity tolerance, HF signs, dysrhythmias, fall risk, and endocarditis prevention."
+  ],
+  compare:{head:["","What fails","What it causes"],rows:[["Stenosis","Valve can't open","Pressure overload, ↓ forward flow"],["Regurgitation","Valve can't close","Backflow, volume overload"]]},
+  qs:[
+    {step:"Recognize Cues", q:"Explain stenosis vs. regurgitation using a door.", s:"",
+     a:"Stenosis is a door stuck partly open. Regurgitation is a door that will not latch and swings back.", w:"Stenosis: the heart has to push harder through a narrow opening. Regurgitation: blood that was pumped forward leaks back and gets pumped twice."},
+    {step:"Analyze Cues", q:"Why is this finding a red flag, and what is your safety priority?", s:"A client with aortic stenosis gets dizzy standing up from the toilet.",
+     a:"A narrowed aortic valve fixes cardiac output, so the client cannot raise output when BP drops. Syncope and falls follow.", w:"Sit or lie the client down, assist with all ambulation, report it. Angina, syncope and dyspnea are the classic aortic stenosis warning triad."},
+    {step:"Analyze Cues", q:"Why are clients with mitral valve disease at risk for stroke?", s:"",
+     a:"The left atrium enlarges, AFib develops, blood pools, and clots can travel to the brain.", w:"Expect anticoagulation, and teach stroke warning signs (BE-FAST)."},
+    {step:"Generate Solutions", q:"What does the nurse need to do before and after a TEE that is not needed for a TTE?", s:"",
+     a:"Before: NPO and sedation consent. After: no food or fluids until the gag reflex returns.", w:"The TEE probe passes down the esophagus under sedation, so aspiration is the main risk. A TTE is noninvasive on the chest wall."},
+    {step:"Recognize Cues", q:"Which valve is most at risk, and why does it matter?", s:"During the history, the client reports injecting drugs.",
+     a:"The tricuspid valve. Bacteria injected into a vein reach the right heart first.", w:"IV drug use is a major endocarditis risk, which destroys valves. Flag it and assess for fever and a new murmur."}
+  ]},
+{ name:"Valve Replacement & Surgery",
+  core:"When a valve is severe and symptomatic it is repaired or replaced, and the valve type determines lifelong care.",
+  take:[
+    "<b>Mechanical valves</b> last for decades but need <b>lifelong anticoagulation</b> (warfarin, INR monitoring).",
+    "<b>Tissue (biologic) valves</b> wear out in roughly 10–15 years but usually do not need lifelong warfarin.",
+    "<b>TAVR</b> places a valve by catheter, usually through the femoral artery, avoiding open-heart surgery.",
+    "<b>Post-op watch list:</b> bleeding, dysrhythmias and heart block, stroke, infection, pain, hemodynamic changes.",
+    "<b>Hemodynamic monitoring</b> (PA catheter: CVP, PAWP, cardiac output) guides fluids and medications after surgery.",
+    "<b>Lifelong teaching:</b> tell every dentist and provider about the valve; antibiotic prophylaxis before dental work."
+  ],
+  compare:{head:["","Durability","Anticoagulation","Often chosen for"],rows:[["Mechanical","Decades","Lifelong warfarin","Younger clients"],["Tissue","~10–15 years","Usually short term","Older clients, can't take warfarin"]]},
+  qs:[
+    {step:"Generate Solutions", q:"A 45-year-old and an 82-year-old both need an aortic valve. Which valve type fits each, and why?", s:"",
+     a:"45-year-old: usually mechanical. 82-year-old: usually tissue or TAVR.", w:"A younger client would outlive a tissue valve. An older client benefits from avoiding lifelong warfarin and its bleeding and fall risk."},
+    {step:"Take Action", q:"What are the key teaching points for a client going home on warfarin after a mechanical valve?", s:"",
+     a:"Regular INR checks, consistent vitamin K intake, bleeding precautions, and a medical alert ID.", w:"Soft toothbrush and electric razor, report dark stools or unusual bruising, avoid NSAIDs and aspirin unless prescribed, inform all dentists and providers."},
+    {step:"Recognize Cues", q:"Two hours after a transfemoral TAVR, what are your priority assessments?", s:"",
+     a:"Puncture site and distal pulses, cardiac rhythm, and neuro status.", w:"Watch for groin bleeding or hematoma and limb ischemia; heart block from the new valve pressing on the conduction system; stroke from dislodged debris. Keep the leg straight as ordered."},
+    {step:"Prioritize Hypotheses", q:"Will surgery help or harm this client's quality of life? What would you weigh?", s:"An 88-year-old with severe aortic stenosis, CKD, diabetes and frailty is offered valve replacement.",
+     a:"There is no single right answer. Weigh surgical risk, frailty, the client's goals, and less invasive options such as TAVR.", w:"High-risk clients may gain symptom relief and independence, or face long recovery and complications. Shared decision-making and goals-of-care conversations come first."},
+    {step:"Analyze Cues", q:"What do these numbers suggest?", s:"After mitral valve surgery, PAWP rises, cardiac output falls, and new crackles appear.",
+     a:"Left ventricular failure with fluid overload.", w:"PAWP reflects left-sided filling pressure. Notify the provider and anticipate diuretics or inotropes."}
+  ]},
+{ name:"Pericarditis",
+  core:"The pericardial sac is inflamed. The pain is positional, and the danger is fluid building up around the heart.",
+  take:[
+    "<b>Causes:</b> viral (most common), post-MI, autoimmune disease, cancer, kidney failure, cardiac surgery, chest radiation.",
+    "<b>Hallmark pain</b> is sharp and pleuritic, worse lying flat or breathing in, <b>better sitting up and leaning forward</b>.",
+    "<b>Pericardial friction rub:</b> listen at the left lower sternal border with the diaphragm while the client leans forward.",
+    "<b>ECG:</b> diffuse ST elevation with PR depression. Diagnosis needs <b>2 of 4</b>: pain, rub, ECG changes, effusion.",
+    "<b>Treatment:</b> NSAIDs plus colchicine; glucocorticoids if refractory. Avoid strenuous exercise for about 3 months.",
+    "<b>Watch for</b> effusion progressing to tamponade."
+  ],
+  qs:[
+    {step:"Analyze Cues", q:"How do you tell pericarditis pain from MI pain at the bedside?", s:"",
+     a:"Pericarditis pain is sharp, positional and pleuritic, eased by leaning forward. MI pain is pressure-like and does not change with position.", w:"Both can show ST elevation. Pericarditis is diffuse across most leads; MI is regional with reciprocal changes. Treat chest pain as an MI until ruled out."},
+    {step:"Recognize Cues", q:"You hear a rub. How do you tell a pericardial rub from a pleural rub?", s:"",
+     a:"Ask the client to hold their breath. A pericardial rub continues; a pleural rub stops.", w:"The heart keeps beating during a held breath, so the inflamed pericardial layers keep rubbing. Pleural layers stop moving."},
+    {step:"Analyze Cues", q:"Does this client meet the diagnostic criteria for acute pericarditis?", s:"Sharp chest pain that eases leaning forward, and a friction rub. ECG is normal. No effusion on echo.",
+     a:"Yes. Chest pain and a friction rub are 2 of the 4 criteria.", w:"Only two are required: chest pain, friction rub, ST elevation, new or worsening pericardial effusion."},
+    {step:"Take Action", q:"What do you teach a client starting an NSAID and colchicine?", s:"",
+     a:"Take NSAIDs with food, report GI bleeding signs, and report diarrhea or GI upset from colchicine.", w:"Avoid grapefruit with colchicine, finish the full course even when pain improves, and avoid strenuous activity for about 3 months."},
+    {step:"Evaluate Outcomes", q:"What do you suspect, and what do you do next?", s:"Day 3: BP has drifted from 128/80 to 96/70, HR is 118, and heart sounds are harder to hear.",
+     a:"Pericardial effusion progressing toward tamponade. Notify the provider immediately.", w:"Narrowing pulse pressure, tachycardia and muffled heart sounds mean the heart cannot fill. Prepare for an emergency echo and pericardiocentesis."}
+  ]},
+{ name:"Infective Endocarditis",
+  core:"Bacteria colonize the inner lining of the heart, usually a valve, and form vegetations that destroy valves and break off as emboli.",
+  take:[
+    "<b>Highest risk:</b> prosthetic valves, prior endocarditis, congenital heart disease, IV drug use, long-term central lines, poor dental health.",
+    "<b>Organisms:</b> <i>Staphylococcus aureus</i>, <i>Streptococcus viridans</i>, <i>Enterococcus</i>.",
+    "<b>Fever + new or changing murmur</b> = suspect endocarditis until proven otherwise.",
+    "<b>Peripheral signs:</b> petechiae, splinter hemorrhages, Osler nodes (painful), Janeway lesions (painless).",
+    "<b>Blood cultures before antibiotics</b>, then echo (TEE is more sensitive than TTE).",
+    "<b>Long IV antibiotic course</b> (often weeks). Monitor for emboli: stroke, kidney, spleen, lungs."
+  ],
+  compare:{head:["","Feels","Where"],rows:[["Osler nodes","Painful (“Ouch”)","Pads of fingers and toes"],["Janeway lesions","Painless, flat","Palms and soles"]]},
+  qs:[
+    {step:"Recognize Cues", q:"Osler nodes or Janeway lesions: which hurts, and where is each found?", s:"",
+     a:"Osler nodes are painful, on finger and toe pads. Janeway lesions are painless, on palms and soles.", w:"Memory aid: Osler = “Ouch.” Both come from small emboli or immune reactions to the infection."},
+    {step:"Take Action", q:"The antibiotic is ready and the client is febrile. What order do you do things in?", s:"Orders: blood cultures ×2 and IV vancomycin.",
+     a:"Draw both sets of blood cultures from separate sites first, then start the antibiotic without delay.", w:"Antibiotics given first can sterilize the blood and hide the organism, leaving the team guessing which drug to use for weeks of therapy."},
+    {step:"Analyze Cues", q:"What most likely happened?", s:"A client being treated for mitral valve endocarditis suddenly has slurred speech and left arm weakness.",
+     a:"A vegetation broke off and caused an embolic stroke.", w:"Left-sided vegetations travel to the brain, kidneys and spleen. Activate the stroke team, note time of onset, and do a full neuro assessment."},
+    {step:"Analyze Cues", q:"Why can endocarditis cause heart failure?", s:"",
+     a:"Vegetations destroy valve leaflets, causing regurgitation and volume overload.", w:"Monitor for new crackles, dyspnea, edema and a worsening murmur throughout treatment."},
+    {step:"Generate Solutions", q:"What do you teach this client?", s:"A client with a prosthetic valve has a tooth extraction scheduled next week.",
+     a:"Tell the dentist about the valve; antibiotic prophylaxis is recommended before the procedure.", w:"Prosthetic valves and prior endocarditis are the highest-risk groups. Daily oral hygiene and regular dental visits lower the ongoing risk."}
+  ]},
+{ name:"Pericardial Effusion",
+  core:"Fluid collects in the pericardial sac and squeezes the chambers so they cannot refill, and cardiac output falls.",
+  take:[
+    "<b>Causes:</b> pericarditis, cancer, infection, metabolic illness such as kidney failure, cardiac trauma.",
+    "<b>Speed matters more than volume.</b> Slow buildup lets the sac stretch; rapid buildup of a small amount can cause tamponade.",
+    "<b>Echo</b> is the key diagnostic. ECG may show low voltage; chest X-ray may show an enlarged heart silhouette.",
+    "<b>Nurse focus:</b> frequent cardiac assessments, hemodynamic trends, bleeding risk, and preparing the client and family.",
+    "<b>Treatment:</b> pericardiocentesis; a <b>pericardial window</b> for recurrent effusions."
+  ],
+  qs:[
+    {step:"Analyze Cues", q:"How can one client tolerate 1 L of pericardial fluid while another crashes with 150 mL?", s:"",
+     a:"Rate of accumulation. A slow effusion gives the pericardium time to stretch; a fast one does not.", w:"When pericardial pressure exceeds the heart's filling pressure, the chambers cannot fill and output collapses, regardless of total volume."},
+    {step:"Recognize Cues", q:"Which early cues tell you the effusion is starting to compromise cardiac output?", s:"",
+     a:"Rising heart rate, falling BP with a narrowing pulse pressure, JVD, dyspnea, anxiety, and decreasing urine output.", w:"Muffled heart sounds and pulsus paradoxus suggest tamponade is developing. Trends matter more than one reading."},
+    {step:"Generate Solutions", q:"What do you prepare before a pericardiocentesis?", s:"",
+     a:"Consent, coagulation studies, IV access, baseline vitals, continuous ECG, HOB 30–60°, and emergency equipment at the bedside.", w:"Hold anticoagulants as ordered, explain what the client will feel, and include the family."},
+    {step:"Evaluate Outcomes", q:"After the procedure, which complications do you monitor for?", s:"",
+     a:"Re-accumulation of fluid or tamponade, dysrhythmias, bleeding, pneumothorax, and infection.", w:"Frequent vitals, heart and lung sounds, drain output, and the puncture site. Returning hypotension or JVD needs an immediate report."},
+    {step:"Generate Solutions", q:"Why would this client get a pericardial window instead of another pericardiocentesis?", s:"A client with lung cancer has had the same effusion drained twice in a month.",
+     a:"Recurrent effusion. A surgical window lets fluid drain continuously into the pleural or peritoneal space.", w:"Repeated needle drainage carries cumulative risk and does not stop re-accumulation."}
+  ]},
+{ name:"Cardiac Tamponade",
+  core:"An emergency. Fluid in the pericardium compresses the heart until it cannot fill, and output falls toward shock and arrest.",
+  take:[
+    "<b>Beck's triad:</b> hypotension, JVD, muffled heart sounds.",
+    "<b>Pulsus paradoxus:</b> systolic BP drops more than 10 mmHg during inspiration.",
+    "<b>Common causes:</b> chest trauma, post-cardiac surgery bleeding, central line placement, MI complications, aortic dissection, cancer, kidney failure.",
+    "<b>Supportive care:</b> O₂, IV fluids to keep preload up, vasopressors, feet elevated.",
+    "<b>Definitive treatment:</b> emergency pericardiocentesis; surgery or a pericardial window."
+  ],
+  qs:[
+    {step:"Recognize Cues", q:"Name Beck's triad and explain why each sign happens.", s:"",
+     a:"Hypotension, JVD and muffled heart sounds.", w:"Hypotension: the heart cannot fill, so output drops. JVD: venous blood cannot enter the compressed right atrium. Muffled sounds: fluid dampens them."},
+    {step:"Recognize Cues", q:"How do you measure pulsus paradoxus?", s:"",
+     a:"Deflate the cuff slowly. Note the pressure when sounds are first heard only on expiration, then when they are heard throughout breathing. A difference over 10 mmHg is positive.", w:"On inspiration the right ventricle fills, and in tamponade it pushes the septum into the left ventricle, so left-sided output drops with each breath."},
+    {step:"Prioritize Hypotheses", q:"What are your top three nursing priorities?", s:"You are the ICU nurse caring for a client diagnosed with cardiac tamponade.",
+     a:"1. Support oxygenation. 2. Support cardiac output with fluids and vasopressors as ordered. 3. Prepare for emergency pericardiocentesis.", w:"Continuous ECG and hemodynamic monitoring throughout, with the provider notified of any change. The cause has to be relieved; everything else buys time."},
+    {step:"Take Action", q:"The client has distended neck veins. Why would a diuretic or nitroglycerin be dangerous?", s:"",
+     a:"Both lower preload, and the compressed heart depends on high filling pressure to get any blood in.", w:"JVD here is not fluid overload. Lowering preload can drop output further and cause collapse. Fluids, not diuretics, support the client until drainage."},
+    {step:"Analyze Cues", q:"What is happening, and what do you do?", s:"Two hours after CABG, chest tube output has been 200 mL/hr and suddenly stops. BP is falling and CVP is rising.",
+     a:"A clotted chest tube with blood collecting around the heart: tamponade. Notify the surgeon immediately.", w:"Sudden loss of drainage plus hypotension and rising CVP is a classic post-op tamponade. Check tube patency per policy and prepare for return to the OR."}
+  ]},
+{ name:"Cardiomyopathy & Transplant",
+  core:"Disease of the heart muscle itself. It presents like heart failure, carries a risk of sudden cardiac death, and can end in transplant.",
+  take:[
+    "<b>Presents like HF:</b> exertional dyspnea, fatigue, edema, JVD, ascites, palpitations, near-syncope.",
+    "<b>Sudden cardiac death</b> risk from ventricular dysrhythmias. An <b>ICD</b> is common.",
+    "<b>Hypertrophic</b> needs different care: avoid dehydration, strenuous exertion, and drugs that lower preload or increase contractility.",
+    "<b>Surgical options:</b> septal myectomy or alcohol septal ablation (HCM), LVAD, heart transplant.",
+    "<b>After transplant:</b> lifelong immunosuppression; watch for rejection and infection."
+  ],
+  compare:{head:["Type","Muscle","Main problem"],rows:[["Dilated","Enlarged, thin, weak","Poor squeeze (↓ EF)"],["Hypertrophic","Thick, stiff septum","Poor filling, outflow obstruction"],["Restrictive","Rigid, noncompliant","Cannot fill (diastolic)"],["Arrhythmogenic","Muscle replaced by fibrofatty tissue","Ventricular dysrhythmias"]]},
+  qs:[
+    {step:"Recognize Cues", q:"Which type of cardiomyopathy is this?", s:"An enlarged left ventricle with thin walls and an ejection fraction of 25%, in a client with long-term heavy alcohol use.",
+     a:"Dilated cardiomyopathy.", w:"The ventricle stretches and loses its squeeze (systolic dysfunction). Alcohol, viral infection and genetics are common causes."},
+    {step:"Generate Solutions", q:"Why is this athlete told to avoid competitive sports and stay well hydrated?", s:"A 17-year-old basketball player is diagnosed with hypertrophic cardiomyopathy.",
+     a:"Dehydration and intense exertion shrink the ventricle and worsen outflow obstruction, risking syncope and sudden death.", w:"HCM is a leading cause of sudden cardiac death in young athletes. An ICD may be placed."},
+    {step:"Analyze Cues", q:"Why are nitroglycerin and digoxin avoided in obstructive HCM when other HF clients may receive them?", s:"",
+     a:"Nitroglycerin lowers preload and digoxin increases contractility. Both make the obstruction worse.", w:"Beta blockers or verapamil are used instead: a slower heart rate gives the stiff ventricle more time to fill."},
+    {step:"Take Action", q:"What do you teach a client going home with a new ICD?", s:"",
+     a:"Carry the device ID card, keep strong magnets away from the device, and know what to do if it fires.", w:"One shock and feeling well: call the provider. Multiple shocks or feeling unwell: call 911. Follow arm activity limits on the device side while the leads settle."},
+    {step:"Evaluate Outcomes", q:"Six months after heart transplant, what are the two biggest threats, and what cues do you watch for?", s:"",
+     a:"Rejection and infection.", w:"Rejection: fatigue, dyspnea, edema, new dysrhythmias, low BP. Infection: immunosuppression can blunt fever. A transplanted heart is denervated, so the client may not feel angina."}
+  ]}
+];
+
+/* Build slide list */
+const slides=[{t:"title"},{t:"cjmm"}];
+TOPICS.forEach((tp,i)=>{
+  slides.push({t:"topic",i});
+  tp.qs.forEach((q,j)=>slides.push({t:"q",i,j}));
+});
+slides.push({t:"end"});
+
+let cur=0, revealed=false;
+try{const h=parseInt((location.hash.match(/^#s(\d+)$/)||[])[1]);if(h>0&&h<=slides.length)cur=h-1}catch(e){}
+
+const $=id=>document.getElementById(id);
+const esc=s=>s;
+const ecg=`<svg class="trace" viewBox="0 0 1000 90" preserveAspectRatio="none" aria-hidden="true"><path d="M0 55 H120 l12 -8 l12 8 H175 l8 6 l12 -52 l12 62 l8 -16 H260 q18 -22 36 0 H420 l12 -8 l12 8 H475 l8 6 l12 -52 l12 62 l8 -16 H560 q18 -22 36 0 H720 l12 -8 l12 8 H775 l8 6 l12 -52 l12 62 l8 -16 H860 q18 -22 36 0 H1000"/></svg>`;
+
+function topicList(){return TOPICS.map((tp,i)=>`<li><button data-go="${slides.findIndex(s=>s.t==="topic"&&s.i===i)}"><span class="n">${String(i+1).padStart(2,"0")}</span>${tp.name}</button></li>`).join("")}
+
+function render(){
+  const s=slides[cur], el=$("slide");
+  let chip="Management of Patients with Cardiac Conditions", html="";
+  if(s.t==="title"){
+    html=`<div class="eyebrow">Unit 4 · Follow-up session</div>
+      <h1>Management of Patients with Cardiac Conditions</h1>
+      ${ecg}
+      <p class="lede">Key takeaways and five clinical judgment questions for each of eight conditions.</p>
+      <ul class="topics">${topicList()}</ul>`;
+  } else if(s.t==="cjmm"){
+    const st=[["Recognize Cues","What matters most in the data?","Assessment"],["Analyze Cues","How do the cues connect to the client?","Analysis"],["Prioritize Hypotheses","What is most urgent and most likely?","Analysis"],["Generate Solutions","What outcomes and interventions?","Planning"],["Take Action","Do the highest-priority interventions.","Implementation"],["Evaluate Outcomes","Improved, worsened, or unchanged?","Evaluation"]];
+    html=`<div class="eyebrow">The frame for every question today</div>
+      <h2>NCSBN Clinical Judgment Measurement Model</h2>
+      <p class="lede">Each question is tagged with the step it practices. The same six steps drive NCLEX clinical judgment items.</p>
+      <div class="cjmm">${st.map((x,k)=>`<div class="step"><span class="n">${k+1}</span><b>${x[0]}</b><span>${x[1]}</span><span class="phase">${x[2]}</span></div>`).join("")}</div>`;
+  } else if(s.t==="topic"){
+    const tp=TOPICS[s.i]; chip=`${String(s.i+1).padStart(2,"0")} · ${tp.name}`;
+    html=`<div class="eyebrow">Topic ${s.i+1} of ${TOPICS.length} · Key takeaways</div>
+      <h2>${tp.name}</h2>
+      <p class="lede">${tp.core}</p>
+      <ul class="take">${tp.take.map(x=>`<li><span>${x}</span></li>`).join("")}</ul>
+      ${tp.compare?`<div class="compare"><table><thead><tr>${tp.compare.head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${tp.compare.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`:""}`;
+  } else if(s.t==="q"){
+    const tp=TOPICS[s.i], q=tp.qs[s.j]; chip=`${String(s.i+1).padStart(2,"0")} · ${tp.name}`;
+    html=`<div class="qmeta"><span class="eyebrow">${tp.name} · Question ${s.j+1} of 5</span><span class="pill">${q.step}</span>
+        <span class="dots" aria-hidden="true">${[0,1,2,3,4].map(k=>`<i class="${k<=s.j?"on":""}"></i>`).join("")}</span></div>
+      ${q.s?`<p class="scenario">${q.s}</p>`:""}
+      <p class="qtext">${q.q}</p>
+      ${revealed?`<div class="answer" aria-live="polite"><span class="lab">Answer</span><p class="short">${q.a}</p><p class="why">${q.w}</p></div>`
+        :`<button class="reveal" id="revealBtn">Reveal answer</button>`}`;
+  } else {
+    html=`<div class="eyebrow">Wrap-up</div><h2>Exit ticket</h2>
+      <p class="lede">Before you leave, answer on a card or in Vevox:</p>
+      <ul class="take">
+        <li><span>Which two conditions today share <b>JVD and hypotension</b>, and how would you tell them apart?</span></li>
+        <li><span>Name one cardiac condition where <b>giving fluids</b> helps and one where it harms.</span></li>
+        <li><span>Which condition from today would you <b>least</b> want to miss on a night shift, and what is its earliest cue?</span></li>
+      </ul>
+      ${ecg}`;
+  }
+  el.innerHTML=html; $("chip").textContent=chip;
+  $("count").textContent=`${cur+1} / ${slides.length}`;
+  $("bar").style.width=((cur+1)/slides.length*100)+"%";
+  $("main").scrollTop=0;
+  try{history.replaceState(null,"","#s"+(cur+1))}catch(e){}
+  const rb=$("revealBtn"); if(rb) rb.onclick=()=>{revealed=true;render()};
+  el.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(+b.dataset.go));
+}
+function go(n){cur=Math.max(0,Math.min(slides.length-1,n));revealed=false;render();closeMenu()}
+function next(){const s=slides[cur]; if(s.t==="q"&&!revealed){revealed=true;render();return} if(cur<slides.length-1)go(cur+1)}
+function prev(){const s=slides[cur]; if(s.t==="q"&&revealed){revealed=false;render();return} if(cur>0){cur--;const p=slides[cur];revealed=p.t==="q";render()}}
+function openMenu(){$("menuList").innerHTML=topicList();$("menuList").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(+b.dataset.go));$("menu").hidden=false}
+function closeMenu(){$("menu").hidden=true}
+function fs(){try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}}
+$("next").onclick=next; $("prev").onclick=prev; $("menuBtn").onclick=openMenu; $("closeMenu").onclick=closeMenu; $("fsBtn").onclick=fs;
+document.addEventListener("keydown",e=>{
+  if(e.target.closest&&e.target.closest("input,textarea"))return;
+  const k=e.key;
+  if(["ArrowRight","PageDown"," ","Enter","ArrowDown"].includes(k)){if(k==="Enter"&&e.target.tagName==="BUTTON")return;e.preventDefault();next()}
+  else if(["ArrowLeft","PageUp","ArrowUp","Backspace"].includes(k)){e.preventDefault();prev()}
+  else if(k==="a"||k==="A"){if(slides[cur].t==="q"){revealed=!revealed;render()}}
+  else if(k==="t"||k==="T"){$("menu").hidden?openMenu():closeMenu()}
+  else if(k==="f"||k==="F"){fs()}
+  else if(k==="Escape"){closeMenu()}
+  else if(k==="Home"){go(0)} else if(k==="End"){go(slides.length-1)}
+});
+render();
+</script>
+
+</body></html>

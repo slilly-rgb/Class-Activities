@@ -1,0 +1,1414 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Breathless Case Rounds</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: clinical chart — patient chart pinned left, decision panel right; stacks on phones */
+:root{
+  --bg:#EEF2F4; --surface:#FFFFFF; --sunk:#E3E9ED; --ink:#14212B; --muted:#56656F; --line:#CCD6DC;
+  --accent:#1D4E8F; --accent-ink:#FFFFFF; --accent-soft:#DCE6F4;
+  --alarm:#B42318; --alarm-soft:#FBE4E1;
+  --ok:#1C6E46; --ok-soft:#DDF1E5; --warn:#8A5A00; --warn-soft:#FBEFD2;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F161C; --surface:#18222B; --sunk:#121B22; --ink:#E4ECF1; --muted:#97A8B3; --line:#2C3A45;
+  --accent:#7FA9E8; --accent-ink:#0B1520; --accent-soft:#1C2E47;
+  --alarm:#F08A7E; --alarm-soft:#3A1D1A; --ok:#6CCB97; --ok-soft:#163327; --warn:#E7B65A; --warn-soft:#3A2D12;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F161C; --surface:#18222B; --sunk:#121B22; --ink:#E4ECF1; --muted:#97A8B3; --line:#2C3A45;
+  --accent:#7FA9E8; --accent-ink:#0B1520; --accent-soft:#1C2E47;
+  --alarm:#F08A7E; --alarm-soft:#3A1D1A; --ok:#6CCB97; --ok-soft:#163327; --warn:#E7B65A; --warn-soft:#3A2D12;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:.01em;text-wrap:balance;margin:0;line-height:1.1}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* masthead */
+.mast{padding-block:28px 20px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink)}
+.mast h1{font-size:clamp(40px,7vw,64px);text-transform:uppercase}
+.mast h1 span{color:var(--alarm)}
+.trace{width:220px;max-width:100%;height:44px}
+.trace path{fill:none;stroke:var(--alarm);stroke-width:2.2;stroke-linejoin:round}
+.intro{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;padding-block:24px}
+.intro p{margin:0 0 10px;max-width:62ch}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;counter-increment:s}
+.steps li::before{content:counter(s);font-family:var(--mono);font-weight:600;width:28px;height:28px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-size:13px}
+.tally{display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:20px}
+.tally b{font-family:var(--mono);font-size:22px}
+.tally .reset{margin-left:auto;background:none;border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:var(--r)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;text-align:left;color:var(--ink);display:grid;gap:8px;align-content:start;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h3{font-size:24px}
+.card .meta{color:var(--muted);font-size:14px}
+.card .cc{font-style:italic}
+.pill{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill.go{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.pill.done{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.pill.med{background:var(--alarm-soft);color:var(--alarm);border-color:transparent}
+
+details.ref{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+details.ref summary{padding:14px 16px;font-family:var(--display);font-size:22px;font-weight:700;cursor:pointer}
+.refbody{padding:0 16px 18px;display:grid;gap:18px}
+.chambers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ch{border:1.5px solid var(--ink);border-radius:6px;padding:12px;background:var(--sunk);display:grid;gap:6px;align-content:start}
+.ch h4{margin:0;font-family:var(--display);font-size:19px}
+.ch p{margin:0;font-size:14.5px}
+.fluid{height:10px;border-radius:3px;background:linear-gradient(90deg,var(--accent-soft),var(--accent))}
+.reflist{margin:0;padding-left:20px;display:grid;gap:4px;max-width:80ch}
+
+/* case view */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.back{background:none;border:1px solid var(--line);color:var(--ink);border-radius:var(--r);padding:6px 12px}
+.who{display:grid}
+.who b{font-family:var(--display);font-size:22px;line-height:1.1}
+.who span{font-size:13px;color:var(--muted)}
+.stepper{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.stepper div{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;padding:5px 9px;border-radius:4px;color:var(--muted);background:var(--sunk)}
+.stepper .on{background:var(--ink);color:var(--bg)}
+.stepper .past{background:var(--ok-soft);color:var(--ok)}
+.layout{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:22px;padding-top:20px;align-items:start}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);max-height:calc(100vh - 96px);overflow:auto}
+.chart summary{list-style:none;padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.chart summary::-webkit-details-marker{display:none}
+.chart summary b{font-family:var(--display);font-size:20px}
+.cbody{padding:14px;display:grid;gap:16px}
+.cbody h4{margin:0 0 6px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cbody ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:15px}
+.vitals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.vitals div{background:var(--sunk);padding:8px}
+.vitals small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--muted)}
+.vitals b{font-family:var(--mono);font-weight:600;font-size:15px}
+.diag{width:100%;border-collapse:collapse;font-size:14.5px}
+.diag td{padding:6px 0;border-top:1px solid var(--line);vertical-align:top}
+.diag td:first-child{color:var(--muted);padding-right:10px;width:38%}
+.diag td:last-child{font-family:var(--mono);font-size:13.5px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:grid;gap:16px;min-width:0}
+.panel h2{font-size:30px}
+.qhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.order{border-left:4px solid var(--accent);background:var(--sunk);padding:12px 14px;border-radius:0 6px 6px 0;font-size:17px;font-weight:600}
+.order.med{border-left-color:var(--alarm)}
+.hint{color:var(--muted);font-size:14.5px;margin:0}
+.opts{display:grid;gap:8px}
+.dxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.opt{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;align-items:start;padding:11px 12px;border:1.5px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer;text-align:left;color:var(--ink)}
+.opt input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--accent)}
+.opt:hover{border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.locked{cursor:default}
+.opt .note{display:block;font-size:14px;margin-top:4px;color:var(--muted)}
+.opt .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-right:6px}
+.opt.r-hit{border-color:var(--ok);background:var(--ok-soft)} .opt.r-hit .tag{color:var(--ok)}
+.opt.r-wrong{border-color:var(--alarm);background:var(--alarm-soft)} .opt.r-wrong .tag{color:var(--alarm)}
+.opt.r-miss{border-color:var(--warn);border-style:dashed;background:var(--warn-soft)} .opt.r-miss .tag{color:var(--warn)}
+.opt.r-ok{border-color:var(--line)} .opt.r-ok .tag{color:var(--muted)}
+.verdict{padding:12px 14px;border-radius:6px;display:grid;gap:4px}
+.verdict.good{background:var(--ok-soft);color:var(--ok)}
+.verdict.part{background:var(--warn-soft);color:var(--warn)}
+.verdict b{font-family:var(--display);font-size:20px}
+.verdict p{margin:0;color:var(--ink)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--accent);color:var(--accent-ink);border:none;border-radius:var(--r);padding:11px 20px;font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.count{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.scores div{border:1px solid var(--line);border-radius:6px;padding:12px}
+.scores b{display:block;font-family:var(--mono);font-size:26px}
+.big{font-family:var(--mono);font-size:56px;font-weight:600;line-height:1}
+@media (max-width:860px){
+  .intro{grid-template-columns:1fr}
+  .layout{grid-template-columns:1fr}
+  .chart{position:static;max-height:none}
+  .stepper{margin-left:0;width:100%}
+  .chambers{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+// Option format: [text, correct(1/0), feedback note]
+const DX = [
+  {id:"pe", name:"Pulmonary Embolism"},
+  {id:"fes", name:"Fat Embolism Syndrome"},
+  {id:"flail", name:"Flail Chest"},
+  {id:"ards", name:"ARDS"},
+  {id:"arf", name:"Acute Respiratory Failure"},
+  {id:"ptx", name:"Pneumothorax"},
+  {id:"htx", name:"Hemothorax"},
+  {id:"tptx", name:"Tension Pneumothorax"},
+  {id:"pedema", name:"Pulmonary Edema"}
+];
+const CASES = [];
+
+/* ---------- CASE: Pulmonary Embolism ---------- */
+CASES.push({
+  id:"pe", patient:"Linda Kowalski", age:58, sex:"F",
+  unit:"Orthopedic unit · Post-op day 4", complaint:"“I suddenly can’t catch my breath.”",
+  dx:["pe"], ok:[],
+  history:[
+    "Right total knee arthroplasty 4 days ago. Has refused SCDs at night and walked only to the bathroom.",
+    "History: obesity (BMI 34), hypertension, takes oral estrogen (HRT), smokes ½ pack per day.",
+    "At 0645 she called out with sudden shortness of breath and sharp right-sided chest pain that worsens when she breathes in.",
+    "States “I feel like something terrible is happening.”"
+  ],
+  vitals:{T:"38.0 °C",HR:"122",RR:"30",BP:"104/68",SpO2:"87% RA",Pain:"8/10 chest"},
+  assess:[
+    "Anxious, restless, diaphoretic",
+    "Lungs: few fine crackles right base; otherwise clear",
+    "Cough producing blood-streaked sputum",
+    "Right calf swollen, warm, tender; circumference 3 cm larger than left",
+    "Knee incision clean, dry, approximated; knee pain 3/10"
+  ],
+  diag:[
+    ["ABG (room air)","pH 7.48 · PaCO₂ 30 · PaO₂ 58 · HCO₃ 23"],
+    ["D-dimer","2.8 mcg/mL FEU (ref < 0.5)"],
+    ["CT pulmonary angiogram","Filling defect in right lower lobe pulmonary artery"],
+    ["Chest x-ray","No infiltrate, no effusion"],
+    ["ECG","Sinus tachycardia 122"],
+    ["CBC","Hgb 11.2 g/dL · Plt 238,000"],
+    ["Glucose","128 mg/dL"]
+  ],
+  dxNote:"Sudden dyspnea, pleuritic chest pain, tachycardia, hypoxemia with a clear chest x-ray, plus a swollen, tender calf in a post-orthopedic patient point to a DVT that traveled to the lung. The CT pulmonary angiogram confirms it.",
+  support:[
+    ["Sudden dyspnea with pleuritic chest pain",1,"Classic presenting pair; the clot causes V/Q mismatch and pleural irritation."],
+    ["HR 122, RR 30, SpO₂ 87%",1,"Tachycardia and tachypnea are the most common signs; hypoxemia comes from perfusion loss to ventilated alveoli."],
+    ["Right calf swollen, warm, tender, 3 cm larger",1,"Signs of DVT, the source of most pulmonary emboli."],
+    ["Refused SCDs, minimal ambulation, HRT, smoker, obesity",1,"Virchow’s triad: venous stasis plus hypercoagulability from estrogen and smoking."],
+    ["Blood-streaked sputum",1,"Hemoptysis can occur with pulmonary infarction."],
+    ["ABG: pH 7.48, PaCO₂ 30, PaO₂ 58",1,"Respiratory alkalosis from hyperventilation with hypoxemia is typical early in PE."],
+    ["D-dimer 2.8",1,"Elevated D-dimer shows active clot breakdown; sensitive but not specific."],
+    ["CTPA filling defect",1,"This is the confirming test."],
+    ["Chest x-ray clear",1,"Severe hypoxemia with a clear chest film is a strong clue for PE."],
+    ["Knee incision clean and dry",0,"Expected post-op finding; unrelated to the respiratory problem."],
+    ["Hgb 11.2 g/dL",0,"Mild post-op anemia is expected after arthroplasty and does not explain the event."],
+    ["Glucose 128",0,"Mild stress hyperglycemia; not diagnostic."]
+  ],
+  orders:[
+    {o:"Oxygen via non-rebreather mask; titrate to SpO₂ ≥ 94%. HOB elevated.", opts:[
+      ["Corrects hypoxemia caused by V/Q mismatch",1,"Perfusion is blocked to ventilated alveoli, so oxygenation falls."],
+      ["Elevating the HOB eases the work of breathing and improves lung expansion",1,"Upright positioning lowers the diaphragm."],
+      ["Supplemental oxygen dissolves the embolus",0,"Oxygen treats the hypoxemia, not the clot."],
+      ["A non-rebreather is used because she retains CO₂",0,"She has a low PaCO₂; the NRB is used to deliver high FiO₂."]
+    ]},
+    {o:"Heparin 80 units/kg IV bolus, then 18 units/kg/hr infusion. aPTT (or anti-Xa) q6h; adjust per protocol.", med:true, opts:[
+      ["Prevents the clot from growing and stops new clots from forming",1,"Heparin inactivates thrombin and factor Xa."],
+      ["Breaks down (lyses) the existing embolus",0,"Heparin is an anticoagulant, not a thrombolytic. The body’s fibrinolytic system dissolves the clot over time."],
+      ["The aPTT or anti-Xa level is used to keep the dose in the therapeutic range",1,"Typical aPTT goal is 1.5–2.5 times control."],
+      ["Protamine sulfate is the antidote for heparin overdose or bleeding",1,"Keep the antidote in mind before any high-risk medication."],
+      ["The INR is the lab used to adjust the heparin infusion",0,"INR monitors warfarin, not heparin."]
+    ]},
+    {o:"Warfarin 5 mg PO daily, start today. Continue heparin until INR 2–3 for 24 hours (minimum 5 days of overlap).", med:true, opts:[
+      ["Warfarin takes several days to reach a full anticoagulant effect, so heparin must overlap",1,"Warfarin blocks synthesis of vitamin K–dependent factors; existing factors take days to clear."],
+      ["Therapeutic INR target for PE is 2–3",1,"Standard target range for VTE."],
+      ["Vitamin K is the antidote for warfarin",1,"Vitamin K restores clotting-factor synthesis."],
+      ["Warfarin works immediately, so the heparin is only a backup",0,"Warfarin can briefly be prothrombotic when started; the overlap protects her."]
+    ]},
+    {o:"CBC with platelets daily.", opts:[
+      ["Detects heparin-induced thrombocytopenia (HIT)",1,"A platelet drop of 50% or more, usually 5–10 days after starting heparin, suggests HIT."],
+      ["Monitors hemoglobin for bleeding while anticoagulated",1,"Falling Hgb may signal occult bleeding."],
+      ["Measures how well the heparin is working",0,"That is the aPTT or anti-Xa level."],
+      ["Platelets above 150,000 mean the heparin dose can be doubled",0,"Platelet count does not set the heparin dose."]
+    ]},
+    {o:"Morphine 2 mg IV q2h PRN chest pain. No NSAIDs.", med:true, opts:[
+      ["Relieves pleuritic pain so she can breathe more deeply",1,"Pain causes shallow breathing and worsens hypoxemia."],
+      ["Reduces anxiety and myocardial oxygen demand",1,"Lowering sympathetic drive helps an already strained heart."],
+      ["NSAIDs are avoided because they add bleeding risk on top of anticoagulation",1,"Combined antiplatelet and anticoagulant effects raise bleeding risk."],
+      ["Monitor respiratory rate and sedation level after each dose",1,"Opioids depress respirations, which she cannot afford."],
+      ["Morphine dilates the pulmonary artery and moves the clot",0,"Morphine has no effect on the embolus."]
+    ]},
+    {o:"If SBP < 90 mm Hg or signs of right heart failure develop, notify MD STAT. Alteplase 100 mg IV over 2 hours may be considered.", med:true, opts:[
+      ["Alteplase is a thrombolytic that actively dissolves the clot",1,"It converts plasminogen to plasmin, which breaks down fibrin."],
+      ["Thrombolytics are reserved for massive PE with hemodynamic instability",1,"Bleeding risk is too high to use them for stable PE."],
+      ["Her surgery 4 days ago raises bleeding risk and must be weighed before giving it",1,"Recent major surgery is a contraindication that the provider must weigh against the risk of death."],
+      ["It is given to every patient with a confirmed PE",0,"Most stable patients receive anticoagulation alone."]
+    ]}
+  ],
+  teach:[
+    {o:"Use a soft toothbrush and an electric razor; report black stools, nosebleeds, bleeding gums, or unusual bruising.", opts:[
+      ["Anticoagulants raise the risk of bleeding from minor trauma",1,"Preventing injury prevents bleeding."],
+      ["Black, tarry stools can signal GI bleeding",1,"Melena is a sign of upper GI bleeding."],
+      ["These precautions are only needed while she is in the hospital",0,"They continue for the full course of anticoagulation, often 3 months or longer."],
+      ["Aspirin or ibuprofen are safe for knee pain at home",0,"Both increase bleeding risk; acetaminophen is preferred unless the provider says otherwise."]
+    ]},
+    {o:"Keep vitamin K intake consistent from week to week; limit alcohol.", opts:[
+      ["Sudden changes in vitamin K intake change the INR",1,"More vitamin K lowers the INR; less raises it."],
+      ["She must avoid all leafy green vegetables",0,"Consistency matters, not avoidance."],
+      ["Alcohol can increase warfarin’s effect and bleeding risk",1,"Alcohol affects warfarin metabolism and irritates the GI tract."],
+      ["Many herbal supplements, such as ginkgo, interact with warfarin",1,"Ask before starting any new supplement or OTC drug."]
+    ]},
+    {o:"Walk regularly, do ankle pumps, avoid crossing legs or sitting for long periods, and stop to walk every 1–2 hours on long trips.", opts:[
+      ["Muscle contraction pushes venous blood back to the heart and prevents stasis",1,"The calf muscle pump is a key DVT defense."],
+      ["Crossing the legs compresses veins and slows blood flow",1,"Compression promotes stasis."],
+      ["She should massage her sore calf to break up the clot",0,"Never massage a leg with a known or suspected DVT; it could dislodge clot."],
+      ["Activity is unsafe until the clot is completely gone",0,"Early ambulation on therapeutic anticoagulation is encouraged."]
+    ]},
+    {o:"Discuss stopping estrogen therapy and quitting smoking with her provider.", opts:[
+      ["Estrogen increases clotting-factor production and VTE risk",1,"Hormone therapy is a recognized risk factor."],
+      ["Smoking damages vessel walls and increases blood viscosity",1,"Endothelial injury and hypercoagulability are part of Virchow’s triad."],
+      ["Smoking only affects the lungs, not clotting",0,"Smoking promotes clot formation."],
+      ["Stopping estrogen will dissolve the current clot",0,"It lowers future risk; it does not treat the existing clot."]
+    ]},
+    {o:"Call 911 for sudden shortness of breath, chest pain, or coughing up blood. Wear a medical alert ID and tell all providers, including the dentist, that she takes an anticoagulant.", opts:[
+      ["These are signs of a recurrent PE, which can be fatal",1,"Recurrence needs emergency evaluation."],
+      ["Providers need to know before procedures because of bleeding risk",1,"Dental and surgical procedures may need planning."],
+      ["She should wait to see whether symptoms pass before calling",0,"Delay can be fatal."],
+      ["A medical alert ID is only needed if she has an allergy",0,"It alerts responders to anticoagulation in an emergency."]
+    ]}
+  ]
+});
+
+/* ---------- CASE: Fat Embolism ---------- */
+CASES.push({
+  id:"fes", patient:"Tyler Brennan", age:22, sex:"M",
+  unit:"Trauma step-down · Hospital day 2", complaint:"Suddenly confused and short of breath",
+  dx:["fes"], ok:[],
+  history:[
+    "Motorcycle crash 36 hours ago. Closed, displaced right femoral shaft fracture in skeletal traction, awaiting ORIF.",
+    "No head strike per EMS; helmeted. CT head on admission negative.",
+    "Previously healthy. No medications.",
+    "His girlfriend reports he “isn’t making sense” and is trying to climb out of bed."
+  ],
+  vitals:{T:"38.9 °C",HR:"128",RR:"32",BP:"118/70",SpO2:"86% RA",Pain:"6/10 thigh"},
+  assess:[
+    "Restless, confused, oriented to name only; GCS 13",
+    "Pinpoint red-brown rash across chest, axillae, and conjunctivae",
+    "Lungs: scattered crackles bilaterally; using accessory muscles",
+    "Right foot warm, pedal pulse 2+, capillary refill < 3 seconds",
+    "Traction weights hanging freely"
+  ],
+  diag:[
+    ["ABG (room air)","pH 7.47 · PaCO₂ 32 · PaO₂ 55 · HCO₃ 23"],
+    ["Chest x-ray","Diffuse bilateral fluffy infiltrates (“snowstorm” pattern)"],
+    ["Platelets","98,000 (admission 250,000)"],
+    ["Hemoglobin","10.9 g/dL (admission 13.8)"],
+    ["Urinalysis","Fat globules present"],
+    ["Repeat CT head","No bleed, no mass"],
+    ["Potassium","4.0 mEq/L"]
+  ],
+  dxNote:"The classic triad of respiratory distress, neurologic change, and petechial rash 24–72 hours after a long-bone fracture defines fat embolism syndrome. Fat globules in the urine, falling platelets, and a negative head CT support it.",
+  support:[
+    ["Femur fracture 36 hours ago",1,"FES typically appears 24–72 hours after long-bone or pelvic fractures."],
+    ["Confusion, restlessness, GCS 13",1,"Fat emboli reach the brain and cause hypoxemia; mental status change is often the first sign."],
+    ["Petechiae on chest, axillae, and conjunctivae",1,"A hallmark of FES caused by fat occluding dermal capillaries; it often appears last."],
+    ["RR 32, SpO₂ 86%, PaO₂ 55",1,"Fat globules block pulmonary capillaries and cause hypoxemia."],
+    ["Temperature 38.9 °C",1,"Fever commonly accompanies FES from the inflammatory response to free fatty acids."],
+    ["“Snowstorm” infiltrates on chest x-ray",1,"Diffuse bilateral infiltrates reflect inflammatory lung injury."],
+    ["Platelets fell from 250,000 to 98,000",1,"Platelets adhere to fat globules and are consumed."],
+    ["Fat globules in urine",1,"Supports systemic fat embolization."],
+    ["Repeat CT head negative",1,"Rules out a head injury as the cause of his confusion."],
+    ["Right pedal pulse 2+, cap refill < 3 seconds",0,"Good distal circulation; no compartment syndrome, but not evidence of FES."],
+    ["Potassium 4.0",0,"Normal; not related."],
+    ["Thigh pain 6/10",0,"Expected with a femur fracture."]
+  ],
+  orders:[
+    {o:"Oxygen via non-rebreather at 15 L/min; titrate to SpO₂ ≥ 92%. Notify for worsening — prepare for intubation and mechanical ventilation with PEEP.", opts:[
+      ["High-flow oxygen treats the hypoxemia, which is the main threat",1,"There is no drug that removes the fat; treatment is supportive."],
+      ["Correcting hypoxemia often improves his confusion",1,"Much of the neurologic change is driven by low oxygen to the brain."],
+      ["FES can progress to ARDS and require mechanical ventilation",1,"PEEP keeps alveoli open in severe lung injury."],
+      ["Oxygen dissolves the fat globules",0,"Oxygen supports the patient while the body clears the fat."]
+    ]},
+    {o:"Maintain skeletal traction; minimize manipulation of the right leg. OR for ORIF of the right femur as soon as stable.", opts:[
+      ["Movement of an unstable fracture releases more marrow fat into circulation",1,"Immobilization limits further embolization."],
+      ["Early surgical stabilization lowers the incidence of FES",1,"Fixation is the main preventive strategy."],
+      ["Traction weights may be lifted for repositioning when convenient",0,"Weights must hang freely and continuously."],
+      ["Surgery removes the fat already in the lungs",0,"Surgery prevents new emboli; it does not remove existing ones."]
+    ]},
+    {o:"Lactated Ringer’s at 100 mL/hr. Strict I&O; notify for urine output < 0.5 mL/kg/hr.", opts:[
+      ["Maintains intravascular volume; hypovolemia and shock worsen lung injury",1,"Adequate perfusion helps clear fatty acids and protects organs."],
+      ["Avoids fluid overload, which could worsen pulmonary edema",1,"Balance is the goal — enough to perfuse, not so much it floods the lungs."],
+      ["Urine output is the best bedside indicator of kidney perfusion",1,"Output below 0.5 mL/kg/hr signals poor perfusion."],
+      ["IV fluids flush the fat emboli out through the kidneys",0,"Fluids support perfusion; they do not wash out emboli."]
+    ]},
+    {o:"Neuro checks with GCS every hour. Notify for any decline.", opts:[
+      ["Neurologic status can worsen as more emboli reach the brain or hypoxemia deepens",1,"Trends matter more than a single score."],
+      ["Change in LOC is often the earliest sign of FES",1,"Close monitoring can catch progression."],
+      ["Neuro checks are only needed if he has a head injury",0,"Cerebral fat embolism can occur without head trauma."],
+      ["Restlessness should be treated first with a sedative",0,"Assess oxygenation first; restlessness may be hypoxemia, and sedation can mask decline."]
+    ]},
+    {o:"Acetaminophen 650 mg PO q6h PRN temperature > 38.3 °C.", med:true, opts:[
+      ["Fever increases oxygen consumption and metabolic demand",1,"Reducing fever eases demand on a struggling respiratory system."],
+      ["Treats the infection causing his fever",0,"The fever in FES is inflammatory, not infectious."],
+      ["Does not affect platelet function, unlike NSAIDs",1,"Important because his platelets are already falling."],
+      ["Maximum daily dose limits must still be followed",1,"Watch total acetaminophen from all sources."]
+    ]},
+    {o:"Enoxaparin 30 mg subcut q12h starting 12 hours after surgery. CBC with platelets daily.", med:true, opts:[
+      ["Trauma and immobility put him at high risk for DVT and PE",1,"VTE prophylaxis is standard after major orthopedic trauma."],
+      ["Platelets must be watched because they are already low and enoxaparin can cause thrombocytopenia",1,"Report a further drop."],
+      ["Enoxaparin treats fat embolism",0,"Anticoagulation does not treat FES; it is for VTE prevention."],
+      ["Give in the abdomen without expelling the air bubble or rubbing the site",1,"Correct technique reduces bruising."]
+    ]}
+  ],
+  teach:[
+    {o:"For any patient with a long-bone or pelvic fracture, assess mental status, respiratory status, and skin for petechiae, especially in the first 72 hours.", opts:[
+      ["That is the period of highest risk for FES",1,"Most cases occur 24–72 hours after injury."],
+      ["Young adult males with femur fractures are a high-risk group",1,"They have the highest incidence."],
+      ["Petechiae are usually the first sign",0,"Altered mental status or dyspnea usually comes first; petechiae often appear later."],
+      ["Check the conjunctivae and axillae, not just the chest",1,"Petechiae concentrate in these areas."]
+    ]},
+    {o:"Reorient Tyler frequently and keep the environment calm; involve his girlfriend.", opts:[
+      ["His confusion is caused by hypoxemia and cerebral emboli, not a psychiatric problem",1,"Explain this to family to lower their fear."],
+      ["Familiar people help orient him and reduce agitation",1,"Agitation increases oxygen demand."],
+      ["Restraints are the first-line approach for his restlessness",0,"Restraints raise agitation and oxygen demand; use the least restrictive measures and treat the cause."],
+      ["Neurologic changes from FES are usually reversible with supportive care",1,"Most patients recover fully."]
+    ]},
+    {o:"Explain to Tyler and his girlfriend that the rash will fade and that most people recover fully.", opts:[
+      ["Petechiae typically resolve within about a week",1,"Reassurance lowers anxiety."],
+      ["Recovery depends on supportive care and preventing further emboli",1,"That is why surgery and immobilization matter."],
+      ["The rash is an allergic reaction to medication",0,"It is caused by fat occluding small skin capillaries."],
+      ["He will need lifelong anticoagulation",0,"FES is not treated with long-term anticoagulation."]
+    ]},
+    {o:"Keep the HOB elevated, cluster care, and turn and reposition carefully while maintaining traction alignment.", opts:[
+      ["Elevating the head improves ventilation",1,"It reduces abdominal pressure on the diaphragm."],
+      ["Clustering care allows rest and lowers oxygen demand",1,"Fewer interruptions conserve energy."],
+      ["Careful positioning prevents fracture movement and further fat release",1,"Support the leg and keep traction in line."],
+      ["He should be kept flat to protect the fracture",0,"Traction allows HOB elevation; flat positioning worsens breathing."]
+    ]}
+  ]
+});
+
+/* ---------- CASE: Flail Chest ---------- */
+CASES.push({
+  id:"flail", patient:"Harold “Hal” Dempsey", age:67, sex:"M",
+  unit:"Emergency department · Trauma bay 2", complaint:"Chest wall injury after a car crash",
+  dx:["flail"], ok:[],
+  history:[
+    "Restrained driver, head-on collision at about 40 mph. Chest struck the steering wheel.",
+    "History: hypertension (takes lisinopril), former smoker (30 pack-years, quit 5 years ago).",
+    "Complains of severe left chest pain, worse with every breath.",
+    "Alert and oriented × 4."
+  ],
+  vitals:{T:"36.8 °C",HR:"116",RR:"34 shallow",BP:"138/86",SpO2:"88% on 2 L NC",Pain:"9/10 chest"},
+  assess:[
+    "Left lateral chest wall moves IN on inspiration and OUT on expiration",
+    "Bruising and tenderness over left lateral ribs; splinting with each breath",
+    "Breath sounds diminished at left base; no hyperresonance; trachea midline",
+    "Abrasions to both forearms",
+    "Skin pale, slightly diaphoretic"
+  ],
+  diag:[
+    ["Chest x-ray","Left ribs 4–7 each fractured in 2 places; left pulmonary contusion; no pneumothorax or hemothorax"],
+    ["ABG (2 L NC)","pH 7.31 · PaCO₂ 52 · PaO₂ 60 · HCO₃ 25"],
+    ["Hemoglobin","13.9 g/dL (stable on repeat)"],
+    ["Glucose","134 mg/dL"],
+    ["ECG","Sinus tachycardia, no ST changes"]
+  ],
+  dxNote:"Paradoxical chest wall movement with multiple adjacent ribs each broken in two or more places is flail chest. The free segment and the underlying contusion impair ventilation, producing hypoventilation and respiratory acidosis.",
+  support:[
+    ["Left chest wall moves in on inspiration and out on expiration",1,"Paradoxical movement is the defining sign of a flail segment."],
+    ["Ribs 4–7 each fractured in two places",1,"Flail chest requires two or more adjacent ribs each fractured in two or more places."],
+    ["Steering-wheel impact",1,"Blunt chest trauma is the typical mechanism."],
+    ["RR 34 and shallow, splinting",1,"Pain and the unstable segment cause rapid, shallow breathing."],
+    ["ABG: pH 7.31, PaCO₂ 52",1,"Respiratory acidosis from hypoventilation."],
+    ["PaO₂ 60, SpO₂ 88% on 2 L",1,"Hypoxemia from the underlying pulmonary contusion and poor ventilation."],
+    ["Left pulmonary contusion on x-ray",1,"Contusion commonly accompanies flail chest and drives the hypoxemia."],
+    ["No pneumothorax or hemothorax on x-ray",0,"This rules out other diagnoses; it does not support flail chest itself."],
+    ["Abrasions to both forearms",0,"Minor injuries; not related to the respiratory problem."],
+    ["Glucose 134",0,"Stress response; not diagnostic."],
+    ["Takes lisinopril",0,"Relevant to his history, not to this diagnosis."]
+  ],
+  orders:[
+    {o:"Thoracic epidural analgesia (or hydromorphone PCA until epidural placed). Pain goal ≤ 4/10 with deep breathing.", med:true, opts:[
+      ["Adequate pain control is the cornerstone of flail chest care",1,"Pain prevents deep breathing and coughing, leading to atelectasis and pneumonia."],
+      ["An epidural can control pain with less respiratory depression than systemic opioids",1,"This matters in an older adult who is already hypoventilating."],
+      ["Monitor for hypotension and respiratory depression",1,"Common adverse effects of epidural and opioid analgesia."],
+      ["Pain medication should be held so his respiratory drive is not suppressed",0,"Undertreated pain is a bigger threat; it causes shallow breathing and complications."]
+    ]},
+    {o:"Oxygen via high-flow nasal cannula; titrate to SpO₂ ≥ 92%. Continuous pulse oximetry and capnography.", opts:[
+      ["Treats hypoxemia from the pulmonary contusion",1,"Contusion causes V/Q mismatch."],
+      ["Capnography detects rising CO₂ from hypoventilation early",1,"His PaCO₂ is already 52."],
+      ["Oxygen stabilizes the flail segment",0,"Oxygen does not affect chest wall mechanics."],
+      ["Pulse oximetry alone shows when CO₂ is rising",0,"SpO₂ can look acceptable while CO₂ climbs."]
+    ]},
+    {o:"Incentive spirometer 10 times per hour while awake; cough and deep breathe every hour.", opts:[
+      ["Expands alveoli and prevents atelectasis",1,"Shallow breathing from pain collapses alveoli."],
+      ["Mobilizes secretions and lowers pneumonia risk",1,"Pneumonia is a leading cause of death after rib fractures in older adults."],
+      ["Time it after pain medication takes effect",1,"He will breathe deeper with less pain."],
+      ["Stop the incentive spirometer if it causes any discomfort",0,"Some discomfort is expected; treat the pain and continue."]
+    ]},
+    {o:"Do NOT tape, bind, or sandbag the chest wall.", opts:[
+      ["External binding restricts chest expansion and worsens hypoventilation",1,"Older practices of taping ribs are no longer recommended."],
+      ["Restriction increases atelectasis and pneumonia risk",1,"The lung needs room to expand."],
+      ["Binding is the preferred way to stabilize a flail segment",0,"Stabilization is internal (ventilation) or surgical, not external."],
+      ["Sandbags are safe if placed on the uninjured side",0,"Any chest restriction impairs ventilation."]
+    ]},
+    {o:"LR at 75 mL/hr. Avoid fluid overload. Daily weight, strict I&O.", opts:[
+      ["Bruised lung tissue leaks fluid easily, so excess IV fluid worsens the contusion",1,"Judicious fluids protect the injured lung."],
+      ["Maintains perfusion without flooding the lungs",1,"The goal is euvolemia."],
+      ["Large fluid boluses are needed to treat the contusion",0,"Boluses can worsen pulmonary edema in contused tissue."],
+      ["Strict I&O helps detect overload early",1,"Watch for crackles and rising weight."]
+    ]},
+    {o:"Prepare for intubation and mechanical ventilation with PEEP if PaCO₂ rises, SpO₂ falls, or he tires. Surgical consult for possible rib fixation.", opts:[
+      ["Positive-pressure ventilation splints the flail segment internally",1,"This is called internal pneumatic stabilization."],
+      ["PEEP keeps alveoli open and improves oxygenation",1,"Useful with contused lung."],
+      ["Surgical rib fixation can shorten ventilator time and improve pain",1,"Increasingly used for selected patients."],
+      ["Intubation is required for every flail chest",0,"Many patients are managed with good analgesia and pulmonary hygiene."]
+    ]}
+  ],
+  teach:[
+    {o:"Hold a pillow firmly against the injured side when coughing or deep breathing.", opts:[
+      ["Splinting reduces pain from chest wall movement",1,"Less pain means more effective coughing."],
+      ["Effective coughing clears secretions and prevents pneumonia",1,"Pneumonia is the main complication."],
+      ["Holding the pillow continuously is a form of binding that he should do all day",0,"Splinting is brief, only during coughing."],
+      ["He should avoid coughing to protect the ribs",0,"Coughing is essential."]
+    ]},
+    {o:"Take pain medication on schedule and before activity or breathing exercises; report pain that keeps him from breathing deeply.", opts:[
+      ["Staying ahead of pain allows deeper breaths",1,"Pain causes hypoventilation."],
+      ["Pain that stops deep breathing raises the risk of collapse and infection",1,"Report it so the plan can change."],
+      ["He should wait until pain is severe to take medication",0,"Severe pain is harder to control and limits breathing."],
+      ["Opioids can cause constipation, so increase fiber and fluids as allowed",1,"A common side effect to plan for."]
+    ]},
+    {o:"Rib fractures take about 6 weeks to heal. Avoid heavy lifting and contact activities until cleared.", opts:[
+      ["Bone healing takes several weeks",1,"Realistic expectations improve adherence."],
+      ["Lifting strains the healing chest wall",1,"Strain can cause pain and displacement."],
+      ["Once the pain stops, the ribs are fully healed",0,"Pain often improves before healing is complete."],
+      ["He can return to all activities in 1 week",0,"Too soon."]
+    ]},
+    {o:"Report fever, increasing shortness of breath, productive cough, or new chest pain right away.", opts:[
+      ["These may signal pneumonia, a common complication after rib fractures",1,"Older adults are at highest risk."],
+      ["New or worsening dyspnea could signal a delayed pneumothorax or hemothorax",1,"These can develop after the initial injury."],
+      ["These symptoms are expected and do not need reporting",0,"They need prompt evaluation."],
+      ["He should treat a fever with leftover antibiotics at home",0,"Never self-treat with leftover antibiotics."]
+    ]}
+  ]
+});
+/* ---------- CASE: ARDS ---------- */
+CASES.push({
+  id:"ards", patient:"Denise Okafor", age:45, sex:"F",
+  unit:"Medical ICU · Hospital day 3", complaint:"Oxygen needs keep climbing",
+  dx:["ards"], ok:["arf"],
+  history:[
+    "Admitted 2 days ago with severe community-acquired pneumonia and sepsis.",
+    "Over the past 12 hours oxygen needs rose from 4 L NC to high-flow nasal cannula at FiO₂ 0.80, 50 L/min.",
+    "No history of heart disease. Allergic to penicillin (rash).",
+    "Received 3 L of IV fluid on admission for septic shock."
+  ],
+  vitals:{T:"39.1 °C",HR:"124",RR:"38",BP:"96/58 (MAP 71)",SpO2:"84% on FiO₂ 0.80",Pain:"—"},
+  assess:[
+    "Severe dyspnea; using accessory muscles with intercostal retractions",
+    "Restless and anxious; speaks 2–3 words at a time",
+    "Coarse crackles throughout both lung fields",
+    "No JVD; no peripheral edema",
+    "Skin warm, mottled at knees"
+  ],
+  diag:[
+    ["ABG (FiO₂ 0.80)","pH 7.33 · PaCO₂ 46 · PaO₂ 56 · HCO₃ 24"],
+    ["P/F ratio","56 ÷ 0.80 = 70"],
+    ["Chest x-ray","New bilateral diffuse infiltrates (“white-out”); heart size normal"],
+    ["Echocardiogram","EF 60%; normal LV function"],
+    ["BNP","85 pg/mL (ref < 100)"],
+    ["WBC / lactate","WBC 19,800 · lactate 3.4 mmol/L"],
+    ["Hemoglobin A1c","5.6%"]
+  ],
+  dxNote:"Refractory hypoxemia (P/F 70) that does not respond to rising oxygen, new bilateral infiltrates within a week of a known trigger (pneumonia and sepsis), and no evidence of heart failure meet the Berlin criteria for severe ARDS. ARDS also produces acute hypoxemic respiratory failure.",
+  support:[
+    ["SpO₂ 84% despite FiO₂ 0.80",1,"Refractory hypoxemia is the hallmark of ARDS; shunting means more oxygen does little."],
+    ["P/F ratio 70",1,"P/F ≤ 100 is severe ARDS (Berlin definition)."],
+    ["New bilateral diffuse infiltrates",1,"Inflamed, leaky alveolar-capillary membranes fill the alveoli with protein-rich fluid."],
+    ["Pneumonia and sepsis 2 days ago",1,"Sepsis and pneumonia are the most common ARDS triggers; onset is within 1 week."],
+    ["EF 60%, BNP 85, no JVD or edema",1,"These rule out cardiogenic pulmonary edema, which is required for the diagnosis."],
+    ["RR 38 with accessory muscle use",1,"Stiff, noncompliant lungs greatly increase work of breathing."],
+    ["Bilateral crackles",1,"Fluid-filled alveoli."],
+    ["PaCO₂ 46, pH 7.33",1,"Rising CO₂ signals she is tiring; early ARDS often starts with respiratory alkalosis."],
+    ["Hemoglobin A1c 5.6%",0,"Normal; unrelated."],
+    ["Penicillin allergy",0,"Important for antibiotic choice, not the diagnosis."]
+  ],
+  orders:[
+    {o:"Intubate. Volume-control ventilation: tidal volume 6 mL/kg ideal body weight, plateau pressure ≤ 30 cm H₂O, PEEP 12 cm H₂O, FiO₂ titrated to SpO₂ 88–95%.", opts:[
+      ["Low tidal volumes prevent overstretching injured alveoli (volutrauma)",1,"Lung-protective ventilation lowers ARDS mortality."],
+      ["PEEP keeps alveoli open at end-expiration and improves oxygenation",1,"Recruits collapsed alveoli and reduces shunting."],
+      ["PEEP lets the FiO₂ be lowered, reducing oxygen toxicity",1,"Prolonged FiO₂ above 0.60 damages lung tissue."],
+      ["PEEP can cause barotrauma and lower blood pressure by reducing venous return",1,"Monitor for pneumothorax and hypotension."],
+      ["Large tidal volumes are used to blow off CO₂",0,"Large volumes injure the lung; some CO₂ retention is accepted (permissive hypercapnia)."]
+    ]},
+    {o:"Prone positioning at least 16 hours per day while P/F < 150.", opts:[
+      ["Improves ventilation to the posterior lung, where most alveoli are collapsed",1,"Better V/Q matching improves oxygenation."],
+      ["Shown to reduce mortality in severe ARDS",1,"Started early in moderate-to-severe ARDS."],
+      ["Requires a trained team and protection of the face, eyes, and pressure points",1,"Pressure injuries and ETT dislodgement are key risks."],
+      ["Prone positioning is used to drain the sinuses",0,"Its purpose is to improve gas exchange."]
+    ]},
+    {o:"Propofol infusion 5–50 mcg/kg/min and fentanyl 25–100 mcg/hr; titrate to RASS −2 to −3. Cisatracurium infusion for 48 hours.", med:true, opts:[
+      ["Sedation and analgesia promote ventilator synchrony and reduce oxygen demand",1,"Fighting the ventilator raises pressures and oxygen use."],
+      ["A neuromuscular blocker paralyzes but does not sedate or relieve pain",1,"Never give a paralytic without adequate sedation and analgesia."],
+      ["Propofol is a lipid emulsion; monitor triglycerides and change tubing every 12 hours",1,"Lipid supports bacterial growth."],
+      ["Paralytics lower the need for ventilator monitoring",0,"A paralyzed patient cannot breathe; disconnection is fatal, so monitoring increases."]
+    ]},
+    {o:"Norepinephrine infusion; titrate to MAP ≥ 65 mm Hg. Once off vasopressors, conservative fluid strategy; furosemide as ordered.", med:true, opts:[
+      ["Maintains perfusion pressure to organs in septic shock",1,"MAP ≥ 65 is the standard sepsis goal."],
+      ["Limiting fluid once stable reduces lung water and improves oxygenation",1,"Leaky capillaries let fluid flood the alveoli."],
+      ["Give through a central line when possible and watch for extravasation",1,"Norepinephrine can cause tissue necrosis."],
+      ["Extra fluid boluses are the best way to treat ARDS",0,"Excess fluid worsens alveolar flooding."]
+    ]},
+    {o:"Levofloxacin 750 mg IV daily (PCN allergy). Blood and sputum cultures obtained before first dose.", med:true, opts:[
+      ["Treating the underlying cause is essential; ARDS does not resolve while the trigger continues",1,"Pneumonia and sepsis are driving the lung injury."],
+      ["Cultures before antibiotics give accurate organism identification",1,"Antibiotics can sterilize cultures."],
+      ["Levofloxacin treats the ARDS inflammation directly",0,"It treats the infection, not the inflammatory process."],
+      ["Watch for tendon pain and QT prolongation with fluoroquinolones",1,"Known adverse effects."]
+    ]},
+    {o:"VAP prevention bundle: HOB 30–45°, oral care with chlorhexidine q12h, daily sedation interruption and spontaneous breathing trial when appropriate. Pantoprazole 40 mg IV daily. Enteral feeding within 24–48 hours.", med:true, opts:[
+      ["HOB elevation reduces aspiration of gastric contents",1,"Aspiration is a main route of ventilator-associated pneumonia."],
+      ["Daily sedation interruption shortens ventilator days",1,"It allows assessment of readiness to wean."],
+      ["Pantoprazole prevents stress ulcers in critically ill ventilated patients",1,"Mechanical ventilation is a major risk factor for GI bleeding."],
+      ["Early enteral nutrition supports the gut and immune function",1,"Hypermetabolic patients need early feeding."],
+      ["Chlorhexidine oral care is done to freshen breath",0,"It reduces bacteria in the mouth that could be aspirated."]
+    ]}
+  ],
+  teach:[
+    {o:"Before suctioning, hyperoxygenate; suction only when needed (coarse crackles, visible secretions, rising peak pressures), for no more than 10 seconds.", opts:[
+      ["Suctioning removes oxygen and can cause severe desaturation",1,"Preoxygenation protects her."],
+      ["Disconnecting from the ventilator drops PEEP and collapses alveoli",1,"Use closed (in-line) suction to maintain PEEP."],
+      ["Routine suctioning every hour keeps the airway clear",0,"Suction as needed; routine suction causes trauma and hypoxemia."],
+      ["Limiting suction time reduces hypoxemia and vagal bradycardia",1,"Keep passes short."]
+    ]},
+    {o:"Watch for a sudden rise in peak airway pressure, falling SpO₂, absent breath sounds on one side, or tracheal shift.", opts:[
+      ["These are signs of pneumothorax from barotrauma",1,"High PEEP and stiff lungs raise the risk."],
+      ["A pneumothorax on a ventilator can quickly become a tension pneumothorax",1,"Positive pressure keeps forcing air into the pleural space."],
+      ["Rising peak pressures always mean she needs more sedation",0,"Rule out life-threatening causes first."],
+      ["Report immediately; prepare for chest decompression",1,"This is an emergency."]
+    ]},
+    {o:"Tell the family that, while she is paralyzed, she may still hear them, so they should talk to her calmly. Explain the purpose of the equipment.", opts:[
+      ["Hearing may remain even when the patient cannot respond",1,"Speaking to her may reduce distress."],
+      ["Understanding the equipment lowers family anxiety",1,"Families cope better when informed."],
+      ["Paralytics also cause unconsciousness, so talking to her is not useful",0,"Paralytics do not sedate."],
+      ["Eye lubricant and lid closure protect her eyes because she cannot blink",1,"Corneal abrasion is a risk with paralysis."]
+    ]},
+    {o:"Prepare the family for a long recovery: muscle weakness, fatigue, memory or concentration problems, and anxiety can last months (post-intensive care syndrome).", opts:[
+      ["Many ARDS survivors have lasting physical and cognitive effects",1,"Knowing this helps the family plan."],
+      ["Early mobility and physical therapy help reduce ICU-acquired weakness",1,"Begin as soon as she is stable."],
+      ["She will return to full function as soon as she is extubated",0,"Recovery often takes months."],
+      ["Follow-up care and support groups can help both patient and family",1,"PICS affects families too."]
+    ]}
+  ]
+});
+
+/* ---------- CASE: Acute Respiratory Failure ---------- */
+CASES.push({
+  id:"arf", patient:"Gerald Pike", age:71, sex:"M",
+  unit:"Emergency department", complaint:"Very sleepy and hard to wake",
+  dx:["arf"], ok:[],
+  history:[
+    "COPD on home oxygen at 2 L/min. Three days of cough with thick yellow sputum.",
+    "Wife says he took “a few extra” oxycodone tablets last night for back pain.",
+    "Woke this morning with a severe headache, then became increasingly drowsy.",
+    "Uses tiotropium daily and albuterol PRN. Former smoker."
+  ],
+  vitals:{T:"37.9 °C",HR:"108",RR:"10, shallow",BP:"150/92",SpO2:"84% on 2 L NC",Pain:"unable to rate"},
+  assess:[
+    "Somnolent; opens eyes to voice, follows simple commands, confused",
+    "Barrel chest; diminished breath sounds with scattered expiratory wheezes",
+    "Skin warm and flushed",
+    "Flapping tremor of the hands when wrists are extended",
+    "Pupils 2 mm, reactive"
+  ],
+  diag:[
+    ["ABG (2 L NC)","pH 7.22 · PaCO₂ 78 · PaO₂ 50 · HCO₃ 31"],
+    ["Chest x-ray","Hyperinflation, flattened diaphragms; no infiltrate, no pneumothorax"],
+    ["Hemoglobin","15.8 g/dL"],
+    ["Sodium","138 mEq/L"],
+    ["Glucose","142 mg/dL"]
+  ],
+  dxNote:"PaO₂ below 60 mm Hg with PaCO₂ above 50 mm Hg and a pH below 7.35 defines acute hypercapnic (ventilatory) respiratory failure. His COPD exacerbation plus extra opioids depressed his ventilation; the elevated bicarbonate shows a chronic CO₂ retainer with an acute rise on top.",
+  support:[
+    ["PaO₂ 50 mm Hg",1,"PaO₂ < 60 mm Hg meets the oxygenation criterion for respiratory failure."],
+    ["PaCO₂ 78 mm Hg with pH 7.22",1,"PaCO₂ > 50 with acidemia means acute ventilatory failure."],
+    ["HCO₃ 31",1,"Kidneys have retained bicarbonate over time; this is acute-on-chronic CO₂ retention."],
+    ["Somnolence, confusion, morning headache",1,"High CO₂ (CO₂ narcosis) causes headache and depressed LOC."],
+    ["Flapping tremor (asterixis)",1,"Can be seen with severe hypercapnia."],
+    ["Warm, flushed skin",1,"CO₂ is a vasodilator."],
+    ["RR 10 and shallow; extra oxycodone",1,"Opioids depress the respiratory drive and worsen hypoventilation."],
+    ["Small (2 mm) pupils",1,"Consistent with opioid effect."],
+    ["Three days of yellow sputum with COPD",1,"A COPD exacerbation is a common trigger."],
+    ["Hemoglobin 15.8",0,"High-normal Hgb reflects chronic hypoxemia; it does not show acute failure."],
+    ["Sodium 138",0,"Normal; unrelated."],
+    ["Glucose 142",0,"Not diagnostic."]
+  ],
+  orders:[
+    {o:"BiPAP: IPAP 14 / EPAP 5 cm H₂O; titrate FiO₂ to SpO₂ 88–92%. Repeat ABG in 1 hour. Prepare for intubation if no improvement or if he cannot protect his airway.", opts:[
+      ["IPAP increases tidal volume and helps blow off CO₂",1,"Inspiratory pressure assists ventilation."],
+      ["EPAP keeps airways open, improving oxygenation",1,"Similar to PEEP."],
+      ["Noninvasive ventilation can prevent intubation in COPD exacerbations",1,"It is first-line for hypercapnic failure in COPD."],
+      ["He must be awake enough to protect his airway; reassess LOC often",1,"Worsening somnolence or vomiting means BiPAP is unsafe."],
+      ["The SpO₂ goal is 100% to fully correct his hypoxemia",0,"In chronic CO₂ retainers, 88–92% avoids worsening hypercapnia."]
+    ]},
+    {o:"Naloxone 0.04 mg IV every 2 minutes, titrated to RR ≥ 12 and arousal. Hold all opioids.", med:true, opts:[
+      ["Reverses opioid-induced respiratory depression",1,"Naloxone blocks opioid receptors."],
+      ["Small, titrated doses avoid sudden pain, withdrawal, and hypertension",1,"Diluted doses restore breathing without full reversal."],
+      ["Naloxone lasts longer than oxycodone, so one dose is enough",0,"Naloxone is shorter-acting; the opioid effect can return. Monitor closely."],
+      ["Naloxone directly lowers the PaCO₂",0,"It restores respiratory drive; better ventilation then lowers CO₂."]
+    ]},
+    {o:"Albuterol 2.5 mg / ipratropium 0.5 mg via inline nebulizer q4h and q1h PRN wheezing.", med:true, opts:[
+      ["Albuterol is a short-acting beta-2 agonist that relaxes bronchial smooth muscle",1,"Opens airways quickly."],
+      ["Ipratropium is an anticholinergic that adds bronchodilation and reduces secretions",1,"The combination works better than either alone in COPD."],
+      ["Watch for tachycardia and tremor",1,"Common beta-agonist effects."],
+      ["These medications reduce airway inflammation over days",0,"That is the role of corticosteroids."]
+    ]},
+    {o:"Methylprednisolone 40 mg IV daily, then prednisone 40 mg PO daily for a 5-day total course.", med:true, opts:[
+      ["Reduces airway inflammation and shortens recovery from the exacerbation",1,"Systemic steroids are standard for COPD exacerbations."],
+      ["Monitor blood glucose; steroids raise it",1,"His glucose is already 142."],
+      ["Steroids act within minutes to open the airways",0,"The anti-inflammatory effect takes hours."],
+      ["A short course usually does not need tapering",1,"Five days is the usual course."]
+    ]},
+    {o:"Azithromycin 500 mg IV daily. Sputum culture.", med:true, opts:[
+      ["Increased sputum purulence suggests a bacterial trigger for the exacerbation",1,"Antibiotics are indicated when sputum becomes purulent."],
+      ["Treating the trigger helps reverse the respiratory failure",1,"The underlying cause must be addressed."],
+      ["Azithromycin treats the opioid overdose",0,"Unrelated."],
+      ["Monitor for QT prolongation",1,"A known macrolide effect."]
+    ]},
+    {o:"HOB ≥ 30°; continuous pulse oximetry and cardiac monitoring; neuro checks q1h.", opts:[
+      ["Upright positioning improves diaphragm movement",1,"Helps ventilation."],
+      ["Hypoxemia and acidosis can cause dysrhythmias",1,"Continuous monitoring catches them."],
+      ["Improving LOC is a sign that CO₂ is falling",1,"Mental status tracks with PaCO₂."],
+      ["Keep him flat so BiPAP seals better",0,"Flat positioning worsens breathing and aspiration risk."]
+    ]}
+  ],
+  teach:[
+    {o:"Keep home oxygen at the prescribed rate and do not turn it up on your own; target SpO₂ 88–92%.", opts:[
+      ["Too much oxygen can raise CO₂ levels in some people with COPD",1,"Higher O₂ worsens V/Q mismatch and can blunt drive in CO₂ retainers."],
+      ["Increasing oxygen does not fix the cause of worsening breathlessness",1,"Call the provider instead."],
+      ["More oxygen is always safer",0,"Not for chronic CO₂ retainers."],
+      ["No smoking or open flames near oxygen",1,"Oxygen supports combustion."]
+    ]},
+    {o:"Opioid safety: take only as prescribed, never combine with alcohol or sleep aids, and keep naloxone at home; teach his wife to use it.", opts:[
+      ["Opioids slow breathing, which is dangerous with COPD",1,"He has less respiratory reserve."],
+      ["Alcohol and sedatives add to respiratory depression",1,"Combined effects can be fatal."],
+      ["Family can give naloxone in an emergency while waiting for EMS",1,"Call 911 even after giving it."],
+      ["Taking an extra dose is fine if pain is bad",0,"This caused his current crisis."]
+    ]},
+    {o:"Practice pursed-lip breathing and the tripod position when short of breath.", opts:[
+      ["Pursed lips keep small airways open longer and release trapped air",1,"Prolongs exhalation."],
+      ["Leaning forward helps the diaphragm and accessory muscles work",1,"Improves breathing mechanics."],
+      ["Pursed-lip breathing increases air trapping",0,"It reduces air trapping."],
+      ["Slower breathing reduces panic and the work of breathing",1,"Breaks the dyspnea-anxiety cycle."]
+    ]},
+    {o:"Know the early signs of a flare: more shortness of breath, change in sputum color or amount, more rescue inhaler use. Call the provider early.", opts:[
+      ["Early treatment can prevent hospitalization",1,"Action plans reduce severe exacerbations."],
+      ["Morning headache, unusual sleepiness, or confusion can mean CO₂ is building",1,"Seek urgent care."],
+      ["Waiting a few days to see if it passes is best",0,"Delay leads to crises like this one."],
+      ["Stay current on influenza, pneumococcal, COVID, and RSV vaccines",1,"Infections are the most common trigger."]
+    ]},
+    {o:"Drink plenty of fluids unless restricted, and take inhalers as prescribed even on good days.", opts:[
+      ["Fluids thin secretions so they are easier to cough up",1,"Thick mucus blocks airways."],
+      ["Daily maintenance inhalers prevent flares",1,"Tiotropium works over time."],
+      ["Maintenance inhalers are only for bad days",0,"They must be used daily."],
+      ["Rinse the mouth after inhaled steroids if prescribed",1,"Prevents oral thrush."]
+    ]}
+  ]
+});
+
+/* ---------- CASE: Pneumothorax ---------- */
+CASES.push({
+  id:"ptx", patient:"Ethan Liu", age:19, sex:"M",
+  unit:"Emergency department", complaint:"Sharp chest pain that started in class",
+  dx:["ptx"], ok:[],
+  history:[
+    "College student. Sudden sharp left chest pain and shortness of breath while sitting in a lecture.",
+    "Tall and thin (6′3″, 150 lb). Smokes cigarettes and vapes daily.",
+    "No trauma. No prior lung disease. Seasonal allergies.",
+    "Pain worsens with deep breaths."
+  ],
+  vitals:{T:"36.9 °C",HR:"104",RR:"26",BP:"124/78",SpO2:"92% RA",Pain:"7/10 left chest"},
+  assess:[
+    "Breath sounds absent over the left upper lobe, diminished at left base",
+    "Hyperresonance to percussion on the left",
+    "Decreased chest expansion on the left",
+    "Trachea midline; neck veins flat",
+    "Anxious but speaking in full sentences"
+  ],
+  diag:[
+    ["Chest x-ray","Left apical pneumothorax, about 35%; visible pleural line; no mediastinal shift"],
+    ["ECG","Sinus tachycardia 104"],
+    ["CBC","Hgb 15.1 g/dL · WBC 7,800"],
+    ["Troponin","< 0.01 ng/mL"]
+  ],
+  dxNote:"Sudden pleuritic pain and dyspnea in a tall, thin young male smoker with absent breath sounds, hyperresonance, and a visible pleural line is a primary spontaneous pneumothorax. A midline trachea, flat neck veins, and stable blood pressure tell you it is not under tension.",
+  support:[
+    ["Sudden sharp chest pain at rest",1,"Rupture of a small apical bleb can happen with no trauma."],
+    ["Tall, thin male, 19, who smokes",1,"Classic risk profile for primary spontaneous pneumothorax."],
+    ["Absent / diminished breath sounds on the left",1,"Air in the pleural space keeps the lung from expanding."],
+    ["Hyperresonance on the left",1,"Air-filled space sounds hollow; fluid or blood would sound dull."],
+    ["Decreased left chest expansion",1,"The collapsed lung does not inflate."],
+    ["X-ray: visible pleural line, 35% collapse",1,"Confirms the diagnosis."],
+    ["Trachea midline, flat neck veins, BP stable",1,"Distinguishes a simple pneumothorax from tension."],
+    ["HR 104, RR 26, SpO₂ 92%",1,"Mild compensation for reduced lung volume."],
+    ["Troponin < 0.01",0,"Rules out cardiac injury; it does not support pneumothorax."],
+    ["Seasonal allergies",0,"Unrelated."],
+    ["Hgb 15.1, WBC 7,800",0,"Normal; no bleeding or infection."]
+  ],
+  orders:[
+    {o:"Oxygen via nasal cannula; titrate to SpO₂ ≥ 94%.", opts:[
+      ["Corrects mild hypoxemia",1,"His SpO₂ is 92%."],
+      ["Supplemental oxygen speeds reabsorption of pleural air",1,"It raises the nitrogen gradient between pleural air and blood."],
+      ["Oxygen reinflates the lung by itself in all cases",0,"Small pneumothoraces may resolve; a 35% collapse with symptoms usually needs drainage."],
+      ["Oxygen is contraindicated in pneumothorax",0,"It is helpful."]
+    ]},
+    {o:"Insert a small-bore chest tube, left 4th–5th intercostal space, anterior to mid-axillary line. Lidocaine 1% local; fentanyl 50 mcg IV before the procedure.", med:true, opts:[
+      ["Removes air from the pleural space so the lung can re-expand",1,"Restores negative intrapleural pressure."],
+      ["The tube is placed high in the chest because air rises",1,"Air collects at the apex; tubes for fluid are placed lower. The 4th–5th ICS ‘safe triangle’ or 2nd ICS MCL can be used for air."],
+      ["Premedication reduces pain and anxiety during insertion",1,"Insertion is painful."],
+      ["The nurse obtains informed consent",0,"The provider obtains consent; the nurse may witness the signature."],
+      ["Gather equipment and position him with the arm raised over the head on the affected side",1,"Opens the intercostal spaces."]
+    ]},
+    {o:"Connect to a closed chest drainage system: water seal with −20 cm H₂O suction.", opts:[
+      ["The water seal acts as a one-way valve, letting air out but not back in",1,"Typically 2 cm of water in the water-seal chamber."],
+      ["Suction speeds air removal and lung re-expansion",1,"Suction level is set by the water level in a wet system or a dial in a dry system — not by the wall regulator alone."],
+      ["Gentle continuous bubbling in the suction-control chamber of a wet system is expected",1,"Shows suction is working."],
+      ["Intermittent bubbling in the water-seal chamber is expected while air is still leaving the pleural space",1,"It decreases as the lung re-expands."],
+      ["Vigorous bubbling in the suction-control chamber means the suction is more effective",0,"It only evaporates the water faster; it does not add suction."]
+    ]},
+    {o:"Chest x-ray after chest tube insertion and daily.", opts:[
+      ["Confirms tube placement",1,"The tube must be in the pleural space."],
+      ["Shows whether the lung has re-expanded",1,"Guides timing of removal."],
+      ["Replaces the need for respiratory assessment",0,"Nursing assessment continues between films."],
+      ["Detects complications such as a malpositioned tube",1,"Important after any insertion."]
+    ]},
+    {o:"Keep at the bedside: sterile occlusive (petroleum) gauze, tape, and a bottle of sterile water. No clamps unless ordered.", opts:[
+      ["An occlusive dressing is needed immediately if the tube comes out of the chest",1,"Prevents air from entering through the site."],
+      ["Sterile water provides a temporary water seal if the tube disconnects from the drainage system",1,"Submerge the tube end about 2 cm."],
+      ["Clamping can trap air and cause a tension pneumothorax",1,"Clamp only briefly for specific reasons per policy or order."],
+      ["Hemostats are kept to clamp the tube during every transport",0,"Routine clamping is not recommended."]
+    ]},
+    {o:"Ketorolac 15 mg IV q6h PRN pain (max 5 days); acetaminophen 1,000 mg PO q6h scheduled.", med:true, opts:[
+      ["Pain control helps him breathe deeply and use the incentive spirometer",1,"Deep breathing helps re-expand the lung."],
+      ["Ketorolac is an NSAID; watch for GI bleeding and kidney effects",1,"Limit to 5 days."],
+      ["Acetaminophen and an NSAID together give better pain relief with fewer opioids",1,"Multimodal analgesia."],
+      ["NSAIDs are given to shrink the pneumothorax",0,"They treat pain only."]
+    ]}
+  ],
+  teach:[
+    {o:"Keep the drainage system upright and below the level of the chest at all times, including when walking.", opts:[
+      ["Gravity prevents drainage from flowing back into the chest",1,"Backflow could cause infection or lung collapse."],
+      ["Tipping the unit can disrupt the water seal",1,"Keep it upright."],
+      ["It can be placed on the bed next to him for convenience",0,"It must be below chest level."],
+      ["He may walk with the system, keeping it below the chest",1,"Ambulation is encouraged."]
+    ]},
+    {o:"The nurse checks the water-seal chamber for tidaling: the water rises when he breathes in and falls when he breathes out.", opts:[
+      ["Tidaling shows the tube is patent and connected to the pleural space",1,"It reflects pressure changes with breathing."],
+      ["Tidaling that stops may mean the lung has re-expanded",1,"Confirm with assessment and x-ray."],
+      ["Tidaling that stops can also mean the tube is kinked or blocked",1,"Check the tubing for kinks or dependent loops."],
+      ["Tidaling should be continuous bubbling",0,"Tidaling is movement of the water level; continuous bubbling in the water seal suggests an air leak."],
+      ["On a mechanical ventilator, the tidaling pattern is reversed",1,"Positive pressure reverses the pressure changes."]
+    ]},
+    {o:"Continuous bubbling in the water-seal chamber: check the system from the patient’s chest down to the unit.", opts:[
+      ["It means air is entering the system, from the lung or a leak in the tubing",1,"Find the source."],
+      ["Check that connections are tight and the dressing is sealed",1,"Many leaks are at connections or the insertion site."],
+      ["It is always a sign of successful lung re-expansion",0,"Bubbling should decrease as the lung re-expands."],
+      ["Report a new or increasing air leak to the provider",1,"It may signal a new pleural leak or tube problem."]
+    ]},
+    {o:"If the tube pulls out of your chest, cover the site immediately and call for help. If tubing disconnects, put the tube end in sterile water.", opts:[
+      ["Covering the site with an occlusive dressing taped on three sides keeps air out but lets trapped air escape",1,"Prevents a tension pneumothorax."],
+      ["Placing the tube end in sterile water re-creates a water seal",1,"A temporary fix until a new system is connected."],
+      ["Clamping the tube is the best response to disconnection",0,"Clamping can cause tension pneumothorax."],
+      ["Do not pull or tug on the tubing; secure it to prevent dislodgement",1,"Prevention is best."]
+    ]},
+    {o:"Cough, deep breathe, and use the incentive spirometer every hour while awake. Do not strip or milk the tubing.", opts:[
+      ["Deep breathing and coughing help the lung re-expand and push air out",1,"Raises intrathoracic pressure."],
+      ["Routine stripping creates high negative pressure that can injure tissue",1,"Avoid it unless policy allows for clots."],
+      ["Stripping the tube every hour keeps it working",0,"Not recommended."],
+      ["Keep tubing free of kinks and dependent loops",1,"Loops trap fluid and block drainage."]
+    ]},
+    {o:"For removal: premedicate 30 minutes before. When the tube is pulled, take a deep breath and hold it (or bear down). An occlusive dressing is applied and a chest x-ray follows.", opts:[
+      ["Holding the breath or bearing down raises intrathoracic pressure so air cannot enter the chest",1,"Prevents a new pneumothorax."],
+      ["Removal is painful, so premedication helps",1,"Time it for peak effect."],
+      ["He should breathe in deeply while the tube is being pulled",0,"Inhaling during removal can draw air into the chest."],
+      ["Report shortness of breath or chest pain after removal",1,"Could signal recurrence."]
+    ]},
+    {o:"After discharge: stop smoking and vaping; avoid scuba diving; ask before flying or going to high altitude; seek care for sudden chest pain or dyspnea.", opts:[
+      ["Smoking greatly raises the risk of recurrence",1,"Quitting is the most important change."],
+      ["Pressure changes during diving and flying can enlarge any remaining air",1,"Follow provider guidance."],
+      ["Recurrence is common, especially in the first year",1,"About 1 in 3 people have another episode."],
+      ["Once the lung re-expands, recurrence is impossible",0,"Recurrence is common."]
+    ]}
+  ]
+});
+/* ---------- CASE: Hemothorax ---------- */
+CASES.push({
+  id:"htx", patient:"Marcus Bell", age:34, sex:"M",
+  unit:"Emergency department · Trauma bay 1", complaint:"Stab wound to the right chest",
+  dx:["htx"], ok:[],
+  history:[
+    "Single stab wound to the right lateral chest at the 6th intercostal space, about 25 minutes ago.",
+    "EMS applied a dressing; estimated 300 mL blood loss at the scene.",
+    "Previously healthy. Last tetanus shot “a long time ago.”",
+    "Also has a small laceration to the left hand."
+  ],
+  vitals:{T:"36.2 °C",HR:"128",RR:"30",BP:"88/56",SpO2:"89% RA",Pain:"8/10 right chest"},
+  assess:[
+    "Anxious, restless; skin pale, cool, clammy; cap refill 4 seconds",
+    "Breath sounds absent at right base, diminished right mid-lung",
+    "DULL to percussion over right lower chest",
+    "Trachea midline; neck veins flat",
+    "No subcutaneous emphysema"
+  ],
+  diag:[
+    ["Chest x-ray (upright)","Opacification of right lower hemithorax with fluid meniscus; blunted costophrenic angle"],
+    ["E-FAST ultrasound","Fluid in right pleural space; no pericardial fluid"],
+    ["Hemoglobin","11.8 → 9.6 g/dL over 2 hours"],
+    ["Lactate","4.1 mmol/L"],
+    ["Blood alcohol","0.00"],
+    ["Glucose","112 mg/dL"]
+  ],
+  dxNote:"Penetrating chest trauma with absent breath sounds, DULLNESS to percussion, fluid on x-ray and ultrasound, a falling hemoglobin, and hypovolemic shock is a hemothorax. Flat neck veins and a midline trachea point to blood loss, not tension.",
+  support:[
+    ["Penetrating injury to the right chest",1,"Lacerated intercostal or lung vessels bleed into the pleural space."],
+    ["Absent / diminished breath sounds on the right",1,"Blood occupies the space and compresses the lung."],
+    ["Dull to percussion",1,"Fluid or blood sounds dull; air sounds hyperresonant. This is the key difference from pneumothorax."],
+    ["Fluid meniscus and blunted costophrenic angle on x-ray",1,"Blood collects in the dependent part of the chest."],
+    ["E-FAST shows pleural fluid",1,"Rapid bedside confirmation."],
+    ["Hgb 11.8 → 9.6 in 2 hours",1,"Active blood loss."],
+    ["HR 128, BP 88/56, pale cool skin, cap refill 4 seconds",1,"Hypovolemic shock."],
+    ["Lactate 4.1",1,"Poor tissue perfusion."],
+    ["Flat neck veins, trachea midline",1,"Fits hypovolemia; tension pneumothorax would cause distended neck veins and tracheal shift."],
+    ["Blood alcohol 0.00",0,"Rules out intoxication, not related to the diagnosis."],
+    ["Left hand laceration",0,"Needs care, but unrelated."],
+    ["Glucose 112",0,"Stress response; not diagnostic."]
+  ],
+  orders:[
+    {o:"Two large-bore IVs (16–18 gauge). Type and crossmatch 4 units PRBCs. Transfuse 2 units O-negative PRBCs now via warmer; limit crystalloid.", opts:[
+      ["Large-bore access allows rapid volume and blood replacement",1,"Flow rate depends on catheter size."],
+      ["Blood replaces oxygen-carrying capacity that crystalloid cannot",1,"He is losing red cells."],
+      ["O-negative blood can be given before crossmatch is complete in an emergency",1,"Universal donor red cells."],
+      ["Warming blood prevents hypothermia, which worsens bleeding",1,"Hypothermia impairs clotting (part of the lethal triad)."],
+      ["Large crystalloid volumes are preferred over blood",0,"Excess crystalloid dilutes clotting factors and worsens bleeding."]
+    ]},
+    {o:"Insert a large-bore chest tube (28–32 Fr), right 5th intercostal space, mid-axillary line. Connect to chest drainage with autotransfusion capability and −20 cm H₂O suction.", opts:[
+      ["Removes blood so the lung can re-expand",1,"Restores ventilation."],
+      ["A large-bore tube is used because blood and clots can block small tubes",1,"Size matters for blood."],
+      ["The tube is placed low because blood collects in the dependent chest",1,"Fluid settles; air rises."],
+      ["Autotransfusion returns the patient’s own blood to his circulation",1,"Reduces the need for donor blood."],
+      ["The tube is placed in the 2nd ICS midclavicular line for blood",0,"That site is used for air; blood drains from lower positions."]
+    ]},
+    {o:"Notify surgeon STAT if initial chest tube output ≥ 1,500 mL, or 200 mL/hr for 2–4 consecutive hours. Prepare for possible thoracotomy.", opts:[
+      ["High output signals ongoing bleeding that needs surgical repair",1,"These are common thoracotomy thresholds."],
+      ["Mark drainage levels on the collection chamber each hour",1,"Shows trends at a glance."],
+      ["Drainage of 1,500 mL is expected and needs no action",0,"It indicates massive hemothorax."],
+      ["Watch for a sudden stop in drainage with worsening vital signs",1,"May mean a clot is blocking the tube."]
+    ]},
+    {o:"Fentanyl 25–50 mcg IV q15 min PRN pain; hold for SBP < 90 and notify.", med:true, opts:[
+      ["Fentanyl has less effect on blood pressure than morphine",1,"Less histamine release."],
+      ["Pain control helps breathing and lowers oxygen demand",1,"Pain causes shallow breathing."],
+      ["Hold parameters protect against worsening shock",1,"Opioids can lower BP in hypovolemia."],
+      ["Fentanyl slows the bleeding",0,"It has no effect on bleeding."]
+    ]},
+    {o:"Cefazolin 2 g IV now. Tdap 0.5 mL IM now.", med:true, opts:[
+      ["Antibiotic prophylaxis reduces infection risk with penetrating trauma and chest tube placement",1,"Lowers empyema risk."],
+      ["Tetanus prophylaxis is needed for a contaminated wound when the last dose was over 5 years ago or unknown",1,"Standard wound protocol."],
+      ["Cefazolin treats the hemothorax",0,"It prevents infection."],
+      ["Ask about allergies before the first antibiotic dose",1,"Always confirm allergies."]
+    ]},
+    {o:"Repeat Hgb/Hct, coagulation panel, and lactate in 1 hour. Chest x-ray after tube placement.", opts:[
+      ["Trends show whether bleeding is controlled",1,"A continued drop means ongoing loss."],
+      ["Coagulation studies detect trauma-induced coagulopathy",1,"Massive bleeding consumes clotting factors."],
+      ["A falling lactate shows improved perfusion",1,"Good sign of response."],
+      ["The x-ray confirms tube position and remaining fluid",1,"Retained blood may need more treatment."],
+      ["One normal Hgb rules out further bleeding",0,"Hgb lags behind acute blood loss; trends matter."]
+    ]}
+  ],
+  teach:[
+    {o:"Assess and document chest tube drainage: amount, color, and consistency, every hour at first.", opts:[
+      ["Bright red drainage that stays heavy suggests active bleeding",1,"Report it."],
+      ["Drainage that turns darker and decreases suggests bleeding is slowing",1,"Expected trend."],
+      ["Hourly marking shows the rate of loss",1,"Needed to apply thoracotomy thresholds."],
+      ["Empty the collection chamber when it is half full",0,"Most chambers are not emptied; the whole unit is replaced when full."]
+    ]},
+    {o:"Keep tubing free of dependent loops and kinks; coil excess tubing on the bed. Milk or strip only if allowed by policy for visible clots.", opts:[
+      ["Fluid in dependent loops creates back pressure and slows drainage",1,"Keep tubing flat or coiled."],
+      ["Blocked tubes can cause blood to build up in the chest",1,"Retained hemothorax compresses the lung."],
+      ["Routine stripping is safe and should be done every hour",0,"It can create dangerously high negative pressure."],
+      ["Gentle squeezing to move a clot may be allowed by policy",1,"Follow agency policy."]
+    ]},
+    {o:"Position in semi-Fowler’s if BP allows; check the insertion site and surrounding skin for subcutaneous emphysema.", opts:[
+      ["Semi-Fowler’s improves lung expansion and drainage",1,"Lets fluid move to the tube."],
+      ["Crackling under the skin (crepitus) means air is leaking into the tissue",1,"Mark the borders and report spread."],
+      ["The dressing should be changed every 4 hours",0,"Change per policy; keep it dry and occlusive."],
+      ["If BP drops, keep him flat and notify",1,"Perfusion takes priority."]
+    ]},
+    {o:"Teach Marcus to splint his chest, use the incentive spirometer, and report fever or worsening chest pain after discharge.", opts:[
+      ["Deep breathing helps the lung re-expand and prevents pneumonia",1,"Key to recovery."],
+      ["Fever and chest pain can signal empyema (infected blood in the pleural space)",1,"Retained blood can become infected."],
+      ["Mild fever after discharge is always normal",0,"Report it."],
+      ["Keep the wound clean and dry; report redness, drainage, or swelling",1,"Wound infection prevention."]
+    ]}
+  ]
+});
+
+/* ---------- CASE: Tension Pneumothorax ---------- */
+CASES.push({
+  id:"tptx", patient:"Rosa Delgado", age:63, sex:"F",
+  unit:"Surgical ICU · Post-op day 1", complaint:"Ventilator alarming; pressure falling",
+  dx:["tptx"], ok:["ptx"],
+  history:[
+    "Exploratory laparotomy yesterday; remains intubated on volume-control ventilation, PEEP 8.",
+    "Right subclavian central line was placed 1 hour ago.",
+    "History: COPD, hypertension.",
+    "Ten minutes ago the high-pressure alarm began sounding repeatedly."
+  ],
+  vitals:{T:"37.4 °C",HR:"142",RR:"vent 16",BP:"72/40",SpO2:"78% on FiO₂ 0.50",Pain:"—"},
+  assess:[
+    "Peak inspiratory pressure rose from 24 to 48 cm H₂O",
+    "Absent breath sounds on the right; hyperresonance on the right",
+    "Trachea deviated to the LEFT; distended neck veins",
+    "Right chest rises less than left; crackling under the skin of the right neck and chest",
+    "Cyanotic lips; ETT at 22 cm at the lip, unchanged; abdominal incision intact"
+  ],
+  diag:[
+    ["Bedside ultrasound","No lung sliding on the right"],
+    ["Chest x-ray","Not yet obtained — do not delay treatment"],
+    ["ECG","Sinus tachycardia 142"],
+    ["Urine output","40 mL in the last hour"],
+    ["Glucose","160 mg/dL"]
+  ],
+  dxNote:"A sudden rise in airway pressure, absent breath sounds and hyperresonance on one side, tracheal deviation AWAY from that side, distended neck veins, and hypotension in a ventilated patient after a subclavian line is tension pneumothorax. It is a clinical diagnosis — treat it before any x-ray. (It is also a pneumothorax, so that choice is accepted too.)",
+  support:[
+    ["Peak pressure rose from 24 to 48",1,"The trapped air makes the chest harder to ventilate."],
+    ["Absent breath sounds and hyperresonance on the right",1,"Air fills the pleural space."],
+    ["Trachea deviated to the left",1,"Rising pressure shifts the mediastinum toward the unaffected side — a late sign."],
+    ["Distended neck veins",1,"Mediastinal shift compresses the vena cava and blocks venous return."],
+    ["BP 72/40, HR 142",1,"Obstructive shock from reduced venous return and cardiac output."],
+    ["SpO₂ 78%",1,"Lung collapse and shunting."],
+    ["Subclavian line 1 hour ago; on positive-pressure ventilation",1,"Line insertion can puncture the pleura; the ventilator forces air in with each breath."],
+    ["Subcutaneous emphysema",1,"Air escaping into tissue."],
+    ["No lung sliding on ultrasound",1,"Bedside sign of pneumothorax."],
+    ["ETT at 22 cm, unchanged",0,"Helps rule out tube displacement; it does not support the diagnosis."],
+    ["Urine output 40 mL",0,"Adequate for the last hour; not diagnostic."],
+    ["Glucose 160",0,"Stress response."]
+  ],
+  orders:[
+    {o:"Immediate needle decompression: 14-gauge, 8 cm (3.25 in) catheter, right 4th–5th ICS anterior to mid-axillary line (or 2nd ICS midclavicular line).", opts:[
+      ["Releases trapped air and converts a tension pneumothorax to a simple pneumothorax",1,"Restores venous return within seconds."],
+      ["Done immediately without waiting for an x-ray",1,"Delay can cause cardiac arrest."],
+      ["It is the definitive treatment and no chest tube is needed afterward",0,"A chest tube must follow."],
+      ["A rush of air and improving BP and SpO₂ confirm success",1,"Reassess immediately."],
+      ["The nurse prepares equipment and stays at the bedside to monitor",1,"The provider or credentialed clinician performs it."]
+    ]},
+    {o:"FiO₂ 1.0 now. Call a rapid response; have the code cart at the bedside.", opts:[
+      ["Maximizes oxygen delivery while the cause is treated",1,"She is critically hypoxemic."],
+      ["Tension pneumothorax can progress to pulseless electrical activity",1,"Be ready for arrest."],
+      ["High FiO₂ will resolve the tension",0,"Only decompression relieves it."],
+      ["FiO₂ can be weaned once she stabilizes",1,"Avoid prolonged oxygen toxicity."]
+    ]},
+    {o:"Insert a chest tube on the right after decompression; connect to water seal with −20 cm H₂O suction.", opts:[
+      ["Provides continuous drainage of air because the lung leak may continue",1,"Definitive treatment."],
+      ["Positive-pressure ventilation keeps forcing air through the leak",1,"A chest tube is required on a ventilator."],
+      ["The decompression catheter can kink or clot and tension can recur",1,"Reassess until the tube is in."],
+      ["Once the tube is in, clamp it until the x-ray is done",0,"Clamping can re-create tension."]
+    ]},
+    {o:"Chest x-ray after chest tube insertion. ABG 30 minutes after stabilization.", opts:[
+      ["Confirms tube placement and lung re-expansion",1,"Also checks central line position."],
+      ["ABG evaluates whether oxygenation and ventilation have improved",1,"Guides ventilator changes."],
+      ["The x-ray was needed before decompression",0,"Tension pneumothorax is treated on clinical findings."],
+      ["Shows whether a residual pneumothorax remains",1,"Guides further management."]
+    ]},
+    {o:"Lactated Ringer’s 500 mL bolus. Notify if MAP < 65 after decompression.", opts:[
+      ["Supports preload while venous return recovers",1,"May help blood pressure."],
+      ["Persistent hypotension after decompression needs other causes ruled out",1,"Consider bleeding or a misplaced line."],
+      ["Fluids are the main treatment for tension pneumothorax",0,"Decompression is the treatment."],
+      ["Monitor lung sounds for fluid overload",1,"She also has COPD."]
+    ]},
+    {o:"Fentanyl 25–50 mcg IV q1h PRN; titrate sedation to RASS −1 to −2.", med:true, opts:[
+      ["Chest tube insertion and presence are painful even in sedated patients",1,"Use a behavioral pain tool."],
+      ["Comfort promotes ventilator synchrony",1,"Fighting the vent raises airway pressures."],
+      ["Fentanyl reduces the size of the pneumothorax",0,"Pain management only."],
+      ["Hold or reduce if BP is low; notify the provider",1,"Opioids can lower BP."]
+    ]}
+  ],
+  teach:[
+    {o:"Do not clamp a chest tube for routine care or transport.", opts:[
+      ["Clamping traps air in the pleural space and can cause tension pneumothorax",1,"Especially on positive pressure."],
+      ["If the system must be changed, clamp only briefly and per policy",1,"Be fast and monitor."],
+      ["Clamping protects the patient during transport",0,"Keep the unit below chest level and unclamped."],
+      ["A clamped tube with worsening distress must be unclamped immediately",1,"This may relieve the tension."]
+    ]},
+    {o:"Assess the chest tube system each hour: water-seal level, tidaling (reversed on the ventilator), air leak, drainage, and dressing.", opts:[
+      ["Continuous bubbling in the water seal indicates an air leak",1,"Expected right after tension pneumo but should decrease."],
+      ["On a ventilator, the water level rises on expiration and falls on inspiration",1,"Positive pressure reverses tidaling."],
+      ["Missing tidaling always means the lung is fully re-expanded",0,"It may also mean an obstruction."],
+      ["Check the insertion site for an intact, occlusive dressing",1,"Prevents air entry."]
+    ]},
+    {o:"Mark the edges of subcutaneous emphysema with a skin marker and reassess.", opts:[
+      ["Spreading crepitus suggests a continuing air leak",1,"Report spread."],
+      ["Crepitus spreading to the face and neck can threaten the airway",1,"Watch closely."],
+      ["Subcutaneous emphysema is painful and needs immediate surgery",0,"It usually reabsorbs on its own."],
+      ["Reassure the family that it usually resolves over several days",1,"It can look alarming."]
+    ]},
+    {o:"Explain to Rosa’s family what happened, in plain language, and what the chest tube does.", opts:[
+      ["Air leaked around the lung and pressed on the heart and lung; it was released quickly",1,"Clear explanation lowers fear."],
+      ["The chest tube keeps air from building up again while the lung heals",1,"Helps them understand the equipment."],
+      ["Tell them the event was caused by the nurse",0,"Explain facts without assigning blame; the provider leads disclosure of complications."],
+      ["Invite questions and offer updates",1,"Supports family coping."]
+    ]}
+  ]
+});
+
+/* ---------- CASE: Pulmonary Edema ---------- */
+CASES.push({
+  id:"pedema", patient:"Frank Moretti", age:76, sex:"M",
+  unit:"Emergency department", complaint:"Woke up gasping — “I’m drowning”",
+  dx:["pedema"], ok:["arf"],
+  history:[
+    "Heart failure with reduced ejection fraction (EF 30%). Takes furosemide 40 mg daily, carvedilol, and sacubitril/valsartan.",
+    "Ran out of furosemide 5 days ago. Ate ham, canned soup, and pickles over the holiday weekend.",
+    "Woke at 0300 gasping for air; has slept on 3 pillows for 2 nights.",
+    "Had cataract surgery in 2019."
+  ],
+  vitals:{T:"37.0 °C",HR:"118 irregular",RR:"36",BP:"184/102",SpO2:"82% RA",Pain:"—"},
+  assess:[
+    "Sitting bolt upright, extremely anxious, diaphoretic, skin cool",
+    "Pink, frothy sputum",
+    "Crackles from bases to apices bilaterally; scattered wheezes",
+    "S3 heart sound; JVD to angle of jaw at 45°",
+    "3+ pitting edema both ankles; weight up 3.2 kg (7 lb) in 4 days"
+  ],
+  diag:[
+    ["BNP","1,840 pg/mL"],
+    ["Chest x-ray","Cardiomegaly; bilateral perihilar (‘butterfly’) infiltrates; Kerley B lines; small effusions"],
+    ["ABG (room air)","pH 7.47 · PaCO₂ 31 · PaO₂ 52 · HCO₃ 22"],
+    ["ECG","Atrial fibrillation, rate 118"],
+    ["Potassium","3.4 mEq/L"],
+    ["BUN / creatinine","28 / 1.4 mg/dL"],
+    ["Glucose","118 mg/dL"]
+  ],
+  dxNote:"Sudden severe dyspnea with pink, frothy sputum, crackles to the apices, JVD, an S3, edema, weight gain, a very high BNP, and a butterfly pattern on x-ray in a patient with HFrEF who stopped his diuretic and ate high-sodium foods is acute cardiogenic pulmonary edema. His PaO₂ of 52 also meets the definition of acute hypoxemic respiratory failure.",
+  support:[
+    ["Pink, frothy sputum",1,"Fluid and red cells forced into the alveoli — a hallmark sign."],
+    ["Crackles from bases to apices",1,"Alveoli are filling with fluid."],
+    ["Woke gasping; 3-pillow orthopnea",1,"Paroxysmal nocturnal dyspnea and orthopnea occur when fluid shifts from legs to lungs lying flat."],
+    ["S3, JVD, 3+ edema",1,"Signs of fluid overload and a failing left ventricle."],
+    ["Weight up 3.2 kg in 4 days",1,"Rapid gain reflects fluid retention."],
+    ["Ran out of furosemide; high-sodium meals",1,"Common triggers for acute decompensation."],
+    ["BNP 1,840",1,"Released from stretched ventricles; strongly supports a cardiac cause."],
+    ["Butterfly infiltrates, Kerley B lines, cardiomegaly",1,"Classic x-ray findings of cardiogenic edema."],
+    ["SpO₂ 82%, PaO₂ 52",1,"Fluid-filled alveoli block oxygen diffusion."],
+    ["Cataract surgery 2019",0,"Unrelated."],
+    ["Glucose 118",0,"Not diagnostic."],
+    ["Potassium 3.4",0,"Important for treatment (diuretics will lower it) but does not support the diagnosis."]
+  ],
+  orders:[
+    {o:"High Fowler’s position with legs dependent. Oxygen via non-rebreather; start BiPAP if no rapid improvement.", opts:[
+      ["Sitting up with legs down reduces venous return to the heart (preload)",1,"Less blood returning means less fluid backing into the lungs."],
+      ["Upright position improves lung expansion",1,"Lowers the diaphragm."],
+      ["BiPAP raises intrathoracic pressure, pushing fluid out of the alveoli and lowering preload",1,"Also reduces the work of breathing."],
+      ["Elevating the legs helps fluid return to the heart",0,"That would worsen pulmonary congestion."]
+    ]},
+    {o:"Furosemide 80 mg IV push over 4 minutes now, then reassess. Strict I&O; indwelling urinary catheter.", med:true, opts:[
+      ["Loop diuretic removes excess fluid through the kidneys",1,"Diuresis begins within about 30 minutes."],
+      ["IV furosemide causes venodilation within minutes, lowering preload even before diuresis",1,"Early relief of congestion."],
+      ["Give no faster than 20 mg/min to prevent ototoxicity",1,"Rapid IV push can cause hearing damage."],
+      ["Furosemide spares potassium, so his K⁺ of 3.4 will rise",0,"It wastes potassium; his level will fall further."],
+      ["Accurate output measurement shows response to diuresis",1,"The catheter allows hourly measurement."]
+    ]},
+    {o:"Nitroglycerin 0.4 mg SL q5min × 3, then IV infusion starting at 10 mcg/min; titrate to dyspnea and SBP. Hold for SBP < 100.", med:true, opts:[
+      ["Venous dilation lowers preload and pulmonary congestion",1,"Nitrates act fast."],
+      ["At higher doses it also lowers afterload, helping the weak ventricle eject",1,"Arterial dilation."],
+      ["Ask about phosphodiesterase-5 inhibitors (such as sildenafil) before giving",1,"The combination can cause severe hypotension."],
+      ["Nitroglycerin increases cardiac contractility",0,"It is a vasodilator, not an inotrope."],
+      ["Headache is a common side effect",1,"From cerebral vasodilation."]
+    ]},
+    {o:"Potassium chloride 20 mEq PO now. BMP every 6 hours. Continuous cardiac monitoring.", med:true, opts:[
+      ["Diuresis will drop potassium further",1,"Furosemide is potassium-wasting."],
+      ["Hypokalemia increases the risk of dangerous dysrhythmias",1,"He is already in atrial fibrillation."],
+      ["Frequent BMPs track potassium and kidney function during diuresis",1,"His creatinine is already 1.4."],
+      ["Potassium chloride may be given as an IV push for faster effect",0,"Never give potassium IV push; it can cause cardiac arrest."]
+    ]},
+    {o:"Daily weight before breakfast. 2 g sodium diet. Fluid restriction 1.5 L/day. Echocardiogram.", opts:[
+      ["Daily weight is the best indicator of fluid balance",1,"1 kg ≈ 1 L of fluid."],
+      ["Sodium restriction limits fluid retention",1,"Water follows sodium."],
+      ["Fluid restriction helps reduce volume overload",1,"Common in decompensated HF."],
+      ["The echocardiogram shows the cause of the edema is in the lungs",0,"It evaluates heart function — EF, valves, and wall motion."]
+    ]}
+  ],
+  teach:[
+    {o:"Weigh yourself every morning after urinating, before eating, on the same scale, in similar clothing. Report a gain of 2–3 lb in a day or 5 lb in a week.", opts:[
+      ["Weight gain is often the first sign of fluid build-up, before symptoms",1,"Early warning lets the provider adjust treatment."],
+      ["Using the same conditions makes the numbers comparable",1,"Consistency matters."],
+      ["Only report weight gain if he also feels short of breath",0,"Report the weight gain itself."],
+      ["Keep a written log to bring to appointments",1,"Helps the provider see trends."]
+    ]},
+    {o:"Limit sodium to 2,000 mg per day. Read labels; avoid processed meats, canned soups, pickles, and fast food.", opts:[
+      ["Sodium causes the body to hold water",1,"This triggered his admission."],
+      ["Much dietary sodium is hidden in processed and canned food",1,"Label reading is essential."],
+      ["Sea salt is a safe substitute because it is natural",0,"Sea salt has similar sodium."],
+      ["Ask before using salt substitutes, which often contain potassium",1,"May interact with his medications."]
+    ]},
+    {o:"Take all heart medications every day, even when you feel well. Refill before running out.", opts:[
+      ["Running out of furosemide led to this episode",1,"Connect the behavior to the outcome."],
+      ["Medications control symptoms but do not cure heart failure",1,"Stopping them allows fluid to return."],
+      ["Skip furosemide on days he plans to go out to avoid urination",0,"Adjust timing with the provider instead of skipping."],
+      ["Take furosemide in the morning to avoid waking at night to urinate",1,"Improves adherence."]
+    ]},
+    {o:"Rise slowly from lying or sitting. Report dizziness, muscle cramps, or a very fast or irregular heartbeat.", opts:[
+      ["Diuretics and vasodilators can cause orthostatic hypotension",1,"Prevents falls."],
+      ["Muscle cramps and palpitations may signal low potassium",1,"Labs should be checked."],
+      ["Dizziness is normal and never needs reporting",0,"It can mean low BP or volume depletion."],
+      ["He is at higher fall risk because of his age and medications",1,"Safety teaching."]
+    ]},
+    {o:"Call 911 for severe shortness of breath, pink frothy sputum, or chest pain. Call the provider for needing more pillows to sleep, new swelling, or reduced activity tolerance.", opts:[
+      ["Severe symptoms mean pulmonary edema is returning and needs emergency care",1,"Do not drive himself."],
+      ["Worsening orthopnea and swelling are early warning signs",1,"Early treatment can prevent admission."],
+      ["He should take an extra furosemide dose and wait 2 days",0,"Follow the provider’s action plan; do not delay care."],
+      ["A written HF action plan with green, yellow, and red zones helps him decide what to do",1,"Supports self-management."]
+    ]}
+  ]
+});
+
+</script>
+<script>
+(function(){
+const ORDER = ["htx","ards","pe","ptx","fes","arf","pedema","flail","tptx"];
+const BYID = Object.fromEntries(CASES.map(c=>[c.id,c]));
+const LIST = ORDER.map(id=>BYID[id]);
+const STAGES = ["Diagnosis","Evidence","MD orders","Teaching","Summary"];
+const KEY = "breathless-rounds-v1";
+const app = document.getElementById("app");
+
+let S = {};
+try { S = JSON.parse(localStorage.getItem(KEY)||"{}") || {}; } catch(e){ S = {}; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+let view = {caseId:null};
+let pending = new Set();
+
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function hash(str){ let h=2166136261; for(const ch of str){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619);} return h>>>0; }
+function shuffled(n, seed){ const a=[...Array(n).keys()]; let s=hash(seed)||1;
+  for(let i=n-1;i>0;i--){ s=Math.imul(s^(s>>>15),2246822519)>>>0; s^=s<<13; s>>>=0; const j=s%(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function st(id){ if(!S[id]) S[id]={stage:0,dx:null,support:null,orders:[],teach:[],idx:0}; return S[id]; }
+
+/* Score a multi-select: every option is one decision */
+function scoreOpts(opts, sel){ let right=0; opts.forEach((o,i)=>{ if(!!o[1]===sel.includes(i)) right++; }); return {right,total:opts.length}; }
+function scoreDx(c, sel){ let right=0; DX.forEach(d=>{ const req=c.dx.includes(d.id), okx=c.ok.includes(d.id), s=sel.includes(d.id);
+  if(req? s : (okx || !s)) right++; }); return {right,total:DX.length}; }
+function caseScore(c){ const s=st(c.id); let r=0,t=0; const parts={};
+  if(s.dx){ const x=scoreDx(c,s.dx); parts.dx=x; r+=x.right; t+=x.total; }
+  if(s.support){ const x=scoreOpts(c.support,s.support); parts.support=x; r+=x.right; t+=x.total; }
+  for(const k of ["orders","teach"]){ let a=0,b=0; s[k].forEach((sel,i)=>{ if(sel){ const x=scoreOpts(c[k][i].opts,sel); a+=x.right; b+=x.total; }}); if(b){parts[k]={right:a,total:b};} r+=a; t+=b; }
+  return {right:r,total:t,parts}; }
+function pct(x){ return x.total? Math.round(100*x.right/x.total) : 0; }
+
+/* ---------- HOME ---------- */
+function home(){
+  view.caseId=null;
+  let done=0, r=0, t=0;
+  LIST.forEach(c=>{ const s=st(c.id); if(s.stage>=4) done++; const x=caseScore(c); r+=x.right; t+=x.total; });
+  app.innerHTML = `
+  <header class="mast">
+    <div><div class="eyebrow">Critical respiratory emergencies · Case rounds</div>
+    <h1>Breath<span>less</span></h1></div>
+    <svg class="trace" viewBox="0 0 220 44" aria-hidden="true"><path d="M0 30 L40 30 L50 30 L56 12 L62 38 L70 30 L110 30 L118 30 L124 8 L130 40 L138 30 L180 30 L186 22 L192 34 L198 30 L220 30"/></svg>
+  </header>
+  <section class="intro">
+    <div>
+      <p>Nine patients, nine respiratory emergencies. Each case gives you the history, vital signs, assessment, and diagnostics. Work through it the way you would at the bedside.</p>
+      <p class="hint">Diagnoses covered: pulmonary embolism, fat embolism, flail chest, ARDS, acute respiratory failure, pneumothorax, hemothorax, tension pneumothorax, and pulmonary edema. Cases appear in random order, so the patient’s name won’t give it away.</p>
+    </div>
+    <ol class="steps">
+      <li><span><b>Diagnose.</b> Select every diagnosis the case fits.</span></li>
+      <li><span><b>Gather evidence.</b> Select the data that support your diagnosis.</span></li>
+      <li><span><b>Work the orders.</b> For each MD order, select every correct rationale.</span></li>
+      <li><span><b>Teach and intervene.</b> Select every correct rationale for each teaching point.</span></li>
+    </ol>
+  </section>
+  <div class="tally">
+    <span>Cases completed <b>${done}</b>/9</span>
+    <span>Overall accuracy <b>${t?pct({right:r,total:t})+"%":"—"}</b></span>
+    <button class="reset" id="resetAll">Clear all answers</button>
+  </div>
+  <div class="grid">
+    ${LIST.map((c,i)=>{ const s=st(c.id); const x=caseScore(c);
+      const pill = s.stage>=4 ? `<span class="pill done">${pct(x)}% · done</span>` : (x.total? `<span class="pill go">In progress</span>` : `<span class="pill">Not started</span>`);
+      return `<button class="card" data-open="${c.id}">
+        <div class="top"><span class="eyebrow">Case ${i+1}</span>${pill}</div>
+        <h3>${esc(c.patient)}, ${c.age}${c.sex}</h3>
+        <div class="meta">${esc(c.unit)}</div>
+        <div class="cc">${esc(c.complaint)}</div>
+      </button>`; }).join("")}
+  </div>
+  ${chestRef()}
+  `;
+  app.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openCase(b.dataset.open));
+  const rb=document.getElementById("resetAll"); let armed=false;
+  rb.onclick=()=>{ if(!armed){ armed=true; rb.textContent="Click again to clear everything"; return;} S={}; save(); home(); };
+}
+
+function chestRef(){ return `
+  <details class="ref"><summary>Chest tube field notes</summary>
+  <div class="refbody">
+    <div class="chambers">
+      <div class="ch"><span class="eyebrow">Chamber 1</span><h4>Collection</h4><p>Drainage from the pleural space collects here. Mark the level and time each shift (hourly after trauma). Note amount, color, and consistency.</p></div>
+      <div class="ch"><span class="eyebrow">Chamber 2</span><h4>Water seal</h4><div class="fluid" aria-hidden="true"></div><p>About 2 cm of water acts as a one-way valve. Expect <b>tidaling</b> (rises on inspiration, falls on expiration; reversed on a ventilator). <b>Continuous bubbling</b> means an air leak.</p></div>
+      <div class="ch"><span class="eyebrow">Chamber 3</span><h4>Suction control</h4><p>Wet: water level (usually 20 cm) sets suction; gentle continuous bubbling is expected. Dry: a dial sets suction and an indicator shows it is working.</p></div>
+    </div>
+    <ul class="reflist">
+      <li>Keep the unit upright and below chest level. Keep tubing free of kinks and dependent loops.</li>
+      <li>Do not clamp for routine care or transport — clamping can cause tension pneumothorax.</li>
+      <li>Tube out of the chest: occlusive dressing taped on three sides; call the provider.</li>
+      <li>Tube disconnected from the unit: submerge the end 2 cm in sterile water; reconnect a new system.</li>
+      <li>Do not routinely strip or milk tubing.</li>
+      <li>Report drainage ≥ 1,500 mL initially or 200 mL/hr for 2–4 hours, new or increased air leak, spreading subcutaneous emphysema, or sudden respiratory distress.</li>
+      <li>Removal: premedicate; patient holds breath or bears down as the tube is pulled; occlusive dressing; chest x-ray.</li>
+    </ul>
+  </div></details>`; }
+
+/* ---------- CASE ---------- */
+function openCase(id){ view.caseId=id; pending=new Set(); renderCase(); window.scrollTo(0,0); }
+
+function chartHTML(c, open){
+  const v=c.vitals;
+  const vit=[["TEMP",v.T],["HR",v.HR],["RR",v.RR],["BP",v.BP],["SpO₂",v.SpO2],["PAIN",v.Pain]];
+  return `<details class="chart" ${open?"open":""}><summary><b>Patient chart</b><span class="eyebrow">tap to ${open?"hide":"show"}</span></summary>
+  <div class="cbody">
+    <div><h4>History</h4><ul>${c.history.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
+    <div><h4>Vital signs</h4><div class="vitals">${vit.map(([k,x])=>`<div><small>${k}</small><b>${esc(x)}</b></div>`).join("")}</div></div>
+    <div><h4>Assessment</h4><ul>${c.assess.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
+    <div><h4>Diagnostics</h4><table class="diag">${c.diag.map(([a,b])=>`<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join("")}</table></div>
+  </div></details>`;
+}
+
+function renderCase(){
+  const c=BYID[view.caseId], s=st(c.id), num=LIST.indexOf(c)+1;
+  const step = STAGES.map((n,i)=>`<div class="${i===s.stage?"on":(i<s.stage?"past":"")}">${i<4?(i+1)+" ":""}${n}</div>`).join("");
+  const wide = window.matchMedia("(min-width: 861px)").matches;
+  app.innerHTML = `
+  <div class="bar">
+    <button class="back" id="back">← All cases</button>
+    <div class="who"><b>Case ${num}: ${esc(c.patient)}, ${c.age}${c.sex}</b><span>${esc(c.unit)}</span></div>
+    <div class="stepper">${step}</div>
+  </div>
+  <div class="layout">
+    ${chartHTML(c, wide || s.stage===0)}
+    <section class="panel" id="panel"></section>
+  </div>`;
+  document.getElementById("back").onclick=home;
+  const ch=app.querySelector(".chart"); ch.addEventListener("toggle",()=>{ ch.querySelector("summary .eyebrow").textContent="tap to "+(ch.open?"hide":"show"); });
+  const p=document.getElementById("panel");
+  if(s.stage===0) stageDx(c,s,p);
+  else if(s.stage===1) stageSupport(c,s,p);
+  else if(s.stage===2) stageList(c,s,p,"orders");
+  else if(s.stage===3) stageList(c,s,p,"teach");
+  else summary(c,s,p);
+}
+
+function verdictHTML(x, extra){
+  const perfect = x.right===x.total;
+  return `<div class="verdict ${perfect?"good":"part"}"><b>${perfect?"All correct":`${x.right} of ${x.total} choices correct`}</b>${extra?`<p>${esc(extra)}</p>`:""}</div>`;
+}
+const LEG = {hit:"Correct", wrong:"Incorrect choice", miss:"Missed — this was correct", ok:"Not selected — correct to leave", acc:"Also accepted"};
+
+/* Stage 1: diagnosis */
+function stageDx(c,s,p){
+  const answered = !!s.dx;
+  const sel = answered ? s.dx : [...pending];
+  p.innerHTML = `
+    <div class="qhead"><h2>Which diagnoses fit?</h2><span class="count">Select all that apply</span></div>
+    <p class="hint">Review the full chart. Some cases fit more than one diagnosis.</p>
+    <div class="dxgrid">${DX.map(d=>{
+      const on=sel.includes(d.id); let cls="", tag="", note="";
+      if(answered){ const req=c.dx.includes(d.id), okx=c.ok.includes(d.id);
+        if(req&&on){cls="r-hit";tag=LEG.hit;} else if(req){cls="r-miss";tag=LEG.miss;}
+        else if(okx&&on){cls="r-hit";tag=LEG.acc;} else if(on){cls="r-wrong";tag=LEG.wrong;} }
+      return `<label class="opt ${on?"sel":""} ${answered?"locked "+cls:""}"><input type="checkbox" data-dx="${d.id}" ${on?"checked":""} ${answered?"disabled":""}><span>${tag?`<span class="tag">${tag}</span><br>`:""}${esc(d.name)}</span></label>`; }).join("")}</div>
+    ${answered? verdictHTML(scoreDx(c,s.dx), c.dxNote) : ""}
+    <div class="actions">${answered? `<button class="btn" id="next">Next: gather the evidence →</button>` : `<button class="btn" id="submit" ${sel.length?"":"disabled"}>Check diagnosis</button>`}</div>`;
+  if(!answered){
+    p.querySelectorAll("[data-dx]").forEach(cb=>cb.onchange=()=>{ cb.checked?pending.add(cb.dataset.dx):pending.delete(cb.dataset.dx); cb.closest(".opt").classList.toggle("sel",cb.checked); document.getElementById("submit").disabled=!pending.size; });
+    document.getElementById("submit").onclick=()=>{ s.dx=[...pending]; pending=new Set(); save(); stageDx(c,s,p); };
+  } else document.getElementById("next").onclick=()=>{ s.stage=1; save(); renderCase(); window.scrollTo(0,0); };
+}
+
+/* generic option list (support / orders / teaching) */
+function optsHTML(opts, sel, answered, seed){
+  const order = shuffled(opts.length, seed);
+  return `<div class="opts">${order.map(i=>{ const o=opts[i]; const on=sel.includes(i); let cls="", tag="";
+    if(answered){ if(o[1]&&on){cls="r-hit";tag=LEG.hit;} else if(o[1]){cls="r-miss";tag=LEG.miss;} else if(on){cls="r-wrong";tag=LEG.wrong;} else {cls="r-ok";tag=LEG.ok;} }
+    return `<label class="opt ${on&&!answered?"sel":""} ${answered?"locked "+cls:""}"><input type="checkbox" data-i="${i}" ${on?"checked":""} ${answered?"disabled":""}><span>${tag?`<span class="tag">${tag}</span><br>`:""}${esc(o[0])}${answered&&o[2]?`<span class="note">${esc(o[2])}</span>`:""}</span></label>`; }).join("")}</div>`;
+}
+function wireOpts(p){ p.querySelectorAll("[data-i]").forEach(cb=>cb.onchange=()=>{ const i=+cb.dataset.i; cb.checked?pending.add(i):pending.delete(i); cb.closest(".opt").classList.toggle("sel",cb.checked); const b=document.getElementById("submit"); if(b) b.disabled=!pending.size; }); }
+
+/* Stage 2: supporting data */
+function stageSupport(c,s,p){
+  const answered=!!s.support, sel=answered?s.support:[...pending];
+  const names=c.dx.map(id=>DX.find(d=>d.id===id).name).join(" + ");
+  p.innerHTML = `
+    <div class="qhead"><h2>What supports the diagnosis?</h2><span class="count">Select all that apply</span></div>
+    <p class="hint">Diagnosis: <b>${esc(names)}</b>. Choose the findings that support it. Leave out data that are normal, unrelated, or only rule something else out.</p>
+    ${optsHTML(c.support, sel, answered, c.id+"-sup")}
+    ${answered? verdictHTML(scoreOpts(c.support,s.support)) : ""}
+    <div class="actions">${answered? `<button class="btn" id="next">Next: MD orders →</button>` : `<button class="btn" id="submit" ${sel.length?"":"disabled"}>Check evidence</button>`}</div>`;
+  if(!answered){ wireOpts(p); document.getElementById("submit").onclick=()=>{ s.support=[...pending]; pending=new Set(); save(); stageSupport(c,s,p); }; }
+  else document.getElementById("next").onclick=()=>{ s.stage=2; s.idx=0; save(); renderCase(); window.scrollTo(0,0); };
+}
+
+/* Stage 3 & 4: orders / teaching, one at a time */
+function stageList(c,s,p,key){
+  const items=c[key], i=s.idx||0, item=items[i];
+  const answered=!!s[key][i], sel=answered?s[key][i]:[...pending];
+  const isOrders=key==="orders";
+  const last=i===items.length-1;
+  const nextLabel = !last ? (isOrders?"Next order →":"Next teaching point →") : (isOrders?"Next: interventions & teaching →":"See case summary →");
+  p.innerHTML = `
+    <div class="qhead"><h2>${isOrders?"MD orders":"Interventions & teaching"}</h2><span class="count">${isOrders?"Order":"Point"} ${i+1} of ${items.length}</span></div>
+    <div class="order ${item.med?"med":""}">${item.med?`<span class="pill med">Medication</span><br>`:""}${esc(item.o)}</div>
+    <p class="hint">Select every correct rationale for this ${isOrders?"order":"intervention or teaching point"}.</p>
+    ${optsHTML(item.opts, sel, answered, c.id+key+i)}
+    ${answered? verdictHTML(scoreOpts(item.opts,s[key][i])) : ""}
+    <div class="actions">
+      ${i>0?`<button class="btn ghost" id="prev">← Previous</button>`:""}
+      ${answered? `<button class="btn" id="next">${nextLabel}</button>` : `<button class="btn" id="submit" ${sel.length?"":"disabled"}>Check rationales</button>`}
+    </div>`;
+  if(i>0) document.getElementById("prev").onclick=()=>{ s.idx=i-1; pending=new Set(); save(); stageList(c,s,p,key); };
+  if(!answered){ wireOpts(p); document.getElementById("submit").onclick=()=>{ s[key][i]=[...pending]; pending=new Set(); save(); stageList(c,s,p,key); }; }
+  else document.getElementById("next").onclick=()=>{
+    pending=new Set();
+    if(!last){ s.idx=i+1; save(); stageList(c,s,p,key); p.scrollIntoView({block:"start"}); }
+    else { s.stage+=1; s.idx=0; save(); renderCase(); window.scrollTo(0,0); } };
+}
+
+/* Summary */
+function summary(c,s,p){
+  const x=caseScore(c), pr=x.parts;
+  const names=c.dx.map(id=>DX.find(d=>d.id===id).name).join(" + ");
+  const idx=LIST.indexOf(c); const nxt=LIST.slice(idx+1).concat(LIST.slice(0,idx)).find(k=>st(k.id).stage<4);
+  const row=(label,k)=> pr[k]?`<div><span class="eyebrow">${label}</span><b>${pct(pr[k])}%</b><span class="count">${pr[k].right}/${pr[k].total}</span></div>`:"";
+  p.innerHTML = `
+    <span class="eyebrow">Case complete</span>
+    <h2>${esc(names)}</h2>
+    <div class="big">${pct(x)}%</div>
+    <p class="hint">${x.right} of ${x.total} decisions correct across all four stages.</p>
+    <div class="scores">${row("Diagnosis","dx")}${row("Evidence","support")}${row("MD orders","orders")}${row("Teaching","teach")}</div>
+    <p>${esc(c.dxNote)}</p>
+    <div class="actions">
+      ${nxt?`<button class="btn" id="nextCase">Next case →</button>`:""}
+      <button class="btn ghost" id="redo">Redo this case</button>
+      <button class="btn ghost" id="toHome">All cases</button>
+    </div>`;
+  if(nxt) document.getElementById("nextCase").onclick=()=>openCase(nxt.id);
+  document.getElementById("toHome").onclick=home;
+  const r=document.getElementById("redo"); let armed=false;
+  r.onclick=()=>{ if(!armed){armed=true; r.textContent="Click again to clear this case"; return;} delete S[c.id]; save(); openCase(c.id); };
+}
+
+home();
+})();
+
+</script>
+
+</body></html>

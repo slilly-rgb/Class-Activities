@@ -1,0 +1,1302 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Hematology Pathways</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: sticky progress bar, left section rail (select on phones), one reading column; blood red vs. platelet blue as the two working colors */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --sunk:#E8ECF2; --line:#D3DAE4;
+  --ink:#16202E; --muted:#56627A;
+  --art:#A8233A; --art-soft:#F7E4E8;
+  --ven:#2C5590; --ven-soft:#E2EAF6;
+  --ok:#1D7A4E; --ok-soft:#DFF2E8; --bad:#B4321F; --bad-soft:#FBE5E0; --warn:#9A6A08; --warn-soft:#FBF0D6;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F141C; --surface:#18202B; --sunk:#202A37; --line:#2E3A4A;
+  --ink:#E7ECF3; --muted:#9AA7BA;
+  --art:#F0697F; --art-soft:#3A1E26; --ven:#7FA7E6; --ven-soft:#1B2A42;
+  --ok:#5CC994; --ok-soft:#15302A; --bad:#F2846E; --bad-soft:#3A201B; --warn:#E5B54D; --warn-soft:#332A14;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F141C; --surface:#18202B; --sunk:#202A37; --line:#2E3A4A;
+  --ink:#E7ECF3; --muted:#9AA7BA;
+  --art:#F0697F; --art-soft:#3A1E26; --ven:#7FA7E6; --ven-soft:#1B2A42;
+  --ok:#5CC994; --ok-soft:#15302A; --bad:#F2846E; --bad-soft:#3A201B; --warn:#E5B54D; --warn-soft:#332A14;
+  color-scheme:dark}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:16px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{flex:none}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:19px;letter-spacing:-.01em;white-space:nowrap}
+.brand span{font-size:13px;color:var(--muted);white-space:nowrap}
+.prog{margin-left:auto;display:flex;align-items:center;gap:10px;min-width:0}
+.prog-bar{width:160px;height:8px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.prog-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--art),var(--ven));transition:width .4s}
+.prog-txt{font:600 13px var(--f-mono);color:var(--muted);white-space:nowrap}
+@media (max-width:620px){.brand span{display:none}.prog-bar{width:80px}}
+@media (max-width:460px){.prog-bar{display:none}.brand b{font-size:17px}.brand{flex:1 1 auto}}
+
+/* shell */
+.shell{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr);gap:40px;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:900px){.shell{grid-template-columns:minmax(0,1fr);gap:16px;padding-top:16px}}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px);align-self:start}
+@media (max-width:900px){.rail{display:none}}
+.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.rail a{text-decoration:none;box-sizing:border-box;width:100%;display:grid;grid-template-columns:26px 1fr 18px;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:15px;color:var(--muted)}
+.rail a:hover{background:var(--sunk);color:var(--ink)}
+.rail a:focus-visible{outline:2px solid var(--ven);outline-offset:1px}
+.rail a[aria-current="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:inset 3px 0 0 var(--art)}
+.rail .n{font:600 12px var(--f-mono);color:var(--muted)}
+.rail .ck{font-size:13px;color:var(--ok);text-align:right}
+.rail .grp{font:700 11px var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:14px 10px 4px}
+.mnav{display:block;margin-bottom:20px;max-width:760px}
+@media (min-width:901px){.mnav{display:none}}
+.mnav label{display:block;font:700 11px var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.mnav select{width:100%;font:600 16px var(--f-body);padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+
+.jump-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.jump-card{display:flex;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);text-decoration:none;font-weight:600}
+.jump-card:hover{border-color:var(--art)}
+.jump-card:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.jump-card .n{font:700 12px var(--f-mono);color:var(--art)}
+.sec+.sec{margin-top:56px}
+.js .sec+.sec{margin-top:0}
+.concepts{display:flex;flex-direction:column;gap:14px}
+.concept{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.c-top{display:flex;gap:10px;align-items:baseline}
+.c-num{font:700 12px var(--f-mono);color:var(--art);flex:none}
+.sec .concept h4{margin:0;font-size:20px}
+.c-rule{font-size:17px;font-weight:600;max-width:66ch}
+.c-eq{background:var(--sunk);border-radius:8px;padding:8px 12px;font-size:14.5px;align-self:flex-start;max-width:100%;overflow-wrap:anywhere}
+.c-ana{color:var(--muted);font-size:15.5px;max-width:66ch}
+.c-ana b{color:var(--ink)}
+.c-where{border-top:1px dashed var(--line);padding-top:10px;font-size:15.5px}
+.c-where b{font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ven);display:block;margin-bottom:4px}
+.c-where ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:3px}
+.ctags{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+.ctag{display:inline-block;font:700 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:99px;border:1px dashed var(--ven);color:var(--ven);background:var(--surface)}
+
+.anim{margin:16px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px;max-width:100%}
+.anim-h{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap}
+.sec .anim-h h4{margin:0;font-size:17px}
+.anim-ctl{display:flex;gap:6px;flex-wrap:wrap}
+.chipbtn{all:unset;box-sizing:border-box;cursor:pointer;font:700 13px var(--f-body);padding:6px 12px;border-radius:99px;border:1px solid var(--line);color:var(--ink);background:var(--bg)}
+.chipbtn:hover{border-color:var(--ven)}
+.chipbtn:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.chipbtn.anim-mode[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.anim svg{width:100%;height:auto;display:block;max-width:100%}
+.anim figcaption{font-size:15px;color:var(--muted);max-width:68ch}
+.anim.paused *{animation-play-state:paused!important}
+.anim svg *{transform-box:fill-box}
+.anim .sc{transform-origin:center}
+.anim .scl{transform-origin:0 50%}
+.anim .scb{transform-origin:50% 100%}
+.f-art{fill:var(--art)}.f-ven{fill:var(--ven)}.f-warn{fill:var(--warn)}.f-bad{fill:var(--bad)}.f-ink{fill:var(--ink)}.f-sunk{fill:var(--sunk)}.f-surf{fill:var(--surface)}.f-line{fill:var(--line)}.f-artsoft{fill:var(--art-soft)}.f-vensoft{fill:var(--ven-soft)}
+.nf{fill:none}.s-ink{stroke:var(--ink)}.s-art{stroke:var(--art)}.s-ven{stroke:var(--ven)}.s-bad{stroke:var(--bad)}.s-warn{stroke:var(--warn)}
+.anim .t{fill:var(--ink);font:600 15px var(--f-body)}
+.anim .tm{fill:var(--muted);font:500 13px var(--f-body)}
+.anim .tb{font-weight:800}
+.anim .mono{font-family:var(--f-mono)}
+@keyframes mv{from{transform:translate(0,0)}to{transform:translate(var(--dx,0px),var(--dy,0px))}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(var(--dy,-8px))}}
+@keyframes beat{0%,100%{transform:scale(1)}18%{transform:scale(1.07)}36%{transform:scale(1)}}
+@keyframes leak{0%{transform:translateX(0);opacity:0}20%{opacity:1}100%{transform:translateX(var(--dx));opacity:0}}
+@keyframes pezone{0%,68%{opacity:0}78%,95%{opacity:.55}100%{opacity:0}}
+@keyframes swell{from{transform:scaleX(1)}to{transform:scaleX(2.6)}}
+@keyframes gauge{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
+@keyframes extend{0%{transform:scaleX(0)}80%,100%{transform:scaleX(1)}}
+@keyframes b12n{0%{transform:translate(0,0);opacity:1}20%{transform:translate(70px,0)}65%{transform:translate(390px,0)}80%{transform:translate(390px,92px);opacity:1}92%,100%{transform:translate(470px,92px);opacity:0}}
+@keyframes ifn{0%,17%{transform:translate(0,0);opacity:0}20%{transform:translate(0,0);opacity:1}65%{transform:translate(320px,0)}80%{transform:translate(320px,92px);opacity:1}92%,100%{transform:translate(400px,92px);opacity:0}}
+@keyframes b12p{0%{transform:translate(0,0);opacity:1}85%{transform:translate(500px,0);opacity:1}100%{transform:translate(530px,0);opacity:0}}
+@keyframes jam{0%{transform:translateX(0);opacity:0}8%{opacity:1}55%,92%{transform:translateX(var(--dx));opacity:1}100%{transform:translateX(var(--dx));opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(.8);opacity:.35}50%{transform:scale(1.4);opacity:.7}}
+@keyframes plug{0%{transform:translate(0,0);opacity:0}8%{opacity:1}45%,92%{transform:translate(var(--dx),var(--dy));opacity:1}100%{transform:translate(var(--dx),var(--dy));opacity:0}}
+@keyframes dropstop{0%{transform:translateY(0);opacity:1}12%{transform:translateY(-28px);opacity:0}100%{opacity:0}}
+@keyframes drip{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-34px);opacity:0}}
+@keyframes fibrin{0%,25%{opacity:0}45%,92%{opacity:1}100%{opacity:0}}
+@keyframes plugfail{0%,45%{transform:translate(0,0);opacity:1}65%,95%{transform:translate(6px,-12px);opacity:.25}100%{opacity:1;transform:translate(0,0)}}
+@keyframes leaklate{0%,55%{opacity:0;transform:translateY(0)}62%{opacity:1}75%{opacity:0;transform:translateY(-32px)}100%{opacity:0}}
+@keyframes dicclot{0%{opacity:0}8%,85%{opacity:1}95%,100%{opacity:0}}
+@keyframes dicbleed{0%,52%{opacity:0;transform:translateY(0)}60%{opacity:1}75%{opacity:0;transform:translateY(var(--dy))}100%{opacity:0}}
+@keyframes dicbar{0%{transform:scaleX(1)}50%,90%{transform:scaleX(.12)}100%{transform:scaleX(1)}}
+@keyframes dicl1{0%,47%{opacity:1}50%,100%{opacity:0}}
+@keyframes dicl2{0%,48%{opacity:0}52%,96%{opacity:1}100%{opacity:0}}
+@keyframes abomove{0%,15%{transform:translate(0,0)}50%,100%{transform:translate(var(--dx),var(--dy))}}
+@keyframes burst{0%,55%{transform:scale(1);opacity:1}70%{transform:scale(1.15);opacity:.6}80%,96%{transform:scale(1.3);opacity:0}100%{transform:scale(1);opacity:0}}
+
+.ctag{cursor:pointer;font-family:var(--f-body)}
+button.ctag{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font:700 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:99px;border:1px dashed var(--ven);color:var(--ven);background:var(--surface)}
+button.ctag::after{content:"i";display:inline-grid;place-items:center;width:14px;height:14px;border-radius:50%;background:var(--ven);color:var(--surface);font:700 10px var(--f-mono);text-transform:none;letter-spacing:0}
+button.ctag:hover,button.ctag[aria-expanded="true"]{background:var(--ven-soft);border-style:solid}
+button.ctag:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.cpop{position:absolute;z-index:30;width:min(380px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 14px 40px rgba(10,20,40,.22);padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px}
+.cpop[hidden]{display:none!important}
+.cpop-top{display:flex;justify-content:space-between;align-items:center}
+.cpop h4{margin:0;font-size:19px}
+.cpop .c-rule{font-size:16px}
+.cpop .c-eq:empty{display:none}
+.cpop-x{all:unset;cursor:pointer;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;font-size:22px;line-height:1;color:var(--muted)}
+.cpop-x:hover{background:var(--sunk);color:var(--ink)}
+.cpop-x:focus-visible{outline:2px solid var(--ven)}
+.cpop .cpop-go{align-self:flex-start;margin-top:4px}
+@media (max-width:600px){.cpop{position:fixed;top:auto!important;left:max(12px,env(safe-area-inset-left,0px))!important;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:auto;max-height:70vh;overflow:auto}}
+
+/* content */
+main{min-width:0}
+.sec{max-width:760px}
+.eyebrow{font:700 12px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--art);margin-bottom:8px}
+.sec h2{font-size:clamp(30px,4.5vw,42px);font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
+.lede{font-size:19px;color:var(--muted);max-width:62ch;margin-bottom:28px}
+.sec h3{font-size:22px;font-weight:700;margin:36px 0 12px}
+.sec h4{font-size:17px;font-weight:700;margin:22px 0 8px}
+.prose{display:flex;flex-direction:column;gap:12px;max-width:66ch}
+.prose ul,.prose ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.prose strong{color:var(--ink)}
+.callout{border-radius:var(--r);padding:14px 16px;background:var(--sunk);display:flex;flex-direction:column;gap:6px;max-width:66ch}
+.callout b.lbl{font:700 12px var(--f-body);letter-spacing:.09em;text-transform:uppercase}
+.callout.art{background:var(--art-soft)} .callout.art b.lbl{color:var(--art)}
+.callout.ven{background:var(--ven-soft)} .callout.ven b.lbl{color:var(--ven)}
+.callout.warn{background:var(--warn-soft)} .callout.warn b.lbl{color:var(--warn)}
+.tbl-wrap{overflow-x:auto;margin:6px 0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 12px var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td.k{font-weight:700;white-space:nowrap}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:620px){.two{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.panel h4{margin:0}
+.panel ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15.5px}
+.tag{display:inline-block;font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:99px}
+.tag.art{background:var(--art-soft);color:var(--art)} .tag.ven{background:var(--ven-soft);color:var(--ven)}
+
+/* objectives */
+.objs{counter-reset:o;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;max-width:66ch}
+.objs li{counter-increment:o;display:grid;grid-template-columns:34px 1fr;gap:10px}
+.objs li::before{content:counter(o,decimal-leading-zero);font:700 13px var(--f-mono);color:var(--art);padding-top:3px}
+.how{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:6px}
+@media (max-width:620px){.how{grid-template-columns:1fr}}
+.how .panel p{font-size:15.5px;color:var(--muted)}
+
+/* term cards */
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.term{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;min-height:118px;display:flex;flex-direction:column;gap:6px}
+.term:hover{border-color:var(--ven)}
+.term:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.term b{font-family:var(--f-display);font-size:18px}
+.term .hint{font-size:13px;color:var(--muted)}
+.term .def{font-size:15px;line-height:1.45}
+.term[aria-pressed="true"]{background:var(--ven-soft);border-color:transparent}
+.parts td:first-child{font-family:var(--f-mono);font-weight:700;color:var(--ven)}
+
+/* tools */
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px;margin:8px 0}
+.tool-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tool-h h4{margin:0}
+.tool-h span{font-size:13px;color:var(--muted)}
+.fields{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font:700 12px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.field input{width:110px;font:700 20px var(--f-mono);padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.field select{font:600 16px var(--f-body);padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.field input:focus{outline:2px solid var(--ven);outline-offset:1px}
+.readout{display:flex;gap:10px;flex-wrap:wrap}
+.chip{border-radius:8px;padding:10px 14px;background:var(--sunk);display:flex;flex-direction:column;gap:2px;min-width:120px}
+.chip small{font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chip b{font:700 18px var(--f-mono)}
+.chip.lvl-0{background:var(--ok-soft)} .chip.lvl-0 b{color:var(--ok)}
+.chip.lvl-1{background:var(--warn-soft)} .chip.lvl-1 b{color:var(--warn)}
+.chip.lvl-2{background:var(--art-soft)} .chip.lvl-2 b{color:var(--art)}
+.chip.lvl-3{background:var(--bad);} .chip.lvl-3 b,.chip.lvl-3 small{color:var(--surface)}
+.tool p.note{font-size:15px;color:var(--muted)}
+
+/* stepper */
+.stepper svg{width:100%;height:auto;max-width:100%;display:block}
+.step-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dots{display:flex;gap:6px;margin-left:auto}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--art)}
+.step-txt{min-height:4.5em}
+.step-txt b{font-family:var(--f-display);font-size:18px;display:block;margin-bottom:2px}
+
+/* buttons */
+.btn{all:unset;box-sizing:border-box;cursor:pointer;font:700 15px var(--f-body);padding:9px 16px;border-radius:8px;background:var(--ink);color:var(--surface);text-align:center}
+.btn:hover{opacity:.88}
+.btn:focus-visible{outline:2px solid var(--ven);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--sunk);opacity:1}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+.btn.art{background:var(--art);color:#fff}
+
+/* sorter */
+.sorter{display:flex;flex-direction:column;gap:8px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--bg)}
+.srow .pick{display:flex;gap:6px}
+.srow .pick button{all:unset;cursor:pointer;font:700 13px var(--f-body);padding:6px 10px;border-radius:6px;border:1px solid var(--line)}
+.srow .pick button:focus-visible{outline:2px solid var(--ven)}
+.srow .pick button[data-s="a"]{color:var(--art)} .srow .pick button[data-s="v"]{color:var(--ven)}
+.srow.right{background:var(--ok-soft)} .srow.wrong{background:var(--bad-soft)}
+.srow .fb{grid-column:1/-1;font-size:14px;color:var(--muted)}
+
+/* quizzes */
+.quiz{margin-top:32px;border-top:2px solid var(--ink);padding-top:18px;display:flex;flex-direction:column;gap:16px}
+.quiz-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.quiz-h h3{margin:0}
+.quiz-h .score{font:700 14px var(--f-mono);color:var(--muted)}
+.inline-q{margin:22px 0}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px}
+.q-top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.q-num{font:700 12px var(--f-mono);color:var(--art)}
+.q-type{font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ven);background:var(--ven-soft);padding:2px 8px;border-radius:99px}
+.q-stem{font-weight:600;font-size:17px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:var(--bg)}
+.opt:hover{border-color:var(--ven)}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt .mk{width:22px;height:22px;border:2px solid var(--muted);display:grid;place-items:center;font:700 12px var(--f-mono);color:var(--muted);margin-top:1px}
+.opt .mk.r{border-radius:50%} .opt .mk.c{border-radius:5px}
+.opt:has(input:checked){border-color:var(--ven);background:var(--ven-soft)}
+.opt:has(input:checked) .mk{border-color:var(--ven);background:var(--ven);color:#fff}
+.opt:has(input:focus-visible){outline:2px solid var(--ven);outline-offset:1px}
+.q.done .opt{cursor:default}
+.opt.is-correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.is-correct .mk{border-color:var(--ok)!important;background:var(--ok)!important;color:#fff!important}
+.opt.is-wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.is-wrong .mk{border-color:var(--bad)!important;background:var(--bad)!important;color:#fff!important}
+.opt.missed{border-style:dashed;border-color:var(--ok)}
+.q-act{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.verdict{font-weight:700}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--bad)}
+.why{background:var(--sunk);border-radius:8px;padding:12px 14px;font-size:15.5px;display:flex;flex-direction:column;gap:6px}
+.why b{font:700 12px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* pager */
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:44px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
+.pager .btn{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:10px 16px;max-width:100%}
+.pager .btn small{font:600 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.pager .next{margin-left:auto;align-items:flex-end;text-align:right}
+
+/* final */
+.final-head{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.final-head .field input{width:240px;font:600 17px var(--f-body)}
+.result{background:var(--ink);color:var(--surface);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:8px}
+.result .big{font:800 54px var(--f-display);letter-spacing:-.02em;line-height:1}
+.result p{opacity:.85}
+.unanswered{color:var(--bad);font-weight:600}
+
+/* bring list */
+.bring{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;max-width:70ch}
+.bring li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.bring input{width:20px;height:20px;accent-color:var(--ok);margin-top:3px}
+.bring li:has(input:checked){background:var(--ok-soft);border-color:transparent}
+.bring b{display:block}
+.bring span{font-size:15.5px;color:var(--muted)}
+.vessel-fig{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.vessel-fig figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.vessel-fig svg{width:100%;max-width:170px;height:auto}
+.vessel-fig figcaption{font-size:14px;color:var(--muted)}
+.vessel-fig figcaption b{color:var(--ink);font-family:var(--f-display);font-size:16px;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);justify-content:center}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+</style>
+
+<div id="top-anchor"></div>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 3 C15 3 6 13 6 19 a9 9 0 0 0 18 0 C24 13 15 3 15 3Z" fill="var(--art)"/><path d="M11 19 a4 4 0 0 0 4 4" fill="none" stroke="var(--surface)" stroke-width="2" stroke-linecap="round"/></svg>
+      <b>Hematology Pathways</b><span>Unit 4 · Pre-class assignment</span>
+    </div>
+    <div class="prog" aria-label="Progress">
+      <div class="prog-bar"><i id="progFill"></i></div>
+      <span class="prog-txt" id="progTxt">0 / 0 checks</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Sections"><ol id="railList"><li class="grp">Start here</li><li><a class="navlink" href="#sec-intro" data-i="0"><span class="n">01</span><span>Introduction</span><span class="ck"></span></a></li><li class="grp">Foundations</li><li><a class="navlink" href="#sec-terms" data-i="1"><span class="n">02</span><span>Medical terminology</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-anp" data-i="2"><span class="n">03</span><span>A&amp;P of the blood</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-concepts" data-i="3"><span class="n">04</span><span>Key concepts</span><span class="ck"></span></a></li><li class="grp">Conditions</li><li><a class="navlink" href="#sec-anemia" data-i="4"><span class="n">05</span><span>Anemia &amp; iron deficiency</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-mega" data-i="5"><span class="n">06</span><span>B12 &amp; folate deficiency</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-hemaplas" data-i="6"><span class="n">07</span><span>Hemolytic &amp; aplastic anemia</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-sickle" data-i="7"><span class="n">08</span><span>Sickle cell disease</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-poly" data-i="8"><span class="n">09</span><span>Polycythemia</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-thrombo" data-i="9"><span class="n">10</span><span>Thrombocytopenia</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-bleed" data-i="10"><span class="n">11</span><span>Hemophilia &amp; von Willebrand</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-dic" data-i="11"><span class="n">12</span><span>DIC</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-transfusion" data-i="12"><span class="n">13</span><span>Blood transfusion</span><span class="ck"></span></a></li><li class="grp">Finish</li><li><a class="navlink" href="#sec-final" data-i="13"><span class="n">14</span><span>Final test</span><span class="ck"></span></a></li><li><a class="navlink" href="#sec-bring" data-i="14"><span class="n">15</span><span>Come to class with</span><span class="ck"></span></a></li></ol></nav>
+  <main>
+    <div class="mnav"><label for="mnavSel">Jump to a section</label><select id="mnavSel"><option value="0">1. Introduction</option><option value="1">2. Medical terminology</option><option value="2">3. A&amp;P of the blood</option><option value="3">4. Key concepts</option><option value="4">5. Anemia &amp; iron deficiency</option><option value="5">6. B12 &amp; folate deficiency</option><option value="6">7. Hemolytic &amp; aplastic anemia</option><option value="7">8. Sickle cell disease</option><option value="8">9. Polycythemia</option><option value="9">10. Thrombocytopenia</option><option value="10">11. Hemophilia &amp; von Willebrand</option><option value="11">12. DIC</option><option value="12">13. Blood transfusion</option><option value="13">14. Final test</option><option value="14">15. Come to class with</option></select></div>
+
+    <!-- INTRO -->
+    <section class="sec" id="sec-intro" data-id="intro" data-title="Introduction" data-grp="Start here">
+      <div class="eyebrow">Section 1 · Introduction</div>
+      <h2>Blood is a tissue that moves</h2>
+      <p class="lede">Every cell in the body depends on blood to carry oxygen, fight infection, and seal leaks. Hematologic disorders happen when blood has too few cells, too many, cells that are the wrong shape, or a clotting system that is out of balance.</p>
+      <div class="prose">
+        <p>You will care for clients with these conditions on every unit: the client with iron deficiency anemia on med-surg, the client in sickle cell crisis in the ED, the post-op client on heparin whose platelets suddenly drop, the septic client who starts oozing from every IV site. Your job is to connect the lab values to what you see at the bedside and to know which findings need action now.</p>
+        <p>Every condition here comes back to three questions: <strong>Can the blood carry oxygen</strong> (red cells and hemoglobin)? <strong>Can it stop bleeding</strong> (platelets and clotting factors)? <strong>Is it clotting when it shouldn't</strong> (hypercoagulability)?</p>
+      </div>
+
+      <h3>Learning objectives</h3>
+      <p class="prose" style="margin-bottom:12px">When you finish, you should be able to:</p>
+      <ol class="objs">
+        <li>Define the medical terms used to describe hematologic disorders and their findings.</li>
+        <li>Describe the components of blood, how blood cells are made, and the steps of hemostasis.</li>
+        <li>Apply core physical and biological principles (oxygen content, the oxyhemoglobin curve, viscosity, osmosis, supply and demand, negative feedback, consumption) to explain hematologic findings.</li>
+        <li>Interpret basic CBC and coagulation results, including hemoglobin, MCV, platelets, PT/INR, and aPTT.</li>
+        <li>Compare the causes, findings, and treatment of iron deficiency, vitamin B12 deficiency, folate deficiency, hemolytic, and aplastic anemia.</li>
+        <li>Explain what triggers a sickle cell crisis and the priority nursing care for each type of crisis.</li>
+        <li>Explain how polycythemia vera leads to hyperviscosity and clotting.</li>
+        <li>Differentiate platelet disorders (ITP, HIT, TTP) from clotting factor disorders (hemophilia, von Willebrand disease).</li>
+        <li>Explain why a client with DIC both clots and bleeds, and identify its lab pattern.</li>
+        <li>Describe safe blood transfusion practice and the nurse's response to a transfusion reaction.</li>
+      </ol>
+
+      <h3>How to use this assignment</h3>
+      <div class="how">
+        <div class="panel"><h4>Work in order</h4><p>Terminology, A&amp;P, and Key concepts come first because every later section uses them. Use the <strong>Next</strong> button at the bottom of each section, the section list, or the <strong>Jump to a section</strong> menu to move around.</p></div>
+        <div class="panel"><h4>Answer every check</h4><p>Each section ends with a short quiz, and some have questions in the middle. You get the answer and the rationale right away. Read the rationale even when you get it right.</p></div>
+        <div class="panel"><h4>Use the tools</h4><p>Try the clotting step-through, the CBC interpreter, and the platelet vs. clotting factor sorter. They are there to connect the labs to the client.</p></div>
+        <div class="panel"><h4>Finish with the test</h4><p>The final test has 20 NCLEX-RN style items at the understanding level. Answer all of them, submit, and take a screenshot of your score page if your instructor asks for it.</p></div>
+      </div>
+      <h3>Jump to a section</h3>
+      <div class="jump-grid"><a class="jump-card navlink" href="#sec-terms" data-i="1"><span class="n">02</span><span>Medical terminology</span></a><a class="jump-card navlink" href="#sec-anp" data-i="2"><span class="n">03</span><span>A&amp;P of the blood</span></a><a class="jump-card navlink" href="#sec-concepts" data-i="3"><span class="n">04</span><span>Key concepts</span></a><a class="jump-card navlink" href="#sec-anemia" data-i="4"><span class="n">05</span><span>Anemia &amp; iron deficiency</span></a><a class="jump-card navlink" href="#sec-mega" data-i="5"><span class="n">06</span><span>B12 &amp; folate deficiency</span></a><a class="jump-card navlink" href="#sec-hemaplas" data-i="6"><span class="n">07</span><span>Hemolytic &amp; aplastic anemia</span></a><a class="jump-card navlink" href="#sec-sickle" data-i="7"><span class="n">08</span><span>Sickle cell disease</span></a><a class="jump-card navlink" href="#sec-poly" data-i="8"><span class="n">09</span><span>Polycythemia</span></a><a class="jump-card navlink" href="#sec-thrombo" data-i="9"><span class="n">10</span><span>Thrombocytopenia</span></a><a class="jump-card navlink" href="#sec-bleed" data-i="10"><span class="n">11</span><span>Hemophilia &amp; von Willebrand</span></a><a class="jump-card navlink" href="#sec-dic" data-i="11"><span class="n">12</span><span>DIC</span></a><a class="jump-card navlink" href="#sec-transfusion" data-i="12"><span class="n">13</span><span>Blood transfusion</span></a><a class="jump-card navlink" href="#sec-final" data-i="13"><span class="n">14</span><span>Final test</span></a><a class="jump-card navlink" href="#sec-bring" data-i="14"><span class="n">15</span><span>Come to class with</span></a></div>
+      <div class="callout ven" style="margin-top:14px"><b class="lbl">Time and saving</b><p>Plan on about 90 minutes. Your answers are saved in this browser on this device, so you can stop and come back. Switching devices or using a private window starts you over. Lab reference ranges vary slightly between labs and textbooks; the ranges here are typical adult values.</p></div>
+    </section>
+
+    <!-- TERMS -->
+    <section class="sec" id="sec-terms" data-id="terms" data-title="Medical terminology" data-grp="Foundations">
+      <div class="eyebrow">Section 2 · Foundations</div>
+      <h2>Medical terminology</h2>
+      <p class="lede">Hematology terms are built from a small set of word parts. Learn the pieces and most of the vocabulary decodes itself.</p>
+      <h3>Word parts</h3>
+      <div class="tbl-wrap"><table class="parts">
+        <thead><tr><th>Part</th><th>Meaning</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>hem/o, hemat/o, -emia</td><td>blood</td><td>hematology, anemia</td></tr>
+          <tr><td>erythr/o</td><td>red</td><td>erythrocyte, erythropoietin</td></tr>
+          <tr><td>leuk/o</td><td>white</td><td>leukocyte, leukopenia</td></tr>
+          <tr><td>thromb/o</td><td>clot</td><td>thrombocyte, thrombocytopenia</td></tr>
+          <tr><td>-cyte</td><td>cell</td><td>erythrocyte, reticulocyte</td></tr>
+          <tr><td>-penia</td><td>deficiency, too few</td><td>neutropenia, pancytopenia</td></tr>
+          <tr><td>-cytosis, poly-</td><td>too many</td><td>thrombocytosis, polycythemia</td></tr>
+          <tr><td>-poiesis</td><td>formation</td><td>hematopoiesis, erythropoiesis</td></tr>
+          <tr><td>-lysis</td><td>breakdown, destruction</td><td>hemolysis, fibrinolysis</td></tr>
+          <tr><td>micro- / macro-</td><td>small / large</td><td>microcytic, macrocytic</td></tr>
+          <tr><td>pan-</td><td>all</td><td>pancytopenia</td></tr>
+          <tr><td>a-, an-</td><td>without</td><td>aplastic, anemia</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Key terms</h3>
+      <p class="prose" style="margin-bottom:12px">Say the definition to yourself first, then tap the card to check.</p>
+      <div class="terms" id="termGrid"></div>
+      <div class="quiz" data-quiz="terms"></div>
+    </section>
+
+    <!-- A&P -->
+    <section class="sec" id="sec-anp" data-id="anp" data-title="A&amp;P of the blood" data-grp="Foundations">
+      <div class="eyebrow">Section 3 · Foundations</div>
+      <h2>A&amp;P of the hematologic system</h2>
+      <p class="lede">Blood is about 55% plasma and 45% cells. Nearly all of those cells start as the same stem cell in the bone marrow. Hemostasis is the body's system for sealing a leak without clogging the pipe.</p>
+
+      <h3>What blood is made of</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Component</th><th>Job</th><th>Typical adult range</th><th>Life span</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Red blood cells (erythrocytes)</td><td>Carry oxygen on hemoglobin; carry CO₂ back</td><td class="mono">M 4.7–6.1 · F 4.2–5.4 million/µL</td><td>About 120 days</td></tr>
+          <tr><td class="k">Hemoglobin (Hgb)</td><td>The iron-containing protein that binds oxygen</td><td class="mono">M 14–18 · F 12–16 g/dL</td><td></td></tr>
+          <tr><td class="k">Hematocrit (Hct)</td><td>Percentage of blood volume made of RBCs</td><td class="mono">M 42–52% · F 37–47%</td><td></td></tr>
+          <tr><td class="k">White blood cells (leukocytes)</td><td>Fight infection; neutrophils are the first responders</td><td class="mono">5,000–10,000/mm³</td><td>Hours to years</td></tr>
+          <tr><td class="k">Platelets (thrombocytes)</td><td>Form the first plug at a bleeding site</td><td class="mono">150,000–400,000/mm³</td><td>About 7–10 days</td></tr>
+          <tr><td class="k">Plasma</td><td>Water, proteins (albumin, clotting factors), electrolytes</td><td></td><td></td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>How blood cells are made</h3>
+      <div class="prose">
+        <ul>
+          <li><strong>Hematopoiesis</strong> happens in the red bone marrow (pelvis, sternum, vertebrae, ribs in adults). A single pluripotent stem cell can become any blood cell.</li>
+          <li><strong>Erythropoietin (EPO)</strong> is released by the <strong>kidneys</strong> when they sense low oxygen. It tells the marrow to make more red cells. This is why clients with chronic kidney disease become anemic.</li>
+          <li>Making normal red cells requires <strong>iron</strong>, <strong>vitamin B12</strong>, and <strong>folic acid</strong>. Missing any one produces a recognizable type of anemia.</li>
+          <li><strong>Reticulocytes</strong> are young red cells released from the marrow (normal 0.5–2%). A high count means the marrow is working hard to replace lost or destroyed cells. A low count means the marrow isn't keeping up.</li>
+          <li>Old red cells are removed by the <strong>spleen</strong>. Hemoglobin is broken down; iron is recycled and heme becomes <strong>bilirubin</strong>, which the liver clears. Rapid red cell destruction raises bilirubin and causes jaundice.</li>
+        </ul>
+      </div>
+
+      <h3>Hemostasis: stopping a bleed</h3>
+      <div class="tool stepper">
+        <div class="tool-h"><h4>Clotting step-through</h4><span id="stepCount">Stage 1 of 5</span></div>
+        <svg viewBox="0 0 600 186" aria-hidden="true" id="hemoSvg"></svg>
+        <div class="step-txt" id="stepTxt" aria-live="polite"></div>
+        <div class="step-ctl"><button class="btn ghost" id="stepPrev" type="button">Back</button><button class="btn" id="stepNext" type="button">Next stage</button><div class="dots" id="stepDots"></div></div>
+      </div>
+
+      <h3>Coagulation labs</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Lab</th><th>Typical range</th><th>What it tells you</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Platelet count</td><td class="mono">150,000–400,000/mm³</td><td>Enough platelets to form a plug?</td></tr>
+          <tr><td class="k">PT / INR</td><td class="mono">11–12.5 sec / 0.8–1.1</td><td>Extrinsic and common pathways; monitors warfarin (therapeutic INR often 2–3)</td></tr>
+          <tr><td class="k">aPTT</td><td class="mono">30–40 sec</td><td>Intrinsic and common pathways; monitors unfractionated heparin; prolonged in hemophilia</td></tr>
+          <tr><td class="k">Fibrinogen</td><td class="mono">200–400 mg/dL</td><td>Raw material for fibrin; drops when clotting is being consumed (DIC)</td></tr>
+          <tr><td class="k">D-dimer</td><td class="mono">Negative / &lt; 0.5 µg/mL</td><td>Fragments of broken-down clot; high means clots are forming and dissolving</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout ven" style="margin-top:14px"><b class="lbl">Memory aid</b><p><strong>PT</strong> pairs with <strong>warfarin</strong> (both short words, "PT goes to war"). <strong>aPTT</strong> pairs with <strong>heparin</strong> (the longer test goes with the longer drug name).</p></div>
+      <div class="quiz" data-quiz="anp"></div>
+    </section>
+
+    <!-- CONCEPTS -->
+    <section class="sec" id="sec-concepts" data-id="concepts" data-title="Key concepts" data-grp="Foundations">
+      <div class="eyebrow">Section 4 · Foundations</div>
+      <h2>Key concepts</h2>
+      <p class="lede">These principles explain why the lab values and findings in the next sections happen. Learn them once and you can reason through conditions you haven't memorized.</p>
+      <div class="concepts">
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C1</span><h4>Oxygen content depends on hemoglobin</h4></div>
+          <p class="c-rule">SpO₂ tells you what percentage of the available hemoglobin is carrying oxygen. It does not tell you how much hemoglobin there is. Total oxygen delivered depends mostly on hemoglobin.</p>
+          <p class="c-eq mono">O₂ content ≈ 1.34 × Hgb × SaO₂ (plus a small dissolved amount)</p>
+          <p class="c-ana"><b>Picture it:</b> SpO₂ tells you how full each delivery truck is. Hemoglobin tells you how many trucks there are. Ten full trucks deliver less than thirty full trucks.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Anemia: SpO₂ can read 98–100% while tissues are short of oxygen</li><li>Why transfusion, not more oxygen, fixes symptomatic anemia</li><li>Carbon monoxide poisoning can also give a falsely normal SpO₂</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C2</span><h4>The oxyhemoglobin dissociation curve</h4></div>
+          <p class="c-rule">Hemoglobin's grip on oxygen changes with conditions. A right shift loosens the grip and releases more oxygen to tissues. A left shift tightens the grip and releases less.</p>
+          <p class="c-eq mono">Right shift: ↑ temp, ↑ CO₂, ↓ pH (acidosis), ↑ 2,3-DPG · Left shift: ↓ temp, ↓ CO₂, ↑ pH (alkalosis), fetal Hgb, stored blood</p>
+          <p class="c-ana"><b>Picture it:</b> Think of exercising muscle: it's hot, acidic, and full of CO₂, so hemoglobin lets go of oxygen right where it's needed.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Fever and acidosis increase oxygen release to tissues</li><li>Hypothermia and alkalosis make hemoglobin hold oxygen tighter</li><li>Fetal hemoglobin (raised by hydroxyurea in sickle cell disease) holds oxygen tightly and resists sickling</li><li>Stored blood is low in 2,3-DPG, so it releases oxygen less well at first</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C3</span><h4>Viscosity</h4></div>
+          <p class="c-rule">Thicker fluids flow more slowly. As hematocrit rises or plasma volume falls, blood becomes more viscous, flow slows, and clots form more easily.</p>
+          
+          <p class="c-ana"><b>Picture it:</b> Honey moves through a straw much more slowly than water.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Polycythemia vera: thick blood causes headache, dizziness, and thrombosis</li><li>Dehydration triggers sickle cell crisis</li><li>Why hydration and phlebotomy are treatments</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C4</span><h4>Osmosis and tonicity</h4></div>
+          <p class="c-rule">Water moves across cell membranes toward the side with more dissolved particles. Red cells swell and burst in hypotonic fluid and shrink in hypertonic fluid.</p>
+          <p class="c-eq mono">Isotonic (0.9% NaCl) · Hypotonic → cells swell · Hypertonic → cells shrink</p>
+          <p class="c-ana"><b>Picture it:</b> A raisin left in water plumps up. Put a grape in salty water and it shrivels.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Only 0.9% sodium chloride is used with blood products</li><li>D5W acts like a hypotonic fluid once the dextrose is used up, so it hemolyzes red cells</li><li>Hemolysis releases hemoglobin that can injure the kidneys</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C5</span><h4>Supply and demand</h4></div>
+          <p class="c-rule">Tissues get into trouble when oxygen demand exceeds oxygen supply. The body compensates first by raising heart rate and breathing rate.</p>
+          
+          <p class="c-ana"><b>Picture it:</b> A small delivery team can keep up on a slow day. On a busy day, they run faster, then fall behind.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Anemia: fatigue and dyspnea with activity, tachycardia at rest when severe</li><li>Chest pain in severe anemia (the heart muscle is starved too)</li><li>Sickle cell pain: blocked vessels cut supply</li><li>Why clustering care and rest periods help</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C6</span><h4>Negative feedback</h4></div>
+          <p class="c-rule">The body senses a change and responds in a way that reverses it. Once the problem is corrected, the signal turns off.</p>
+          <p class="c-eq mono">Low O₂ → kidneys release EPO → marrow makes RBCs → O₂ rises → EPO falls</p>
+          <p class="c-ana"><b>Picture it:</b> A thermostat turns on the furnace when the room is cold and shuts it off once the room warms up.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>Chronic kidney disease: the kidneys can't send the EPO signal, so anemia develops</li><li>Secondary polycythemia: chronic hypoxia keeps EPO high</li><li>Polycythemia vera: the marrow ignores the signal, so EPO is low</li><li>Rising reticulocytes after blood loss</li></ul></div>
+        </article>
+        <article class="concept">
+          <div class="c-top"><span class="c-num">C7</span><h4>Consumption: clotting is a balance</h4></div>
+          <p class="c-rule">Platelets and clotting factors are a limited supply. When clotting is switched on everywhere, they are used up faster than they are made, and bleeding follows.</p>
+          <p class="c-eq mono">Clotting turned on everywhere → platelets and factors used up → bleeding</p>
+          <p class="c-ana"><b>Picture it:</b> A bank account: if withdrawals outpace deposits, the balance hits zero even though money was there at the start.</p>
+          <div class="c-where"><b>Where you'll see it</b><ul><li>DIC: microclots consume platelets and factors, and then the client bleeds</li><li>TTP and HIT: platelets are used up in clots</li><li>Why DIC is treated by stopping the trigger and replacing what was consumed</li></ul></div>
+        </article>
+      </div>
+      <div class="callout ven" style="margin-top:16px"><b class="lbl">Watch for the tags</b><p>In the condition sections, a tag such as <button type="button" class="ctag" data-c="2" aria-haspopup="dialog" aria-expanded="false">Concept · Viscosity</button> marks where one of these concepts explains what you are reading. When you see one, stop and ask yourself how the concept applies.</p></div>
+      <div class="quiz" data-quiz="concepts"></div>
+    </section>
+
+
+    <!-- ANEMIA / IRON -->
+    <section class="sec" id="sec-anemia" data-id="anemia" data-title="Anemia &amp; iron deficiency" data-grp="Conditions">
+      <div class="eyebrow">Section 5 · Conditions</div>
+      <h2>Anemia and iron deficiency anemia</h2>
+      <p class="lede">Anemia is a lower-than-normal hemoglobin or red cell count. It is a sign, not a diagnosis: something is causing it. The result is the same no matter the cause: less oxygen reaches the tissues.</p>
+
+      <h3>Three ways to become anemic</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Mechanism</th><th>Examples</th><th>Reticulocyte count</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Blood loss</td><td>GI bleeding, heavy menstruation, trauma, surgery</td><td>Rises (marrow responds)</td></tr>
+          <tr><td class="k">Decreased production</td><td>Iron, B12, or folate deficiency; aplastic anemia; chronic kidney disease (low EPO)</td><td>Low</td></tr>
+          <tr><td class="k">Increased destruction (hemolysis)</td><td>Sickle cell disease, G6PD deficiency, autoimmune, transfusion reaction</td><td>Rises</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>What anemia looks like</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="0" aria-haspopup="dialog" aria-expanded="false">Concept · Oxygen content</button><button type="button" class="ctag" data-c="4" aria-haspopup="dialog" aria-expanded="false">Concept · Supply and demand</button></div>
+      <div class="prose">
+        <p>Signs depend on how low and how fast. A slow drop allows the body to compensate; a fast drop does not.</p>
+        <ul>
+          <li><strong>Mild:</strong> often no symptoms, or fatigue with exertion</li>
+          <li><strong>Moderate:</strong> fatigue, weakness, pallor, palpitations, dyspnea on exertion, headache</li>
+          <li><strong>Severe:</strong> tachycardia at rest, dyspnea at rest, dizziness, chest pain (the heart is starving too), cold intolerance, heart failure in older adults</li>
+        </ul>
+        <p>Tachycardia is compensation: if each beat carries less oxygen, the heart beats faster to deliver the same amount.</p>
+      </div>
+
+      <h3>Sorting anemia by cell size</h3>
+      <div class="prose"><p>The <strong>MCV</strong> (mean corpuscular volume, normal 80–100 fL) tells you the average size of the red cells. It is one of the fastest clues to the cause.</p></div>
+      
+      <figure class="anim" id="fig-rbc">
+        <div class="anim-h"><h4>Red cell size and color</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 210" role="img" aria-label="Normal, microcytic, and macrocytic red cells"><g style="--dy:-6px;animation:bob 3s ease-in-out 0.0s infinite"><circle class="f-art" cx="130" cy="95" r="40"/><circle class="f-surf" cx="130" cy="95" r="13" opacity=".55"/></g><text class="t" x="130" y="182" text-anchor="middle">Normal</text><text class="tm mono" x="130" y="200" text-anchor="middle">MCV 80–100</text><g style="--dy:-6px;animation:bob 3s ease-in-out -0.8s infinite"><circle class="f-artsoft" cx="300" cy="95" r="27"/><circle class="nf s-art" stroke-width="5" cx="300" cy="95" r="24"/><circle class="f-surf" cx="300" cy="95" r="15" opacity=".55"/></g><text class="t" x="300" y="182" text-anchor="middle">Microcytic, pale</text><text class="tm mono" x="300" y="200" text-anchor="middle">MCV < 80 · iron</text><g style="--dy:-6px;animation:bob 3s ease-in-out -1.6s infinite"><circle class="f-art" cx="470" cy="95" r="56"/><circle class="f-surf" cx="470" cy="95" r="16" opacity=".55"/></g><text class="t" x="470" y="182" text-anchor="middle">Macrocytic</text><text class="tm mono" x="470" y="200" text-anchor="middle">MCV > 100 · B12, folate</text></svg>
+        <figcaption>MCV measures the average size of red cells. Iron deficiency makes small, pale cells because there isn't enough iron to fill them with hemoglobin. B12 or folate deficiency makes large cells that can't divide properly.</figcaption>
+      </figure>
+      <div class="tool">
+        <div class="tool-h"><h4>CBC interpreter</h4><span>Try F, Hgb 9.2, MCV 72</span></div>
+        <div class="fields">
+          <div class="field"><label for="cbcSex">Sex</label><select id="cbcSex"><option value="F">Female</option><option value="M">Male</option></select></div>
+          <div class="field"><label for="cbcHgb">Hgb (g/dL)</label><input id="cbcHgb" type="number" step="0.1" inputmode="decimal" value="9.2"></div>
+          <div class="field"><label for="cbcMcv">MCV (fL)</label><input id="cbcMcv" type="number" inputmode="numeric" value="72"></div>
+        </div>
+        <div class="readout" id="cbcOut"></div>
+        <p class="note" id="cbcNote"></p>
+      </div>
+
+      <div class="inline-q" data-quiz="anemiaA"></div>
+
+      <h3>Iron deficiency anemia</h3>
+      <div class="prose">
+        <p>The most common anemia worldwide. Without enough iron, the marrow makes small, pale red cells: <strong>microcytic, hypochromic</strong>.</p>
+        <p><strong>Causes:</strong> chronic blood loss (the most common cause in adults; GI bleeding must be ruled out, especially in men and postmenopausal women), heavy menstruation, pregnancy, poor intake, malabsorption (celiac disease, gastric bypass).</p>
+      </div>
+      <div class="two" style="margin-top:12px">
+        <div class="panel"><h4>Findings</h4><ul><li>General anemia signs: fatigue, pallor, dyspnea, tachycardia</li><li>Pica: craving ice, clay, or starch</li><li>Spoon-shaped nails (koilonychia)</li><li>Smooth sore tongue (glossitis), cracks at the corners of the mouth (cheilitis)</li><li>Labs: low Hgb, low MCV, <strong>low ferritin</strong>, low serum iron, <strong>high TIBC</strong></li></ul></div>
+        <div class="panel"><h4>Treatment</h4><ul><li>Find and fix the cause of blood loss</li><li>Iron-rich foods: red meat, organ meats, dark green leafy vegetables, legumes, fortified cereals</li><li>Oral iron (ferrous sulfate)</li><li>IV iron for malabsorption or intolerance; watch for hypersensitivity, especially with iron dextran (test dose)</li></ul></div>
+      </div>
+      <div class="callout ven" style="margin-top:14px"><b class="lbl">Teaching: oral iron</b><p>Take on an empty stomach, about 1 hour before meals, if tolerated (with food if GI upset is a problem). Take with vitamin C or orange juice to increase absorption. Avoid taking with milk, antacids, tea, or coffee. Stools will turn dark green or black, which is expected. Constipation is common: increase fluids and fiber. Liquid iron stains teeth, so use a straw and rinse. Keep out of reach of children; iron overdose is dangerous.</p></div>
+      <div class="quiz" data-quiz="anemia"></div>
+    </section>
+
+    <!-- MEGALOBLASTIC -->
+    <section class="sec" id="sec-mega" data-id="mega" data-title="B12 &amp; folate deficiency" data-grp="Conditions">
+      <div class="eyebrow">Section 6 · Conditions</div>
+      <h2>Vitamin B12 and folate deficiency</h2>
+      <p class="lede">Red cells need vitamin B12 and folic acid to make DNA. Without them, cells grow large but can't divide properly. The result is a <strong>macrocytic (megaloblastic)</strong> anemia: big, fragile red cells.</p>
+
+      <h3>Vitamin B12 deficiency and pernicious anemia</h3>
+      <div class="prose">
+        <p>B12 can only be absorbed in the ileum if it is bound to <strong>intrinsic factor</strong>, a protein made by the stomach's parietal cells. <strong>Pernicious anemia</strong> is an autoimmune disease that destroys those cells, so no intrinsic factor is made and dietary B12 passes through unabsorbed.</p>
+        <p><strong>Other causes:</strong> gastrectomy or gastric bypass, ileal resection or Crohn's disease, strict vegan diet, long-term metformin or proton pump inhibitors, older age, chronic alcohol use.</p>
+      </div>
+      <div class="two" style="margin-top:12px">
+        <div class="panel"><h4>Findings</h4><ul><li>General anemia signs</li><li>Smooth, beefy red, sore tongue</li><li><strong>Neurologic signs</strong>: numbness and tingling of hands and feet, loss of position sense, unsteady gait, memory loss, confusion</li><li>Labs: low Hgb, <strong>high MCV</strong>, low serum B12; antibodies to intrinsic factor in pernicious anemia</li></ul></div>
+        <div class="panel"><h4>Treatment</h4><ul><li>Pernicious anemia and malabsorption: <strong>lifelong</strong> B12 injections (IM or deep SubQ cyanocobalamin), usually weekly then monthly; high-dose oral or nasal forms are options for some</li><li>Dietary cause: oral B12 and diet (meat, eggs, dairy, fortified foods)</li><li>Neurologic damage may be permanent if treatment is delayed</li></ul></div>
+      </div>
+
+      
+      <figure class="anim" id="fig-b12" data-mode="a">
+        <div class="anim-h"><h4>How vitamin B12 is absorbed</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-mode" data-mode="a" aria-pressed="true">Normal</button><button type="button" class="chipbtn anim-mode" data-mode="b" aria-pressed="false">Pernicious anemia</button><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 235" role="img" aria-label="Vitamin B12 traveling through the gut with and without intrinsic factor"><rect class="f-sunk" x="30" y="72" width="540" height="40" rx="20"/><ellipse class="f-artsoft" cx="120" cy="92" rx="66" ry="40"/><rect class="f-art" x="380" y="176" width="190" height="20" rx="10" opacity=".55"/><text class="t" x="120" y="30" text-anchor="middle">Stomach</text><text class="tm" x="120" y="48" text-anchor="middle">parietal cells make IF</text><text class="t" x="300" y="60" text-anchor="middle">small intestine</text><text class="t" x="440" y="60" text-anchor="middle">ileum</text><text class="t" x="560" y="60" text-anchor="end">exits</text><text class="t" x="475" y="222" text-anchor="middle">bloodstream</text><g data-show="a"><circle class="f-ven" cx="50" cy="94" r="9" style="animation:b12n 6s linear infinite"/><circle class="f-warn" cx="120" cy="84" r="7" style="animation:ifn 6s linear infinite"/><text class="t" x="40" y="150"><tspan class="tb" style="fill:var(--ven)">●</tspan> B12   <tspan class="tb" style="fill:var(--warn)">●</tspan> intrinsic factor</text></g><g data-show="b"><circle class="f-ven" cx="50" cy="94" r="9" style="animation:b12p 6s linear infinite"/><text class="t" x="120" y="150" text-anchor="middle" style="fill:var(--bad)">✕ no intrinsic factor</text><text class="t" x="440" y="150" text-anchor="middle">B12 can't be absorbed</text></g></svg>
+        <figcaption>B12 must bind intrinsic factor from the stomach before it can be absorbed in the ileum. Switch to pernicious anemia to see B12 pass straight through when intrinsic factor is missing.</figcaption>
+      </figure>
+      <h3>Folate deficiency</h3>
+      <div class="two">
+        <div class="panel"><h4>Causes</h4><ul><li>Poor diet (few fresh vegetables)</li><li><strong>Chronic alcohol use</strong> (most common in adults)</li><li>Increased need: pregnancy, hemolytic anemia</li><li>Malabsorption</li><li>Drugs: methotrexate, phenytoin, trimethoprim</li></ul></div>
+        <div class="panel"><h4>Findings and treatment</h4><ul><li>Same macrocytic anemia as B12 deficiency</li><li><strong>No neurologic signs</strong></li><li>Low serum folate</li><li>Oral folic acid; leafy greens, citrus, beans, fortified grains</li><li>Folic acid before and during pregnancy prevents neural tube defects</li></ul></div>
+      </div>
+      <div class="callout warn" style="margin-top:14px"><b class="lbl">Why it matters which one</b><p>Giving folic acid to someone who is actually B12 deficient will improve the blood counts but <strong>will not stop the nerve damage</strong>. The anemia looks fixed while the neurologic injury keeps progressing. B12 levels are checked before folate is given alone.</p></div>
+      <div class="quiz" data-quiz="mega"></div>
+    </section>
+
+    <!-- HEMOLYTIC & APLASTIC -->
+    <section class="sec" id="sec-hemaplas" data-id="hemaplas" data-title="Hemolytic &amp; aplastic anemia" data-grp="Conditions">
+      <div class="eyebrow">Section 7 · Conditions</div>
+      <h2>Hemolytic and aplastic anemia</h2>
+      <p class="lede">These two are opposites. In hemolytic anemia the marrow works hard, but red cells are destroyed too early. In aplastic anemia the marrow itself fails.</p>
+
+      
+      <figure class="anim" id="fig-marrow" data-mode="a">
+        <div class="anim-h"><h4>Too much destruction vs. too little production</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-mode" data-mode="a" aria-pressed="true">Hemolytic</button><button type="button" class="chipbtn anim-mode" data-mode="b" aria-pressed="false">Aplastic</button><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 220" role="img" aria-label="Bone marrow output in hemolytic and aplastic anemia"><defs><clipPath id="cpMw"><rect x="150" y="95" width="330" height="40"/></clipPath></defs><rect class="f-sunk" x="150" y="95" width="330" height="40"/><ellipse class="f-ven" cx="525" cy="115" rx="50" ry="40" opacity=".45"/><text class="t" x="525" y="62" text-anchor="middle">Spleen</text><g data-show="a"><rect class="f-artsoft" x="30" y="60" width="120" height="110" rx="14"/><text class="t" x="90" y="190" text-anchor="middle">Busy marrow</text><g clip-path="url(#cpMw)"><ellipse class="f-art" cx="140" cy="107.0" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -0.00s infinite"/><ellipse class="f-art" cx="140" cy="112.3" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -0.24s infinite"/><ellipse class="f-art" cx="140" cy="117.7" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -0.48s infinite"/><ellipse class="f-art" cx="140" cy="123.0" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -0.72s infinite"/><ellipse class="f-art" cx="140" cy="109.7" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -0.96s infinite"/><ellipse class="f-art" cx="140" cy="115.0" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -1.20s infinite"/><ellipse class="f-art" cx="140" cy="120.3" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -1.44s infinite"/><ellipse class="f-art" cx="140" cy="107.0" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -1.68s infinite"/><ellipse class="f-art" cx="140" cy="112.3" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -1.92s infinite"/><ellipse class="f-art" cx="140" cy="117.7" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 2.4s linear -2.16s infinite"/></g><circle class="f-warn" cx="510" cy="150" r="4" style="--dy:40px;animation:mv 2.4s linear 0.0s infinite"/><circle class="f-warn" cx="518" cy="150" r="4" style="--dy:40px;animation:mv 2.4s linear -0.6s infinite"/><circle class="f-warn" cx="526" cy="150" r="4" style="--dy:40px;animation:mv 2.4s linear -1.2s infinite"/><circle class="f-warn" cx="534" cy="150" r="4" style="--dy:40px;animation:mv 2.4s linear -1.8s infinite"/><text class="t" x="300" y="40" text-anchor="middle">Many new cells, destroyed early</text><text class="tm" x="560" y="210" text-anchor="end">bilirubin → jaundice</text></g><g data-show="b"><rect class="f-artsoft" x="30" y="60" width="120" height="110" rx="14" opacity=".35"/><text class="t" x="90" y="190" text-anchor="middle">Empty marrow</text><g clip-path="url(#cpMw)"><ellipse class="f-art" cx="140" cy="110.0" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 6s linear 0.00s infinite"/><ellipse class="f-art" cx="140" cy="110.0" rx="9" ry="6" style="--dx:350px;--dy:0px;animation:mv 6s linear -3.00s infinite"/><circle class="f-surf" cx="140" cy="122" r="10" style="stroke:var(--ven);stroke-width:3;--dx:350px;animation:mv 7s linear -3s infinite"/><circle class="f-ven" cx="140" cy="106" r="3.5" style="--dx:350px;animation:mv 6.5s linear -5s infinite"/></g><text class="t" x="300" y="40" text-anchor="middle">Few red cells, white cells, and platelets</text></g></svg>
+        <figcaption>In hemolytic anemia the marrow works overtime, but red cells are destroyed early and their hemoglobin becomes bilirubin. In aplastic anemia the marrow itself fails, so all three cell lines fall.</figcaption>
+      </figure>
+      <h3>Hemolytic anemia</h3>
+      <div class="prose">
+        <p>Red cells are destroyed before their 120-day life span ends. The marrow tries to keep up, so reticulocytes rise.</p>
+      </div>
+      <div class="two" style="margin-top:12px">
+        <div class="panel"><h4>Causes</h4><ul><li><strong>Inherited:</strong> sickle cell disease, G6PD deficiency (hemolysis triggered by certain drugs, infections, fava beans), hereditary spherocytosis, thalassemia</li><li><strong>Acquired:</strong> autoimmune hemolytic anemia, transfusion reaction, mechanical heart valves, infections (malaria), some drugs</li></ul></div>
+        <div class="panel"><h4>Findings</h4><ul><li>Anemia signs</li><li><strong>Jaundice</strong> and dark urine (hemoglobin breakdown)</li><li>Splenomegaly (spleen working overtime)</li><li>Gallstones (pigment stones) over time</li><li>Labs: <strong>high reticulocytes</strong>, high indirect (unconjugated) bilirubin, high LDH, low haptoglobin</li></ul></div>
+      </div>
+      <div class="prose" style="margin-top:12px"><p><strong>Treatment:</strong> remove the cause (stop the drug, treat infection), corticosteroids for autoimmune types, folic acid (the busy marrow uses more), transfusion if severe, splenectomy in some cases. Keep the client hydrated to protect the kidneys from hemoglobin breakdown products.</p></div>
+
+      <h3>Aplastic anemia</h3>
+      <div class="prose">
+        <p>The bone marrow stops producing cells. Because the stem cell is affected, <strong>all three lines drop: pancytopenia</strong> (low RBCs, WBCs, and platelets).</p>
+        <p><strong>Causes:</strong> often idiopathic or autoimmune; chemotherapy and radiation; certain drugs (chloramphenicol, some anticonvulsants); toxins such as benzene and pesticides; viral infections (hepatitis, Epstein-Barr).</p>
+      </div>
+      <div class="tbl-wrap" style="margin-top:10px"><table>
+        <thead><tr><th>Low cell line</th><th>Result</th><th>Nursing focus</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Red cells</td><td>Fatigue, pallor, dyspnea, tachycardia</td><td>Cluster care, rest periods, oxygen as needed</td></tr>
+          <tr><td class="k">White cells (neutrophils)</td><td>Frequent, serious infections; fever may be the only sign</td><td>Hand hygiene, neutropenic precautions, report temperature ≥ 100.4°F (38°C)</td></tr>
+          <tr><td class="k">Platelets</td><td>Petechiae, bruising, bleeding gums, nosebleeds</td><td>Bleeding precautions (see Section 10)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose" style="margin-top:12px"><p><strong>Treatment:</strong> remove the causative agent, immunosuppressive therapy (antithymocyte globulin, cyclosporine), hematopoietic stem cell transplant (the only cure), and transfusions for support. Diagnosis is confirmed with a bone marrow biopsy, which shows an empty, fatty marrow.</p></div>
+      <div class="quiz" data-quiz="hemaplas"></div>
+    </section>
+
+    <!-- SICKLE -->
+    <section class="sec" id="sec-sickle" data-id="sickle" data-title="Sickle cell disease" data-grp="Conditions">
+      <div class="eyebrow">Section 8 · Conditions</div>
+      <h2>Sickle cell disease</h2>
+      <p class="lede">An inherited disorder in which abnormal hemoglobin (HbS) makes red cells stiff and crescent-shaped when oxygen is low. Sickled cells jam small vessels, starve tissue of oxygen, and are destroyed early.</p>
+
+      <h3>Inheritance</h3>
+      <div class="two">
+        <div class="panel"><h4>Sickle cell trait (HbAS)</h4><ul><li>One sickle gene, one normal gene</li><li>Usually no symptoms</li><li>Can pass the gene to children</li><li>Possible sickling with extreme dehydration, exertion, or high altitude</li></ul></div>
+        <div class="panel"><h4>Sickle cell disease (HbSS)</h4><ul><li>Two sickle genes (autosomal recessive)</li><li>Two carrier parents: 25% chance of disease with each pregnancy</li><li>Most common in people of African, Mediterranean, Middle Eastern, and South Asian descent</li><li>Detected on newborn screening</li></ul></div>
+      </div>
+
+      <h3>The sickling cycle</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="2" aria-haspopup="dialog" aria-expanded="false">Concept · Viscosity</button><button type="button" class="ctag" data-c="4" aria-haspopup="dialog" aria-expanded="false">Concept · Supply and demand</button></div>
+      <div class="prose">
+        <p><span class="mono">Trigger → low O₂ → HbS stiffens → cells sickle → cells clump and block small vessels → tissue hypoxia and pain → more sickling</span></p>
+        <p><strong>Triggers:</strong> dehydration, infection and fever, hypoxia, cold exposure, high altitude, strenuous exercise, stress, alcohol, smoking.</p>
+      </div>
+
+      
+      <figure class="anim" id="fig-sickle" data-mode="a">
+        <div class="anim-h"><h4>Sickling in a small vessel</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-mode" data-mode="a" aria-pressed="true">Normal oxygen</button><button type="button" class="chipbtn anim-mode" data-mode="b" aria-pressed="false">Low oxygen</button><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 195" role="img" aria-label="Normal red cells flowing and sickled cells jamming a capillary"><defs><clipPath id="cpSk"><path d="M20 66 L370 66 Q390 66 400 88 L460 88 Q470 88 480 66 L580 66 L580 134 L480 134 Q470 134 460 112 L400 112 Q390 134 370 134 L20 134 Z"/></clipPath></defs><path class="f-sunk" d="M20 66 L370 66 Q390 66 400 88 L460 88 Q470 88 480 66 L580 66 L580 134 L480 134 Q470 134 460 112 L400 112 Q390 134 370 134 L20 134 Z"/><path class="nf s-art" stroke-width="7" d="M20 66 L370 66 Q390 66 400 88 L460 88 Q470 88 480 66 L580 66"/><path class="nf s-art" stroke-width="7" d="M20 134 L370 134 Q390 134 400 112 L460 112 Q470 112 480 134 L580 134"/><g data-show="a"><g clip-path="url(#cpSk)"><ellipse class="f-art" cx="0" cy="94.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear 0.00s infinite"/><ellipse class="f-art" cx="0" cy="98.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear -0.56s infinite"/><ellipse class="f-art" cx="0" cy="102.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear -1.11s infinite"/><ellipse class="f-art" cx="0" cy="106.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear -1.67s infinite"/><ellipse class="f-art" cx="0" cy="96.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear -2.22s infinite"/><ellipse class="f-art" cx="0" cy="100.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear -2.78s infinite"/><ellipse class="f-art" cx="0" cy="104.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear -3.33s infinite"/><ellipse class="f-art" cx="0" cy="94.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear -3.89s infinite"/><ellipse class="f-art" cx="0" cy="98.0" rx="11" ry="9" style="--dx:600px;--dy:0px;animation:mv 5s linear -4.44s infinite"/></g><text class="t" x="300" y="180" text-anchor="middle">Flexible discs squeeze through the capillary</text></g><g data-show="b"><g clip-path="url(#cpSk)"><g transform="translate(20 84)"><path class="f-art" d="M-13,5 Q0,-13 13,5 Q0,-3 -13,5 Z" style="--dx:360px;animation:jam 6s ease-out 0.00s infinite both"/></g><g transform="translate(20 110)"><path class="f-art" d="M-13,5 Q0,-13 13,5 Q0,-3 -13,5 Z" style="--dx:350px;animation:jam 6s ease-out 0.25s infinite both"/></g><g transform="translate(20 96)"><path class="f-art" d="M-13,5 Q0,-13 13,5 Q0,-3 -13,5 Z" style="--dx:330px;animation:jam 6s ease-out 0.50s infinite both"/></g><g transform="translate(20 120)"><path class="f-art" d="M-13,5 Q0,-13 13,5 Q0,-3 -13,5 Z" style="--dx:318px;animation:jam 6s ease-out 0.75s infinite both"/></g><g transform="translate(20 80)"><path class="f-art" d="M-13,5 Q0,-13 13,5 Q0,-3 -13,5 Z" style="--dx:305px;animation:jam 6s ease-out 1.00s infinite both"/></g><g transform="translate(20 104)"><path class="f-art" d="M-13,5 Q0,-13 13,5 Q0,-3 -13,5 Z" style="--dx:290px;animation:jam 6s ease-out 1.25s infinite both"/></g><g transform="translate(20 92)"><path class="f-art" d="M-13,5 Q0,-13 13,5 Q0,-3 -13,5 Z" style="--dx:268px;animation:jam 6s ease-out 1.50s infinite both"/></g></g><circle class="f-bad sc" cx="520" cy="100" r="16" opacity=".5" style="animation:pulse 1.4s ease-in-out infinite"/><text class="t" x="520" y="40" text-anchor="middle">ischemic pain</text><text class="t" x="300" y="180" text-anchor="middle">Sickled cells jam and block flow</text></g></svg>
+        <figcaption>Normal red cells are flexible discs that fold to pass through capillaries. When oxygen drops, HbS stiffens cells into crescents that jam small vessels and starve the tissue downstream. Dehydration, cold, and infection make it worse.</figcaption>
+      </figure>
+      <h3>Types of crisis</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Crisis</th><th>What happens</th><th>Look for</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Vaso-occlusive (pain) crisis</td><td>Sickled cells block flow to bones, joints, abdomen, chest</td><td>Severe pain, swelling of hands and feet (in children), priapism</td></tr>
+          <tr><td class="k">Acute chest syndrome</td><td>Sickling in the lungs; a leading cause of death</td><td>Chest pain, fever, cough, dyspnea, falling SpO₂, new infiltrate on x-ray</td></tr>
+          <tr><td class="k">Splenic sequestration</td><td>Blood pools in the spleen (mostly young children)</td><td>Rapidly enlarging spleen, sudden drop in Hgb, hypovolemic shock</td></tr>
+          <tr><td class="k">Aplastic crisis</td><td>Marrow temporarily stops making RBCs, often after parvovirus B19</td><td>Severe anemia, pallor, fatigue, very low reticulocytes</td></tr>
+          <tr><td class="k">Stroke</td><td>Sickling in cerebral vessels (especially children)</td><td>Weakness, speech changes, facial droop, seizures</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Nursing care in a crisis</h3>
+      <div class="callout art"><b class="lbl">Priorities</b><p><strong>Hydration</strong> (IV and oral fluids dilute the blood and reduce sickling), <strong>pain control</strong> (IV opioids on a schedule or PCA, given promptly; pain is real and severe), and <strong>oxygen</strong> if SpO₂ is low. Keep the client warm. Treat infection quickly. Avoid meperidine (seizure risk) and cold compresses (cause vasoconstriction and more sickling).</p></div>
+      <div class="prose" style="margin-top:12px"><ul>
+        <li>Monitor SpO₂, respiratory status (acute chest syndrome), neuro status (stroke), and spleen size in children.</li>
+        <li><strong>Hydroxyurea</strong> raises fetal hemoglobin (HbF), which does not sickle, reducing how often crises happen. It suppresses the marrow (monitor CBC) and can harm a fetus (contraception needed).</li>
+        <li>Other options: L-glutamine, crizanlizumab, chronic transfusions, stem cell transplant, and newer gene therapies.</li>
+        <li><strong>Prevent infection:</strong> repeated splenic damage leaves most clients functionally asplenic. Keep vaccines current (pneumococcal, meningococcal, influenza, COVID-19); children take daily penicillin prophylaxis.</li>
+        <li><strong>Teaching:</strong> drink plenty of fluids, avoid temperature extremes, high altitude, and unpressurized aircraft, avoid smoking and alcohol, balance activity with rest, seek care for fever.</li>
+      </ul></div>
+      <div class="quiz" data-quiz="sickle"></div>
+    </section>
+
+    <!-- POLYCYTHEMIA -->
+    <section class="sec" id="sec-poly" data-id="poly" data-title="Polycythemia" data-grp="Conditions">
+      <div class="eyebrow">Section 9 · Conditions</div>
+      <h2>Polycythemia</h2>
+      <p class="lede">The opposite of anemia: too many red cells. The blood becomes thick (hyperviscous), flows slowly, and clots easily.</p>
+
+      <div class="two">
+        <div class="panel"><span class="tag art">Primary</span><h4>Polycythemia vera</h4><ul><li>A myeloproliferative bone marrow disorder, usually from a JAK2 gene mutation</li><li>Marrow overproduces RBCs, and often WBCs and platelets too</li><li>Erythropoietin is <strong>low</strong> (the body is trying to slow production)</li><li>Usually adults over 60</li></ul></div>
+        <div class="panel"><span class="tag ven">Secondary</span><h4>Secondary polycythemia</h4><ul><li>A response to chronic low oxygen</li><li>COPD, smoking, sleep apnea, high altitude, some congenital heart disease</li><li>Also EPO-secreting tumors, testosterone use</li><li>Erythropoietin is <strong>high</strong>; treat the cause</li></ul></div>
+      </div>
+
+      
+      <figure class="anim" id="fig-poly">
+        <div class="anim-h"><h4>Thick blood moves slowly</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 222" role="img" aria-label="Normal blood flow compared with crowded, slow polycythemic flow"><defs><clipPath id="cpPo1"><rect x="30" y="34" width="540" height="52"/></clipPath><clipPath id="cpPo2"><rect x="30" y="134" width="540" height="52"/></clipPath></defs><rect class="f-sunk" x="30" y="34" width="540" height="52"/><rect class="f-art" x="30" y="24" width="540" height="10" opacity=".8"/><rect class="f-art" x="30" y="86" width="540" height="10" opacity=".8"/><rect class="f-sunk" x="30" y="134" width="540" height="52"/><rect class="f-art" x="30" y="124" width="540" height="10" opacity=".8"/><rect class="f-art" x="30" y="186" width="540" height="10" opacity=".8"/><g clip-path="url(#cpPo1)"><ellipse class="f-art" cx="10" cy="50.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3s linear 0.00s infinite"/><ellipse class="f-art" cx="10" cy="56.7" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3s linear -0.43s infinite"/><ellipse class="f-art" cx="10" cy="63.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3s linear -0.86s infinite"/><ellipse class="f-art" cx="10" cy="70.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3s linear -1.29s infinite"/><ellipse class="f-art" cx="10" cy="53.3" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3s linear -1.71s infinite"/><ellipse class="f-art" cx="10" cy="60.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3s linear -2.14s infinite"/><ellipse class="f-art" cx="10" cy="66.7" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 3s linear -2.57s infinite"/></g><g clip-path="url(#cpPo2)"><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear 0.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -0.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -1.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -1.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -2.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -2.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -3.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -3.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -4.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -4.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -5.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -5.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -6.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -6.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -7.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -7.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -8.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -8.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -9.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -9.50s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -10.00s infinite"/><ellipse class="f-art" cx="10" cy="150.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 11s linear -10.50s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear 0.00s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -0.55s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -1.09s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -1.64s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -2.18s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -2.73s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -3.27s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -3.82s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -4.36s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -4.91s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -5.45s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -6.00s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -6.55s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -7.09s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -7.64s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -8.18s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -8.73s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -9.27s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -9.82s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -10.36s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -10.91s infinite"/><ellipse class="f-art" cx="10" cy="172.0" rx="10" ry="7" style="--dx:600px;--dy:0px;animation:mv 12s linear -11.45s infinite"/><ellipse class="f-ven" cx="10" cy="160.0" rx="3.5" ry="3.5" style="--dx:600px;--dy:0px;animation:mv 11.5s linear -0.00s infinite"/><ellipse class="f-ven" cx="10" cy="160.0" rx="3.5" ry="3.5" style="--dx:600px;--dy:0px;animation:mv 11.5s linear -1.44s infinite"/><ellipse class="f-ven" cx="10" cy="160.0" rx="3.5" ry="3.5" style="--dx:600px;--dy:0px;animation:mv 11.5s linear -2.88s infinite"/><ellipse class="f-ven" cx="10" cy="160.0" rx="3.5" ry="3.5" style="--dx:600px;--dy:0px;animation:mv 11.5s linear -4.31s infinite"/><ellipse class="f-ven" cx="10" cy="160.0" rx="3.5" ry="3.5" style="--dx:600px;--dy:0px;animation:mv 11.5s linear -5.75s infinite"/><ellipse class="f-ven" cx="10" cy="160.0" rx="3.5" ry="3.5" style="--dx:600px;--dy:0px;animation:mv 11.5s linear -7.19s infinite"/><ellipse class="f-ven" cx="10" cy="160.0" rx="3.5" ry="3.5" style="--dx:600px;--dy:0px;animation:mv 11.5s linear -8.62s infinite"/><ellipse class="f-ven" cx="10" cy="160.0" rx="3.5" ry="3.5" style="--dx:600px;--dy:0px;animation:mv 11.5s linear -10.06s infinite"/><ellipse class="f-bad" cx="520" cy="178" rx="30" ry="10" opacity=".85"/></g><text class="t" x="30" y="112">Normal hematocrit: cells move freely</text><text class="t" x="30" y="212">Polycythemia: crowded, slow, clot-prone</text><text class="tm" x="570" y="212" text-anchor="end">clot forming</text></svg>
+        <figcaption>Extra red cells make the blood thick. Thick blood moves slowly, and slow flow plus extra platelets lets clots form in veins and arteries. Hydration and phlebotomy thin it out.</figcaption>
+      </figure>
+      <h3>Findings of hyperviscosity</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="2" aria-haspopup="dialog" aria-expanded="false">Concept · Viscosity</button><button type="button" class="ctag" data-c="5" aria-haspopup="dialog" aria-expanded="false">Concept · Negative feedback</button></div>
+      <div class="prose"><ul>
+        <li>Ruddy, flushed (plethoric) face and dusky red mucous membranes</li>
+        <li>Headache, dizziness, vision changes, tinnitus, fatigue</li>
+        <li>Hypertension</li>
+        <li><strong>Itching that worsens after a warm bath or shower</strong> (histamine release from extra basophils)</li>
+        <li>Burning pain and redness in hands and feet (erythromelalgia)</li>
+        <li>Splenomegaly</li>
+        <li><strong>Thrombosis:</strong> DVT, PE, stroke, MI; this is the main cause of death</li>
+        <li>Paradoxically, bleeding can occur too (abnormal platelet function)</li>
+        <li>Labs: Hgb and Hct high (Hct often above 55%), often high WBCs and platelets</li>
+      </ul></div>
+
+      <h3>Treatment and nursing care</h3>
+      <div class="prose"><ul>
+        <li><strong>Therapeutic phlebotomy</strong>: removing blood (often about 500 mL at a time) to keep Hct below 45%. Monitor for dizziness and hypotension afterward.</li>
+        <li><strong>Low-dose aspirin</strong> to reduce clot risk</li>
+        <li><strong>Hydroxyurea</strong> or other marrow suppressants for high-risk clients; ruxolitinib (JAK inhibitor) in some cases</li>
+        <li>Encourage fluids (2–3 L/day unless restricted) and regular walking; avoid sitting for long periods and tight clothing</li>
+        <li>Avoid iron supplements (iron fuels more RBC production)</li>
+        <li>Lukewarm or cool bathing, pat skin dry, antihistamines for itching</li>
+        <li>Teach signs of clots: leg pain and swelling, chest pain, sudden dyspnea, stroke symptoms</li>
+      </ul></div>
+      <div class="quiz" data-quiz="poly"></div>
+    </section>
+
+    <!-- THROMBOCYTOPENIA -->
+    <section class="sec" id="sec-thrombo" data-id="thrombo" data-title="Thrombocytopenia" data-grp="Conditions">
+      <div class="eyebrow">Section 10 · Conditions</div>
+      <h2>Thrombocytopenia: ITP, HIT, and TTP</h2>
+      <p class="lede">Thrombocytopenia is a platelet count below 150,000/mm³. Platelets form the first plug, so low counts cause bleeding from small vessels: skin, gums, nose, and mucous membranes.</p>
+
+      <h3>Risk by platelet count</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Platelet count</th><th>Bleeding risk</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">150,000–400,000</td><td>Normal</td></tr>
+          <tr><td class="mono">50,000–150,000</td><td>Usually no symptoms; prolonged bleeding after trauma or surgery</td></tr>
+          <tr><td class="mono">20,000–50,000</td><td>Bleeding with minor trauma; petechiae, bruising</td></tr>
+          <tr><td class="mono">&lt; 20,000</td><td>Spontaneous bleeding possible, including intracranial; below 10,000 is critical</td></tr>
+        </tbody>
+      </table></div>
+      <div class="prose" style="margin-top:12px"><p><strong>Findings:</strong> petechiae (pinpoint red dots), purpura and ecchymoses (bruises), bleeding gums, epistaxis, heavy menstrual bleeding, blood in urine or stool, prolonged bleeding from puncture sites. Watch for headache or change in level of consciousness, which can signal intracranial bleeding.</p></div>
+
+      
+      <figure class="anim" id="fig-thrombo" data-mode="a">
+        <div class="anim-h"><h4>Enough platelets to plug a leak?</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-mode" data-mode="a" aria-pressed="true">Normal platelets</button><button type="button" class="chipbtn anim-mode" data-mode="b" aria-pressed="false">Low platelets</button><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 215" role="img" aria-label="Platelets plugging a vessel injury with a normal count and a low count"><rect class="f-art" x="0" y="10" width="270" height="34" opacity=".75"/><rect class="f-art" x="330" y="10" width="270" height="34" opacity=".75"/><rect class="f-warn" x="0" y="44" width="270" height="5"/><rect class="f-warn" x="330" y="44" width="270" height="5"/><rect class="f-art" x="0" y="140" width="600" height="34" opacity=".75"/><rect class="f-warn" x="0" y="135" width="600" height="5"/><ellipse class="f-art" cx="-20" cy="86.0" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear 0.00s infinite"/><ellipse class="f-art" cx="-20" cy="95.3" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -0.71s infinite"/><ellipse class="f-art" cx="-20" cy="104.7" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -1.43s infinite"/><ellipse class="f-art" cx="-20" cy="114.0" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -2.14s infinite"/><ellipse class="f-art" cx="-20" cy="90.7" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -2.86s infinite"/><ellipse class="f-art" cx="-20" cy="100.0" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -3.57s infinite"/><ellipse class="f-art" cx="-20" cy="109.3" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -4.29s infinite"/><g data-show="a"><ellipse class="f-ven" cx="60" cy="95" rx="7" ry="4" style="--dx:220px;--dy:-77px;animation:plug 7s ease-out 0.00s infinite both"/><ellipse class="f-ven" cx="82" cy="107" rx="7" ry="4" style="--dx:210px;--dy:-89px;animation:plug 7s ease-out 0.12s infinite both"/><ellipse class="f-ven" cx="104" cy="119" rx="7" ry="4" style="--dx:200px;--dy:-101px;animation:plug 7s ease-out 0.24s infinite both"/><ellipse class="f-ven" cx="126" cy="95" rx="7" ry="4" style="--dx:190px;--dy:-77px;animation:plug 7s ease-out 0.36s infinite both"/><ellipse class="f-ven" cx="148" cy="107" rx="7" ry="4" style="--dx:136px;--dy:-77px;animation:plug 7s ease-out 0.48s infinite both"/><ellipse class="f-ven" cx="170" cy="119" rx="7" ry="4" style="--dx:128px;--dy:-89px;animation:plug 7s ease-out 0.60s infinite both"/><ellipse class="f-ven" cx="192" cy="95" rx="7" ry="4" style="--dx:120px;--dy:-65px;animation:plug 7s ease-out 0.72s infinite both"/><ellipse class="f-ven" cx="214" cy="107" rx="7" ry="4" style="--dx:76px;--dy:-65px;animation:plug 7s ease-out 0.84s infinite both"/><ellipse class="f-ven" cx="236" cy="119" rx="7" ry="4" style="--dx:70px;--dy:-77px;animation:plug 7s ease-out 0.96s infinite both"/><circle class="f-bad" cx="288" cy="40" r="5" style="animation:dropstop 7s linear 0.00s infinite both"/><circle class="f-bad" cx="312" cy="34" r="5" style="animation:dropstop 7s linear 1.75s infinite both"/><circle class="f-bad" cx="288" cy="40" r="5" style="animation:dropstop 7s linear 3.50s infinite both"/><circle class="f-bad" cx="312" cy="34" r="5" style="animation:dropstop 7s linear 5.25s infinite both"/><text class="t" x="300" y="205" text-anchor="middle">Platelets 250,000/mm³: the plug seals the leak</text></g><g data-show="b"><ellipse class="f-ven" cx="60" cy="100" rx="7" ry="4" style="--dx:220px;--dy:-82px;animation:plug 7s ease-out 0.00s infinite both"/><ellipse class="f-ven" cx="120" cy="100" rx="7" ry="4" style="--dx:172px;--dy:-82px;animation:plug 7s ease-out 0.30s infinite both"/><circle class="f-bad" cx="288" cy="40" r="5" style="animation:drip 1.6s linear 0.00s infinite both"/><circle class="f-bad" cx="312" cy="34" r="5" style="animation:drip 1.6s linear 0.40s infinite both"/><circle class="f-bad" cx="288" cy="40" r="5" style="animation:drip 1.6s linear 0.80s infinite both"/><circle class="f-bad" cx="312" cy="34" r="5" style="animation:drip 1.6s linear 1.20s infinite both"/><text class="t" x="300" y="205" text-anchor="middle">Platelets 15,000/mm³: too few to plug, bleeding continues</text></g></svg>
+        <figcaption>Platelets rush to an injury and pile up into a plug. With too few platelets, the plug never forms, so small vessels keep oozing: petechiae, bruising, nosebleeds, and bleeding gums.</figcaption>
+      </figure>
+      <h3>Bleeding precautions</h3>
+      <div class="callout art"><b class="lbl">For any low platelet count</b><p>Soft toothbrush or sponge swabs; electric razor; no IM injections when possible; no rectal temperatures, suppositories, or enemas; avoid aspirin and NSAIDs; stool softeners to prevent straining; no forceful nose blowing; apply pressure to puncture sites for at least 5 to 10 minutes; fall prevention; check stool, urine, and emesis for blood.</p></div>
+
+      <h3>Three conditions to know</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="6" aria-haspopup="dialog" aria-expanded="false">Concept · Consumption</button></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th></th><th>ITP</th><th>HIT</th><th>TTP</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Name</td><td>Immune thrombocytopenia</td><td>Heparin-induced thrombocytopenia</td><td>Thrombotic thrombocytopenic purpura</td></tr>
+          <tr><td class="k">Cause</td><td>Autoantibodies coat platelets; the spleen destroys them</td><td>Antibodies form against heparin bound to a platelet protein (PF4); platelets activate and clump</td><td>Deficiency of the enzyme ADAMTS13; tiny clots form throughout small vessels and use up platelets</td></tr>
+          <tr><td class="k">Main danger</td><td>Bleeding</td><td><strong>Clotting</strong> (arterial and venous), despite low platelets</td><td>Clots in brain and kidneys, plus bleeding</td></tr>
+          <tr><td class="k">Clues</td><td>Isolated low platelets; often after a viral illness in children; chronic in adults</td><td>Platelets drop 50% or more, usually 5–14 days after starting heparin</td><td>Low platelets, hemolytic anemia, neuro changes, kidney injury, fever</td></tr>
+          <tr><td class="k">Treatment</td><td>Corticosteroids, IVIG, thrombopoietin receptor agonists, rituximab, splenectomy</td><td><strong>Stop all heparin</strong> (including flushes and LMWH); start a non-heparin anticoagulant such as argatroban; list heparin as an allergy</td><td><strong>Emergency plasma exchange</strong> (plasmapheresis), corticosteroids, caplacizumab</td></tr>
+          <tr><td class="k">Platelet transfusion</td><td>Only for serious bleeding (antibodies destroy them too)</td><td>Generally avoided</td><td>Generally avoided (adds fuel to clotting)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="quiz" data-quiz="thrombo"></div>
+    </section>
+
+    <!-- HEMOPHILIA / vWD -->
+    <section class="sec" id="sec-bleed" data-id="bleed" data-title="Hemophilia &amp; von Willebrand" data-grp="Conditions">
+      <div class="eyebrow">Section 11 · Conditions</div>
+      <h2>Hemophilia and von Willebrand disease</h2>
+      <p class="lede">In these inherited disorders the platelet count is normal, but a clotting protein is missing or doesn't work. The type of bleeding tells you which part of hemostasis has failed.</p>
+
+      <h3>Hemophilia</h3>
+      <div class="two">
+        <div class="panel"><h4>The basics</h4><ul><li><strong>X-linked recessive</strong>: almost always affects males; carrier mothers pass it to sons</li><li><strong>Hemophilia A:</strong> factor VIII deficiency (about 80% of cases)</li><li><strong>Hemophilia B</strong> (Christmas disease): factor IX deficiency</li><li>Labs: <strong>prolonged aPTT</strong>; normal PT and platelet count</li></ul></div>
+        <div class="panel"><h4>Findings</h4><ul><li><strong>Hemarthrosis</strong>: bleeding into joints (knees, ankles, elbows), causing pain, swelling, and over time permanent joint damage</li><li>Deep muscle hematomas</li><li>Prolonged bleeding after dental work, circumcision, or surgery; bleeding can start hours later</li><li>Intracranial hemorrhage after head injury: the most dangerous complication</li></ul></div>
+      </div>
+      <div class="prose" style="margin-top:12px"><ul>
+        <li><strong>Factor replacement</strong> (factor VIII or IX concentrate), either on a regular prophylactic schedule or at the first sign of a bleed. Clients and families learn to infuse at home.</li>
+        <li><strong>Desmopressin (DDAVP)</strong> releases stored factor VIII and von Willebrand factor; useful for mild hemophilia A (not B).</li>
+        <li><strong>Emicizumab</strong>: a SubQ antibody that mimics factor VIII, used for prophylaxis in hemophilia A.</li>
+        <li><strong>Joint bleed:</strong> give factor first, then rest, ice, compression, and elevation; immobilize briefly, then physical therapy.</li>
+        <li>Acetaminophen for pain; avoid aspirin and NSAIDs. Avoid IM injections. Medical alert ID. Noncontact sports such as swimming are encouraged.</li>
+      </ul></div>
+
+      
+      <figure class="anim" id="fig-hemo" data-mode="a">
+        <div class="anim-h"><h4>Why hemophilia bleeds late</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-mode" data-mode="a" aria-pressed="true">Normal clotting</button><button type="button" class="chipbtn anim-mode" data-mode="b" aria-pressed="false">Hemophilia</button><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 215" role="img" aria-label="A platelet plug reinforced by fibrin compared with a plug that fails in hemophilia"><rect class="f-art" x="0" y="10" width="270" height="34" opacity=".75"/><rect class="f-art" x="330" y="10" width="270" height="34" opacity=".75"/><rect class="f-warn" x="0" y="44" width="270" height="5"/><rect class="f-warn" x="330" y="44" width="270" height="5"/><rect class="f-art" x="0" y="140" width="600" height="34" opacity=".75"/><rect class="f-warn" x="0" y="135" width="600" height="5"/><ellipse class="f-art" cx="-20" cy="86.0" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear 0.00s infinite"/><ellipse class="f-art" cx="-20" cy="95.3" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -0.71s infinite"/><ellipse class="f-art" cx="-20" cy="104.7" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -1.43s infinite"/><ellipse class="f-art" cx="-20" cy="114.0" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -2.14s infinite"/><ellipse class="f-art" cx="-20" cy="90.7" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -2.86s infinite"/><ellipse class="f-art" cx="-20" cy="100.0" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -3.57s infinite"/><ellipse class="f-art" cx="-20" cy="109.3" rx="10" ry="7" style="--dx:640px;--dy:0px;animation:mv 5s linear -4.29s infinite"/><g data-show="a"><ellipse class="f-ven" cx="280" cy="18" rx="7" ry="4"/><ellipse class="f-ven" cx="292" cy="18" rx="7" ry="4"/><ellipse class="f-ven" cx="304" cy="18" rx="7" ry="4"/><ellipse class="f-ven" cx="316" cy="18" rx="7" ry="4"/><ellipse class="f-ven" cx="284" cy="30" rx="7" ry="4"/><ellipse class="f-ven" cx="298" cy="30" rx="7" ry="4"/><ellipse class="f-ven" cx="312" cy="30" rx="7" ry="4"/><ellipse class="f-ven" cx="290" cy="42" rx="7" ry="4"/><ellipse class="f-ven" cx="306" cy="42" rx="7" ry="4"/><g style="animation:fibrin 8s ease-out infinite both"><line class="s-ink" stroke-width="1.8" x1="266" y1="8" x2="296" y2="52"/><line class="s-ink" stroke-width="1.8" x1="334" y1="8" x2="304" y2="52"/><line class="s-ink" stroke-width="1.8" x1="274" y1="8" x2="304" y2="52"/><line class="s-ink" stroke-width="1.8" x1="326" y1="8" x2="296" y2="52"/><line class="s-ink" stroke-width="1.8" x1="282" y1="8" x2="312" y2="52"/><line class="s-ink" stroke-width="1.8" x1="318" y1="8" x2="288" y2="52"/><line class="s-ink" stroke-width="1.8" x1="290" y1="8" x2="320" y2="52"/><line class="s-ink" stroke-width="1.8" x1="310" y1="8" x2="280" y2="52"/><line class="s-ink" stroke-width="1.8" x1="298" y1="8" x2="328" y2="52"/><line class="s-ink" stroke-width="1.8" x1="302" y1="8" x2="272" y2="52"/></g><text class="t" x="300" y="205" text-anchor="middle">Plug + fibrin mesh = stable clot</text></g><g data-show="b"><g style="animation:plugfail 8s ease-in infinite both"><ellipse class="f-ven" cx="280" cy="18" rx="7" ry="4"/><ellipse class="f-ven" cx="292" cy="18" rx="7" ry="4"/><ellipse class="f-ven" cx="304" cy="18" rx="7" ry="4"/><ellipse class="f-ven" cx="316" cy="18" rx="7" ry="4"/><ellipse class="f-ven" cx="284" cy="30" rx="7" ry="4"/><ellipse class="f-ven" cx="298" cy="30" rx="7" ry="4"/><ellipse class="f-ven" cx="312" cy="30" rx="7" ry="4"/><ellipse class="f-ven" cx="290" cy="42" rx="7" ry="4"/><ellipse class="f-ven" cx="306" cy="42" rx="7" ry="4"/></g><circle class="f-bad" cx="288" cy="40" r="5" style="animation:leaklate 8s linear 0.00s infinite both"/><circle class="f-bad" cx="312" cy="34" r="5" style="animation:leaklate 8s linear 2.00s infinite both"/><circle class="f-bad" cx="288" cy="40" r="5" style="animation:leaklate 8s linear 4.00s infinite both"/><circle class="f-bad" cx="312" cy="34" r="5" style="animation:leaklate 8s linear 6.00s infinite both"/><text class="t" x="300" y="205" text-anchor="middle">Plug forms, but with little fibrin it breaks down: delayed bleeding</text></g></svg>
+        <figcaption>Platelets form the first plug normally in hemophilia. Without factor VIII or IX, the clotting cascade can't build a fibrin mesh to reinforce it, so the plug breaks down and bleeding starts again hours later, often deep in joints and muscles.</figcaption>
+      </figure>
+      <h3>Von Willebrand disease</h3>
+      <div class="prose">
+        <p>The most common inherited bleeding disorder. It affects males and females equally (usually autosomal dominant). Von Willebrand factor (vWF) does two jobs: it is the glue that lets platelets stick to the injured vessel wall, and it carries and protects factor VIII.</p>
+        <ul>
+          <li><strong>Findings:</strong> mostly <strong>mucosal</strong> bleeding: frequent nosebleeds, bleeding gums, heavy menstrual periods, easy bruising, bleeding after dental work</li>
+          <li><strong>Labs:</strong> low vWF activity and antigen; aPTT may be normal or prolonged; platelet count normal</li>
+          <li><strong>Treatment:</strong> desmopressin (most type 1), vWF-containing factor concentrates, antifibrinolytics (tranexamic acid) for mucosal or dental bleeding, hormonal contraceptives for heavy menses</li>
+        </ul>
+      </div>
+
+      <div class="tool">
+        <div class="tool-h"><h4>Platelet problem or clotting factor problem?</h4><span id="sortScore">0 / 8 sorted</span></div>
+        <div class="sorter" id="sorter"></div>
+      </div>
+      <div class="callout ven"><b class="lbl">The pattern</b><p><strong>Platelet problems</strong> (thrombocytopenia, von Willebrand disease) bleed right away and from the surface: skin, gums, nose, petechiae. <strong>Clotting factor problems</strong> (hemophilia) bleed deep and often late: joints, muscles, hours after a procedure.</p></div>
+      <div class="quiz" data-quiz="bleed"></div>
+    </section>
+
+    <!-- DIC -->
+    <section class="sec" id="sec-dic" data-id="dic" data-title="DIC" data-grp="Conditions">
+      <div class="eyebrow">Section 12 · Conditions</div>
+      <h2>Disseminated intravascular coagulation (DIC)</h2>
+      <p class="lede">DIC is never a disease on its own. It is a complication of another serious illness in which the clotting system turns on throughout the body. Clients clot and bleed at the same time.</p>
+
+      <h3>How DIC develops</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="6" aria-haspopup="dialog" aria-expanded="false">Concept · Consumption</button></div>
+      <div class="prose"><ol>
+        <li>A serious trigger releases clotting activators into the bloodstream.</li>
+        <li>Tiny clots form throughout small vessels, blocking flow to organs (<strong>clotting phase</strong>).</li>
+        <li>Platelets and clotting factors are used up faster than they can be made.</li>
+        <li>Fibrinolysis breaks down the clots, releasing fibrin degradation products, which also act as anticoagulants.</li>
+        <li>With no platelets or factors left, the client bleeds from everywhere (<strong>bleeding phase</strong>).</li>
+      </ol></div>
+
+      
+      <figure class="anim" id="fig-dic">
+        <div class="anim-h"><h4>DIC: clotting, then bleeding</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 212" role="img" aria-label="Microclots forming and using up platelets and fibrinogen, followed by bleeding"><rect class="f-sunk" x="30" y="56" width="400" height="108"/><rect class="f-art" x="30" y="46" width="400" height="10" opacity=".8"/><rect class="f-art" x="30" y="164" width="400" height="10" opacity=".8"/><g style="animation:dicclot 10s linear 0.00s infinite both"><ellipse class="f-ven" cx="74" cy="90" rx="5" ry="3"/><ellipse class="f-ven" cx="86" cy="90" rx="5" ry="3"/><ellipse class="f-ven" cx="80" cy="84" rx="5" ry="3"/><ellipse class="f-ven" cx="80" cy="96" rx="5" ry="3"/><ellipse class="f-ven" cx="80" cy="90" rx="5" ry="3"/><line class="s-ink" stroke-width="1.4" x1="70" y1="82" x2="90" y2="98"/><line class="s-ink" stroke-width="1.4" x1="90" y1="82" x2="70" y2="98"/></g><g style="animation:dicclot 10s linear 0.55s infinite both"><ellipse class="f-ven" cx="144" cy="130" rx="5" ry="3"/><ellipse class="f-ven" cx="156" cy="130" rx="5" ry="3"/><ellipse class="f-ven" cx="150" cy="124" rx="5" ry="3"/><ellipse class="f-ven" cx="150" cy="136" rx="5" ry="3"/><ellipse class="f-ven" cx="150" cy="130" rx="5" ry="3"/><line class="s-ink" stroke-width="1.4" x1="140" y1="122" x2="160" y2="138"/><line class="s-ink" stroke-width="1.4" x1="160" y1="122" x2="140" y2="138"/></g><g style="animation:dicclot 10s linear 1.10s infinite both"><ellipse class="f-ven" cx="209" cy="82" rx="5" ry="3"/><ellipse class="f-ven" cx="221" cy="82" rx="5" ry="3"/><ellipse class="f-ven" cx="215" cy="76" rx="5" ry="3"/><ellipse class="f-ven" cx="215" cy="88" rx="5" ry="3"/><ellipse class="f-ven" cx="215" cy="82" rx="5" ry="3"/><line class="s-ink" stroke-width="1.4" x1="205" y1="74" x2="225" y2="90"/><line class="s-ink" stroke-width="1.4" x1="225" y1="74" x2="205" y2="90"/></g><g style="animation:dicclot 10s linear 1.65s infinite both"><ellipse class="f-ven" cx="269" cy="120" rx="5" ry="3"/><ellipse class="f-ven" cx="281" cy="120" rx="5" ry="3"/><ellipse class="f-ven" cx="275" cy="114" rx="5" ry="3"/><ellipse class="f-ven" cx="275" cy="126" rx="5" ry="3"/><ellipse class="f-ven" cx="275" cy="120" rx="5" ry="3"/><line class="s-ink" stroke-width="1.4" x1="265" y1="112" x2="285" y2="128"/><line class="s-ink" stroke-width="1.4" x1="285" y1="112" x2="265" y2="128"/></g><g style="animation:dicclot 10s linear 2.20s infinite both"><ellipse class="f-ven" cx="334" cy="95" rx="5" ry="3"/><ellipse class="f-ven" cx="346" cy="95" rx="5" ry="3"/><ellipse class="f-ven" cx="340" cy="89" rx="5" ry="3"/><ellipse class="f-ven" cx="340" cy="101" rx="5" ry="3"/><ellipse class="f-ven" cx="340" cy="95" rx="5" ry="3"/><line class="s-ink" stroke-width="1.4" x1="330" y1="87" x2="350" y2="103"/><line class="s-ink" stroke-width="1.4" x1="350" y1="87" x2="330" y2="103"/></g><g style="animation:dicclot 10s linear 2.75s infinite both"><ellipse class="f-ven" cx="384" cy="140" rx="5" ry="3"/><ellipse class="f-ven" cx="396" cy="140" rx="5" ry="3"/><ellipse class="f-ven" cx="390" cy="134" rx="5" ry="3"/><ellipse class="f-ven" cx="390" cy="146" rx="5" ry="3"/><ellipse class="f-ven" cx="390" cy="140" rx="5" ry="3"/><line class="s-ink" stroke-width="1.4" x1="380" y1="132" x2="400" y2="148"/><line class="s-ink" stroke-width="1.4" x1="400" y1="132" x2="380" y2="148"/></g><g style="animation:dicclot 10s linear 3.30s infinite both"><ellipse class="f-ven" cx="114" cy="108" rx="5" ry="3"/><ellipse class="f-ven" cx="126" cy="108" rx="5" ry="3"/><ellipse class="f-ven" cx="120" cy="102" rx="5" ry="3"/><ellipse class="f-ven" cx="120" cy="114" rx="5" ry="3"/><ellipse class="f-ven" cx="120" cy="108" rx="5" ry="3"/><line class="s-ink" stroke-width="1.4" x1="110" y1="100" x2="130" y2="116"/><line class="s-ink" stroke-width="1.4" x1="130" y1="100" x2="110" y2="116"/></g><g style="animation:dicclot 10s linear 3.85s infinite both"><ellipse class="f-ven" cx="299" cy="72" rx="5" ry="3"/><ellipse class="f-ven" cx="311" cy="72" rx="5" ry="3"/><ellipse class="f-ven" cx="305" cy="66" rx="5" ry="3"/><ellipse class="f-ven" cx="305" cy="78" rx="5" ry="3"/><ellipse class="f-ven" cx="305" cy="72" rx="5" ry="3"/><line class="s-ink" stroke-width="1.4" x1="295" y1="64" x2="315" y2="80"/><line class="s-ink" stroke-width="1.4" x1="315" y1="64" x2="295" y2="80"/></g><circle class="f-bad" cx="100" cy="44" r="5" style="--dy:-34px;animation:dicbleed 10s linear 0.00s infinite both"/><circle class="f-bad" cx="190" cy="176" r="5" style="--dy:34px;animation:dicbleed 10s linear 0.30s infinite both"/><circle class="f-bad" cx="260" cy="44" r="5" style="--dy:-34px;animation:dicbleed 10s linear 0.60s infinite both"/><circle class="f-bad" cx="360" cy="176" r="5" style="--dy:34px;animation:dicbleed 10s linear 0.90s infinite both"/><circle class="f-bad" cx="400" cy="44" r="5" style="--dy:-34px;animation:dicbleed 10s linear 1.20s infinite both"/><circle class="f-bad" cx="140" cy="176" r="5" style="--dy:34px;animation:dicbleed 10s linear 1.50s infinite both"/><text class="t" x="460" y="72">Platelets</text><rect class="f-sunk" x="460" y="80" width="120" height="16" rx="4"/><rect class="f-ven scl" x="460" y="80" width="120" height="16" rx="4" style="animation:dicbar 10s linear infinite"/><text class="t" x="460" y="122">Fibrinogen</text><rect class="f-sunk" x="460" y="130" width="120" height="16" rx="4"/><rect class="f-ven scl" x="460" y="130" width="120" height="16" rx="4" style="animation:dicbar 10s linear infinite"/><text class="t" x="230" y="200" text-anchor="middle" style="animation:dicl1 10s linear infinite">Clotting phase: microclots everywhere</text><text class="t" x="230" y="200" text-anchor="middle" style="fill:var(--bad);animation:dicl2 10s linear infinite">Bleeding phase: nothing left to clot with</text></svg>
+        <figcaption>First, clots form throughout small vessels and block flow to organs. They use up platelets and fibrinogen. Once those are depleted, the client bleeds from IV sites, mucous membranes, and organs.</figcaption>
+      </figure>
+      <h3>Triggers</h3>
+      <div class="prose"><p><strong>Sepsis</strong> (most common), major trauma, burns, crush injuries, shock, cancer (especially acute leukemia), obstetric complications (placental abruption, amniotic fluid embolism, retained fetal tissue, HELLP syndrome), acute hemolytic transfusion reaction, and snake venom.</p></div>
+
+      <h3>Findings</h3>
+      <div class="two">
+        <div class="panel"><span class="tag art">Bleeding</span><ul><li>Oozing from IV sites, incisions, and puncture sites</li><li>Petechiae, purpura, ecchymoses</li><li>Bleeding gums, epistaxis</li><li>Hematuria, GI bleeding (black stools, coffee-ground emesis)</li><li>Signs of internal bleeding: tachycardia, falling BP</li></ul></div>
+        <div class="panel"><span class="tag ven">Clotting</span><ul><li>Cool, mottled, or cyanotic fingers and toes (acrocyanosis)</li><li>Kidneys: oliguria, rising creatinine</li><li>Lungs: dyspnea, hypoxemia</li><li>Brain: confusion, decreased LOC</li><li>Skin and digital necrosis</li></ul></div>
+      </div>
+
+      <h3>Lab pattern</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Lab</th><th>In DIC</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Platelets</td><td>↓ Low</td><td>Consumed in microclots</td></tr>
+          <tr><td class="k">Fibrinogen</td><td>↓ Low</td><td>Used up making fibrin</td></tr>
+          <tr><td class="k">PT/INR and aPTT</td><td>↑ Prolonged</td><td>Clotting factors are depleted</td></tr>
+          <tr><td class="k">D-dimer and fibrin degradation products</td><td>↑ High</td><td>Clots are forming and being broken down at the same time</td></tr>
+          <tr><td class="k">Hemoglobin</td><td>↓ Often low</td><td>Bleeding and red cells shredded by microclots</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Treatment and nursing care</h3>
+      <div class="callout art"><b class="lbl">Treat the cause first</b><p>DIC will not stop until the trigger is controlled: antibiotics and source control for sepsis, delivery for obstetric causes, fluids and pressors for shock.</p></div>
+      <div class="prose" style="margin-top:12px"><ul>
+        <li><strong>Replace what was consumed:</strong> platelets, fresh frozen plasma (clotting factors), cryoprecipitate (fibrinogen), and PRBCs for blood loss.</li>
+        <li>Heparin is sometimes used when clotting dominates (for example, organ ischemia), to stop the consumption cycle.</li>
+        <li>Bleeding precautions; minimize needle sticks; hold pressure longer; avoid IM injections.</li>
+        <li>Monitor vitals, urine output, neuro status, SpO₂, and skin color and temperature of extremities; trend labs.</li>
+        <li>Gentle oral care, no rectal measures; measure blood loss (weigh dressings, test stool and urine).</li>
+      </ul></div>
+      <div class="quiz" data-quiz="dic"></div>
+    </section>
+
+    <!-- TRANSFUSION -->
+    <section class="sec" id="sec-transfusion" data-id="transfusion" data-title="Blood transfusion" data-grp="Conditions">
+      <div class="eyebrow">Section 13 · Conditions</div>
+      <h2>Blood transfusion</h2>
+      <p class="lede">Many hematologic disorders are supported with blood products. Transfusion is common, but a single identification error can be fatal, so every step has a reason.</p>
+
+      <h3>Blood products</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="0" aria-haspopup="dialog" aria-expanded="false">Concept · Oxygen content</button><button type="button" class="ctag" data-c="1" aria-haspopup="dialog" aria-expanded="false">Concept · Oxyhemoglobin curve</button></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Product</th><th>Used for</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Packed red blood cells (PRBCs)</td><td>Symptomatic anemia, blood loss</td><td>1 unit raises Hgb about 1 g/dL and Hct about 3%; infuse within 4 hours</td></tr>
+          <tr><td class="k">Platelets</td><td>Low platelets with bleeding or before procedures</td><td>Infuse quickly (usually 15–60 min) through a standard blood set; never refrigerate</td></tr>
+          <tr><td class="k">Fresh frozen plasma (FFP)</td><td>Replacing clotting factors (DIC, liver failure, warfarin reversal with bleeding)</td><td>Must be ABO compatible</td></tr>
+          <tr><td class="k">Cryoprecipitate</td><td>Low fibrinogen (DIC, massive bleeding)</td><td>Rich in fibrinogen, factor VIII, vWF, factor XIII</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Compatibility</h3>
+      <div class="two">
+        <div class="panel"><h4>Red cells</h4><ul><li><strong>O negative</strong>: universal red cell donor (no A, B, or Rh antigens)</li><li><strong>AB positive</strong>: universal red cell recipient</li><li>Rh-negative clients should receive Rh-negative blood</li></ul></div>
+        <div class="panel"><h4>Plasma</h4><ul><li>Reversed: <strong>AB plasma</strong> is the universal plasma donor (no anti-A or anti-B antibodies)</li><li>Type O plasma can only go to type O recipients</li></ul></div>
+      </div>
+
+      
+      <figure class="anim" id="fig-abo" data-mode="a">
+        <div class="anim-h"><h4>Why ABO compatibility matters</h4><div class="anim-ctl"><button type="button" class="chipbtn anim-mode" data-mode="a" aria-pressed="true">Compatible (A → A)</button><button type="button" class="chipbtn anim-mode" data-mode="b" aria-pressed="false">Incompatible (A → O)</button><button type="button" class="chipbtn anim-pause" aria-pressed="false">Pause</button></div></div>
+        <svg viewBox="0 0 600 232" role="img" aria-label="Antibodies ignoring a compatible red cell and attacking an incompatible one"><text class="t" x="300" y="22" text-anchor="middle">Type A donor red cell (A antigens ▲)</text><g data-show="a"><circle class="f-art" cx="300" cy="110" r="42"/><path class="f-warn" d="M346.0,110.0 l6,0 l-3,-7 z"/><path class="f-warn" d="M254.0,110.0 l6,0 l-3,-7 z"/><path class="f-warn" d="M300.0,156.0 l6,0 l-3,-7 z"/><path class="f-warn" d="M300.0,64.0 l6,0 l-3,-7 z"/><path class="f-warn" d="M332.2,142.2 l6,0 l-3,-7 z"/><path class="f-warn" d="M267.8,142.2 l6,0 l-3,-7 z"/><path class="f-warn" d="M332.2,77.8 l6,0 l-3,-7 z"/><path class="f-warn" d="M267.8,77.8 l6,0 l-3,-7 z"/><g transform="translate(120 70)"><path class="nf s-ven" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dy:-8px;animation:bob 2.0s ease-in-out infinite"/></g><g transform="translate(480 80)"><path class="nf s-ven" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dy:-8px;animation:bob 2.3s ease-in-out infinite"/></g><g transform="translate(140 160)"><path class="nf s-ven" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dy:-8px;animation:bob 2.6s ease-in-out infinite"/></g><g transform="translate(470 160)"><path class="nf s-ven" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dy:-8px;animation:bob 2.9s ease-in-out infinite"/></g><g transform="translate(220 190)"><path class="nf s-ven" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dy:-8px;animation:bob 3.2s ease-in-out infinite"/></g><g transform="translate(390 40)"><path class="nf s-ven" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dy:-8px;animation:bob 3.5s ease-in-out infinite"/></g><text class="tm" x="480" y="60" text-anchor="middle">anti-B</text><text class="t" x="300" y="222" text-anchor="middle">Type A recipient has only anti-B: no reaction</text></g><g data-show="b"><g class="sc" style="animation:burst 7s ease-in infinite both"><circle class="f-art" cx="300" cy="110" r="42"/><path class="f-warn" d="M346.0,110.0 l6,0 l-3,-7 z"/><path class="f-warn" d="M254.0,110.0 l6,0 l-3,-7 z"/><path class="f-warn" d="M300.0,156.0 l6,0 l-3,-7 z"/><path class="f-warn" d="M300.0,64.0 l6,0 l-3,-7 z"/><path class="f-warn" d="M332.2,142.2 l6,0 l-3,-7 z"/><path class="f-warn" d="M267.8,142.2 l6,0 l-3,-7 z"/><path class="f-warn" d="M332.2,77.8 l6,0 l-3,-7 z"/><path class="f-warn" d="M267.8,77.8 l6,0 l-3,-7 z"/></g><g transform="translate(120 70)"><path class="nf s-bad" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dx:138px;--dy:22px;animation:abomove 7s ease-in 0.0s infinite both"/></g><g transform="translate(480 80)"><path class="nf s-bad" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dx:-138px;--dy:16px;animation:abomove 7s ease-in 0.2s infinite both"/></g><g transform="translate(140 160)"><path class="nf s-bad" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dx:122px;--dy:-26px;animation:abomove 7s ease-in 0.4s infinite both"/></g><g transform="translate(470 160)"><path class="nf s-bad" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dx:-130px;--dy:-24px;animation:abomove 7s ease-in 0.6s infinite both"/></g><g transform="translate(390 40)"><path class="nf s-bad" stroke-width="3" d="M0,10 L0,0 M0,0 L-7,-8 M0,0 L7,-8" style="--dx:-78px;--dy:30px;animation:abomove 7s ease-in 0.8s infinite both"/></g><text class="t" x="300" y="222" text-anchor="middle" style="fill:var(--bad)">Type O recipient's anti-A attacks: hemolysis</text></g></svg>
+        <figcaption>Red cells carry A or B antigens; plasma carries antibodies against the antigens a person lacks. Give type A cells to a type O client and the client's anti-A antibodies attack them, causing an acute hemolytic reaction.</figcaption>
+      </figure>
+      <h3>Safe administration</h3>
+      <div class="ctags"><button type="button" class="ctag" data-c="3" aria-haspopup="dialog" aria-expanded="false">Concept · Osmosis and tonicity</button></div>
+      <div class="prose"><ol>
+        <li>Verify the provider's order and the client's signed consent. Confirm type and crossmatch is complete.</li>
+        <li>Establish IV access: 18- or 20-gauge in adults (smaller is acceptable when needed, per policy).</li>
+        <li>Prime the blood administration set (with in-line filter) with <strong>0.9% sodium chloride only</strong>. Never add medications or use dextrose solutions, which cause hemolysis.</li>
+        <li>Take baseline vital signs, including temperature.</li>
+        <li><strong>Two licensed nurses</strong> verify at the bedside: client name and second identifier, blood band number, ABO and Rh, unit number, expiration, and product.</li>
+        <li>Start slowly and <strong>stay with the client for the first 15 minutes</strong>, when most severe reactions happen. Repeat vital signs per policy (commonly at 15 minutes and then periodically).</li>
+        <li>Complete each unit of PRBCs within <strong>4 hours</strong> of leaving the blood bank.</li>
+      </ol></div>
+
+      <div class="inline-q" data-quiz="transA"></div>
+
+      <h3>Transfusion reactions</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Reaction</th><th>Cause</th><th>Signs</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Acute hemolytic</td><td>ABO incompatibility, usually a clerical or identification error</td><td>Fever, chills, <strong>low back or flank pain</strong>, hypotension, tachycardia, dark urine, sense of doom; can lead to DIC and kidney failure</td></tr>
+          <tr><td class="k">Febrile nonhemolytic</td><td>Reaction to donor white cells (most common)</td><td>Fever and chills without hemolysis; reduced with leukocyte-reduced products</td></tr>
+          <tr><td class="k">Allergic</td><td>Reaction to donor plasma proteins</td><td>Mild: hives, itching, flushing. Severe (anaphylaxis): wheezing, throat tightness, hypotension</td></tr>
+          <tr><td class="k">Circulatory overload (TACO)</td><td>Volume given too fast or to a client with heart or kidney disease</td><td>Dyspnea, crackles, cough, <strong>hypertension</strong>, JVD, tachycardia</td></tr>
+          <tr><td class="k">Transfusion-related acute lung injury (TRALI)</td><td>Donor antibodies injure the lung capillaries</td><td>Sudden hypoxemia and bilateral infiltrates within 6 hours, fever, often <strong>hypotension</strong></td></tr>
+          <tr><td class="k">Bacterial contamination (sepsis)</td><td>Contaminated product, more often platelets</td><td>High fever, rigors, hypotension</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout warn" style="margin-top:14px"><b class="lbl">Suspect a reaction? Stop first</b><p><strong>1.</strong> Stop the transfusion. <strong>2.</strong> Disconnect the blood tubing and keep the IV open with 0.9% sodium chloride through new tubing. <strong>3.</strong> Stay with the client; assess vitals and airway. <strong>4.</strong> Notify the provider and the blood bank. <strong>5.</strong> Send the blood bag and tubing back to the blood bank and collect blood and urine samples per policy. <strong>6.</strong> Treat as ordered (antipyretics, antihistamines, diuretics, epinephrine for anaphylaxis) and document.</p></div>
+      <div class="quiz" data-quiz="transfusion"></div>
+    </section>
+
+    <!-- FINAL -->
+    <section class="sec" id="sec-final" data-id="final" data-title="Final test" data-grp="Finish">
+      <div class="eyebrow">Section 14 · Finish</div>
+      <h2>Final test</h2>
+      <p class="lede">Twenty NCLEX-RN style items at the understanding level. Answer every item, then submit. You will see your score and a rationale for each item. "Select all that apply" items are scored correct only when every correct option, and nothing else, is selected.</p>
+      <div class="final-head">
+        <div class="field"><label for="stuName">Your name</label><input id="stuName" type="text" autocomplete="name" placeholder="First and last name"></div>
+        <span style="font-size:14px;color:var(--muted);flex:1;min-width:180px">Shown on your score page in case your instructor asks for a screenshot.</span>
+      </div>
+      <div id="finalQs" style="display:flex;flex-direction:column;gap:16px;margin-top:18px"></div>
+      <div class="q-act" style="margin-top:18px"><button class="btn art" id="finalSubmit" type="button">Submit test</button><span class="unanswered" id="finalMsg" aria-live="polite"></span><button class="btn ghost" id="finalReset" type="button" hidden>Retake test</button></div>
+      <div id="finalResult" style="margin-top:18px" hidden></div>
+    </section>
+
+    <!-- BRING -->
+    <section class="sec" id="sec-bring" data-id="bring" data-title="Come to class with" data-grp="Finish">
+      <div class="eyebrow">Section 15 · Finish</div>
+      <h2>Come to class with</h2>
+      <p class="lede">Class time is for applying this material to clients, not for hearing it the first time. Be ready to explain each item below without notes. Check them off as you feel confident.</p>
+      <ul class="bring" id="bringList"></ul>
+      <div class="callout ven" style="margin-top:18px"><b class="lbl">Bring one question</b><p>Write down one thing from this assignment that confused you or that you want to see applied to a real client. We will start class with these.</p></div>
+    </section>
+
+    <div class="pager" id="pager"></div>
+  </main>
+</div>
+
+<div id="cpop" class="cpop" role="dialog" aria-labelledby="cpopT" hidden>
+  <div class="cpop-top"><span class="eyebrow" style="margin:0">Key concept</span><button type="button" class="cpop-x" aria-label="Close">×</button></div>
+  <h4 id="cpopT"></h4><p class="c-rule" id="cpopR"></p><p class="c-eq mono" id="cpopE"></p><p class="c-ana" id="cpopA"></p>
+  <button type="button" class="btn ghost cpop-go">See all key concepts</button>
+</div>
+<script>
+(function(){
+/* ---------- storage ---------- */
+const KEY='hematology-pathways-v2';
+let store={};
+try{store=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){store={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+store.q=store.q||{}; store.bring=store.bring||{};
+
+/* ---------- terms ---------- */
+const TERMS=[["Anemia", "A hemoglobin or red blood cell count below normal, reducing the blood's ability to carry oxygen."], ["Aplastic", "Failure of the bone marrow to produce blood cells."], ["Ecchymosis", "A bruise larger than about 1 cm, caused by bleeding under the skin."], ["Erythropoietin", "A hormone made by the kidneys that stimulates the bone marrow to make red blood cells."], ["Ferritin", "The protein that stores iron; a low level is the most specific sign of iron deficiency."], ["Fibrinogen", "A plasma protein converted to fibrin, which forms the mesh of a clot."], ["Hemarthrosis", "Bleeding into a joint space; classic in hemophilia."], ["Hematocrit", "The percentage of blood volume made up of red blood cells."], ["Hemolysis", "Destruction of red blood cells, releasing hemoglobin."], ["Hemostasis", "The process that stops bleeding: vessel spasm, platelet plug, clot formation."], ["Hypochromic", "Red cells that are paler than normal because they contain less hemoglobin."], ["Intrinsic factor", "A protein made in the stomach that is required to absorb vitamin B12."], ["Macrocytic", "Red cells that are larger than normal (MCV above 100 fL)."], ["Microcytic", "Red cells that are smaller than normal (MCV below 80 fL)."], ["Pancytopenia", "A decrease in all three blood cell lines: red cells, white cells, and platelets."], ["Petechiae", "Pinpoint red or purple dots on the skin from tiny capillary bleeds; a sign of low platelets."], ["Polycythemia", "An abnormally high number of red blood cells."], ["Purpura", "Purple patches on the skin caused by bleeding under the skin."], ["Reticulocyte", "An immature red blood cell; a high count shows the marrow is actively replacing cells."], ["Thrombocytopenia", "A platelet count below 150,000/mm³."]];
+try{const tg=document.getElementById('termGrid');
+TERMS.forEach(([t,d])=>{const b=document.createElement('button');b.className='term';b.setAttribute('aria-pressed','false');b.innerHTML='<b>'+t+'</b><span class="hint">Tap to check your definition</span>';b.addEventListener('click',()=>{const on=b.getAttribute('aria-pressed')==='true';b.setAttribute('aria-pressed',String(!on));b.innerHTML=on?'<b>'+t+'</b><span class="hint">Tap to check your definition</span>':'<b>'+t+'</b><span class="def">'+d+'</span>'});tg.appendChild(b)});}catch(e){}
+
+/* ---------- quiz data ---------- */
+const CONCEPTS=[{"name": "Oxygen content depends on hemoglobin", "rule": "SpO₂ tells you what percentage of the available hemoglobin is carrying oxygen. It does not tell you how much hemoglobin there is. Total oxygen delivered depends mostly on hemoglobin.", "eq": "O₂ content ≈ 1.34 × Hgb × SaO₂ (plus a small dissolved amount)", "ana": "SpO₂ tells you how full each delivery truck is. Hemoglobin tells you how many trucks there are. Ten full trucks deliver less than thirty full trucks."}, {"name": "The oxyhemoglobin dissociation curve", "rule": "Hemoglobin's grip on oxygen changes with conditions. A right shift loosens the grip and releases more oxygen to tissues. A left shift tightens the grip and releases less.", "eq": "Right shift: ↑ temp, ↑ CO₂, ↓ pH (acidosis), ↑ 2,3-DPG · Left shift: ↓ temp, ↓ CO₂, ↑ pH (alkalosis), fetal Hgb, stored blood", "ana": "Think of exercising muscle: it's hot, acidic, and full of CO₂, so hemoglobin lets go of oxygen right where it's needed."}, {"name": "Viscosity", "rule": "Thicker fluids flow more slowly. As hematocrit rises or plasma volume falls, blood becomes more viscous, flow slows, and clots form more easily.", "eq": "", "ana": "Honey moves through a straw much more slowly than water."}, {"name": "Osmosis and tonicity", "rule": "Water moves across cell membranes toward the side with more dissolved particles. Red cells swell and burst in hypotonic fluid and shrink in hypertonic fluid.", "eq": "Isotonic (0.9% NaCl) · Hypotonic → cells swell · Hypertonic → cells shrink", "ana": "A raisin left in water plumps up. Put a grape in salty water and it shrivels."}, {"name": "Supply and demand", "rule": "Tissues get into trouble when oxygen demand exceeds oxygen supply. The body compensates first by raising heart rate and breathing rate.", "eq": "", "ana": "A small delivery team can keep up on a slow day. On a busy day, they run faster, then fall behind."}, {"name": "Negative feedback", "rule": "The body senses a change and responds in a way that reverses it. Once the problem is corrected, the signal turns off.", "eq": "Low O₂ → kidneys release EPO → marrow makes RBCs → O₂ rises → EPO falls", "ana": "A thermostat turns on the furnace when the room is cold and shuts it off once the room warms up."}, {"name": "Consumption: clotting is a balance", "rule": "Platelets and clotting factors are a limited supply. When clotting is switched on everywhere, they are used up faster than they are made, and bleeding follows.", "eq": "Clotting turned on everywhere → platelets and factors used up → bleeding", "ana": "A bank account: if withdrawals outpace deposits, the balance hits zero even though money was there at the start."}];
+const Q={"concepts": [{"s": "A client with Hgb 6.8 g/dL is short of breath with activity. SpO₂ is 99% on room air. The client asks why she feels so breathless if her oxygen is normal. The best explanation is:", "o": ["\"The oxygen sensor on your finger is giving a false reading.\"", "\"Your hemoglobin is full of oxygen, but you have too little of it.\"", "\"Your lungs aren't moving enough air in and out right now.\"", "\"You are breathless because you are anxious about your lab results.\""], "a": [1], "w": "SpO₂ measures saturation, not quantity. With low hemoglobin, fully saturated cells still deliver too little oxygen."}, {"s": "A client has a temperature of 103°F (39.4°C) and metabolic acidosis. How do these conditions affect oxygen delivery to the tissues?", "o": ["Hemoglobin releases oxygen more readily to the tissues", "Hemoglobin holds oxygen more tightly, so less reaches tissues", "They prevent hemoglobin from picking up any oxygen", "They have no effect on oxygen delivery"], "a": [0], "w": "Fever and acidosis shift the curve to the right, loosening hemoglobin's grip so more oxygen is released to the tissues."}, {"s": "Why does dehydration increase the risk of clots in a client with polycythemia vera?", "o": ["It lowers the platelet count and slows clotting", "It dilates blood vessels throughout the body", "It increases erythropoietin release from the kidneys", "It reduces plasma volume, making the blood thicker"], "a": [3], "w": "Losing plasma concentrates the red cells, raising viscosity. Thicker blood flows slowly and clots more easily."}, {"s": "A nursing student asks why D5W can't be used to prime the tubing for a red cell transfusion. The best explanation is:", "o": ["\"D5W is too thick to run through the same IV line as the blood product.\"", "\"Dextrose makes the blood clot inside the tubing.\"", "\"It acts hypotonic, so water enters the red cells and they burst.\"", "\"Dextrose raises the client's blood sugar much too high.\""], "a": [2], "w": "Red cells in a hypotonic environment take on water and hemolyze. Only isotonic 0.9% sodium chloride is compatible with blood."}, {"s": "A client with Hgb 7.2 g/dL has a heart rate of 118 after walking to the bathroom. The nurse understands the tachycardia is:", "o": ["A sign of a developing bloodstream infection", "Caused by too much fluid in the circulation", "A side effect of the client's oral iron", "Compensation to deliver more oxygen during activity"], "a": [3], "w": "Activity raises oxygen demand. With low hemoglobin, the heart speeds up to deliver more blood per minute. Clustering care and rest periods reduce demand."}, {"s": "A client with COPD has a hematocrit of 58%. Which explanation reflects negative feedback?", "o": ["\"Your COPD inhalers are causing your high red cell count.\"", "\"Your spleen is releasing extra red cells it had stored.\"", "\"Low oxygen signals your kidneys to make EPO, so more red cells form.\"", "\"Your bone marrow has a gene mutation that makes far too many red cells.\""], "a": [2], "w": "Chronic hypoxia keeps the EPO signal on. This is secondary polycythemia; in polycythemia vera the marrow overproduces without the signal and EPO is low."}, {"s": "A client with sepsis develops widespread microclots and then begins bleeding from IV sites. Which concept explains the bleeding?", "o": ["Osmosis across red cell membranes", "Consumption of platelets and factors", "Negative feedback from the kidneys", "Viscosity of the blood"], "a": [1], "w": "When clotting is activated throughout the body, platelets and factors are used up faster than they can be made. With nothing left to form clots, the client bleeds."}], "terms": [{"s": "A client's platelet count is 42,000/mm³. Which term describes this finding?", "o": ["Thrombocytopenia", "Polycythemia", "Erythrocytosis", "Leukopenia"], "a": [0], "w": "Thromb/o means clot (platelets are thrombocytes) and -penia means too few. A platelet count below 150,000/mm³ is thrombocytopenia."}, {"s": "The nurse notes pinpoint, flat, red dots on the client's lower legs that do not blanch. These are documented as:", "o": ["Ecchymoses", "Petechiae", "Hematomas", "Erythema"], "a": [1], "w": "Petechiae are pinpoint capillary bleeds and are a classic sign of low platelets. Ecchymoses are larger bruises; hematomas are collections of blood that form a raised mass."}, {"s": "What does the term \"pancytopenia\" mean?", "o": ["A decrease in red blood cells only", "An increase in all white blood cell types", "A decrease in all three blood cell lines", "Destruction of red cells in the spleen"], "a": [2], "w": "Pan- means all, cyt/o means cell, and -penia means too few. Pancytopenia is a drop in all three cell lines, as seen in aplastic anemia."}, {"s": "A lab report describes a client's red cells as \"microcytic and hypochromic.\" This means the cells are:", "o": ["Large and dark", "Normal size but fragile", "Sickle-shaped", "Small and pale"], "a": [3], "w": "Micro- means small and hypo-chromic means less color. Small, pale cells are typical of iron deficiency anemia."}, {"s": "A client with hemophilia has a swollen, painful knee from bleeding into the joint. This is called:", "o": ["Hemarthrosis", "Hemoptysis", "Hematuria", "Hemolysis"], "a": [0], "w": "Hem/o means blood and arthr/o means joint. Hemarthrosis is bleeding into a joint. Hemolysis is red cell destruction, hematuria is blood in urine, and hemoptysis is coughing up blood."}, {"s": "Which hormone, made by the kidneys, stimulates red blood cell production?", "o": ["Thrombopoietin", "Renin", "Erythropoietin", "Aldosterone"], "a": [2], "w": "Erythr/o means red and -poietin means maker. The kidneys release erythropoietin when they sense low oxygen, which is why chronic kidney disease causes anemia."}], "anp": [{"s": "Where are blood cells produced in an adult?", "o": ["Lymph nodes", "Red bone marrow", "Liver and spleen", "Thymus gland"], "a": [1], "w": "In adults, hematopoiesis takes place in the red bone marrow of flat bones such as the pelvis, sternum, and vertebrae. The spleen removes old red cells."}, {"s": "A client has a reticulocyte count of 6%. The nurse understands this means:", "o": ["The marrow is working to replace lost red cells", "The bone marrow has stopped producing red cells", "The client's red cells are larger than normal", "The client has too many circulating platelets"], "a": [0], "w": "Reticulocytes are young red cells. A count above the normal 0.5–2% shows the marrow is responding to blood loss or hemolysis."}, {"s": "In hemostasis, what is the role of platelets?", "o": ["They dissolve the clot once healing is complete", "They carry oxygen to the injured tissue", "They produce antibodies against invading bacteria", "They form the first plug at the injury site"], "a": [3], "w": "Platelets stick to the exposed vessel wall and to each other, forming a temporary plug. The clotting cascade then reinforces the plug with fibrin."}, {"s": "Which lab test is used to monitor a client receiving warfarin?", "o": ["aPTT", "Platelet count", "PT/INR", "D-dimer"], "a": [2], "w": "Warfarin affects vitamin K–dependent factors in the extrinsic pathway, measured by PT/INR. The aPTT monitors unfractionated heparin."}, {"s": "An elevated D-dimer indicates that:", "o": ["The platelet count is too low", "The client has iron deficiency anemia", "Red cells are being destroyed in the spleen", "Clots are forming and being broken down"], "a": [3], "w": "D-dimer is a fragment released when plasmin breaks down fibrin. A high level means clotting and fibrinolysis are active, as in DVT, PE, or DIC."}], "anemiaA": [{"s": "Quick check: A female client has Hgb 9.0 g/dL and MCV 108 fL. How is this anemia classified by cell size?", "o": ["Macrocytic", "Microcytic", "Normocytic", "Not anemic"], "a": [0], "w": "An MCV above 100 fL means the cells are large (macrocytic). The most common causes are vitamin B12 and folate deficiency."}], "anemia": [{"s": "A client with anemia has a resting heart rate of 112. The nurse understands the tachycardia is caused by:", "o": ["Iron toxicity from the client's daily oral supplements", "Compensation for lower oxygen-carrying capacity", "Anxiety about the new diagnosis", "Fluid overload from IV fluids given earlier"], "a": [1], "w": "With less hemoglobin, each heartbeat carries less oxygen. The heart beats faster to keep oxygen delivery up."}, {"s": "A 62-year-old man is diagnosed with iron deficiency anemia. Why does the nurse expect the provider to order a colonoscopy?", "o": ["Colonoscopy is routine for every client with any anemia", "Colonoscopy prep improves how well iron is absorbed afterward", "Slow GI bleeding is the most likely cause and must be ruled out", "Iron deficiency in men is usually caused by colon inflammation"], "a": [2], "w": "Men and postmenopausal women don't lose iron through menstruation, so iron deficiency in these groups suggests GI bleeding, including colon cancer, until proven otherwise."}, {"s": "Which statement by a client taking ferrous sulfate shows understanding of teaching?", "o": ["\"I'll take my iron with a glass of milk at breakfast.\"", "\"I'll take it with my antacid to protect my stomach.\"", "\"If my stools turn black, I'll stop taking it right away.\"", "\"I'll take it with orange juice an hour before breakfast.\""], "a": [3], "w": "Vitamin C increases iron absorption, and absorption is best on an empty stomach. Milk and antacids reduce absorption. Dark stools are expected."}], "mega": [{"s": "Why does a client with pernicious anemia need vitamin B12 by injection rather than by diet alone?", "o": ["Without intrinsic factor, dietary B12 can't be absorbed", "B12 is only found in foods the client cannot eat", "B12 in food is destroyed by the client's stomach acid", "Injections raise B12 levels faster than diet does"], "a": [0], "w": "Intrinsic factor is needed to absorb B12 in the ileum. Without it, oral B12 from food passes through. Injections bypass the gut."}, {"s": "Which finding helps distinguish vitamin B12 deficiency from folate deficiency?", "o": ["Low hemoglobin and hematocrit", "Numbness and tingling in the feet", "Fatigue, pallor, and shortness of breath", "Macrocytic red cells on the smear"], "a": [1], "w": "Both cause macrocytic anemia with fatigue and pallor. Only B12 deficiency causes neurologic signs such as paresthesias and unsteady gait."}, {"s": "Why is a B12 level checked before treating a macrocytic anemia with folic acid alone?", "o": ["Folic acid is toxic to people with low B12 levels", "B12 and folate deficiencies are always treated with the same drug", "Folic acid blocks B12 absorption in the ileum", "Folic acid can fix the anemia while nerve damage continues"], "a": [3], "w": "Folic acid improves the blood counts but does nothing for the nervous system. Treating B12 deficiency with folate alone hides the anemia while neurologic damage progresses."}], "hemaplas": [{"s": "A client with hemolytic anemia has yellow sclera. The nurse understands the jaundice is caused by:", "o": ["Iron deposits building up in the skin", "Liver failure from iron overload", "Bilirubin from rapidly destroyed red cells", "Low platelets causing bruising of the sclera"], "a": [2], "w": "When red cells break down, heme is converted to bilirubin. Rapid destruction produces more bilirubin than the liver can clear, causing jaundice."}, {"s": "Why does a client with aplastic anemia have frequent infections and easy bruising in addition to fatigue?", "o": ["Iron deficiency is affecting all blood cells", "The bone marrow is failing to make all three cell lines", "The client is receiving too many blood transfusions too quickly", "The spleen is destroying all blood cells"], "a": [1], "w": "Aplastic anemia damages the stem cells, causing pancytopenia. Low WBCs cause infections, low platelets cause bleeding, and low RBCs cause fatigue."}, {"s": "Which lab result is expected in hemolytic anemia but not in aplastic anemia?", "o": ["High reticulocyte count", "Low platelet count", "Fatigue with activity", "Low hemoglobin"], "a": [0], "w": "In hemolytic anemia the marrow works hard to replace destroyed cells, so reticulocytes rise. In aplastic anemia the marrow can't respond, so reticulocytes are low."}], "sickle": [{"s": "Why is IV fluid a priority intervention during a vaso-occlusive crisis?", "o": ["To dilute the blood and reduce sickling", "To replace blood lost through bleeding", "To flush excess iron through the kidneys", "To raise the blood pressure to normal"], "a": [0], "w": "Dehydration makes blood more viscous and promotes sickling. Hydration improves flow and helps break the sickling cycle."}, {"s": "A client in sickle cell crisis asks for an ice pack for knee pain. The best response is based on the understanding that:", "o": ["Ice packs are harmful only in children with sickle cell disease", "Cold has no effect on sickling, so the client may choose either", "Cold reduces inflammation and is the best choice for joint pain", "Cold constricts vessels and can worsen sickling, so warmth is used"], "a": [3], "w": "Cold narrows vessels and slows flow, increasing sickling. Warm compresses and a warm environment are used instead."}, {"s": "A client with sickle cell disease develops chest pain, fever, cough, and an SpO₂ of 88%. The nurse suspects:", "o": ["Splenic sequestration", "Aplastic crisis", "Acute chest syndrome", "Vaso-occlusive crisis of the ribs"], "a": [2], "w": "Chest pain, fever, respiratory symptoms, and hypoxemia suggest acute chest syndrome, a leading cause of death in sickle cell disease. It needs immediate intervention."}, {"s": "How does hydroxyurea reduce sickle cell crises?", "o": ["It dissolves cells that have already sickled", "It raises fetal hemoglobin, which resists sickling", "It replaces iron lost through ongoing hemolysis", "It thins the blood the way an anticoagulant does"], "a": [1], "w": "Hydroxyurea raises HbF levels. Cells with more HbF are less likely to sickle, so crises happen less often."}], "poly": [{"s": "Why are clients with polycythemia vera at high risk for stroke and MI?", "o": ["Thick blood flows slowly and clots easily", "They have too few platelets to stop bleeding", "They bleed easily into the brain and heart", "Their blood pressure stays low, reducing perfusion"], "a": [0], "w": "Too many red cells make the blood thick. Sluggish flow plus high platelet counts lead to thrombosis, the main cause of death in polycythemia vera."}, {"s": "A client with polycythemia vera reports intense itching after a hot shower. The nurse understands this is related to:", "o": ["Iron deposits building up in the skin", "Histamine released by extra basophils", "Dry skin caused by dehydration", "An allergic reaction to soap"], "a": [1], "w": "Polycythemia vera increases basophils, which release histamine, especially with warm water. Lukewarm bathing and antihistamines help."}, {"s": "What is the purpose of therapeutic phlebotomy in polycythemia vera?", "o": ["To test the blood for the JAK2 mutation", "To obtain blood for transfusion to others", "To lower red cell mass and blood viscosity", "To raise the iron level in the bone marrow"], "a": [2], "w": "Removing blood lowers the hematocrit (goal under 45%), thinning the blood and reducing clot risk."}], "thrombo": [{"s": "A client has a platelet count of 18,000/mm³. Which order should the nurse question?", "o": ["Acetaminophen for headache", "Stool softener once daily at bedtime", "Electric razor for shaving", "Rectal temperature every 4 hours"], "a": [3], "w": "Rectal temperatures, suppositories, and enemas can injure the mucosa and cause bleeding. The other choices are appropriate bleeding precautions."}, {"s": "A client on heparin for 7 days has a platelet count that fell from 240,000 to 98,000/mm³. Why does the nurse expect all heparin to be stopped?", "o": ["The heparin dose is too low to be effective", "Heparin has caused the client to bleed internally", "The drop suggests HIT, which causes dangerous clots", "Low platelets show the heparin is working as intended"], "a": [2], "w": "A 50% or greater drop 5–14 days after starting heparin suggests HIT. Antibodies activate platelets, causing arterial and venous clots. All heparin, including flushes, is stopped and a non-heparin anticoagulant is started."}, {"s": "Why are platelet transfusions generally avoided in TTP?", "o": ["Platelet transfusions cause fluid overload in TTP", "Added platelets can fuel more small-vessel clots", "Platelets are not usually available for TTP", "Clients with TTP have normal platelet counts"], "a": [1], "w": "In TTP, platelets are being consumed in microclots. Adding more can worsen thrombosis in the brain and kidneys. Plasma exchange is the emergency treatment."}, {"s": "In immune thrombocytopenia (ITP), what is the cause of the low platelet count?", "o": ["The bone marrow stops making platelets", "Heparin exposure destroys the circulating platelets", "Platelets are lost through chronic slow bleeding", "Antibodies coat platelets; the spleen destroys them"], "a": [3], "w": "ITP is autoimmune. Antibody-coated platelets are removed by the spleen, which is why corticosteroids, IVIG, and sometimes splenectomy are used."}], "bleed": [{"s": "Why is hemophilia seen almost exclusively in males?", "o": ["It is an X-linked recessive disorder", "It is passed only from fathers to sons", "It is caused by testosterone", "Females have extra clotting factors"], "a": [0], "w": "The factor VIII and IX genes are on the X chromosome. Males have one X, so one affected gene causes disease. Females usually have a normal second X and are carriers."}, {"s": "Which lab pattern is expected in a client with hemophilia A?", "o": ["High D-dimer with low fibrinogen", "Prolonged aPTT, normal PT and platelets", "Low platelets with a normal aPTT and PT", "Prolonged PT with a normal aPTT and platelets"], "a": [1], "w": "Factor VIII is part of the intrinsic pathway, so aPTT is prolonged. PT and platelet count are normal. Low fibrinogen and high D-dimer suggest DIC."}, {"s": "A woman reports frequent nosebleeds, bleeding gums, and very heavy menstrual periods. Her platelet count is normal. The nurse recognizes these findings are most consistent with:", "o": ["Von Willebrand disease", "Iron deficiency anemia", "Hemophilia B", "Polycythemia vera"], "a": [0], "w": "Von Willebrand disease causes mucosal bleeding because vWF is needed for platelets to adhere. It affects both sexes and is the most common inherited bleeding disorder."}], "dic": [{"s": "Why does a client with DIC bleed even though the disorder begins with excessive clotting?", "o": ["Bleeding and clotting are unrelated events in DIC", "The liver stops making new red blood cells", "The client was given too much heparin earlier", "Widespread clotting uses up platelets and factors"], "a": [3], "w": "Microclots consume platelets and factors. Once they are depleted, and fibrin breakdown products act as anticoagulants, the client bleeds."}, {"s": "Which lab pattern is consistent with DIC?", "o": ["High platelets, high fibrinogen, low D-dimer, normal PT", "Normal platelets and fibrinogen with a prolonged aPTT only", "Low platelets, low fibrinogen, long PT/aPTT, high D-dimer", "High hemoglobin, low reticulocytes, and normal D-dimer"], "a": [2], "w": "DIC consumes platelets and fibrinogen, prolongs clotting times, and raises D-dimer as clots are broken down."}, {"s": "A client with septic shock develops DIC. The nurse understands the most important treatment is:", "o": ["Giving platelets every 4 hours", "Treating the underlying sepsis", "Starting warfarin to stop clotting", "Restricting fluids to protect the lungs"], "a": [1], "w": "DIC continues as long as the trigger is active. Antibiotics and source control for sepsis are essential; blood products support the client meanwhile."}], "transA": [{"s": "Quick check: Why does the nurse stay with the client for the first 15 minutes of a transfusion?", "o": ["To keep the client company and reduce anxiety", "Policy requires it, but it has no clinical purpose", "To time the infusion rate exactly with a watch", "Most severe reactions occur in the first minutes"], "a": [3], "w": "Acute hemolytic and anaphylactic reactions usually appear within the first minutes, often after only a small volume. Early detection limits how much incompatible blood is given."}], "transfusion": [{"s": "Why is only 0.9% sodium chloride used with blood products?", "o": ["It speeds up the infusion rate of the blood", "It contains glucose that keeps the red cells alive", "Other fluids can hemolyze red cells or cause clotting", "It prevents allergic reactions to donor plasma"], "a": [2], "w": "Dextrose (D5W) causes hemolysis; calcium in lactated Ringer's can trigger clotting in the tubing. Normal saline is isotonic and compatible."}, {"s": "Ten minutes into a PRBC transfusion, the client reports low back pain and chills, and the BP drops to 88/50. What should the nurse do first?", "o": ["Stop the transfusion", "Give acetaminophen", "Slow the transfusion rate", "Notify the blood bank"], "a": [0], "w": "Flank or back pain, chills, and hypotension suggest an acute hemolytic reaction. Stopping the transfusion limits further exposure; the other actions follow."}, {"s": "An 82-year-old client with heart failure develops dyspnea, crackles, and a BP of 172/96 during a second unit of PRBCs. The nurse suspects:", "o": ["Febrile nonhemolytic reaction", "Allergic (urticarial) reaction", "Circulatory overload (TACO)", "Acute hemolytic transfusion reaction"], "a": [2], "w": "Dyspnea, crackles, and hypertension in a client with heart failure point to volume overload. TRALI also causes dyspnea but usually with hypotension."}, {"s": "Why is a client with type O blood able to receive only type O red cells?", "o": ["Type O blood clots faster than other types", "Type O is the rarest blood type in the U.S.", "Type O blood contains no antibodies at all", "Type O plasma has anti-A and anti-B antibodies"], "a": [3], "w": "Type O individuals have antibodies against both A and B antigens, so they can receive only type O red cells. Because O red cells have no A or B antigens, they can be given to anyone."}]};
+const FINAL=[{"s": "A client asks why her kidney disease has made her anemic. Which explanation by the nurse is most accurate?", "o": ["\"Damaged kidneys make less erythropoietin, the signal for red cells.\"", "\"Kidney disease slowly destroys the iron stored in your blood.\"", "\"Dialysis filters out some of your red blood cells at every session.\"", "\"Your kidneys are filtering red blood cells out into your urine.\""], "a": [0], "w": "The kidneys release erythropoietin in response to low oxygen. In chronic kidney disease, EPO production falls and the marrow makes fewer red cells. Erythropoiesis-stimulating agents can replace it."}, {"s": "A client's lab results show Hgb 8.6 g/dL, MCV 71 fL, low ferritin, and high TIBC. The nurse understands these results indicate:", "o": ["Aplastic anemia", "Iron deficiency anemia", "Polycythemia vera", "Vitamin B12 deficiency"], "a": [1], "w": "Small cells (low MCV), low iron stores (low ferritin), and high iron-binding capacity are the classic pattern of iron deficiency."}, {"s": "A client starting oral iron asks why her stools are dark green and black. The nurse explains:", "o": ["\"This means you are bleeding and need to stop the iron.\"", "\"This is a sign of an allergic reaction.\"", "\"This means the iron is not being absorbed.\"", "\"This is an expected effect of iron and is not harmful.\""], "a": [3], "w": "Unabsorbed iron darkens stool. This is expected. Teach the client to report tarry stools with abdominal pain, dizziness, or other bleeding signs, since black stools can also mean GI bleeding."}, {"s": "A client had a gastrectomy 3 years ago and now reports fatigue, a sore red tongue, and tingling in both feet. The nurse understands these findings are related to:", "o": ["Folate deficiency from heavy alcohol use", "B12 deficiency from loss of intrinsic factor", "Iron deficiency from a poor diet", "Dumping syndrome after stomach surgery"], "a": [1], "w": "The stomach's parietal cells make intrinsic factor. After gastrectomy, B12 can't be absorbed, causing macrocytic anemia with glossitis and neurologic signs."}, {"s": "Which client is at highest risk for folate deficiency anemia?", "o": ["A 70-year-old with a history of gastrectomy", "A 30-year-old who follows a strict vegan diet", "A 55-year-old with chronic alcohol use disorder", "A 25-year-old with heavy menstrual periods"], "a": [2], "w": "Alcohol interferes with folate absorption and metabolism, and people with alcohol use disorder often have poor diets. A vegan diet and gastrectomy put clients at risk for B12 deficiency; heavy menses causes iron deficiency."}, {"s": "A client with aplastic anemia has a WBC of 1,800/mm³ and a platelet count of 22,000/mm³. Which nursing interventions are appropriate? Select all that apply.", "o": ["Administer medications by IM injection", "Report a temperature of 100.4°F (38°C) or higher", "Avoid fresh flowers in the room per facility policy", "Encourage the client to blow the nose forcefully to clear congestion", "Perform frequent hand hygiene", "Use a soft-bristled toothbrush"], "a": [1, 2, 4, 5], "m": true, "w": "Low WBCs require infection prevention (hand hygiene, fever reporting, avoiding sources such as fresh flowers per neutropenic policy). Low platelets require bleeding precautions (soft toothbrush). IM injections and forceful nose blowing cause bleeding."}, {"s": "Which finding would the nurse expect in a client with hemolytic anemia?", "o": ["High indirect bilirubin and jaundice", "Low reticulocyte count and pale nail beds", "Elevated platelet count and petechiae", "Spoon-shaped nails and pica"], "a": [0], "w": "Rapid red cell destruction releases heme that becomes bilirubin, causing jaundice. The marrow responds with a high reticulocyte count."}, {"s": "A client with sickle cell disease asks why dehydration triggers a crisis. Which explanation is most accurate?", "o": ["\"Dehydration lowers the iron level in your blood.\"", "\"Dehydration destroys your platelets and causes bleeding.\"", "\"Dehydration causes your spleen to enlarge and trap your red cells.\"", "\"Thicker blood lets sickled cells clump and block small vessels.\""], "a": [3], "w": "Dehydration increases blood viscosity and the concentration of HbS in each cell, promoting sickling and vaso-occlusion."}, {"s": "Which factors can trigger a sickle cell crisis? Select all that apply.", "o": ["Strenuous exercise without rest", "Traveling to a high-altitude ski resort", "Drinking 3 liters of water daily", "Swimming in cold water", "Emotional stress", "Infection with fever"], "a": [0, 1, 3, 4, 5], "m": true, "w": "Infection, low oxygen at altitude, cold exposure, stress, and strenuous exertion all promote sickling. Generous fluid intake helps prevent crises."}, {"s": "Why are clients with sickle cell disease taught to keep pneumococcal and meningococcal vaccines current?", "o": ["The vaccines increase fetal hemoglobin levels", "A damaged spleen can't clear encapsulated bacteria", "The vaccines prevent red cells from sickling", "They are usually allergic to the most common antibiotics"], "a": [1], "w": "Sickling repeatedly damages the spleen, causing functional asplenia. The spleen is key to clearing encapsulated organisms such as Streptococcus pneumoniae, so infections can quickly become life threatening."}, {"s": "A client with polycythemia vera asks why drinking extra fluids is important. The nurse explains that fluids:", "o": ["Raise the platelet count to a safe level", "Prevent iron deficiency from phlebotomy", "Reduce blood thickness and clot risk", "Stimulate red blood cell production"], "a": [2], "w": "Polycythemia makes blood hyperviscous. Adequate hydration thins the blood and reduces thrombosis risk."}, {"s": "Which finding distinguishes secondary polycythemia from polycythemia vera?", "o": ["Elevated erythropoietin level", "Ruddy, flushed complexion", "Headache, dizziness, tinnitus", "Elevated hematocrit level"], "a": [0], "w": "In secondary polycythemia, chronic hypoxia (such as COPD) raises erythropoietin, driving RBC production. In polycythemia vera the marrow overproduces on its own and EPO is low."}, {"s": "A client with a platelet count of 15,000/mm³ reports a sudden severe headache. The nurse recognizes this may indicate:", "o": ["Dehydration", "Iron deficiency", "A tension headache from stress", "Intracranial hemorrhage"], "a": [3], "w": "Below about 20,000/mm³, spontaneous bleeding can occur, including in the brain. Sudden severe headache or a change in LOC requires immediate evaluation."}, {"s": "A client with heparin-induced thrombocytopenia (HIT) asks why the provider started argatroban. The nurse explains:", "o": ["\"It reverses the heparin that is still in your system.\"", "\"It will raise your platelet count back to normal quickly.\"", "\"HIT causes clots, so you need a non-heparin blood thinner.\"", "\"It replaces the clotting factors that heparin destroyed.\""], "a": [2], "w": "HIT antibodies activate platelets and cause arterial and venous thrombosis. A direct thrombin inhibitor such as argatroban prevents clots without using heparin."}, {"s": "Which statement by the parent of a child with hemophilia A indicates understanding of home care?", "o": ["\"If he hits his head hard, I'll give factor and get him seen.\"", "\"I'll give him ibuprofen whenever his joints are sore.\"", "\"He should play tackle football to strengthen the muscles around his joints.\"", "\"I'll put a heating pad on any joint that looks swollen.\""], "a": [0], "w": "Head injury can cause intracranial bleeding, the most dangerous complication. Factor is given and the child is evaluated. NSAIDs increase bleeding, contact sports are avoided, and ice (not heat) is used for joint bleeds."}, {"s": "Which assessment findings suggest a platelet disorder rather than a clotting factor deficiency? Select all that apply.", "o": ["Petechiae on the arms and legs", "Deep muscle hematoma", "Bleeding that starts several hours after a tooth extraction", "Frequent nosebleeds", "Bleeding into the knee joint", "Bleeding gums when brushing teeth"], "a": [0, 3, 5], "m": true, "w": "Platelet disorders cause immediate surface and mucosal bleeding: petechiae, nosebleeds, gum bleeding. Joint and deep muscle bleeds and delayed bleeding after procedures point to clotting factor deficiencies such as hemophilia."}, {"s": "A client with placental abruption has oozing from IV sites, a platelet count of 48,000/mm³, low fibrinogen, and an elevated D-dimer. The nurse understands that these findings indicate:", "o": ["Heparin-induced thrombocytopenia", "Disseminated intravascular coagulation", "Immune thrombocytopenia", "Hemophilia"], "a": [1], "w": "An obstetric trigger with consumption of platelets and fibrinogen, plus high D-dimer and bleeding from puncture sites, indicates DIC."}, {"s": "A client with DIC is receiving cryoprecipitate. The nurse understands the main purpose of this product is to:", "o": ["Dissolve existing clots", "Increase the white cell count", "Replace fibrinogen", "Raise the hemoglobin"], "a": [2], "w": "Cryoprecipitate is rich in fibrinogen, which is depleted in DIC. FFP replaces other clotting factors, and platelets and PRBCs are given as needed."}, {"s": "Why must two licensed nurses verify blood products at the bedside before transfusion?", "o": ["Because blood products are expensive and hard to replace", "To make the transfusion run faster once it is hung", "To divide the documentation workload between two nurses", "Most hemolytic reactions come from identification errors"], "a": [3], "w": "ABO-incompatible transfusions are usually caused by clerical or identification errors. Bedside verification by two qualified people is the main safeguard."}, {"s": "Two hours into a transfusion, a client develops sudden severe dyspnea, SpO₂ 84%, and a BP of 86/52. The chest x-ray shows new bilateral infiltrates. The nurse understands these findings are most consistent with:", "o": ["Febrile nonhemolytic reaction", "Transfusion-related acute lung injury", "Mild allergic reaction", "Transfusion-associated circulatory overload"], "a": [1], "w": "TRALI causes sudden hypoxemia and bilateral infiltrates within 6 hours, usually with hypotension. TACO causes similar breathing problems but with hypertension and signs of fluid overload."}];
+
+/* ---------- navigation (runs first) ---------- */
+const secs=[...document.querySelectorAll('.sec')];
+const rail=document.getElementById('railList'),sel=document.getElementById('mnavSel'),pager=document.getElementById('pager');
+let cur=0;
+function sectionDone(s){
+  try{
+  const k=s.dataset.id;
+  if(k==='final') return !!store.final;
+  const keys=[...s.querySelectorAll('[data-quiz]')].map(h=>h.dataset.quiz);
+  if(!keys.length) return false;
+  return keys.every(key=>Q[key]&&Q[key].every((_,j)=>store.q[key+'-'+j]));
+  }catch(e){return false}
+}
+function go(i,scroll){
+  i=Math.max(0,Math.min(secs.length-1,i||0));cur=i;
+  secs.forEach((s,j)=>{s.hidden=j!==i});
+  rail.querySelectorAll('a[data-i]').forEach(b=>b.setAttribute('aria-current',String(+b.dataset.i===i)));
+  sel.value=String(i);
+  const p=secs[i-1],n=secs[i+1];
+  pager.innerHTML='';
+  if(p){const b=document.createElement('button');b.type='button';b.className='btn ghost';b.innerHTML='<small>Previous</small><span></span>';b.lastChild.innerHTML=p.dataset.title;b.addEventListener('click',()=>go(i-1,true));pager.appendChild(b)}
+  if(n){const b=document.createElement('button');b.type='button';b.className='btn next';b.innerHTML='<small>Next</small><span></span>';b.lastChild.innerHTML=n.dataset.title;b.addEventListener('click',()=>go(i+1,true));pager.appendChild(b)}
+  store.at=i;save();
+  if(scroll){toTop();requestAnimationFrame(toTop);setTimeout(toTop,60)}
+}
+function toTop(){
+  const r=document.documentElement;const prev=r.style.scrollBehavior;r.style.scrollBehavior='auto';
+  try{window.scrollTo({top:0,left:0,behavior:'instant'})}catch(e){try{window.scrollTo(0,0)}catch(e2){}}
+  r.scrollTop=0;document.body.scrollTop=0;
+  try{document.getElementById('top-anchor').scrollIntoView({block:'start',behavior:'instant'})}catch(e){}
+  r.style.scrollBehavior=prev;
+}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a.navlink');if(!a)return;e.preventDefault();go(+a.dataset.i,true)});
+sel.addEventListener('change',()=>go(+sel.value,true));
+document.documentElement.classList.add('js');
+go(typeof store.at==='number'?store.at:0,false);
+function updateProgress(){
+  try{
+  const all=Object.values(Q).reduce((n,v)=>n+v.length,0)+1;
+  const done=Object.keys(store.q).filter(k=>Q[k.replace(/-\d+$/,'')]).length+(store.final?1:0);
+  document.getElementById('progFill').style.width=Math.round(done/all*100)+'%';
+  document.getElementById('progTxt').textContent=done+' / '+all+' checks';
+  rail.querySelectorAll('a[data-i]').forEach(b=>{b.querySelector('.ck').textContent=sectionDone(secs[+b.dataset.i])?'✓':''});
+  }catch(e){}
+}
+/* ---------- quiz rendering ---------- */
+const L='ABCDEF';
+function sameSet(a,b){return a.length===b.length&&a.every(x=>b.includes(x))}
+function buildQ(item,id,num,opts){
+  const card=document.createElement('div');card.className='q';
+  const multi=!!item.m;
+  card.innerHTML='<div class="q-top"><span class="q-num">'+num+'</span>'+(multi?'<span class="q-type">Select all that apply</span>':'')+'</div><p class="q-stem"></p><div class="opts" role="'+(multi?'group':'radiogroup')+'"></div>';
+  card.querySelector('.q-stem').textContent=item.s;
+  const box=card.querySelector('.opts');
+  item.o.forEach((t,i)=>{
+    const lab=document.createElement('label');lab.className='opt';
+    const inp=document.createElement('input');inp.type=multi?'checkbox':'radio';inp.name=id;inp.value=i;inp.id=id+'-'+i;
+    lab.htmlFor=inp.id;
+    lab.innerHTML='<span class="mk '+(multi?'c':'r')+'">'+L[i]+'</span><span></span>';
+    lab.prepend(inp);lab.lastChild.textContent=t;
+    box.appendChild(lab);
+  });
+  return card;
+}
+function selected(card){return [...card.querySelectorAll('input:checked')].map(i=>+i.value)}
+function reveal(card,item,sel){
+  const ok=sameSet(sel,item.a);
+  card.classList.add('done');
+  card.querySelectorAll('input').forEach(i=>i.disabled=true);
+  card.querySelectorAll('.opt').forEach((o,i)=>{
+    if(item.a.includes(i)) o.classList.add(sel.includes(i)?'is-correct':'missed');
+    else if(sel.includes(i)) o.classList.add('is-wrong');
+  });
+  let w=card.querySelector('.why');
+  if(!w){w=document.createElement('div');w.className='why';card.appendChild(w)}
+  w.innerHTML='<b>Rationale · correct answer'+(item.a.length>1?'s':'')+': '+item.a.map(i=>L[i]).join(', ')+'</b><p></p>';
+  w.querySelector('p').textContent=item.w;
+  return ok;
+}
+
+try{
+/* section quizzes */
+document.querySelectorAll('[data-quiz]').forEach(host=>{
+  const key=host.dataset.quiz;const items=Q[key];if(!items)return;
+  const inline=host.classList.contains('inline-q');
+  if(!inline){
+    const h=document.createElement('div');h.className='quiz-h';
+    h.innerHTML='<h3>Check your understanding</h3><span class="score" data-score="'+key+'"></span>';
+    host.appendChild(h);
+  }
+  items.forEach((item,idx)=>{
+    const id=key+'-'+idx;
+    const card=buildQ(item,id,(inline?'':'Question '+(idx+1)),{});
+    if(inline) card.querySelector('.q-num').textContent='Check';
+    const act=document.createElement('div');act.className='q-act';
+    act.innerHTML='<button class="btn">Check answer</button><span class="verdict" aria-live="polite"></span>';
+    card.appendChild(act);
+    const btn=act.querySelector('button'),v=act.querySelector('.verdict');
+    function finish(sel){
+      const ok=reveal(card,item,sel);
+      v.textContent=ok?'Correct':'Not quite';v.className='verdict '+(ok?'ok':'no');
+      btn.hidden=true;
+      store.q[id]={sel,ok};save();updateProgress();updateScores();
+      card.appendChild(card.querySelector('.why'));
+    }
+    btn.addEventListener('click',()=>{
+      const sel=selected(card);
+      if(!sel.length){v.textContent='Choose an answer first.';v.className='verdict no';return}
+      finish(sel);
+    });
+    if(store.q[id]){
+      store.q[id].sel.forEach(i=>{const el=card.querySelector('#'+CSS.escape(id+'-'+i));if(el)el.checked=true});
+      finish(store.q[id].sel);
+    }
+    host.appendChild(card);
+  });
+});
+}catch(err){console.error(err)}
+function updateScores(){try{
+  document.querySelectorAll('[data-score]').forEach(s=>{
+    const k=s.dataset.score,items=Q[k];
+    const done=items.filter((_,i)=>store.q[k+'-'+i]).length;
+    const right=items.filter((_,i)=>store.q[k+'-'+i]&&store.q[k+'-'+i].ok).length;
+    s.textContent=done?right+' of '+done+' correct':items.length+' questions';
+  });}catch(e){}
+}
+
+try{
+/* ---------- final test ---------- */
+const fq=document.getElementById('finalQs');
+const fCards=FINAL.map((item,idx)=>{const c=buildQ(item,'final-'+idx,'Item '+(idx+1)+' of '+FINAL.length);fq.appendChild(c);return c});
+const fSub=document.getElementById('finalSubmit'),fMsg=document.getElementById('finalMsg'),fRes=document.getElementById('finalResult'),fReset=document.getElementById('finalReset'),nameIn=document.getElementById('stuName');
+if(store.name) nameIn.value=store.name;
+nameIn.addEventListener('input',()=>{store.name=nameIn.value;save()});
+fCards.forEach((c,idx)=>c.addEventListener('change',()=>{store.fdraft=store.fdraft||{};store.fdraft[idx]=selected(c);save()}));
+function gradeFinal(sels){
+  let right=0;
+  fCards.forEach((c,i)=>{const ok=reveal(c,FINAL[i],sels[i]);if(ok)right++;
+    const v=document.createElement('span');v.className='verdict '+(ok?'ok':'no');v.textContent=ok?'Correct':'Incorrect';c.querySelector('.q-top').appendChild(v)});
+  const pct=Math.round(right/FINAL.length*100);
+  fRes.hidden=false;
+  const nm=(store.name||'').trim();
+  fRes.innerHTML='<div class="result"><p style="font:700 12px var(--f-body);letter-spacing:.1em;text-transform:uppercase">Hematology Pathways · Final test'+(nm?' · <span></span>':'')+'</p><div class="big mono">'+right+' / '+FINAL.length+'</div><p>'+pct+'% · '+(pct>=78?'You are ready for class. Review the rationales for any item you missed.':'Review the sections tied to the items you missed before class, then retake the test.')+'</p><p style="font-size:14px">Submitted '+new Date(store.fdone).toLocaleString()+'</p></div>';
+  if(nm) fRes.querySelector('.result span').textContent=nm;
+  fSub.hidden=true;fReset.hidden=false;fMsg.textContent='';
+  updateProgress();
+}
+fSub.addEventListener('click',()=>{
+  const sels=fCards.map(selected);
+  const missing=sels.map((s,i)=>s.length?null:i+1).filter(Boolean);
+  if(missing.length){fMsg.textContent='Answer every item first. Unanswered: '+missing.join(', ');return}
+  store.final=sels;store.fdone=Date.now();save();gradeFinal(sels);
+  fRes.scrollIntoView({behavior:'smooth',block:'center'});
+});
+fReset.addEventListener('click',()=>{
+  delete store.final;delete store.fdone;delete store.fdraft;save();
+  fCards.forEach(c=>{c.classList.remove('done');c.querySelectorAll('input').forEach(i=>{i.disabled=false;i.checked=false});c.querySelectorAll('.opt').forEach(o=>o.className='opt');c.querySelector('.why')?.remove();c.querySelector('.q-top .verdict')?.remove()});
+  fRes.hidden=true;fSub.hidden=false;fReset.hidden=true;updateProgress();
+  fq.scrollIntoView({behavior:'smooth'});
+});
+if(store.final){store.final.forEach((s,i)=>s.forEach(v=>{const el=document.getElementById('final-'+i+'-'+v);if(el)el.checked=true}));gradeFinal(store.final)}
+else if(store.fdraft){Object.entries(store.fdraft).forEach(([i,s])=>s.forEach(v=>{const el=document.getElementById('final-'+i+'-'+v);if(el)el.checked=true}))}
+
+}catch(err){console.error(err)}
+try{
+/* ---------- CBC interpreter ---------- */
+const cs=document.getElementById('cbcSex'),ch=document.getElementById('cbcHgb'),cm=document.getElementById('cbcMcv'),co=document.getElementById('cbcOut'),cn=document.getElementById('cbcNote');
+function cbc(){
+  const sex=cs.value,h=parseFloat(ch.value),m=parseFloat(cm.value);
+  if(!h||!m){co.innerHTML='';cn.textContent='Enter a hemoglobin and an MCV.';return}
+  const lo=sex==='M'?14:12,hi=sex==='M'?18:16;
+  let hs,hl;if(h<lo){hs=h<8?'Severe anemia':'Anemia';hl=h<8?3:2}else if(h>hi){hs='High (possible polycythemia)';hl=1}else{hs='Normal';hl=0}
+  let ms,ml,note;
+  if(m<80){ms='Microcytic';ml=2;note='Small cells. Think iron deficiency first (check ferritin and look for blood loss); thalassemia is another cause.'}
+  else if(m>100){ms='Macrocytic';ml=2;note='Large cells. Think vitamin B12 or folate deficiency; check for neuro signs, which point to B12. Alcohol use and liver disease also raise MCV.'}
+  else{ms='Normocytic';ml=0;note='Normal-size cells. If Hgb is low, think acute blood loss, hemolysis, chronic kidney disease, chronic disease, or aplastic anemia. The reticulocyte count helps sort these.'}
+  if(h>=lo&&h<=hi&&ml===0)note='Hemoglobin and cell size are within normal limits.';
+  if(h>hi)note='Hemoglobin is above the normal range. Consider dehydration, secondary polycythemia (COPD, smoking, altitude), or polycythemia vera.';
+  co.innerHTML='<div class="chip lvl-'+hl+'"><small>Hemoglobin ('+(sex==='M'?'14–18':'12–16')+')</small><b>'+hs+'</b></div><div class="chip lvl-'+ml+'"><small>MCV (80–100)</small><b>'+ms+'</b></div>';
+  cn.textContent=note;
+}
+[cs,ch,cm].forEach(e=>{e.addEventListener('input',cbc);e.addEventListener('change',cbc)});cbc();
+}catch(err){console.error(err)}
+try{
+/* ---------- hemostasis stepper ---------- */
+const STEPS=[
+ ['Vessel injury and spasm','The vessel wall tears and blood escapes. Smooth muscle in the wall contracts right away (vasospasm), narrowing the vessel to slow the bleeding.'],
+ ['Platelet adhesion','Platelets stick to exposed collagen at the injury, using von Willebrand factor as glue. They activate, change shape, and release chemicals (ADP, thromboxane) that call more platelets.'],
+ ['Platelet plug','Platelets clump together (aggregation) into a soft, temporary plug. This step depends on platelet number and function; aspirin and clopidogrel block it.'],
+ ['Coagulation cascade and fibrin','Clotting factors activate in a chain (intrinsic pathway measured by aPTT, extrinsic by PT). Both meet in the common pathway, where thrombin converts fibrinogen to fibrin. Fibrin strands weave through the plug and trap red cells, making a stable clot.'],
+ ['Clot retraction and fibrinolysis','The clot tightens as the vessel heals. Plasmin then breaks down the fibrin, releasing fragments called D-dimer. This keeps clots from growing where they aren\'t needed.']
+];
+let st=0;
+const svg=document.getElementById('hemoSvg'),stT=document.getElementById('stepTxt'),stC=document.getElementById('stepCount'),dots=document.getElementById('stepDots'),pv=document.getElementById('stepPrev'),nx=document.getElementById('stepNext');
+STEPS.forEach(()=>dots.appendChild(document.createElement('i')));
+function draw(){
+  const sp=st===0?10:(st<=2?6:0);
+  const tH=28+sp,bY=132-sp;
+  let s='';
+  s+='<rect x="0" y="10" width="270" height="'+tH+'" fill="var(--art)" opacity=".75"/><rect x="330" y="10" width="270" height="'+tH+'" fill="var(--art)" opacity=".75"/>';
+  s+='<rect x="0" y="'+(10+tH)+'" width="270" height="5" fill="var(--warn)"/><rect x="330" y="'+(10+tH)+'" width="270" height="5" fill="var(--warn)"/>';
+  s+='<rect x="0" y="'+bY+'" width="600" height="'+(160-bY)+'" fill="var(--art)" opacity=".75"/><rect x="0" y="'+(bY-5)+'" width="600" height="5" fill="var(--warn)"/>';
+  for(let i=0;i<9;i++){const x=30+i*62;if(x>255&&x<345)continue;s+='<ellipse cx="'+x+'" cy="'+(88+(i%2)*14)+'" rx="11" ry="7" fill="var(--art)"/>'}
+  if(st<=1){for(let i=0;i<4;i++)s+='<circle cx="'+(288+(i%2)*24)+'" cy="'+(8+i*9)+'" r="5" fill="var(--bad)"/>'}
+  if(st===1){[[276,52],[324,52],[282,44],[318,44]].forEach(([x,y])=>s+='<ellipse cx="'+x+'" cy="'+y+'" rx="7" ry="4" fill="var(--ven)"/>')}
+  if(st>=2){for(let r=0;r<4;r++)for(let c=0;c<5;c++){s+='<ellipse cx="'+(276+c*12)+'" cy="'+(16+r*10)+'" rx="7" ry="4" fill="var(--ven)"/>'}}
+  if(st===3){for(let i=0;i<6;i++)s+='<line x1="'+(264+i*8)+'" y1="10" x2="'+(296+i*8)+'" y2="56" stroke="var(--ink)" stroke-width="1.6"/><line x1="'+(336-i*8)+'" y1="10" x2="'+(304-i*8)+'" y2="56" stroke="var(--ink)" stroke-width="1.6"/>';s+='<ellipse cx="292" cy="30" rx="8" ry="5" fill="var(--art)"/><ellipse cx="310" cy="42" rx="8" ry="5" fill="var(--art)"/>'}
+  if(st===4){for(let i=0;i<4;i++)s+='<line x1="'+(268+i*16)+'" y1="'+(18+i*8)+'" x2="'+(278+i*16)+'" y2="'+(26+i*8)+'" stroke="var(--ink)" stroke-width="1.6"/>';
+    for(let i=0;i<5;i++)s+='<line x1="'+(380+i*36)+'" y1="'+(70+(i%2)*30)+'" x2="'+(390+i*36)+'" y2="'+(74+(i%2)*30)+'" stroke="var(--ink)" stroke-width="2"/>';
+    s+='<text x="420" y="117" font-size="13" fill="var(--ink)" font-family="var(--f-mono)">D-dimer fragments →</text>'}
+  s+='<text x="0" y="181" font-size="12" fill="var(--muted)" font-family="var(--f-body)">Vessel wall · red: wall and red cells · blue: platelets · black: fibrin</text>';
+  svg.innerHTML=s;
+  stT.innerHTML='<b></b><span></span>';stT.querySelector('b').textContent=STEPS[st][0];stT.querySelector('span').textContent=STEPS[st][1];
+  stC.textContent='Stage '+(st+1)+' of '+STEPS.length;
+  [...dots.children].forEach((x,i)=>x.classList.toggle('on',i<=st));
+  pv.disabled=st===0;nx.textContent=st===STEPS.length-1?'Start over':'Next stage';
+}
+pv.addEventListener('click',()=>{if(st>0){st--;draw()}});
+nx.addEventListener('click',()=>{st=st===STEPS.length-1?0:st+1;draw()});
+draw();
+}catch(err){console.error(err)}
+try{
+/* ---------- sorter ---------- */
+const SORT=[["Petechiae scattered across both legs", "a", "Pinpoint capillary bleeds point to low or poorly functioning platelets."], ["Swollen, painful knee from bleeding into the joint", "v", "Hemarthrosis is the hallmark of hemophilia, a clotting factor deficiency."], ["Frequent nosebleeds and bleeding gums", "a", "Mucosal bleeding is typical of thrombocytopenia and von Willebrand disease."], ["Large hematoma deep in the thigh muscle", "v", "Deep tissue bleeding points to a missing clotting factor."], ["Bleeding begins several hours after a tooth extraction", "v", "Platelets form the first plug, but without factors the plug isn't reinforced, so bleeding restarts later."], ["Prolonged bleeding right away from a small cut", "a", "Immediate bleeding means the platelet plug isn't forming."], ["Prolonged aPTT with a normal platelet count", "v", "A prolonged aPTT reflects a problem in the intrinsic pathway factors, such as factor VIII or IX."], ["Platelet count 35,000/mm³ with normal PT and aPTT", "a", "The clotting factors are fine; the problem is the platelet count."]];
+const SORT_LABELS=["Platelet", "Clotting factor"];
+const sorter=document.getElementById('sorter'),sScore=document.getElementById('sortScore');
+store.sort=store.sort||{};
+SORT.forEach(([t,ans,why],i)=>{
+  const r=document.createElement('div');r.className='srow';
+  r.innerHTML='<span></span><div class="pick"><button type="button" data-s="a">'+SORT_LABELS[0]+'</button><button type="button" data-s="v">'+SORT_LABELS[1]+'</button></div>';
+  r.firstChild.textContent=t;
+  function set(choice){
+    const ok=choice===ans;r.className='srow '+(ok?'right':'wrong');
+    let f=r.querySelector('.fb');if(!f){f=document.createElement('span');f.className='fb';r.appendChild(f)}
+    f.textContent=(ok?'Correct. ':'It\'s a '+(ans==='a'?SORT_LABELS[0]:SORT_LABELS[1]).toLowerCase()+' problem. ')+why;
+    store.sort[i]=choice;save();
+    const n=Object.keys(store.sort).length,c=Object.entries(store.sort).filter(([k,v])=>SORT[k][1]===v).length;
+    sScore.textContent=c+' correct · '+n+' / '+SORT.length+' sorted';
+  }
+  r.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>set(b.dataset.s)));
+  if(store.sort[i])set(store.sort[i]);
+  sorter.appendChild(r);
+});
+
+}catch(err){console.error(err)}
+try{
+/* ---------- bring list ---------- */
+const BRING=[["Core concepts", "Explain each of the seven concepts in your own words and name one hematologic condition where it applies."],["Blood components and normal values", "RBCs, Hgb, Hct, WBCs, platelets, and reticulocytes: what each does and its normal range."], ["The steps of hemostasis", "Vessel spasm, platelet plug, coagulation cascade, and fibrinolysis, and which labs measure each part."], ["Anemia by cell size", "Use the MCV to sort anemia into microcytic or macrocytic and name the common cause of each."], ["Iron, B12, and folate", "Causes, key findings (including neuro signs in B12), labs, and teaching for each replacement."], ["Hemolytic vs. aplastic anemia", "Why reticulocytes rise in one and fall in the other; nursing care for pancytopenia."], ["Sickle cell crisis", "Triggers, types of crisis, and the priority interventions (hydration, pain control, oxygen, warmth)."], ["Polycythemia vera", "Signs of hyperviscosity, why clots are the main danger, and the purpose of phlebotomy."], ["ITP, HIT, and TTP", "Cause, main danger, and treatment of each; bleeding precautions for low platelets."], ["Hemophilia vs. von Willebrand disease", "Inheritance, bleeding pattern, labs, and treatment; platelet vs. factor bleeding."], ["DIC", "Common triggers, why the client clots and bleeds, the lab pattern, and why the cause is treated first."], ["Transfusion safety", "Verification steps, compatible fluids, timing, reaction types, and the nurse's first action in any reaction."]];
+const bl=document.getElementById('bringList');
+BRING.forEach(([t,d],i)=>{
+  const li=document.createElement('li');
+  li.innerHTML='<input type="checkbox" id="bring-'+i+'"><label for="bring-'+i+'"><b></b><span></span></label>';
+  li.querySelector('b').textContent=t;li.querySelector('span').textContent=d;
+  const cb=li.querySelector('input');cb.checked=!!store.bring[i];
+  cb.addEventListener('change',()=>{store.bring[i]=cb.checked;save()});
+  bl.appendChild(li);
+});
+
+}catch(err){console.error(err)}
+
+try{
+/* ---------- animations ---------- */
+const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.querySelectorAll('.anim').forEach(f=>{
+  const svgEl=f.querySelector('svg'),pb=f.querySelector('.anim-pause');
+  function setPaused(p){f.classList.toggle('paused',p);pb.textContent=p?'Play':'Pause';pb.setAttribute('aria-pressed',String(p));try{p?svgEl.pauseAnimations():svgEl.unpauseAnimations()}catch(e){}}
+  pb.addEventListener('click',()=>setPaused(!f.classList.contains('paused')));
+  function setMode(m){f.dataset.mode=m;f.querySelectorAll('[data-show]').forEach(g=>{g.style.display=g.dataset.show===m?'':'none'});f.querySelectorAll('.anim-mode').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));try{svgEl.setCurrentTime(0)}catch(e){}}
+  f.querySelectorAll('.anim-mode').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  if(f.dataset.mode)setMode(f.dataset.mode);
+  if(rm)setPaused(true);
+});
+}catch(err){console.error(err)}
+
+try{
+/* ---------- concept pop-up ---------- */
+const pop=document.getElementById('cpop');let popFrom=null;
+const cIdx=secs.findIndex(s=>s.dataset.id==='concepts');
+function closePop(){if(pop.hidden)return;pop.hidden=true;if(popFrom){popFrom.setAttribute('aria-expanded','false');popFrom.focus({preventScroll:true})}popFrom=null}
+function openPop(t){
+  const c=CONCEPTS[+t.dataset.c];if(!c)return;
+  if(popFrom&&popFrom!==t)popFrom.setAttribute('aria-expanded','false');
+  popFrom=t;t.setAttribute('aria-expanded','true');
+  pop.querySelector('#cpopT').textContent=c.name;pop.querySelector('#cpopR').textContent=c.rule;
+  pop.querySelector('#cpopE').textContent=c.eq||'';
+  const a=pop.querySelector('#cpopA');a.innerHTML='<b>Picture it:</b> ';a.appendChild(document.createTextNode(c.ana));
+  pop.hidden=false;
+  const r=t.getBoundingClientRect(),w=pop.offsetWidth,docW=document.documentElement.clientWidth;
+  let left=r.left+window.scrollX;left=Math.max(16+window.scrollX,Math.min(left,window.scrollX+docW-w-16));
+  pop.style.left=left+'px';pop.style.top=(r.bottom+window.scrollY+8)+'px';
+  pop.querySelector('.cpop-x').focus({preventScroll:true});
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest&&e.target.closest('button.ctag');
+  if(t){e.preventDefault();if(popFrom===t&&!pop.hidden){closePop()}else openPop(t);return}
+  if(!pop.hidden&&!pop.contains(e.target))closePop();
+});
+pop.querySelector('.cpop-x').addEventListener('click',closePop);
+pop.querySelector('.cpop-go').addEventListener('click',()=>{popFrom=null;pop.hidden=true;if(cIdx>=0)go(cIdx,true)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePop()});
+window.addEventListener('resize',closePop);
+}catch(err){console.error(err)}
+try{updateScores()}catch(e){}
+updateProgress();
+})();
+</script>
+
+</body></html>
